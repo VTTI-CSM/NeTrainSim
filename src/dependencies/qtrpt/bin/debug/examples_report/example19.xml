@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Reports programmer="Aleksey Osipov" email="aliks-os@ukr.net" lib="QtRPT">
+  <Script><![CDATA[if(x < 0){
+/*do something*/
+}]]></Script>
+  <Report borderColor="" pageNo="1" marginsRight="40" marginsBottom="40" borderWidth="1" borderStyle="" watermarkPixmap="" pageWidth="840" marginsLeft="40" orientation="0" watermarkOpacity="0.5" pageHeight="1188" border="0" marginsTop="40" watermark="0">
+    <ReportBand width="760" dataSourceName="" height="36" type="MasterData" name="MasterDataBand1" bandNo="1">
+		<!--aaa-->
+      <TContainerField name="field6" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="0" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="51" value="[ds1]" borderRight="rgba(0,0,0,255)" rotate="0" top="12" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+    <ReportBand width="760" dataSourceName="" height="41" type="MasterData" name="MasterDataBand2" bandNo="2">
+      <TContainerField name="field5" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="0" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="149" value="[ds2]" borderRight="rgba(0,0,0,255)" rotate="0" top="11" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+    <ReportBand width="760" height="43" showInGroup="0" type="MasterHeader" name="MasterHeaderBand1" bandNo="1">
+      <TContainerField name="field1" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="1" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="15" value="MasterHeader1" borderRight="rgba(0,0,0,255)" rotate="0" top="15" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+    <ReportBand width="760" height="30" showInGroup="0" type="MasterHeader" name="MasterHeaderBand2" bandNo="2">
+      <TContainerField name="field2" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="0" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="30" value="MasterHeader2" borderRight="rgba(0,0,0,255)" rotate="0" top="5" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+    <ReportBand width="760" height="24" showInGroup="0" type="MasterFooter" name="MasterFooterBand1" bandNo="1">
+      <TContainerField name="field4" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="0" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="141" value="MasterFooter1" borderRight="rgba(0,0,0,255)" rotate="0" top="4" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+    <ReportBand width="760" height="70" showInGroup="0" type="MasterFooter" name="MasterFooterBand2" bandNo="2">
+      <TContainerField name="field3" borderTop="rgba(0,0,0,255)" width="200" aligmentV="vCenter" height="20" borderBottom="rgba(0,0,0,255)" textWrap="0" borderLeft="rgba(0,0,0,255)" format="" ZValue="11" highlighting="" fontItalic="0" left="39" value="MasterFooter2" borderRight="rgba(0,0,0,255)" rotate="0" top="18" borderWidth="1px" fontFamily="MS Shell Dlg 2" borderColor="rgba(0,0,0,255)" fontStrikeout="0" backgroundColor="rgba(255,255,255,255)" type="label" aligmentH="hLeft" printing="1" borderStyle="solid" autoHeight="0" fontSize="8" groupName="" fontBold="0" fontUnderline="0" fontColor="rgba(0,0,0,255)"/>
+    </ReportBand>
+  </Report>
+</Reports>

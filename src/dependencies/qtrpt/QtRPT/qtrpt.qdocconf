@@ -1,0 +1,15 @@
+project                 = QtRptProject
+description             = QtRPT API
+version                 = 1.5.3
+outputdir = html
+outputformats = HTML
+headerdirs  = D:/QtRptProject/QtRPT
+sourcedirs  = D:/QtRptProject/QtRPT
+imagedirs   = ./ \
+              ./../QtRptDesigner/images
+
+sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
+HTML.templatedir = ./
+HTML.headerstyles = "<link rel='stylesheet' type='text/css' href='./style/qtrpt.css' />"
+HTML.stylesheets = qtrpt.css

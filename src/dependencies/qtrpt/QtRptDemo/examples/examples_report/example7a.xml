@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Reports email="aliks-os@ukr.net" lib="QtRPT" programmer="Aleksey Osipov">
+  <Report border="0" borderColor="" borderStyle="" borderWidth="1" marginsBottom="40" marginsLeft="40" marginsRight="40" marginsTop="40" orientation="0" pageHeight="1188" pageNo="1" pageWidth="840" watermark="0" watermarkOpacity="0.5" watermarkPixmap="">
+    <ReportBand bandNo="1" height="1091" name="RepTitleBand" type="ReportTitle" width="760">
+      <TContainerField ZValue="11" aligmentH="hLeft" aligmentV="vCenter" autoHeight="0" backgroundColor="rgba(255,255,255,255)" borderBottom="rgba(0,0,0,255)" borderColor="rgba(0,0,0,255)" borderLeft="rgba(0,0,0,255)" borderRight="rgba(0,0,0,255)" borderStyle="solid" borderTop="rgba(0,0,0,255)" borderWidth="1px" caption="Line chart" chartType="SeriesTypeLine" colorBackground="rgba(255,255,255,255)" colorLegend="rgba(64,64,68,255)" colorTitle="rgba(64,64,68,255)" fontBold="0" fontColor="rgba(0,0,0,255)" fontFamily="MS Shell Dlg 2" fontItalic="0" fontSize="8" fontStrikeout="0" fontUnderline="0" groupName="" height="352" left="3" legendAligment="1" legendFont="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0" name="diagram1" printing="1" showLegend="1" staticChart="0" titleFont="MS Shell Dlg 2,16,-1,5,75,0,0,0,0,0,Полужирный" top="-1" type="diagram" value="New diagram" width="382">
+        <graph caption="Series #0" color="rgba(32,159,223,255)" graphDS="ds1">
+          <value x="0" y="0"/>
+          <value x="1" y="3"/>
+        </graph>
+      </TContainerField>
+      <TContainerField ZValue="11" aligmentH="hLeft" aligmentV="vCenter" autoHeight="0" backgroundColor="rgba(255,255,255,255)" borderBottom="rgba(0,0,0,255)" borderColor="rgba(0,0,0,255)" borderLeft="rgba(0,0,0,255)" borderRight="rgba(0,0,0,255)" borderStyle="solid" borderTop="rgba(0,0,0,255)" borderWidth="1px" caption="Bar chart" chartType="SeriesTypeBar" colorBackground="rgba(255,255,255,255)" colorLegend="rgba(64,64,68,255)" colorTitle="rgba(64,64,68,255)" fontBold="0" fontColor="rgba(0,0,0,255)" fontFamily="MS Shell Dlg 2" fontItalic="0" fontSize="8" fontStrikeout="0" fontUnderline="0" groupName="" height="352" left="383" legendAligment="1" legendFont="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0" name="diagram2" printing="1" showLegend="1" staticChart="0" titleFont="MS Shell Dlg 2,16,-1,5,75,0,0,0,0,0,Полужирный" top="0" type="diagram" value="New diagram" width="382">
+        <graph caption="Jane" color="rgba(32,159,223,255)" graphDS="ds2-1">
+          <value val="1"/>
+          <value val="2"/>
+          <value val="3"/>
+          <value val="4"/>
+          <value val="5"/>
+          <value val="6"/>
+        </graph>
+        <graph caption="John" color="rgba(153,202,83,255)" graphDS="ds2-2">
+          <value val="5"/>
+          <value val="0"/>
+          <value val="0"/>
+          <value val="4"/>
+          <value val="0"/>
+          <value val="7"/>
+        </graph>
+        <graph caption="Axel" color="rgba(246,166,37,255)" graphDS="ds2-3">
+          <value val="3"/>
+          <value val="5"/>
+          <value val="8"/>
+          <value val="13"/>
+          <value val="8"/>
+          <value val="5"/>
+        </graph>
+        <graph caption="Mary" color="rgba(109,95,213,255)" graphDS="ds2-4">
+          <value val="5"/>
+          <value val="6"/>
+          <value val="7"/>
+          <value val="3"/>
+          <value val="4"/>
+          <value val="5"/>
+        </graph>
+        <graph caption="Sam" color="rgba(191,89,62,255)" graphDS="ds2-5">
+          <value val="9"/>
+          <value val="7"/>
+          <value val="5"/>
+          <value val="3"/>
+          <value val="1"/>
+          <value val="2"/>
+        </graph>
+      </TContainerField>
+      <TContainerField ZValue="11" aligmentH="hLeft" aligmentV="vCenter" autoHeight="0" backgroundColor="rgba(255,255,255,255)" borderBottom="rgba(0,0,0,255)" borderColor="rgba(0,0,0,255)" borderLeft="rgba(0,0,0,255)" borderRight="rgba(0,0,0,255)" borderStyle="solid" borderTop="rgba(0,0,0,255)" borderWidth="1px" caption="Stackedbar chart" chartType="SeriesTypeStackedBar" colorBackground="rgba(255,255,255,255)" colorLegend="rgba(64,64,68,255)" colorTitle="rgba(64,64,68,255)" fontBold="0" fontColor="rgba(0,0,0,255)" fontFamily="MS Shell Dlg 2" fontItalic="0" fontSize="8" fontStrikeout="0" fontUnderline="0" groupName="" height="352" left="0" legendAligment="1" legendFont="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0" name="diagram3" printing="1" showLegend="1" staticChart="0" titleFont="MS Shell Dlg 2,16,-1,5,75,0,0,0,0,0,Полужирный" top="398" type="diagram" value="New diagram" width="382">
+        <graph caption="Jane" color="rgba(32,159,223,255)" graphDS="ds3-1">
+          <value val="1"/>
+          <value val="2"/>
+          <value val="3"/>
+          <value val="4"/>
+          <value val="5"/>
+          <value val="6"/>
+        </graph>
+        <graph caption="John" color="rgba(153,202,83,255)" graphDS="ds3-2">
+          <value val="5"/>
+          <value val="0"/>
+          <value val="0"/>
+          <value val="4"/>
+          <value val="0"/>
+          <value val="7"/>
+        </graph>
+        <graph caption="Axel" color="rgba(246,166,37,255)" graphDS="ds3-3">
+          <value val="3"/>
+          <value val="5"/>
+          <value val="8"/>
+          <value val="13"/>
+          <value val="8"/>
+          <value val="5"/>
+        </graph>
+        <graph caption="Mary" color="rgba(109,95,213,255)" graphDS="ds3-4">
+          <value val="5"/>
+          <value val="6"/>
+          <value val="7"/>
+          <value val="3"/>
+          <value val="4"/>
+          <value val="5"/>
+        </graph>
+        <graph caption="Samantha" color="rgba(191,89,62,255)" graphDS="ds3-5">
+          <value val="9"/>
+          <value val="7"/>
+          <value val="5"/>
+          <value val="3"/>
+          <value val="1"/>
+          <value val="2"/>
+        </graph>
+      </TContainerField>
+      <TContainerField ZValue="11" aligmentH="hLeft" aligmentV="vCenter" autoHeight="0" backgroundColor="rgba(255,255,255,255)" borderBottom="rgba(0,0,0,255)" borderColor="rgba(0,0,0,255)" borderLeft="rgba(0,0,0,255)" borderRight="rgba(0,0,0,255)" borderStyle="solid" borderTop="rgba(0,0,0,255)" borderWidth="1px" caption="Pie chaty" chartType="SeriesTypePie" colorBackground="rgba(255,255,255,255)" colorLegend="rgba(64,64,68,255)" colorTitle="rgba(64,64,68,255)" fontBold="0" fontColor="rgba(0,0,0,255)" fontFamily="MS Shell Dlg 2" fontItalic="0" fontSize="8" fontStrikeout="0" fontUnderline="0" graphDS="ds4" groupName="" height="352" holeSize="0" left="378" legendAligment="1" legendFont="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0" name="diagram4" printing="1" showLegend="1" staticChart="0" titleFont="MS Shell Dlg 2,16,-1,5,75,0,0,0,0,0,Полужирный" top="403" type="diagram" value="New diagram" width="382">
+        <graph caption="Jane" color="rgba(166,217,243,255)" labelVisible="0" sliceExploaded="0" value="1"/>
+        <graph caption="Joe" color="rgba(0,255,0,255)" labelVisible="1" sliceExploaded="1" value="2"/>
+        <graph caption="Andy" color="rgba(27,136,191,255)" labelVisible="0" sliceExploaded="0" value="3"/>
+        <graph caption="Barbara" color="rgba(18,91,127,255)" labelVisible="0" sliceExploaded="0" value="4"/>
+        <graph caption="Axel" color="rgba(9,45,64,255)" labelVisible="0" sliceExploaded="0" value="5"/>
+      </TContainerField>
+    </ReportBand>
+  </Report>
+</Reports>

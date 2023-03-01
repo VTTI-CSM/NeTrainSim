@@ -1,2 +1,0 @@
-add_subdirectory(qcustomplot)
-add_subdirectory(tinyxml2)
