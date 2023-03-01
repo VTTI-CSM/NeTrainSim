@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/resources/report.xml</file>
+        <file>src/resources/icon.ico</file>
+    </qresource>
+</RCC>
