@@ -75,11 +75,12 @@ namespace TrainTypes {
     //*************************************************************************************
     // Locomotives power types
     // ************************************************************************************
-    static const int powerTypeN = 4;
+    static const int powerTypeN = 5;
     enum class _PowerType {
         diesel,
         electric,
         hydrogen,
+        dieselElectric,
         hydrogenHybrid
 	
     };
@@ -90,6 +91,7 @@ namespace TrainTypes {
     "Diesel Locomotive",
     "Electric Locomotive",
     "Hydrogen Locomotive",
+    "Diesel-Electric Locomotive",
     "Hydrogen-Hyprid Locomotive"
     };
 
@@ -97,6 +99,7 @@ namespace TrainTypes {
     PowerType::diesel,
     PowerType::electric,
     PowerType::hydrogen,
+    PowerType::dieselElectric,
     PowerType::hydrogenHybrid
     };
 
@@ -104,6 +107,7 @@ namespace TrainTypes {
     {"Diesel Locomotive", PowerType::diesel},
     {"Electric Locomotive", PowerType::electric},
     {"Hydrogen Locomotive", PowerType::hydrogen},
+    {"Diesel-Electric Locomotive", PowerType::dieselElectric},
     {"Hydrogen-Hyprid Locomotive", PowerType::hydrogenHybrid}
     };
 
@@ -111,6 +115,7 @@ namespace TrainTypes {
         {PowerType::diesel, CarType::dieselTender},
         {PowerType::electric, CarType::batteryTender},
         {PowerType::hydrogen, CarType::hydrogenTender},
+        {PowerType::dieselElectric, CarType::dieselTender},
         {PowerType::hydrogenHybrid, CarType::hydrogenTender}
     };
 
