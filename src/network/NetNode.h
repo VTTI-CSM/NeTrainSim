@@ -13,9 +13,7 @@
 using namespace std;
 
 /**
- * @class	NetSignal NetNode.h C:\Users\Ahmed\source\repos\NeTrainSim\src\network\NetNode.h
- *
- * @brief	A network signal.
+ * A network signal.
  *
  * @author	Ahmed
  * @date	2/14/2023
@@ -23,9 +21,7 @@ using namespace std;
 class NetSignal;
 
 /**
- * @class	NetLink NetNode.h C:\Users\Ahmed\source\repos\NeTrainSim\src\network\NetNode.h
- *
- * @brief	A net link.
+ * A net link.
  *
  * @author	Ahmed
  * @date	2/14/2023
@@ -33,58 +29,54 @@ class NetSignal;
 class NetLink;
 
 /**
- * @class	NetNode NetNode.h C:\Users\Ahmed\source\repos\NeTrainSim\src\network\NetNode.h
- *
- * @brief	A net node.
+ * A net node.
  *
  * @author	Ahmed
  * @date	2/14/2023
  */
 class NetNode{
 private:
-	/** @brief	Number of nodes in simulators */
+	/** Number of nodes in simulators */
 	static unsigned int NumberOfNodesInSimulator;
 
 public:
-	/** @brief	initial value, this values gets updated in the network class */
+	/** Initial value, this values gets updated in the network class */
 	int id = -1;
-	/** @brief	read user node id */
+	/** Read user node id */
 	int userID;
-	/** @brief	read x coordinate */
+	/** Read x coordinate */
 	double x;
-	/** @brief	read y coordinate */
+	/** Read y coordinate */
 	double y;
-	/** @brief	read description */
+	/** Read description */
 	string alphaDesc;
-	/** @brief	read x - value scale */
+	/** Read x - value scale */
 	double xScale;
-	/** @brief	read y - value scale */
+	/** Read y - value scale */
 	double yScale;
-	/** @brief	The signals */
+	/** The signals */
 	Vector<std::shared_ptr<NetSignal>> networkSignals;
-	/** @brief	true if the node is a stopping station / depot for all trains */
+	/** True if the node is a stopping station / depot for all trains */
 	bool isDepot;
-	/** @brief is the dwell time at the depot */
+	/** Is the dwell time at the depot */
 	double dwellTimeIfDepot;
-	/** @brief	The neighbour nodes with their link connection */
+	/** The neighbour nodes with their link connection */
 	Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo;
 
 #pragma region graphSearch
 
-	/** @brief	The graph search distance from start */
+	/** The graph search distance from start */
 	double graphSearchDistanceFromStart;
-	/** @brief	The graph search isVisited: True if visited */
+	/** The graph search isVisited: True if visited */
 	bool graphSearchVisited;
-	/** @brief	The path search previous node */
+	/** The path search previous node */
 	std::shared_ptr<NetNode> graphSearchPreviousNode;
 #pragma endregion
 
 public:
 
 	/**
-	 * @fn	Vector<std::shared_ptr<NetNode>> NetNode::getNeighbors();
-	 *
-	 * @brief	Gets the neighbors of the nodes.
+	 * Gets the neighbors of the nodes.
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -94,9 +86,7 @@ public:
 	Vector<std::shared_ptr<NetNode>> getNeighbors();
 
 	/**
-	 * @fn	void NetNode::clearGraphSearchParams();
-	 *
-	 * @brief	Clears the graph search parameters. This should be executed before running the graph search.
+	 * Clears the graph search parameters. This should be executed before running the graph search.
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -104,9 +94,7 @@ public:
 	void clearGraphSearchParams();
 
 	/**
-	 * @fn	NetNode::NetNode(int userID, double xCoord, double yCoord, string Desc, double xScale, double yScale);
-	 *
-	 * @brief	Constructor
+	 * Constructor
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -121,9 +109,7 @@ public:
 	NetNode(int userID, double xCoord, double yCoord, string Desc, double xScale, double yScale);
 
 	/**
-	 * @fn	static unsigned int NetNode::getNumberOfNodesInSimulator();
-	 *
-	 * @brief	Gets number of nodes in simulator
+	 * Gets number of nodes in simulator
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -133,9 +119,7 @@ public:
 	static unsigned int getNumberOfNodesInSimulator();
 
 	/**
-	 * @fn	void NetNode::addSignal(std::shared_ptr<NetSignal> networkSignal);
-	 *
-	 * @brief	Adds a network signal
+	 * Adds a network signal
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -145,9 +129,7 @@ public:
 	void addSignal(std::shared_ptr<NetSignal> networkSignal);
 
 	/**
-	 * @fn	void NetNode::updateXScale(const double& newScale);
-	 *
-	 * @brief	Updates the x coordinate scale described by newScale
+	 * Updates the x coordinate scale described by newScale
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -157,9 +139,7 @@ public:
 	void updateXScale(const double& newScale);
 
 	/**
-	 * @fn	void NetNode::updateYScale(const double& newScale);
-	 *
-	 * @brief	Updates the y coordinate scale described by newScale
+	 * Updates the y coordinate scale described by newScale
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -169,9 +149,7 @@ public:
 	void updateYScale(const double& newScale);
 
 	/**
-	 * @fn	pair<double, double> NetNode::coordinates();
-	 *
-	 * @brief	Gets the coordinates
+	 * Gets the coordinates
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -181,9 +159,7 @@ public:
 	pair<double, double> coordinates();
 
 	/**
-	 * @fn	friend ostream& NetNode::operator<<(ostream& ostr, const NetNode& stud);
-	 *
-	 * @brief	Stream insertion operator
+	 * Stream insertion operator
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
