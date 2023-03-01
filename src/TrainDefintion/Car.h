@@ -14,44 +14,51 @@
 using namespace std;
 
 /**
- * @class	Car Car.h C:\Users\Ahmed\source\repos\NeTrainSim\src\TrainDefintion\Car.h
- *
- * @brief	A car.
+ * A car.
  *
  * @author	Ahmed
  * @date	2/14/2023
  */
 class Car : public TrainComponent {
 private:
-	/** @brief	(Immutable) the default car name */
+	/** (Immutable) the default car name */
 	inline static const  string DefaultCarName = "Railcar";
-	/** @brief	(Immutable) the default car auxiliary power */
+	/** (Immutable) the default car auxiliary power */
 	static constexpr double DefaultCarAuxiliaryPower = 0.0;
-	/** @brief	(Immutable) the default car minimum battery soc */
+	/** (Immutable) the default car minimum battery soc */
 	static constexpr double DefaultCarMinBatterySOC = 0.2;
-	/** @brief	(Immutable) the default car minimum tank sot */
+	/** (Immutable) the default car minimum tank sot */
 	static constexpr double DefaultCarMinTankSOT = 0.0;
 	/** brief (Immutable) the car has the capability to recharge if it is deccelerating.
-	(only for battery tenders)*/
+
+	/**
+	 * the default recharge capability for the tenders (only for battery tenders)
+	 */
 	static const bool DefaultCarRechargeCapability = true;
 
 
 public:
-	/** @brief  the weight of the vehicle when it is empty*/
+	/** The weight of the vehicle when it is empty */
 	double emptyWeight;
 
-	/** @brief  the type of the car*/
-	TrainTypes::CarType carType; // 0:cargo, 1:fuelTank, 2:batteryTender, 3:hydrogenTender
+	/** The type of the car */
+	TrainTypes::CarType carType;
 
 
 public:
 
+	/**
+	 * Gets cargo net weight
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @returns	The cargo net weight.
+	 */
 	double getCargoNetWeight();
 
 	/**
-	 * @fn	Car::Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t, double carCurrentWeight_t, int carNoOfAxiles, int carType, double auxiliaryPower_kw = DefaultCarAuxiliaryPower, double batteryMaxCapacity_kwh = EC::DefaultCarBatteryMaxCapacity, double batteryInitialCharge_perc = EC::DefaultCarBatteryInitialCharge, double tenderMaxCapacity_kg_l = EC::DefaultCarTenderMaxCapacity, double tenderInitialCapacity_perc = EC::DefaultCarTenderInitialCapacity, std::string carName = DefaultCarName );
-	 *
-	 * @brief	Constructor
+	 * Constructor
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -80,13 +87,20 @@ public:
 		std::string carName = DefaultCarName
 		);
 
+	/**
+	 * Gets a resistance
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	trainSpeed	The train speed.
+	 *
+	 * @returns	The resistance.
+	 */
 	double getResistance(double trainSpeed) override;
 
-
 	/**
-	 * @fn	double Car::getEnergyConsumption(double &timeStep);
-	 *
-	 * @brief	Gets energy consumption
+	 * Gets energy consumption
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
@@ -97,15 +111,26 @@ public:
 	 */
 	double getEnergyConsumption(double &timeStep);
 
-
+	/**
+	 * Consume fuel from the tender
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	EC_kwh						The ec kwh.
+	 * @param 	isOffGrid					True if is off grid, false if not.
+	 * @param 	dieselConversionFactor  	(Optional) The diesel conversion factor.
+	 * @param 	hydrogenConversionFactor	(Optional) The hydrogen conversion factor.
+	 * @param 	dieselDensity				(Optional) The diesel density.
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
 	bool consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
 		double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor, 
 		double dieselDensity = EC::DefaultDieselDensity) override;
 
 	/**
-	 * @fn	friend ostream& Car::operator<<(ostream& ostr, Car& stud);
-	 *
-	 * @brief	Stream insertion operator
+	 * Stream insertion operator
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
