@@ -1,3 +1,9 @@
+/**
+ * @file	C:\Users\Ahmed\OneDrive - Virginia
+ * 			Tech\03.Work\02.VTTI\02.ResearchWork\01.TrainModelling\02.Code\00.CPP\NeTrainSim\NeTrainSim\src\util\Logger.h.
+ *
+ * Declares the logger class
+ */
 #ifndef LOGGER_H
 #define LOGGER_H
 
@@ -8,6 +14,7 @@
 #include <iostream>
 
 namespace Logger {
+    /** Values that represent log levels */
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -15,6 +22,16 @@ namespace Logger {
         ERROR
     };
 
+    /**
+     * Level to string
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	level	The level.
+     *
+     * @returns	A std::string.
+     */
     inline static std::string levelToString(LogLevel level) {
         switch (level) {
         case LogLevel::DEBUG: return "DEBUG";
@@ -25,12 +42,30 @@ namespace Logger {
         }
     }
 
+    /**
+     * A logger.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     */
     class Logger {
     private:
+        /** (Immutable) the minimum log level */
         static constexpr LogLevel minLogLevel = LogLevel::DEBUG;
+        /** The log file */
         static std::ofstream logFile;
 
     public:
+
+        /**
+         * Logs a message
+         *
+         * @author	Ahmed Aredah
+         * @date	2/28/2023
+         *
+         * @param 	level  	The level.
+         * @param 	message	The message.
+         */
         static void logMessage(LogLevel level, const std::string& message) {
             if (level <= minLogLevel) { return; }
             if (!logFile.is_open()) {
@@ -45,6 +80,14 @@ namespace Logger {
             logFile << message << std::endl;
         }
 
+        /**
+         * Debug log message to console
+         *
+         * @author	Ahmed Aredah
+         * @date	2/28/2023
+         *
+         * @param 	message	The message.
+         */
         static void DebugLogMessageToConsole(const std::string& message) {
             if (LogLevel::DEBUG <= minLogLevel) { return; }
             std::cout << levelToString(LogLevel::DEBUG) << ": ";

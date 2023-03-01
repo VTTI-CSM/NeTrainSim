@@ -21,15 +21,20 @@ namespace Utils {
     using namespace std;
 
 
+    template<typename T>
+
     /**
      * Convert a plain numeric value to thousand separated value
      *
-     * @tparam	T	Generic type parameter.
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
      * @param 	n	A T to process.
      *
      * @returns	A std::string.
+     *
+     * @tparam	T	Generic type parameter.
      */
-    template<typename T>
     inline std::string thousandSeparator(T n) {
         // Get the sign of the number and remove it
         int sign = (n < 0) ? -1 : 1;
@@ -65,7 +70,21 @@ namespace Utils {
         return result;
     }
 
+
     template<typename T>
+
+    /**
+     * Format duration
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	seconds	The seconds.
+     *
+     * @returns	The formatted duration.
+     *
+     * @tparam	T	Generic type parameter.
+     */
     inline std::string formatDuration(T seconds) {
         int minutes = static_cast<int>(seconds) / 60;
         int hours = minutes / 60;
@@ -80,6 +99,17 @@ namespace Utils {
         return result;
     }
 
+    /**
+     * Splits string to double vector
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	input	 	The input.
+     * @param 	delimiter	(Optional) The delimiter.
+     *
+     * @returns	A Vector&lt;double&gt;
+     */
     inline Vector<double> splitStringToDoubleVector(const std::string& input, char delimiter = ',') {
         Vector<double> result;
         std::stringstream ss(input);
@@ -90,8 +120,17 @@ namespace Utils {
         return result;
     }
 
-    // The function stringToIntVector takes a string as input and converts it into a Vector<int> 
-// by parsing the string for comma-separated integers and pushing each one onto the vector. 
+    /**
+     * The function stringToIntVector takes a string as input and converts it into a Vector<int>
+     * by parsing the string for comma-separated integers and pushing each one onto the vector.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	str	The string.
+     *
+     * @returns	A Vector&lt;int&gt;
+     */
     inline Vector<int> splitStringToIntVector(const std::string& str) {
         Vector<int> intVector;
         std::stringstream ss(str);
@@ -110,8 +149,18 @@ namespace Utils {
         return intVector;
     }
 
-    // This function is splitting a given string "s" into substrings using a delimiter "delimiter" and 
-    // returning the resulting substrings as a vector of strings. 
+    /**
+     * This function is splitting a given string "s" into substrings using a delimiter "delimiter"
+     * and returning the resulting substrings as a vector of strings.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	s		 	A std::string to process.
+     * @param 	delimiter	The delimiter.
+     *
+     * @returns	A Vector&lt;std::string&gt;
+     */
     inline Vector<std::string> split(const std::string& s, char delimiter)
     {
         Vector<std::string> tokens;
@@ -124,8 +173,17 @@ namespace Utils {
         return tokens;
     }
 
-    // This function trim takes in a string str and returns a copy of it with leading 
-    // and trailing white spaces removed.
+    /**
+     * This function trim takes in a string str and returns a copy of it with leading and trailing
+     * white spaces removed.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	str	The string.
+     *
+     * @returns	A std::string.
+     */
     inline std::string trim(const std::string& str)
     {
         std::string s = str;
@@ -138,6 +196,17 @@ namespace Utils {
         return s;
     }
 
+    /**
+     * Powers
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	base		The base.
+     * @param 	exponent	The exponent.
+     *
+     * @returns	A double.
+     */
     inline double power(double base, int exponent) {
         if (exponent == 0) {
             return 1.0;
