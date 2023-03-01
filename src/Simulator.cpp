@@ -148,7 +148,8 @@ void Simulator::loadTrain(std::shared_ptr <Train> train) {
 }
 
 std::tuple<Vector<double>, Vector<double>, Vector<double>, 
-	Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(std::shared_ptr<Train> train) {
+            Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(std::shared_ptr<Train> train, bool isVirtual) {
+
 	Vector<double> curvatures;
 	Vector<double> grades;
 	Vector<double> freeFlowSpeeds;
@@ -158,7 +159,13 @@ std::tuple<Vector<double>, Vector<double>, Vector<double>,
 	// loop over all train's vehicles
 	for (const auto& vehicle : train->trainVehicles) {
 		// get centroid distance from start of the train
-		distance = train->travelledDistance - train->WeightCentroids.at(vehicle);
+        if (isVirtual){
+            distance = train->virtualTravelledDistance - train->WeightCentroids.at(vehicle);
+        }
+        else{
+            distance = train->travelledDistance - train->WeightCentroids.at(vehicle);
+        }
+
 		// set the boundries
 		if (distance < 0.0) { distance = 0.0; }
 		if (distance > train->trainTotalPathLength) { distance = train->trainTotalPathLength; }
@@ -321,7 +328,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		// holds track data and speed
 		std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
 		// Load path geometric data for each vehicle in the train (at mass centroid of each)
-		linksdata = this->loadTrainLinksData(train);
+        linksdata = this->loadTrainLinksData(train, false);
 		// train spanned links curvatures
 		Vector<double> curvatures = std::get<0>(linksdata);
 		// train spanned links grades
@@ -434,12 +441,12 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 			// holds track data and speed
 			std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
 			// Load path geometric data for each vehicle in the train (at mass centroid of each)
-			linksdata = this->loadTrainLinksData(train);
-			train->currentLinks = std::get<3>(linksdata);
+            linksdata = this->loadTrainLinksData(train, false);
+            links = std::get<3>(linksdata);
 			// the spanned links of the train
-			train->currentLinks = links;
+            train->currentLinks = links;
 			// the first link the train is on
-			train->currentFirstLink = links.at(0);
+            train->currentFirstLink = links.at(0);
 			// all previous links the train passed on
 			for (std::shared_ptr<NetLink> link : train->currentLinks) {
 				if (train->previousLinks.exist(link)) {
@@ -472,6 +479,65 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		}
 	}
 }
+
+void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
+
+    if (train->trainStartTime <= this->simulationTime){
+
+        train->virtualTravelledDistance = train->travelledDistance;
+        double speed = train->currentSpeed;
+        double prevSpeed = train->previousSpeed;
+        double accel = train->currentAcceleration;
+        double throttleLevel = -1;
+        Vector<double> throttleLevelVec = Vector<double>();
+
+        for (int i = 0; i < train->lookAheadStepCounter; i++){
+            train->virtualTravelledDistance += speed *timeStep;
+            auto linksData = this->loadTrainLinksData(train, true);
+            auto CurrentFreeSpeed_ms = std::get<2>(linksData).min();
+
+            int pindx;
+            for (int i = 0; i < train->linksCumLengths.size() ; i++) {
+                if (train->linksCumLengths[i] <= train->virtualTravelledDistance) {
+                    pindx = i;
+                    break;
+                }
+            }
+
+            int pNodeID = train->trainPath[pindx];
+            auto nextStop = this->getNextStoppingNodeID(train, pNodeID);
+            Vector<double> oDistanceToNextStationTrain;
+            Vector<double> oAheadSpeed;
+
+            // get all lower speed IDs
+            for ( auto N : this->getAllLowerSpeedsIDs(train, pNodeID, nextStop.first)){
+                int theNodeID = N.first;
+                oDistanceToNextStationTrain.push_back(
+                            this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+                                                                                        train->virtualTravelledDistance,
+                                                                                        theNodeID));
+                oAheadSpeed.push_back(N.second);
+            }
+
+            oDistanceToNextStationTrain.push_back(this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+                                                                                        train->virtualTravelledDistance,
+                                                                                        nextStop.first));
+            oAheadSpeed.push_back(0.0);
+
+            auto out = train->AStarOptimization( prevSpeed, speed, accel, throttleLevel,
+                                      std::get<1>(linksData), std::get<0>(linksData),
+                                      CurrentFreeSpeed_ms, timeStep, oAheadSpeed, oDistanceToNextStationTrain);
+            speed = std::get<0>(out);
+            accel = std::get<1>(out);
+            throttleLevel = std::get<2>(out);
+            throttleLevelVec.push_back(throttleLevel);
+        }
+
+        train->pickOptimalThrottleLevelAStar(throttleLevelVec, train->lookAheadCounterToUpdate);
+    }
+}
+
+
 Vector<Vector<Vector < std::shared_ptr<NetNode>>>> Simulator::getConflictTrainsIntersections() {
 	Vector<Vector<Vector < std::shared_ptr<NetNode>>>> trainSignalsGroups(this->trains.size(), Vector<Vector < std::shared_ptr<NetNode>>>(this->trains.size()));
 	if (this->trains.size() < 2) {return trainSignalsGroups;}

@@ -6,8 +6,8 @@
 #ifndef NeTrainSim_Simulator_h
 #define NeTrainSim_Simulator_h
 
-#include "TrainDefintion/Train.h"
-#include "TrainDefintion/TrainsList.h"
+#include "trainDefintion/Train.h"
+#include "trainDefintion/TrainsList.h"
 #include "network/Network.h"
 #include "network/NetSignalGroupController.h"
 #include "./util/Vector.h"
@@ -15,35 +15,81 @@
 #include <iostream>
 #include <filesystem>
 
+/**
+ * A simulator.
+ *
+ * @author	Ahmed Aredah
+ * @date	2/28/2023
+ */
 class Simulator {
 private:
+	/** (Immutable) the default time step */
 	static constexpr double DefaultTimeStep = 1.0;
+	/** (Immutable) the default end time */
 	static constexpr double DefaultEndTime = 0.0;
+	/** (Immutable) true to default export instantaneous trajectory */
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
+	/** (Immutable) the default output folder */
 	inline static const std::string DefaultOutputFolder = "";
+	/** (Immutable) the default instantaneous trajectory empty filename */
 	inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
+	/** (Immutable) the default summary empty filename */
 	inline static const std::string DefaultSummaryEmptyFilename = "";
+	/** (Immutable) the default instantaneous trajectory filename */
 	inline static const std::string DefaultInstantaneousTrajectoryFilename = "NeTrainSim_TrainTrajectory.csv";
+	/** (Immutable) the default summary filename */
 	inline static const std::string DefaultSummaryFilename =  "NeTrainSim_TrainSummary.txt";
 
 private:
+	/** The trains */
 	Vector<std::shared_ptr<Train>> trains;
+	/** The simulation time */
 	double simulationTime;
+	/** The simulation end time */
 	double simulationEndTime;
+	/** The time step */
 	double timeStep;
+	/** The output location */
 	std::filesystem::path outputLocation;
+	/** Filename of the summary file */
 	std::string summaryFileName;
+	/** Filename of the trajectory file */
 	std::string trajectoryFilename;
+	/** The network */
 	Network* network;
+	/** The progress */
 	double progress;
+	/** True to run simulation endlessly */
 	bool runSimulationEndlessly;
+	/** True to export trajectory */
 	bool exportTrajectory;
+	/** The trajectory file */
 	std::ofstream trajectoryFile;
+	/** The summary file */
 	std::ofstream summaryFile;
 	//Vector<Vector<Vector < std::shared_ptr<NetNode>>>> conflictTrainsIntersections;
+	/** Groups the signals belongs to */
 	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
 
 public:
+
+	/**
+	 * Constructor
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	theNetwork					   	the network.
+	 * @param 		  	networkTrains				   	The network trains.
+	 * @param 		  	simulationEndTime_			   	(Optional) The simulation end time.
+	 * @param 		  	simulationTimeStep_			   	(Optional) The simulation time step.
+	 * @param 		  	exportInstantaneousTrajectory  	(Optional) True to export instantaneous
+	 * 													trajectory.
+	 * @param 		  	outputFolderLocation		   	(Optional) The output folder location.
+	 * @param 		  	instantaneousTrajectoryFilename	(Optional) Filename of the instantaneous
+	 * 													trajectory file.
+	 * @param 		  	summaryFilename				   	(Optional) Filename of the summary file.
+	 */
 	Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulationEndTime_ = DefaultEndTime,
 		double simulationTimeStep_ = DefaultTimeStep,
 		bool exportInstantaneousTrajectory = DefaultExportInstantaneousTrajectory,
@@ -51,50 +97,424 @@ public:
 		string instantaneousTrajectoryFilename = DefaultInstantaneousTrajectoryEmptyFilename,
 		string summaryFilename = DefaultSummaryEmptyFilename);
 
-	/// <summary>
-	/// Defines the signals grouping based on the min allowable distance between them. 
-	/// @param minSafeDistance - A reference to the variable holding the minimum safe distance value.
-	/// </summary>
+	/**
+	 * Defines the signals grouping based on the min allowable distance between them.
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	minSafeDistance	- A reference to the variable holding the minimum safe
+	 * 									distance value.
+	 * 									</summary>
+	 */
 	void defineSignalsGroups(double& minSafeDistance);
+
+	/**
+	 * Gets links by nodes
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	nodes	The nodes.
+	 *
+	 * @returns	The links by nodes.
+	 */
 	Vector<std::shared_ptr<NetLink>> getLinksByNodes(std::set<std::shared_ptr<NetNode>> nodes);
 
+	/**
+	 * Gets closest signal
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	train	The train.
+	 *
+	 * @returns	The closest signal.
+	 */
 	std::shared_ptr<NetSignal> getClosestSignal(std::shared_ptr<Train>& train);
+
+	/**
+	 * Opens trajectory file
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void openTrajectoryFile();
+
+	/**
+	 * Opens summary file
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void openSummaryFile();
+
+	/**
+	 * Determines if we can check all trains reached destination
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
 	bool checkAllTrainsReachedDestination();
+
+	/**
+	 * Executes the 'threaded one time step' operation
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	obj  	If non-null, the object.
+	 * @param [in,out]	train	If non-null, the train.
+	 */
 	void runThreadedOneTimeStep(Simulator* obj, Train* train);
+
+	/**
+	 * Determines if we can check trains collision
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
 	bool checkTrainsCollision();
+
+	/**
+	 * Play train one time step
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	The train.
+	 */
 	void playTrainOneTimeStep(std::shared_ptr <Train> train);
+
+	/**
+	 * Loads a train
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	The train.
+	 */
 	void loadTrain(std::shared_ptr<Train> train);
+
+	/**
+	 * Gets signal from link
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	networkSignals	The network signals.
+	 * @param 	link		  	The link.
+	 *
+	 * @returns	The signal from link.
+	 */
 	int getSignalFromLink(Vector<std::shared_ptr<NetSignal>> networkSignals, std::shared_ptr<NetLink> link);
+
+	/**
+	 * Sets occupied links by trains
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	The train.
+	 */
 	void setOccupiedLinksByTrains(std::shared_ptr<Train> train);
+
+	/**
+	 * Gets all lower speeds i ds
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 		  	train			  	The train.
+	 * @param [in,out]	previousNodeID	  	Identifier for the previous node.
+	 * @param [in,out]	nextStoppingNodeID	Identifier for the next stopping node.
+	 *
+	 * @returns	all lower speeds i ds.
+	 */
 	Map<int, double> getAllLowerSpeedsIDs(std::shared_ptr<Train> train, int& previousNodeID, int& nextStoppingNodeID);
+
+	/**
+	 * Gets train and distance to train ahead
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	The train.
+	 *
+	 * @returns	The train and distance to train ahead.
+	 */
 	std::pair<std::shared_ptr<Train>, double> getTrainAndDistanceToTrainAhead(std::shared_ptr <Train> train);
+
+	/**
+	 * Gets start end points
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train			  	The train.
+	 * @param 	currentCoordinates	The current coordinates.
+	 *
+	 * @returns	The start end points.
+	 */
 	Vector<std::pair<double, double>> getStartEndPoints(std::shared_ptr<Train> train, std::pair<double, double> currentCoordinates);
+
+	/**
+	 * Gets the next stopping node identifier
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 		  	train			 	The train.
+	 * @param [in,out]	previousNodeIndex	Zero-based index of the previous node.
+	 *
+	 * @returns	The next stopping node identifier.
+	 */
 	std::pair<int, bool> getNextStoppingNodeID(std::shared_ptr<Train> train, int& previousNodeIndex);
-	std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> loadTrainLinksData(std::shared_ptr <Train> train);
+
+	/**
+	 * !
+	 *  * \brief loadTrainLinksData
+	 *  * \param train
+	 *  * \return curvatures, grades, freeFlowSpeeds, links
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	 	The train.
+	 * @param 	isVirtual	True if is virtual, false if not.
+	 *
+	 * @returns	The train links data.
+	 */
+	std::tuple<Vector<double>, Vector<double>, Vector<double>,
+			Vector<std::shared_ptr<NetLink>>> loadTrainLinksData(std::shared_ptr <Train> train, bool isVirtual);
+
+	/**
+	 * Progress bar
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	current   	The current.
+	 * @param 	total	  	Number of.
+	 * @param 	bar_length	(Optional) Length of the bar.
+	 */
 	void ProgressBar(double current, double total, int bar_length = 100);
+
+	/**
+	 * Loads train free speed
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train	The train.
+	 *
+	 * @returns	The train free speed.
+	 */
 	double loadTrainFreeSpeed(std::shared_ptr<Train> train);
+
+	/**
+	 * Executes the 'simulator' operation
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void runSimulator();
+
+	/**
+	 * Sets train simulator path
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void setTrainSimulatorPath();
+
+	/**
+	 * Sets trains stopping stations
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void setTrainsStoppingStations();
+
+	/**
+	 * Sets train path length
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void setTrainPathLength();
+
+	/**
+	 * Executes the 'signalsfor trains' operation
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void runSignalsforTrains();
 
+	/**
+	 * Play train virtual steps a star optimization
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train   	The train.
+	 * @param 	timeStep	The time step.
+	 */
+	void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
 private:
+
+	/**
+	 * Turn on all signals
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void turnOnAllSignals();
+
+	/**
+	 * Turn off signal
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	networkSignals	The network signals.
+	 */
 	void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
+
+	/**
+	 * Check links are free
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	links	The links.
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
 	bool checkLinksAreFree(Vector<std::shared_ptr<NetLink>> &links);
+
+	/**
+	 * Check train on links
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	train	The train.
+	 * @param [in,out]	links	The links.
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
 	bool checkTrainOnLinks(std::shared_ptr<Train>& train, Vector<std::shared_ptr<NetLink>>& links);
+
+	/**
+	 * Gets accurate train current link
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	train	The train.
+	 *
+	 * @returns	The accurate train current link.
+	 */
 	std::set<std::shared_ptr<NetLink>> getAccurateTrainCurrentLink(std::shared_ptr<Train>& train);
+
+	/**
+	 * Gets signals in same direction
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	train				The train.
+	 * @param 		  	SignalsGroupList	List of signals groups.
+	 *
+	 * @returns	The signals in same direction.
+	 */
 	Vector<std::shared_ptr<NetSignal>> getSignalsInSameDirection(std::shared_ptr<Train>& train,
 		Vector<std::shared_ptr<NetSignal>> SignalsGroupList);
+
+	/**
+	 * Gets nodes intersections for signals
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param [in,out]	minSafeDistance	The minimum safe distance.
+	 *
+	 * @returns	The nodes intersections for signals.
+	 */
 	Vector<std::set<std::shared_ptr<NetNode>>> getNodesIntersectionsForSignals(double& minSafeDistance);
+
+	/**
+	 * Gets trains intersections
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	train1	The first train.
+	 * @param 	train2	The second train.
+	 *
+	 * @returns	The trains intersections.
+	 */
 	Vector<std::shared_ptr<NetNode>> getTrainsIntersections(std::shared_ptr<Train> train1, std::shared_ptr<Train> train2);
+
+	/**
+	 * Gets conflict trains intersections
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @returns	The conflict trains intersections.
+	 */
 	Vector<Vector<Vector < std::shared_ptr<NetNode>>>> getConflictTrainsIntersections();
+
+	/**
+	 * Gets node groups for signals
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 		  	ConflictTrainsIntersections	The conflict trains intersections.
+	 * @param [in,out]	minSafeDistance			   	The minimum safe distance.
+	 *
+	 * @returns	The node groups for signals.
+	 */
 	Vector<Vector< Map<int, std::set<std::shared_ptr<NetNode>>>>> getNodeGroupsForSignals(Vector<Vector<Vector < std::shared_ptr<NetNode>>>> ConflictTrainsIntersections, double& minSafeDistance);
+
+	/**
+	 * Union nodes intersections for signals
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	nodesGroups	Groups the nodes belongs to.
+	 *
+	 * @returns	A Vector&lt;std::set&lt;std::shared_ptr&lt;NetNode&gt;&gt;&gt;
+	 */
 	Vector<std::set<std::shared_ptr<NetNode>>> unionNodesIntersectionsForSignals(Vector<Vector< Map<int, std::set<std::shared_ptr<NetNode>>>>> nodesGroups);
+
+	/**
+	 * Removes the redundancy described by unified
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	unified	The unified.
+	 *
+	 * @returns	A Vector&lt;std::set&lt;std::shared_ptr&lt;NetNode&gt;&gt;&gt;
+	 */
 	Vector<std::set<std::shared_ptr<NetNode>>> removeRedundancy(Vector<std::set<std::shared_ptr<NetNode>>> unified);
+
+	/**
+	 * Calculates the signals proximities
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 */
 	void calculateSignalsProximities();
 };
 #endif // !NeTrainSim_Simulator_h
