@@ -37,7 +37,7 @@
         std::vector<std::vector<std::string>> trainsCharacteristics;
         Vector<std::shared_ptr<Locomotive>> locomotives;
         Vector<std::shared_ptr<Car>> cars;
-        double maxSpeed = 100.0 / 3.0;
+        //double maxSpeed = 100.0 / 3.0;
         //try {
 
 
