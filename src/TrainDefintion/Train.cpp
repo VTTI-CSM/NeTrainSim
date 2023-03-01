@@ -2,11 +2,12 @@
 #include "../util/Vector.h"
 #include "train.h"
 #include "../network//NetNode.h"
-#include "../Network/NetLink.h"
+//#include "../network/NetLink.h"
 #include <variant>
 #include "TrainTypes.h"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include "../util/Logger.h"
 #define stringify( name ) #name
 using namespace std;
@@ -16,8 +17,7 @@ unsigned int Train::NumberOfTrainsInSimulator = 0;
 
 Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
     Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize, 
-    double desiredDecelerationRate_mPs, 
-    double operatorReactionTime_s, bool stopIfNoEnergy, bool isRunnigOffGrid, 
+    double desiredDecelerationRate_mPs, double operatorReactionTime_s, bool stopIfNoEnergy, bool isRunnigOffGrid,
     double maxAllowedJerk_mPcs) {
 
     this->d_des = desiredDecelerationRate_mPs;
@@ -43,6 +43,15 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     this->setTrainLength();
     this->setTrainWeight();
     this->resetTrain();
+
+    if (this->optimize){
+        double nMax = 8;
+        for (int n = 0; n <= nMax ; n++){
+            this->throttleLevels.push_back(std::pow( ( ((double)n) / nMax), 2.0));
+        }
+        this->lookAheadCounterToUpdate = DefaultLookAheadCounterToUpdate;
+        this->lookAheadStepCounter = DefaultLookAheadCounter;
+    }
 
     this->WeightCentroids = this->getTrainCentroids();
     int sizeOfPath = this->trainPath.size();
@@ -157,7 +166,7 @@ void Train::rearrangeTrain() {
         }
 
     }
-    else if (this->nlocs > 1 && this->nlocs < 7 || this->nCars < 2) {
+    else if ((this->nlocs > 1 && this->nlocs < 7) || (this->nCars < 2)) {
         int locoSize = this->nlocs / 2;
         int firstLocoSize = this->nlocs - locoSize;
         for (int i = 0; i < firstLocoSize; i++) { this->trainVehicles.push_back((this->locomotives.at(i))); }
@@ -378,9 +387,9 @@ double Train::get_acceleration_an2(double gap, double minGap, double speed, doub
     
 double Train::accelerate(double gap, double mingap, double speed, double acceleration, double leaderSpeed, 
     double freeFlowSpeed, double deltaT, bool optimize, double throttleLevel) {
-    if (throttleLevel == -1) {
-        throttleLevel = this->optimumThrottleLevel;
-    };
+//    if (throttleLevel == -1) {
+//        throttleLevel = this->optimumThrottleLevel;
+//    };
 
     //get the maximum acceleration that the train can go by
     double amax = this->getAccelerationUpperBound(speed, acceleration, freeFlowSpeed, optimize, throttleLevel);
@@ -445,8 +454,6 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
     double GapFollowing = this->getMinFollowingTrainGap();
 
     Vector<double> allAccelerations;
-    double d = gapToNextCriticalPoint.back();
-    d;
 
     for (int i = 0; i < gapToNextCriticalPoint.size(); i++) {
         if (! (gapToNextCriticalPointType)[i]) {
@@ -462,8 +469,6 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
     }
     // get the minimum acceleration from all the accelerations
     double nonsmoothedAcceleration = allAccelerations.min();
-
-    nonsmoothedAcceleration;
 
     //restore forces 
     if (allAccelerations.size() > 1) {
@@ -552,6 +557,13 @@ void Train::calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinF
     this->cumMaxDelayTimeStat += this->maxDelayTimeStat;
     this->stoppedStat = this->getStoppingTimeStat(listOfLinksFreeFlowSpeeds);
     this->cumStoppedStat += this->stoppedStat;
+    this->averageSpeed = this->calculateAverage(this->averageSpeed, this->currentSpeed, timeStep);
+    this->averageAcceleration = this->calculateAverage(this->currentAcceleration, this->currentAcceleration, timeStep);
+}
+
+double Train::calculateAverage(double previousAverage, double currentTimeStepData, double timeStep) {
+    int n = this->tripTime / timeStep;
+    return (previousAverage * ((n - 1)/n)) + (currentTimeStepData / n);
 }
 
 double Train::getMaxDelayTimeStat(Vector<double> listOfLinksFreeFlowSpeeds, double timeStep) {
@@ -597,12 +609,94 @@ int Train::getRechargableCarsNumber() {
 int Train::getRechargableLocsNumber() {
     int count = 0;
     for (Vector< std::shared_ptr<Locomotive>>::iterator it = this->locomotives.begin(); it != this->locomotives.end(); ++it) {
-        if (it->get()->powerType == TrainTypes::PowerType::electric ||
-            it->get()->powerType == TrainTypes::PowerType::hydrogenHybrid) {
+        if (it->get()->powerType == TrainTypes::PowerType::electric) {
             count++;
         }
     }
     return count;
+}
+
+std::tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,double prevThrottle,
+                                                    Vector<double> vector_grade, Vector<double> vector_curvature,
+                                                    double freeSpeed_ms, double timeStep, Vector<double> u_leader,
+                                                    Vector<double> gapToNextCriticalPoint) {
+
+    this->updateGradesCurvatures(vector_grade, vector_curvature);
+    double resistance = this->getTotalResistance(currentSpeed);
+    Vector<double> speedVec = Vector<double>();
+    Vector<double> throttleVec = Vector<double>();
+    Vector<double> energyVec = Vector<double>();
+    Vector<double> accelerationVec = Vector<double>();
+
+    // loop over all possible throttleLevels
+    for (auto throttleLevel: this->throttleLevels){
+        // if the throttle level (and resultant force) is less than resistance, then the train is not moving forward
+        // then discard this throttle level
+        if (resistance < this->getTotalTractiveForce(currentSpeed, currentAcceleration, true, throttleLevel) ||
+                throttleLevel == this->throttleLevels.back()){
+
+            double stepAcceleration = 0.0;
+
+            // if there is no gap fed to the function, consider a finite gap.
+            // this is only in case the train could not calculate the next step gap.
+            if (gapToNextCriticalPoint.size() > 0){
+                Vector<double> allAcc = Vector<double>();
+                // loop through all the gaps to next train/station
+                for (int i = 0; i < gapToNextCriticalPoint.size(); i ++){
+                    // get all accelerations and append them to the acceleration vector
+                    allAcc.push_back(this->accelerate(gapToNextCriticalPoint[i], 0, currentSpeed, currentAcceleration,
+                                                      u_leader[i],freeSpeed_ms, timeStep, true, throttleLevel));
+                }
+                // get the min acceleration
+                stepAcceleration = allAcc.min();
+            }
+            else{
+                stepAcceleration = this->accelerate(std::numeric_limits<double>::infinity(), 0, currentSpeed, currentAcceleration,
+                                         0.0, freeSpeed_ms, timeStep, true, throttleLevel);
+            }
+            // get speed after acceleration, jerk is not considered here, since it will be automatically considered
+            // in the true calculations of the acceleration
+            double stepSpeed = this->speedUpDown(prevSpeed, stepAcceleration, timeStep, freeSpeed_ms);
+            // get the energy for the train if that particular throttle level is used till the end of the look ahead
+            double energy = this->heuristicFunction(gapToNextCriticalPoint.back(), stepAcceleration, stepSpeed,
+                                                    timeStep, resistance, currentSpeed);
+            // append the step values to their corresponding vectors
+            accelerationVec.push_back(stepAcceleration);
+            speedVec.push_back(stepSpeed);
+            throttleVec.push_back(throttleLevel);
+            energyVec.push_back(energy);
+        }
+    }
+
+    if (energyVec.size() == 0){
+        return std::make_tuple(currentSpeed, currentAcceleration, prevThrottle);
+    }
+    // get the minimum heuristic energy and the corresponding throttle level
+    int minI = energyVec.argmin();
+    // return the values corresponding to the min energy for the next step analysis
+    return std::make_tuple(speedVec[minI], accelerationVec[minI], throttleVec[minI]);
+}
+
+
+double Train::heuristicFunction(double distanceToEnd, double stepAcceleration, double stepSpeed,
+                                double timeStep, double resistance, double currentSpeed) {
+    if (distanceToEnd == 0) {
+        distanceToEnd = this->lookAheadStepCounter * timeStep * currentSpeed;
+    }
+    double stepTime = distanceToEnd / max(stepSpeed, 0.0001);
+
+    pair<Vector<double>, double> out = this->getTractivePower(stepSpeed, stepAcceleration, resistance);
+
+    return this->getTotalEnergyConsumption(stepTime, out.first);
+}
+
+double Train::pickOptimalThrottleLevelAStar(Vector<double> throttleLevels, int lookAheadCounterToUpdate) {
+    int end = ( lookAheadCounterToUpdate <= throttleLevels.size()) ? lookAheadCounterToUpdate : throttleLevels.size();
+    if (end == 0){
+        return this->optimumThrottleLevel;
+    }
+    this->optimumThrottleLevel = *std::max_element(throttleLevels.begin(), throttleLevels.begin() + end);
+    return this->optimumThrottleLevel;
 }
 
 pair<Vector<double>, double> Train::getTractivePower(double speed, double acceleration, double resistanceForces) {
@@ -639,6 +733,16 @@ void Train::resetTrainEnergyConsumption() {
     for (std::shared_ptr<TrainComponent>& vehicle : this->trainVehicles) {
         vehicle->resetTimeStepConsumptions();
     }   
+}
+
+double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTractivePower) {
+    if (usedTractivePower.empty()){ return 0.0; }
+    double energy = 0.0;
+    for (int i =0; i < this->ActiveLocos.size(); i++){
+        energy += this->ActiveLocos.at(i)->getEnergyConsumption(usedTractivePower.at(i),
+                                             this->currentAcceleration, this->currentSpeed, timeStep);
+    }
+    return energy;
 }
 
 bool Train::consumeEnergy(double& timeStep, Vector<double>& usedTractivePower) {
@@ -685,7 +789,7 @@ bool Train::consumeTendersEnergy(double EC_kwh, TrainTypes::PowerType powerType,
     bool consumed = false;
     int count = this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)].size();
     double ECD = 0.0;
-    if (count > 0) { double ECD = EC_kwh / count; }
+    if (count > 0) { ECD = EC_kwh / count; }
     else { return consumed; }
 
     for (auto& car : this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)]) {
@@ -742,7 +846,7 @@ void Train::resetTrain() {
 
     this->loaded = false;
     this->travelledDistance = 0.0;
-    this->virtualTraveledDistance = 0.0;
+    this->virtualTravelledDistance = 0.0;
     
     this->tripTime = 0.0;
     this->NoPowerCountStep = 0;
