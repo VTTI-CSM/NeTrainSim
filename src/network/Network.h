@@ -16,33 +16,26 @@
 //#include <qapplication.h>
 
 /**
- * @class	Network Network.h c:\users\ahmed\source\repos\netrainsim\src\network\Network.h
- *
- * @brief	A network.
- *
+ * A network.
  * @author	Ahmed
  * @date	2/14/2023
  */
 class Network {
 private:
-    /** @brief	the file nodes */
+    /** The file nodes */
     Vector<std::shared_ptr<NetNode>> theFileNodes;
 public:
-    /** @brief	The nodes mapped by its simulator id*/
+    /** The nodes mapped by its simulator id */
     std::map<int, std::shared_ptr<NetNode>> nodes;
-    /** @brief	The links */
+    /** The links */
     Vector<std::shared_ptr<NetLink>> links;
-    /** @brief	The signals */
+    /** The signals */
     Vector<std::shared_ptr<NetSignal>> networkSignals;
 
     /**
-     * @fn	Network::Network(const string& nodesFile, const string& linksFile)
-     *
-     * @brief	Constructor
-     *
+     * Constructor
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	nodesFile	The nodes file.
      * @param 	linksFile	The links file.
      */
@@ -58,13 +51,9 @@ public:
     }
 
     /**
-     * @fn	std::map<int, std::shared_ptr<NetNode>> Network::defineNodes()
-     *
-     * @brief	Define nodes
-     *
+     * Define nodes
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @returns	A std::map&lt;int,std::shared_ptr&lt;NetNode&gt;&gt;
      */
     std::map<int, std::shared_ptr<NetNode>> defineNodes() {
@@ -76,15 +65,10 @@ public:
     }
 
     /**
-     * @fn	Vector<int> Network::getSimulatorTrainPath(Vector<int> userDefinedTrainPath)
-     *
-     * @brief	Gets simulator train path
-     *
+     * Gets simulator train path
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	userDefinedTrainPath	Full path list of the user defined train file.
-     *
      * @returns	The simulator train path.
      */
     Vector<int> getSimulatorTrainPath(Vector<int> userDefinedTrainPath) {
@@ -96,38 +80,27 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr<NetNode> Network::getNodeByID(int& id)
-     *
-     * @brief	Gets node by identifier
-     *
+     * Gets node by identifier
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     *
      * @param [in,out]	id	The identifier.
-     *
      * @returns	The node by identifier.
      */
     std::shared_ptr<NetNode> getNodeByID(int& id) {
         if (this->nodes.count(id)) {
             return this->nodes[id];
         }
-        throw std::runtime_error("Could not find the simulator node ID: " + id);
+        throw std::runtime_error("Could not find the simulator node ID: " + std::to_string(id));
     }
 
     /**
-     * @fn	double Network::getDistanceBetweenTwoNodes(std::shared_ptr <Train> train, std::shared_ptr<NetNode> node1, std::shared_ptr<NetNode> node2)
-     *
-     * @brief	Gets distance between two nodes
-     *
+     * Gets distance between two nodes
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	The train.
      * @param 	node1	The first node.
      * @param 	node2	The second node.
-     *
      * @returns	The distance between two nodes.
      */
     double getDistanceBetweenTwoNodes(std::shared_ptr <Train> train, std::shared_ptr<NetNode> node1, std::shared_ptr<NetNode> node2) {
@@ -144,17 +117,12 @@ public:
     }
 
     /**
-     * @fn	bool Network::isConflictZone(std::shared_ptr<Train> train, std::shared_ptr<NetNode> node1, std::shared_ptr<NetNode> node2)
-     *
-     * @brief	Query if 'train' is taking a conflict zone between two nodes.
-     *
+     * Query if 'train' is taking a conflict zone between two nodes.
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	The train.
      * @param 	node1	The first node.
      * @param 	node2	The second node.
-     *
      * @returns	True if conflict zone, false if not.
      */
     bool isConflictZone(std::shared_ptr<Train> train, std::shared_ptr<NetNode> node1, std::shared_ptr<NetNode> node2) {
@@ -174,16 +142,11 @@ public:
     }
 
     /**
-     * @fn	double Network::getDistanceByTwoCoordinates(const std::pair<double, double>& position1, const std::pair<double, double>& position2)
-     *
-     * @brief	Gets distance by two coordinates
-     *
+     * Gets distance by two coordinates
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	position1	The first position.
      * @param 	position2	The second position.
-     *
      * @returns	The distance by two coordinates.
      */
     double getDistanceByTwoCoordinates(const std::pair<double, double>& position1, 
@@ -195,16 +158,11 @@ public:
     }
 
     /**
-     * @fn	bool Network::DistanceToEndOfAllLinkTrainsIsLarge(const std::shared_ptr <NetLink> link, const std::shared_ptr <Train> train)
-     *
-     * @brief	The shortest distance to end of all leading trains
-     *
+     * The shortest distance to end of all leading trains
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	link 	The link.
      * @param 	train	The train.
-     *
      * @returns	True if it succeeds, false if it fails.
      */
     bool DistanceToEndOfAllLinkTrainsIsLarge(const std::shared_ptr <NetLink> link, const std::shared_ptr <Train> train) {
@@ -219,16 +177,11 @@ public:
     }
 
     /**
-     * @fn	std::pair<std::pair<double, double>, std::pair<double, double>> Network::vectorizeLink(std::shared_ptr<NetLink> link, std::shared_ptr <NetNode> startNode)
-     *
-     * @brief	Vectorize a link
-     *
+     * Vectorize a link
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	link	 	The link.
      * @param 	startNode	The start node.
-     *
      * @returns	A std::pair&lt;std::pair&lt;double,double&gt;,std::pair&lt;double,double&gt;&gt;
      */
     std::pair<std::pair<double, double>, std::pair<double, double>> vectorizeLink(std::shared_ptr<NetLink> link,
@@ -242,16 +195,11 @@ public:
     }
 
     /**
-     * @fn	pair<double, double> Network::getPositionbyTravelledDistance(std::shared_ptr <Train> train, double &travelledDistance)
-     *
-     * @brief	Gets positionby travelled distance
-     *
+     * Gets positionby travelled distance
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 		  	train			 	The train.
      * @param [in,out]	travelledDistance	The travelled distance.
-     *
      * @returns	The positionby travelled distance.
      */
     pair<double, double> getPositionbyTravelledDistance(std::shared_ptr <Train> train, double &travelledDistance) {
@@ -276,16 +224,11 @@ public:
     }
 
     /**
-     * @fn	double Network::dot(std::pair<double, double> &u, std::pair<double, double> &v)
-     *
-     * @brief	Dots
-     *
+     * Dots
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param [in,out]	u	A std::pair&lt;double,double&gt; to process.
      * @param [in,out]	v	A std::pair&lt;double,double&gt; to process.
-     *
      * @returns	A double.
      */
     double dot(std::pair<double, double> &u, std::pair<double, double> &v) {
@@ -293,16 +236,11 @@ public:
     }
 
     /**
-     * @fn	std::pair<double, double> Network::dot(Vector<Vector<double>> matrix, std::pair<double, double>& v)
-     *
-     * @brief	Dots
-     *
+     * Dots
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 		  	matrix	The matrix.
      * @param [in,out]	v	  	A std::pair&lt;double,double&gt; to process.
-     *
      * @returns	A std::pair&lt;double,double&gt;
      */
     std::pair<double, double> dot(Vector<Vector<double>> matrix, std::pair<double, double>& v) {
@@ -311,16 +249,11 @@ public:
     }
 
     /**
-     * @fn	double Network::cross(std::pair<double, double> &u, std::pair<double, double> &v)
-     *
-     * @brief	Cross
-     *
+     * Cross
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param [in,out]	u	A std::pair&lt;double,double&gt; to process.
      * @param [in,out]	v	A std::pair&lt;double,double&gt; to process.
-     *
      * @returns	A double.
      */
     double cross(std::pair<double, double> &u, std::pair<double, double> &v) {
@@ -328,16 +261,11 @@ public:
     }
 
     /**
-     * @fn	std::pair<double, double> Network::projectLengthonPathVector(std::pair<double, double>& vectorEndpoints, double length)
-     *
-     * @brief	Project lengthon path vector
-     *
+     * Project lengthon path vector
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param [in,out]	vectorEndpoints	The vector endpoints.
      * @param 		  	length		   	The length.
-     *
      * @returns	A std::pair&lt;double,double&gt;
      */
     std::pair<double, double> projectLengthonPathVector(std::pair<double, double>& vectorEndpoints, double length) {
@@ -353,39 +281,28 @@ public:
     }
 
     /**
-     * @fn	std::pair<double,double> Network::getPositionOnVector(std::pair<std::pair<double,double>,std::pair<double,double>>vector parameter1, double travelledDistanceOnXAxis)
-     *
-     * @brief	Gets position vector
-     *
+     * Gets position vector
      * @author	Ahmed
      * @date	2/14/2023
-     *
-     * @param 	vector				     	The vector (start coordinates, direction).
      * @param 	travelledDistanceOnXAxis	The travelled distance on x coordinate axis.
-     *
      * @returns	The position vector.
      */
     std::pair<double, double> getPositionOnVector(std::pair<std::pair<double, double>, std::pair<double, double>>vector, 
         double travelledDistanceOnXAxis) {
         double pathOriginX = vector.first.first;
         double pathOriginY = vector.first.second;
-        double pathEndX = vector.second.first;
-        double pathEndY = vector.second.second;
+        // double pathEndX = vector.second.first;
+        // double pathEndY = vector.second.second;
         std::pair<double, double> projectedLength = projectLengthonPathVector(vector.second, travelledDistanceOnXAxis);
 
         return std::make_pair(pathOriginX + projectedLength.first, pathOriginY + projectedLength.second);
     }
 
     /**
-     * @fn	Vector< std::shared_ptr<NetSignal>> Network::getSignalsByCurrentNodeList(const std::vector<std::shared_ptr<NetNode>> nodeList)
-     *
-     * @brief	Gets signals by current node list
-     *
+     * Gets signals by current node list
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	nodeList	List of nodes.
-     *
      * @returns	The signals by current node list.
      */
     Vector< std::shared_ptr<NetSignal>> getSignalsByCurrentNodeList(const std::vector<std::shared_ptr<NetNode>> nodeList) {
@@ -401,18 +318,13 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr<NetLink> Network::getLinkByStartandEndNodeID(const std::shared_ptr<Train> train, int startID, int endID, bool calcExact = true)
-     *
-     * @brief	Gets link by startand end node identifier
-     *
+     * Gets link by startand end node identifier
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	 	The train.
      * @param 	startID  	The start identifier.
      * @param 	endID	 	The end identifier.
      * @param 	calcExact	(Optional) True to calculate exact.
-     *
      * @returns	The link by startand end node identifier.
      */
     std::shared_ptr<NetLink> getLinkByStartandEndNodeID(const std::shared_ptr<Train> train, int startID, 
@@ -445,15 +357,10 @@ public:
     }
 
     /**
-     * @fn	double Network::getFullPathLength(std::shared_ptr <Train> train)
-     *
-     * @brief	Gets full path length
-     *
+     * Gets full path length
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	The train.
-     *
      * @returns	The full path length.
      */
     double getFullPathLength(std::shared_ptr <Train> train) {
@@ -467,16 +374,11 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr <NetLink> Network::getLinkByStartNodeID(const std::shared_ptr <Train> train, int startNodeID)
-     *
-     * @brief	Gets link by start node identifier
-     *
+     * Gets link by start node identifier
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	   	The train.
      * @param 	startNodeID	The start node identifier.
-     *
      * @returns	The link by start node identifier.
      */
     std::shared_ptr <NetLink> getLinkByStartNodeID(const std::shared_ptr <Train> train, int startNodeID) {
@@ -490,15 +392,10 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr<NetLink> Network::getFirstTrainLink(const std::shared_ptr <Train> train)
-     *
-     * @brief	Gets the first train link
-     *
+     * Gets the first train link
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	The train.
-     *
      * @returns	The first train link.
      */
     std::shared_ptr<NetLink> getFirstTrainLink(const std::shared_ptr <Train> train) {
@@ -513,15 +410,10 @@ public:
     }
 
     /**
-     * @fn	Vector<double> Network::generateCumLinksLengths(std::shared_ptr<Train> train)
-     *
-     * @brief	Generates a cumulative links lengths
-     *
+     * Generates a cumulative links lengths
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train	The train.
-     *
      * @returns	The cumulative links lengths.
      */
     Vector<double> generateCumLinksLengths(std::shared_ptr<Train> train) {
@@ -534,17 +426,12 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr <NetNode> Network::getPreviousNodeByDistance(std::shared_ptr<Train> train, double travelledDistance, int &previousNodeID)
-     *
-     * @brief	Gets the previous node by distance
-     *
+     * Gets the previous node by distance
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 		  	train			 	The train.
      * @param 		  	travelledDistance	The travelled distance.
      * @param [in,out]	previousNodeID   	Identifier for the previous node.
-     *
      * @returns	The previous node by distance.
      */
     std::shared_ptr <NetNode> getPreviousNodeByDistance(std::shared_ptr<Train> train, double travelledDistance, int &previousNodeID) {
@@ -561,17 +448,12 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr <NetLink> Network::getLinkFromDistance(std::shared_ptr <Train> train, double &travelledDistance, int &previousNodeID)
-     *
-     * @brief	Gets link from distance
-     *
+     * Gets link from distance
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 		  	train			 	The train.
      * @param [in,out]	travelledDistance	The travelled distance.
      * @param [in,out]	previousNodeID   	Identifier for the previous node.
-     *
      * @returns	The link from distance.
      */
     std::shared_ptr <NetLink> getLinkFromDistance(std::shared_ptr <Train> train, double &travelledDistance, int &previousNodeID) {
@@ -588,17 +470,11 @@ public:
     }
 
     /**
-     * @fn	int Network::getSimulatorNodeIDByUserID(int oldID)
-     *
-     * @brief	Gets simulator node identifier by user identifier
-     *
+     * Gets simulator node identifier by user identifier
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     *
      * @param 	oldID	Identifier for the old.
-     *
      * @returns	The simulator node identifier by user identifier.
      */
     int getSimulatorNodeIDByUserID(int oldID) {
@@ -611,17 +487,11 @@ public:
     }
 
     /**
-     * @fn	std::shared_ptr <NetNode> Network::getSimulatorNodeByUserID(int oldID)
-     *
-     * @brief	Gets simulator node by user identifier
-     *
+     * Gets simulator node by user identifier
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     *
      * @param 	oldID	Identifier for the old.
-     *
      * @returns	The simulator node by user identifier.
      */
     std::shared_ptr <NetNode> getSimulatorNodeByUserID(int oldID) {
@@ -635,17 +505,12 @@ public:
     }
 
     /**
-     * @fn	double Network::getDistanceToSpecificNodeByTravelledDistance(std::shared_ptr<Train> train, double& travelledDistance, int& nodeID)
-     *
-     * @brief	Gets distance to specific node by travelled distance
-     *
+     * Gets distance to specific node by travelled distance
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 		  	train			 	The train.
      * @param [in,out]	travelledDistance	The travelled distance.
      * @param [in,out]	nodeID			 	Identifier for the node.
-     *
      * @returns	The distance to specific node by travelled distance.
      */
     double getDistanceToSpecificNodeByTravelledDistance(std::shared_ptr<Train> train, double& travelledDistance, int& nodeID) {
@@ -654,17 +519,12 @@ public:
     }
 
     /**
-     * @fn	bool Network::ccw(const std::pair<double, double>& A, const std::pair<double, double>& B, const std::pair<double, double>& C)
-     *
-     * @brief	Ccws
-     *
+     * Ccws
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	A	A std::pair&lt;double,double&gt; to process.
      * @param 	B	A std::pair&lt;double,double&gt; to process.
      * @param 	C	A std::pair&lt;double,double&gt; to process.
-     *
      * @returns	True if it succeeds, false if it fails.
      */
     bool ccw(const std::pair<double, double>& A, const std::pair<double, double>& B, 
@@ -673,18 +533,13 @@ public:
     }
 
     /**
-     * @fn	bool Network::twoLinesIntersect(const std::pair<double, double>& A, const std::pair<double, double>& B, const std::pair<double, double>& C, const std::pair<double, double>& D)
-     *
-     * @brief	Two lines intersect
-     *
+     * Two lines intersect
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	A	A std::pair&lt;double,double&gt; to process.
      * @param 	B	A std::pair&lt;double,double&gt; to process.
      * @param 	C	A std::pair&lt;double,double&gt; to process.
      * @param 	D	A std::pair&lt;double,double&gt; to process.
-     *
      * @returns	True if it succeeds, false if it fails.
      */
     bool twoLinesIntersect(const std::pair<double, double>& A, const std::pair<double, double>& B, 
@@ -693,16 +548,12 @@ public:
     }
 
     /**
-     * @fn	void Network::shortestPathSearch(int startNodeID, int targetNodeID)
-     *
-     * @brief	Shortest path search
-     * 			
-     * get the shortest path between two nodes. The first nodes is the start node and the second is the 
-     * destination. The function returns a Vector<std::shared_ptr<NetNode>>.
-     *
+     * Shortest path search
+     * 
+     * get the shortest path between two nodes. The first nodes is the start node and the second is
+     * the destination. The function returns a Vector&lt;std::shared_ptr&lt;NetNode&gt;&gt;.
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	startNodeID 	The start node identifier.
      * @param 	targetNodeID	Identifier for the target node.
      */
@@ -746,17 +597,12 @@ public:
     // ***********************************************************************
 private: 
 
-     /**
-      * @fn	std::shared_ptr&lt;NetNode&gt; Network::minimumDistance()
-      *
-      * @brief	Node with minimum distance
-      *
-      * @author	Ahmed
-      *
-      * @date	2/14/2023
-      *
-      * @returns	A std::shared_ptr&lt;NetNode&gt;
-      */
+    /**
+     * Node with minimum distance
+     * @author	Ahmed
+     * @date	2/14/2023
+     * @returns	A std::shared_ptr&lt;NetNode&gt;
+     */
     std::shared_ptr<NetNode> minimumDistance() {
         std::shared_ptr<NetNode> nextNode = std::shared_ptr<NetNode>();
         double minValue = INFINITY;
@@ -772,17 +618,11 @@ private:
 #pragma region readDataAndOrganizeIt
 
     /**
-     * @fn	Vector<std::shared_ptr<NetNode>> Network::readNodesFile(const std::string& fileName)
-     *
-     * @brief	Reads nodes file
-     *
+     * Reads nodes file
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     *
      * @param 	fileName	Filename of the file.
-     *
      * @returns	The nodes file.
      */
     Vector<std::shared_ptr<NetNode>> readNodesFile(const std::string& fileName) {
@@ -838,13 +678,9 @@ private:
     }
 
     /**
-     * @fn	Vector<std::shared_ptr<NetSignal>> Network::generateSignals()
-     *
-     * @brief	Generates the signals
-     *
+     * Generates the signals
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @returns	The signals.
      */
     Vector<std::shared_ptr<NetSignal>> generateSignals() {
@@ -881,10 +717,7 @@ private:
     }
 
     /**
-     * @fn	void Network::defineNodesLinks()
-     *
-     * @brief	Define nodes links
-     *
+     * Define nodes links
      * @author	Ahmed
      * @date	2/14/2023
      */
@@ -905,17 +738,11 @@ private:
     }
 
     /**
-     * @fn	Vector<std::shared_ptr<NetLink>> Network::readLinksFile(const std::string& fileName)
-     *
-     * @brief	Reads links file
-     *
+     * Reads links file
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     *
      * @param 	fileName	Filename of the file.
-     *
      * @returns	The links file.
      */
     Vector<std::shared_ptr<NetLink>> readLinksFile(const std::string& fileName) {
@@ -975,10 +802,7 @@ private:
     }
 
     /**
-     * @fn	void Network::updateLinksLength()
-     *
-     * @brief	Updates the links length
-     *
+     * Updates the links length
      * @author	Ahmed
      * @date	2/14/2023
      */
@@ -1000,21 +824,16 @@ private:
 #pragma endregion
 
     /**
-     * @fn	bool Network::isSameDirection(std::shared_ptr<NetLink> link, std::shared_ptr <Train> train)
-     *
-     * @brief	Query if 'link' is same direction
-     *
+     * Query if 'link' is same direction
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	link 	The link.
      * @param 	train	The train.
-     *
      * @returns	True if same direction, false if not.
      */
     bool isSameDirection(std::shared_ptr<NetLink> link, std::shared_ptr <Train> train) {
         std::set<bool> allTrainsAreInSameDirection;
-        for (const std::shared_ptr<Train> t : link->currentTrains) {
+        for (const std::shared_ptr<Train>& t : link->currentTrains) {
             if (t != train) {
                 allTrainsAreInSameDirection.insert(
                     std::is_permutation(t->trainPath.begin(), t->trainPath.end(),
@@ -1025,16 +844,11 @@ private:
     }
 
     /**
-     * @fn	double Network::getDistanceToSpecificNodeFromStart(std::shared_ptr<Train> train, int nodeID)
-     *
-     * @brief	Gets distance to specific node from start
-     *
+     * Gets distance to specific node from start
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param 	train 	The train.
      * @param 	nodeID	Identifier for the node.
-     *
      * @returns	The distance to specific node from start.
      */
     double getDistanceToSpecificNodeFromStart(std::shared_ptr<Train> train, int nodeID) {
@@ -1049,18 +863,12 @@ private:
         return l;
     }
 
-
     /**
-     * @fn	friend ostream& Network::operator<<(ostream& ostr, Network& stud) { ostr << "the network has " << stud.nodes.size() << " nodes and " << stud.links.size() << "links." << endl; return ostr;
-     *
-     * @brief	Stream insertion operator
-     *
+     * Stream insertion operator
      * @author	Ahmed
      * @date	2/14/2023
-     *
      * @param [in,out]	ostr	The ostr.
      * @param [in,out]	stud	The stud.
-     *
      * @returns	The shifted result.
      */
     friend ostream& operator<<(ostream& ostr, Network& stud) {
