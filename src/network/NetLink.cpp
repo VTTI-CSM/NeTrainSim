@@ -5,7 +5,7 @@
 #include "../util/Vector.h"
 #include "NetLink.h"
 #include "NetNode.h"
-#include "../TrainDefintion/Train.h"
+#include "../trainDefintion/Train.h"
 
 using namespace std;
 
