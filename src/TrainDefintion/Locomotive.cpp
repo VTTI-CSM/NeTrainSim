@@ -141,7 +141,7 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 
 double Locomotive::getThrottleLevel(double & trainSpeed, double& TrainAcceleration, bool &optimize, double &optimumThrottleLevel) {
 	double currentThrottleLevel = 0;
-	double throttleL = 0;
+    double throttleL = 0;
 	if (TrainAcceleration < 0) {
 		throttleL = this->throttleLevels[0];
 	}
@@ -150,6 +150,9 @@ double Locomotive::getThrottleLevel(double & trainSpeed, double& TrainAccelerati
 	};
 
 	if (optimize) {
+        if (optimumThrottleLevel < 0){
+            optimumThrottleLevel = this->throttleLevels.max();
+        }
 		currentThrottleLevel = min(optimumThrottleLevel, throttleL);
 	}
 	else {
@@ -208,7 +211,7 @@ double Locomotive::getSharedVirtualTractivePower(double &trainSpeed, double& tra
 }
 
 double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, double &trainSpeed, 
-	double& trainAcceleration, double &timeStep) {
+                                            double& trainAcceleration, double &timeStep) {
 	// if the locomotive is turned off already, do not consume anything
 	if (!this->isLocOn) {
 		return 0.0;
@@ -220,7 +223,7 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, 
 		return this->auxiliaryPower * unitConversionFactor;
 	}
 	else if(tractivePower > 0) {
-		return ((tractivePower / EC::getDriveLineEff(this->currentLocNotch, this->powerType) + 
+        return ((tractivePower / EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
 			this->auxiliaryPower) * unitConversionFactor);
 	}
 	else {
@@ -247,7 +250,7 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, 
 					regenerativeEff = 0.0;
 				}
 			}
-			return ((tractivePower * regenerativeEff * EC::getDriveLineEff(this->currentLocNotch, this->powerType) +
+            return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
 				this->auxiliaryPower) * unitConversionFactor);
 		}		
 	}
@@ -259,7 +262,7 @@ bool Locomotive::consumeFuel(double EC_kwh, bool isOffGrid, double dieselConvers
 	if (EC_kwh > 0.0) {
 		this->energyConsumed = 0.0;
 		this->energyRegenerated = 0.0;
-		if (this->powerType == TrainTypes::PowerType::diesel) {
+        if (this->powerType == TrainTypes::PowerType::diesel || this->powerType == TrainTypes::PowerType::dieselElectric) {
 			// tenderCurrentCapacity is in liters in that case
 			double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
 			if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
@@ -289,7 +292,7 @@ bool Locomotive::consumeFuel(double EC_kwh, bool isOffGrid, double dieselConvers
 			this->cumEnergyConsumed += this->energyConsumed;
 			return true;
 		}
-		else if (this->powerType == TrainTypes::PowerType::hydrogen) {
+        else if (this->powerType == TrainTypes::PowerType::hydrogen || this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
 			// tenderCurrentCapacity is in kg in that case
 			double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
 			if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
