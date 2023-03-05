@@ -7,7 +7,7 @@
 #define NeTrainSim_Simulator_h
 
 #include "trainDefintion/Train.h"
-#include "trainDefintion/TrainsList.h"
+//#include "trainDefintion/TrainsList.h"
 #include "network/Network.h"
 #include "network/NetSignalGroupController.h"
 #include "./util/Vector.h"
@@ -29,16 +29,18 @@ private:
 	static constexpr double DefaultEndTime = 0.0;
 	/** (Immutable) true to default export instantaneous trajectory */
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
-	/** (Immutable) the default output folder */
-	inline static const std::string DefaultOutputFolder = "";
-	/** (Immutable) the default instantaneous trajectory empty filename */
-	inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
-	/** (Immutable) the default summary empty filename */
-	inline static const std::string DefaultSummaryEmptyFilename = "";
+//	/** (Immutable) the default output folder */
+//	inline static const std::string DefaultOutputFolder = "";
+//	/** (Immutable) the default instantaneous trajectory empty filename */
+    inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
+//	/** (Immutable) the default summary empty filename */
+    inline static const std::string DefaultSummaryEmptyFilename = "";
 	/** (Immutable) the default instantaneous trajectory filename */
-	inline static const std::string DefaultInstantaneousTrajectoryFilename = "NeTrainSim_TrainTrajectory.csv";
+    inline static const std::string DefaultInstantaneousTrajectoryFilename = "trainTrajectory_";
 	/** (Immutable) the default summary filename */
-	inline static const std::string DefaultSummaryFilename =  "NeTrainSim_TrainSummary.txt";
+    inline static const std::string DefaultSummaryFilename =  "trainSummary_";
+    /** (Immutable) true to optimize each train trajectory */
+    static constexpr bool DefaultOptimizeSingleTrains = false;
 
 private:
 	/** The trains */
@@ -70,32 +72,92 @@ private:
 	//Vector<Vector<Vector < std::shared_ptr<NetNode>>>> conflictTrainsIntersections;
 	/** Groups the signals belongs to */
 	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
-
 public:
 
-	/**
-	 * Constructor
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @param [in,out]	theNetwork					   	the network.
-	 * @param 		  	networkTrains				   	The network trains.
-	 * @param 		  	simulationEndTime_			   	(Optional) The simulation end time.
-	 * @param 		  	simulationTimeStep_			   	(Optional) The simulation time step.
-	 * @param 		  	exportInstantaneousTrajectory  	(Optional) True to export instantaneous
-	 * 													trajectory.
-	 * @param 		  	outputFolderLocation		   	(Optional) The output folder location.
-	 * @param 		  	instantaneousTrajectoryFilename	(Optional) Filename of the instantaneous
-	 * 													trajectory file.
-	 * @param 		  	summaryFilename				   	(Optional) Filename of the summary file.
-	 */
-	Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulationEndTime_ = DefaultEndTime,
-		double simulationTimeStep_ = DefaultTimeStep,
-		bool exportInstantaneousTrajectory = DefaultExportInstantaneousTrajectory,
-		string outputFolderLocation = DefaultOutputFolder,
-		string instantaneousTrajectoryFilename = DefaultInstantaneousTrajectoryEmptyFilename,
-		string summaryFilename = DefaultSummaryEmptyFilename);
+//	/**
+//     * Simulator constructor
+//	 *
+//	 * @author	Ahmed Aredah
+//	 * @date	2/28/2023
+//	 *
+//	 * @param [in,out]	theNetwork					   	the network.
+//	 * @param 		  	networkTrains				   	The network trains.
+//	 * @param 		  	simulationEndTime_			   	(Optional) The simulation end time.
+//	 * @param 		  	simulationTimeStep_			   	(Optional) The simulation time step.
+//	 * @param 		  	exportInstantaneousTrajectory  	(Optional) True to export instantaneous
+//	 * 													trajectory.
+//	 * @param 		  	outputFolderLocation		   	(Optional) The output folder location.
+//	 * @param 		  	instantaneousTrajectoryFilename	(Optional) Filename of the instantaneous
+//	 * 													trajectory file.
+//	 * @param 		  	summaryFilename				   	(Optional) Filename of the summary file.
+//	 */
+//    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulationEndTime_ = DefaultEndTime,
+//        double simulationTimeStep_ = DefaultTimeStep,
+//        bool exportInstantaneousTrajectory = DefaultExportInstantaneousTrajectory,
+//        string outputFolderLocation = DefaultOutputFolder,
+//        string instantaneousTrajectoryFilename = DefaultInstantaneousTrajectoryEmptyFilename,
+//        string summaryFilename = DefaultSummaryEmptyFilename);
+
+
+    /**
+     * @brief Simulator constructor
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param  [in,out]	theNetwork        The network.
+     * @param           networkTrains     The network trains.
+     */
+    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains);
+
+    /**
+     * @brief set simulator time step
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param newTimeStep
+     */
+    void setTimeStep(double newTimeStep);
+
+    /**
+     * @brief set simulator end time.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param newEndTime    the new end time of the simulator in seconds.
+     *                      Zero means do not stop untill all trains reach destination.
+     */
+    void setEndTime(double newEndTime);
+
+    /**
+     * @brief setOutputFolderLocation.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param newOutputFolderLocation   the new output folder location on the disk.
+     */
+    void setOutputFolderLocation(string newOutputFolderLocation);
+
+    /**
+     * @brief set summary filename.
+     * @param newfilename           the new file name of the summary file.
+     */
+    void setSummaryFilename(string newfilename = DefaultSummaryEmptyFilename);
+
+    /**
+     * @brief setExportInstantaneousTrajectory
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param exportInstaTraject
+     * @param newInstaTrajectFilename
+     */
+    void setExportInstantaneousTrajectory(bool exportInstaTraject, string newInstaTrajectFilename = DefaultInstantaneousTrajectoryEmptyFilename);
+
 
 	/**
 	 * Defines the signals grouping based on the min allowable distance between them.
@@ -238,16 +300,17 @@ public:
 	Map<int, double> getAllLowerSpeedsIDs(std::shared_ptr<Train> train, int& previousNodeID, int& nextStoppingNodeID);
 
 	/**
-	 * Gets train and distance to train ahead
+     * Gets the ahead train and the gap between the current train and the ahead train.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	train	The train.
+     * @param 	train	The current train.
 	 *
-	 * @returns	The train and distance to train ahead.
+     * @returns	a pointer to the ahead train and the gap between the current train and
+     *          the ahead train.
 	 */
-	std::pair<std::shared_ptr<Train>, double> getTrainAndDistanceToTrainAhead(std::shared_ptr <Train> train);
+    std::pair<std::shared_ptr<Train>, double> getAheadTrainAndGap(std::shared_ptr <Train> train);
 
 	/**
 	 * Gets start end points
@@ -322,7 +385,7 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-	void runSimulator();
+    void runSimulation();
 
 	/**
 	 * Sets train simulator path
@@ -376,15 +439,15 @@ private:
 	 */
 	void turnOnAllSignals();
 
-	/**
-	 * Turn off signal
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @param 	networkSignals	The network signals.
-	 */
-	void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
+    /**
+     * Turn off signal
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	networkSignals	The network signals.
+     */
+    void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
 
 	/**
 	 * Check links are free
