@@ -13,6 +13,7 @@
 #include "NetNode.h"
 #include "NetLink.h"
 #include "NetSignal.h"
+#include "src/trainDefintion/Train.h"
 //#include <qapplication.h>
 
 /**
@@ -77,6 +78,19 @@ public:
             simulatorTrainPath.push_back(getSimulatorNodeIDByUserID((userDefinedTrainPath)[i]));
         }
         return simulatorTrainPath;
+    }
+
+    std::tuple<double, double, double> getNetworkStats() {
+        double catenaryCumConsumed = 0.0;
+        double catenaryCumRegenerated = 0.0;
+        int nuOfCatenaryLinks = 0;
+        for (auto& link: this->links) {
+            nuOfCatenaryLinks += (link->hasCatenary)? 1 : 0;
+            catenaryCumConsumed += link->catenaryCumConsumedEnergy;
+            catenaryCumRegenerated += link->catenaryCumRegeneratedEnergy;
+        }
+        double percOfCatenaryLinks = (nuOfCatenaryLinks / this->links.size()) * 100.0;
+        return std::make_tuple(percOfCatenaryLinks, catenaryCumConsumed, catenaryCumRegenerated);
     }
 
     /**
@@ -205,7 +219,6 @@ public:
     pair<double, double> getPositionbyTravelledDistance(std::shared_ptr <Train> train, double &travelledDistance) {
         if (travelledDistance <= 0.0) { return train->trainPathNodes[0]->coordinates(); }
         if (travelledDistance >= train->trainTotalPathLength) { return train->trainPathNodes.back()->coordinates(); }
-        double len = travelledDistance;
         if (travelledDistance < train->linksCumLengths[0]) {
 
         }
@@ -626,6 +639,8 @@ private:
      * @returns	The nodes file.
      */
     Vector<std::shared_ptr<NetNode>> readNodesFile(const std::string& fileName) {
+        try {
+
             // Open file to read
             std::ifstream file(fileName);
             if (!file.good()) {
@@ -675,6 +690,12 @@ private:
             }
 
             return _Nodes;
+
+        } catch (const exception &e) {
+            std::cerr << "Bad nodes file structure:" << e.what() << std::endl;
+            throw std::runtime_error("Bad nodes file structure!");
+
+        }
     }
 
     /**
@@ -710,7 +731,6 @@ private:
             }
             else if (l->trafficSignalNo == 10001){
                 l->toLoc->isDepot = true;
-                cout << l->toLoc << endl;
             }
         }
         return networkSignals;
@@ -746,6 +766,7 @@ private:
      * @returns	The links file.
      */
     Vector<std::shared_ptr<NetLink>> readLinksFile(const std::string& fileName) {
+        try {
         std::ifstream file(fileName);
         if (!file.good()) {
             std::cerr << "Links file does not exist" << std::endl;
@@ -782,23 +803,31 @@ private:
             if (!linkValues.empty()) {
                 std::shared_ptr<NetNode> fromLoc = this->getSimulatorNodeByUserID(std::stoi(linkValues[1]));
                 std::shared_ptr<NetNode> toLoc = this->getSimulatorNodeByUserID(std::stoi(linkValues[2]));
-                if (linkValues.size() < 11) {
+                bool hasCaten;
+                stringstream ss(linkValues[10]);
+                ss >> std::boolalpha >> hasCaten;
+
+                if (linkValues.size() < 12) {
                     NetLink link = NetLink(stoi(linkValues[0]), fromLoc, toLoc, stod(linkValues[3]),
                         stod(linkValues[4]), stoi(linkValues[5]), stod(linkValues[6]), stod(linkValues[7]),
-                        stoi(linkValues[8]), stod(linkValues[9]), "ND Region", stod(scaleValues[0]),
+                        stoi(linkValues[8]), stod(linkValues[9]), hasCaten, "ND Region", stod(scaleValues[0]),
                         stod(scaleValues[1]));
                     links.push_back(std::make_shared<NetLink>(link));
                 }
                 else {
                     NetLink link = NetLink(stoi(linkValues[0]), fromLoc, toLoc, stod(linkValues[3]),
                         stod(linkValues[4]), stoi(linkValues[5]), stod(linkValues[6]), stod(linkValues[7]),
-                        stoi(linkValues[8]), stod(linkValues[9]), linkValues[10], stod(scaleValues[0]),
+                        stoi(linkValues[8]), stod(linkValues[9]), hasCaten, linkValues[10], stod(scaleValues[0]),
                         stod(scaleValues[1]));
                     links.push_back(std::make_shared<NetLink>(link));
                 }
             }
         }
         return links;
+        } catch (const exception &e) {
+            std::cerr << "Bad links file structure:" << e.what() << std::endl;
+            throw std::runtime_error("Bad links file structure!");
+        }
     }
 
     /**
@@ -807,7 +836,7 @@ private:
      * @date	2/14/2023
      */
     void updateLinksLength() {
-        for (std::shared_ptr<NetLink> l : this->links) {
+        for (std::shared_ptr<NetLink> &l : this->links) {
             std::shared_ptr<NetNode> n1 = l->fromLoc;
             std::shared_ptr<NetNode> n2 = l->toLoc;
             double dx = n2->x - n1->x;
