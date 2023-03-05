@@ -53,12 +53,18 @@ bool checkParserValue(QCommandLineParser& parser, const QCommandLineOption &opti
  *
  * @returns	Exit-code for the process - 0 for success, else an error code.
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // -----------------------------------
     // command line application
     // -----------------------------------
 #ifdef AS_CMD
+// ####################################################
+// #                     values                       #
+// ####################################################
+    std::string Institution =
+            "(C) 2022-2023 Virginia Tech Transportation Institute - Center for Sustainable Mobility.";
+    std::string GithubLink = " ";
+
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName(MYAPP_TARGET);
     QCoreApplication::setApplicationVersion(MYAPP_VERSION );
@@ -149,6 +155,12 @@ int main(int argc, char *argv[])
     if (summaryFilename != "" ) { sim.setSummaryFilename(summaryFilename); }
 
     sim.setExportInstantaneousTrajectory(exportInstaTraj, instaTrajFilename);
+
+    stringstream hellos;
+    hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << "]" << endl;
+    hellos << Institution << endl;
+    hellos << GithubLink << endl;
+    std::cout << hellos.str() << "\n";
 
     // run the actual simulation
     sim.runSimulation();

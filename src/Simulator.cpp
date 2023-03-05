@@ -834,7 +834,8 @@ void Simulator::runSimulation() {
     this->openSummaryFile();
 
 
-	time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     while (this->simulationTime <= this->simulationEndTime || this->runSimulationEndlessly) {
 		if (this->checkAllTrainsReachedDestination()) {
