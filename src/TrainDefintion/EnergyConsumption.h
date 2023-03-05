@@ -14,40 +14,39 @@
 using namespace std;
 
 namespace EC {
-	/** (Immutable) the default ec file name[] */
-	static const char DefaultECFileName[] = "ECEDB.xml";
-	/** These variables will be overwritten by the energyConfiguration file */
+
 #pragma region LocomotiveECVariables
-	static double DefaultLocomotiveBatteryMaxCharge = 120.0;
+    static double DefaultLocomotiveBatteryMaxCharge = 126000.0;
 	/** The default locomotive battery initial charge */
 	static double DefaultLocomotiveBatteryInitialCharge = 0.9;
 
 	/** The default locomotive tank maximum capacity */
-	static double DefaultLocomotiveTankMaxCapacity = 1000.0;
+    static double DefaultLocomotiveTankMaxCapacity = 10000.0;
 	/** The default locomotive tank initial capacity */
 	static double DefaultLocomotiveTankInitialCapacity = 0.9;
 #pragma endregion
 
 	/** The default car battery maximum capacity */
 #pragma region RailcarECVariables
-	static double DefaultCarBatteryMaxCapacity = 10000.0;
+    static double DefaultCarBatteryMaxCapacity = 126000.0;
 	/** The default car battery initial charge */
 	static double DefaultCarBatteryInitialCharge = 0.9;
 
 	/** The default car tender maximum capacity */
-	static double DefaultCarTenderMaxCapacity = 1000.0;
+    static double DefaultCarTenderMaxCapacity = 10000.0;
 	/** The default car tender initial capacity */
 	static double DefaultCarTenderInitialCapacity = 0.0;
 #pragma endregion
 
 	/** The default diesel conversion factor */
 #pragma region GeneralECVariables
+    /** the default diesel conversion factor from */
 	static double DefaultDieselConversionFactor = 0.1005;
 	/** The default hydrogen conversion factor */
-	static double DefaultHydrogenConversionFactor = 0.02995;
+    static double DefaultHydrogenConversionFactor = 0.00002995;
 
 	/** 0.85 kg/l   >> should be between 0.82 to 0.85 at 15 degree celsius (average temperature) */
-	static double DefaultDieselDensity = 0.85;
+    static double DefaultDieselDensity = 0.00085;
 	/** The gamma */
 	static double gamma = 0.65;
 #pragma endregion
@@ -64,7 +63,7 @@ namespace EC {
 	 *
 	 * @returns	The drive line eff.
 	 */
-	double getDriveLineEff(double trainSpeed, int notchNumberIndex, TrainTypes::PowerType powerType);
+    double getDriveLineEff(double trainSpeed, int notchNumberIndex, TrainTypes::PowerType powerType);
 
 }
 
