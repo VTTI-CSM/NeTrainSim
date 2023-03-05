@@ -11,8 +11,8 @@ void TrainComponent::resetTimeStepConsumptions() {
 	this->energyRegenerated = 0.0;
 }
 
-bool TrainComponent::consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor,
-	double hydrogenConversionFactor, double dieselDensity) {
+bool TrainComponent::consumeFuel(double EC_kwh, double dieselConversionFactor,
+    double hydrogenConversionFactor, double dieselDensity) {
 	return false;
 }
 
