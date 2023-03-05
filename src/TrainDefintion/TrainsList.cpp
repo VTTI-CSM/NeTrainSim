@@ -72,14 +72,13 @@
                             int cType;
 
                             if (c.size() > 7) {
-                                cType = static_cast<int>(TrainTypes::strtoCarType(Utils::trim(c[7])));
+                                cType = std::stoi(c[7]);
                             }
                             else {
-                                cType = static_cast<int>(TrainTypes::CarType::cargo);
+                                cType = 0;
                             }
                             Car car = Car(std::stof(c[4]), std::stof(c[2]), std::stof(c[3]),
-                                std::stof(c[6]), std::stof(c[5]), std::stoi(c[1]),
-                                0);
+                                std::stof(c[6]), std::stof(c[5]), std::stoi(c[1]), cType);
                             cars.push_back(std::make_shared<Car>(car));
                         }
 
