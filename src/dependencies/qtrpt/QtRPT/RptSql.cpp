@@ -22,7 +22,7 @@ limitations under the License.
 */
 
 #include "RptSql.h"
-#include <QTextCodec>
+//#include <QTextCodec>
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlRecord>
@@ -56,8 +56,8 @@ bool RptSql::openQuery()
             query->exec("set names '"+dbCoding+"'");
 
     if (!charsetCoding.isEmpty()) {
-        auto codec = QTextCodec::codecForName( QString(charsetCoding).toLocal8Bit().constData() );
-        QTextCodec::setCodecForLocale(codec);
+        //auto codec = QTextCodec::codecForName( QString(charsetCoding).toLocal8Bit().constData() );
+        //QTextCodec::setCodecForLocale(codec);
     }
 
     if (!query->exec(sql)) {
