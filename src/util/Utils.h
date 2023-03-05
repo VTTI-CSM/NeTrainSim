@@ -15,6 +15,7 @@
 #include <string>
 #include <regex>
 #include <chrono>
+#include <cmath>
 
 namespace Utils {
 
@@ -98,6 +99,32 @@ namespace Utils {
         std::string result = ss.str();
         return result;
     }
+
+    inline std::string getFilenameWithoutExtension(std::string path) {
+        size_t pos = path.find_last_of("/\\");
+        string filename = (pos == string::npos) ? path : path.substr(pos + 1);
+        size_t dotPos = filename.find_last_of(".");
+        if (dotPos != string::npos) {
+            filename = filename.substr(0, dotPos);
+        }
+        return filename;
+    }
+
+    inline std::string getPrefix(std::string str) {
+        std::string prefix;
+        bool skipFirstChar = isupper(str[0]);
+        for (size_t i = skipFirstChar ? 1 : 0; i < str.length(); i++) {
+            char c = str[i];
+            if (c == '_' || isalpha(c) || c == ' ') {
+                if (isupper(c) || c == ' ' || c == '_') {
+                    break;
+                }
+                prefix += c;
+            }
+        }
+        return prefix;
+    }
+
 
     /**
      * Splits string to double vector

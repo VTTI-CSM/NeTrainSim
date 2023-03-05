@@ -42,6 +42,14 @@ using namespace std;
  * @date	2/14/2023
  */
 class NetSignalGroupController {
+    /** The duration between the time stamp of the controller and the simulator is
+     *  referred to as the timeout threshold. This threshold is the amount of time the
+     *  controller maintains the same lockedOnSignal and associated data. Once this
+     *  duration has elapsed, any new requests will be processed, and the old data
+     *  will be discarded. A higher value for this threshold means that more time
+     *  is needed to process requests from trains traveling in the opposite direction. */
+    static constexpr double timeout = 5;
+
 private:
 	/** Number of signals in simulators */
 	static unsigned int NumberOfSignalsInSimulator;
@@ -97,11 +105,13 @@ public:
      * @param   sameDirectionSignals    The group signals that are in the direction of the train.
 	 */
     void sendPassRequestToControlTo(std::shared_ptr<NetSignal> networkSignal,
-                                    double& simulationTime);
+                                    double& simulationTime,
+                                    Vector<std::shared_ptr<NetSignal> >& sameDirectionSignals);
 
 	/**
-	 * Keep the previous group feedback as and maintain the current network signal as on and the
-	 * rest as off.
+     * Maintain the current controller state. This is usually called
+     * whenever there is a train on a confined link.
+     *
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 * @param [in,out]	timeStep	The time step.
@@ -114,7 +124,6 @@ public:
 	 * @date	2/14/2023
 	 */
     std::pair<std::shared_ptr<NetSignal>, Vector<std::shared_ptr<NetSignal>>> getFeedback();
-	//NetSignal(Vector<std::shared_ptr <NetSignal>> groupSignals, Vector<std::shared_ptr<NetLink>> monitoredLinks);
 
     /**
      * @brief setSignalsInSameDirection

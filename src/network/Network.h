@@ -3,6 +3,7 @@
 
 
 
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <regex>
@@ -14,6 +15,7 @@
 #include "NetLink.h"
 #include "NetSignal.h"
 #include "src/trainDefintion/Train.h"
+#include "src/util/Utils.h"
 //#include <qapplication.h>
 
 /**
@@ -26,6 +28,8 @@ private:
     /** The file nodes */
     Vector<std::shared_ptr<NetNode>> theFileNodes;
 public:
+    /** Holds the name of the network. */
+    std::string networkName;
     /** The nodes mapped by its simulator id */
     std::map<int, std::shared_ptr<NetNode>> nodes;
     /** The links */
@@ -40,7 +44,13 @@ public:
      * @param 	nodesFile	The nodes file.
      * @param 	linksFile	The links file.
      */
-    Network(const string& nodesFile, const string& linksFile) {
+    Network(const string& nodesFile, const string& linksFile, std::string netName = "") {
+        if (netName == "") {
+            this->networkName = Utils::getPrefix(Utils::trim(Utils::getFilenameWithoutExtension(linksFile)));
+        }
+        else {
+            this->networkName = netName;
+        }
         this->theFileNodes = readNodesFile(nodesFile);
         this->links = readLinksFile(linksFile);
         updateLinksLength();
@@ -50,6 +60,8 @@ public:
         this->networkSignals = generateSignals();
 
     }
+
+
 
     /**
      * Define nodes
@@ -80,17 +92,23 @@ public:
         return simulatorTrainPath;
     }
 
-    std::tuple<double, double, double> getNetworkStats() {
+    std::tuple<double, double, double, double, double> getNetworkStats() {
         double catenaryCumConsumed = 0.0;
         double catenaryCumRegenerated = 0.0;
         int nuOfCatenaryLinks = 0;
+        double totalLength = 0.0;
+        double totalLinkLengthsWithCatenary = 0.0;
         for (auto& link: this->links) {
-            nuOfCatenaryLinks += (link->hasCatenary)? 1 : 0;
+            if (link->hasCatenary) {
+                nuOfCatenaryLinks += 1;
+                totalLinkLengthsWithCatenary += link->length;
+            }
             catenaryCumConsumed += link->catenaryCumConsumedEnergy;
             catenaryCumRegenerated += link->catenaryCumRegeneratedEnergy;
+            totalLength += link->length;
         }
         double percOfCatenaryLinks = (nuOfCatenaryLinks / this->links.size()) * 100.0;
-        return std::make_tuple(percOfCatenaryLinks, catenaryCumConsumed, catenaryCumRegenerated);
+        return std::make_tuple(percOfCatenaryLinks, catenaryCumConsumed, catenaryCumRegenerated, totalLength, totalLinkLengthsWithCatenary);
     }
 
     /**
@@ -627,8 +645,9 @@ private:
         }
         return nextNode;
     }
-
-#pragma region readDataAndOrganizeIt
+// ##################################################################
+// #               start: read data and organize it                 #
+// ##################################################################
 
     /**
      * Reads nodes file
@@ -850,7 +869,9 @@ private:
         }
     }
 
-#pragma endregion
+// ##################################################################
+// #                 end: read data and organize it                 #
+// ##################################################################
 
     /**
      * Query if 'link' is same direction

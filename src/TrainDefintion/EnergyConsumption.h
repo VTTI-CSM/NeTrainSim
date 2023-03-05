@@ -14,8 +14,9 @@
 using namespace std;
 
 namespace EC {
-
-#pragma region LocomotiveECVariables
+// ##################################################################
+// #             start: define locomotive default values            #
+// ##################################################################
     static double DefaultLocomotiveBatteryMaxCharge = 126000.0;
 	/** The default locomotive battery initial charge */
 	static double DefaultLocomotiveBatteryInitialCharge = 0.9;
@@ -24,10 +25,14 @@ namespace EC {
     static double DefaultLocomotiveTankMaxCapacity = 10000.0;
 	/** The default locomotive tank initial capacity */
 	static double DefaultLocomotiveTankInitialCapacity = 0.9;
-#pragma endregion
+// ##################################################################
+// #             end: define locomotive default values            #
+// ##################################################################
 
+// ##################################################################
+// #                start: define cars default values               #
+// ##################################################################
 	/** The default car battery maximum capacity */
-#pragma region RailcarECVariables
     static double DefaultCarBatteryMaxCapacity = 126000.0;
 	/** The default car battery initial charge */
 	static double DefaultCarBatteryInitialCharge = 0.9;
@@ -36,11 +41,14 @@ namespace EC {
     static double DefaultCarTenderMaxCapacity = 10000.0;
 	/** The default car tender initial capacity */
 	static double DefaultCarTenderInitialCapacity = 0.0;
-#pragma endregion
+// ##################################################################
+// #                 end: define cars default values                #
+// ##################################################################
 
-	/** The default diesel conversion factor */
-#pragma region GeneralECVariables
-    /** the default diesel conversion factor from */
+// ##################################################################
+// #        start: general energy consumption default values        #
+// ##################################################################
+    /** the default diesel conversion factor */
 	static double DefaultDieselConversionFactor = 0.1005;
 	/** The default hydrogen conversion factor */
     static double DefaultHydrogenConversionFactor = 0.00002995;
@@ -49,7 +57,9 @@ namespace EC {
     static double DefaultDieselDensity = 0.00085;
 	/** The gamma */
 	static double gamma = 0.65;
-#pragma endregion
+// ##################################################################
+// #          end: general energy consumption default values        #
+// ##################################################################
 
 	/**
 	 * Gets drive line eff

@@ -8,7 +8,8 @@
 #include <locale>
 #include "util/Utils.h"
 #include <filesystem>
-
+#include <cmath>
+#include <memory>
 
 // get the path to the home directory. 
 // If the path is not empty, it is returned, otherwise a runtime exception is thrown with an error message.
@@ -41,45 +42,6 @@ std::filesystem::path getHomeDirectory() {
 	throw std::runtime_error("Home directory cannot be retreived!");
 }
 
-
-//Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulationEndTime_,
-//	double simulationTimeStep_, bool exportInstantaneousTrajectory, string outputFolderLocation,
-//    string instantaneousTrajectoryFilename, string summaryFilename) {
-
-//    // VariablesInitialization
-//	this->network = &theNetwork;
-//	this->trains = networkTrains;
-//	// define train path as per simulator
-//	this->setTrainSimulatorPath();
-//	this->setTrainsStoppingStations();
-//	this->setTrainPathLength();
-//	this->simulationEndTime = simulationEndTime_;
-//	this->timeStep = simulationTimeStep_;
-//	this->simulationTime = 0.0;
-//	this->progress = 0.0;
-//	if (this->simulationEndTime == 0.0) {
-//		this->runSimulationEndlessly = true;
-//	}
-//	else {
-//		this->runSimulationEndlessly = false;
-//	}
-
-//	if (outputFolderLocation.size() == 0) { this->outputLocation = getHomeDirectory(); }
-//	else { this->outputLocation = outputFolderLocation; }
-//	if (instantaneousTrajectoryFilename.size() == 0) { this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename; }
-//	else { this->trajectoryFilename = instantaneousTrajectoryFilename; }
-//	if (summaryFilename.size() == 0) { this->summaryFileName = DefaultSummaryFilename; }
-//	else { this->summaryFileName = summaryFilename; }
-//	this->exportTrajectory = exportInstantaneousTrajectory;
-
-//    // DefineSignalsGroups
-//	double maxTrainLength = -1.0;
-//	for (const auto& t : this->trains) {
-//		maxTrainLength = std::max(maxTrainLength, t->totalLength);
-//	}
-//	defineSignalsGroups(maxTrainLength);
-
-//}
 
 Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains) {
     // variables initialization
@@ -445,8 +407,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
         LastTrainTipPreviousNodeID = (train->LastTrainPointpreviousNodeID <= 0.0) ? train->trainPath[0] : train->LastTrainPointpreviousNodeID;
 		train->LastTrainPointpreviousNodeID = this->network->getPreviousNodeByDistance(train, 
 			lastTrainTipTravelledDistance, LastTrainTipPreviousNodeID)->id;
-
-#pragma region criticalPoints
+// ##################################################################
+// #                      start: critical points                    #
+// ##################################################################
 		pair<int, bool> nextStop = this->getNextStoppingNodeID(train, train->previousNodeID);
 		int nextStoppingNodeID = nextStop.first;
 		bool isSignal = nextStop.second;
@@ -485,7 +448,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		std::get<0>(criticalPointsDefinition).push_back(distanceToStop);
 		std::get<1>(criticalPointsDefinition).push_back(false);
 		std::get<2>(criticalPointsDefinition).push_back(0.0);
-#pragma endregion
+// ##################################################################
+// #                      end: critical points                    #
+// ##################################################################
 
 		// check if the next stop is a network signal, if yes and distance is very small, stop the train
 		if (isSignal) {
@@ -887,7 +852,9 @@ void Simulator::runSimulation() {
 
 			this->playTrainOneTimeStep(t);
 		}
-#pragma region showProgressOnConsole
+// ##################################################################
+// #             start: show progress on console                    #
+// ##################################################################
 		Vector<double> trainPathLengths;
 		Vector<double> travelledDistances;
 		for (std::shared_ptr <Train>& t : this->trains) {
@@ -897,35 +864,41 @@ void Simulator::runSimulation() {
 		this->runSignalsforTrains();
         double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
         double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
-        double AV = trainsAv / totalTrainAv;
-        AV;
 
         this->ProgressBar(trainsAv, totalTrainAv);
 
 		this->checkTrainsCollision();
-#pragma endregion
 
 		this->simulationTime += this->timeStep;
 
 	}
-#pragma region SummaryFile
+// ##################################################################
+// #                       start: summary file                      #
+// ##################################################################
 	time_t fin_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	double difTime = difftime(fin_time, init_time);
 	std::stringstream exportLine;
-    std::tuple<double, double, double> networkStats = this->network->getNetworkStats();
+    std::tuple<double, double, double, double, double> networkStats = this->network->getNetworkStats();
 
 	exportLine << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
         << MYAPP_TARGET << " SIMULATION SUMMARY\n"
         << "Version: " << MYAPP_VERSION << "\n"
 		<< "Simulation Time: " << Utils::formatDuration(difTime) << " (dd:hh:mm:ss)\n"
-        << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
+        << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"
         << "+ NETWORK STATISTICS:\n"
-        << "  |_ Total Number of Trains on Network                       : " << this->trains.size() << "\n"
-        << "  |_ Percentage of Links with Catenaries to All Links        : " << std::get<0>(networkStats) << "\n"
-        << "    |_ Catenary Energy Consumed                              : " << std::get<1>(networkStats) << "\n"
-        << "    |_ Catenary Energy Regenerated                           : " << std::get<2>(networkStats) << "\n"
+        << "  |_ Network Name                                        : " << this->network->networkName << "\n"
+        << "  |_ Nodes Count                                         : " << Utils::thousandSeparator(this->network->nodes.size()) << "\n"
+        << "  |_ Links Count                                         : " << Utils::thousandSeparator(this->network->links.size()) << "\n"
+        << "    |_ Total Lengths of All Links(meters)                : " << Utils::thousandSeparator(std::get<3>(networkStats)) << "\n"
+        << "    |_ Total Lengths of All Links with Catenary(meters)  : " << Utils::thousandSeparator(std::get<4>(networkStats)) << "\n"
+        << "  |_ Total Signals                                       : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
+        << "  |_ Total Number of Trains on Network                   : " << Utils::thousandSeparator(this->trains.size()) << "\n"
+        << "  |_ Percentage of Links with Catenaries to All Links(%) : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
+        << "    |_ Catenary Energy Consumed(KW.h)                    : " << Utils::thousandSeparator(std::get<1>(networkStats)) << "\n"
+        << "    |_ Catenary Energy Regenerated(KW.h)                 : " << Utils::thousandSeparator(std::get<2>(networkStats)) << "\n"
         << "....................................................\n\n"
         << "\n";
+
 	for (auto& t : this->trains) {
         exportLine
         << "+ TRAIN STATISTICS:\n"
@@ -1004,7 +977,9 @@ void Simulator::runSimulation() {
 		exportLine.imbue(locale());
 		this->summaryFile << exportLine.str();
 	}
-#pragma endregion
+// ##################################################################
+// #                       end: summary file                      #
+// ##################################################################
 	this->summaryFile.close();
 	this->trajectoryFile.close();
 
@@ -1094,29 +1069,16 @@ void Simulator::runSignalsforTrains() {
         }
 
         if ((d <= nextSignal->proximityToActivate) || (this->checkTrainOnLinks(train, lockedLinks))) {
-            if (train == this->trains[1]) {
-                sg->sendPassRequestToControlTo(nextSignal, this->simulationTime);
-                Vector<std::shared_ptr<NetSignal>> sameDirSignals =
-                        this->getSignalsInSameDirection(train, sg->networkSignalsGroup);
-                sg->setSignalsInSameDirection(sameDirSignals);
-                Vector<std::shared_ptr<NetSignal>> otherDirSignals =
-                        sg->getFeedback().second;
-                this->turnOffSignal(otherDirSignals);
-            }
-            else {
-                sg->sendPassRequestToControlTo(nextSignal, this->simulationTime);
-                sg->setSignalsInSameDirection(this->getSignalsInSameDirection(train, sg->networkSignalsGroup));
-                this->turnOffSignal(sg->getFeedback().second);
-            }
-            //sg->sendPassRequestToControlTo(nextSignal, this->simulationTime);
-            //sg->setSignalsInSameDirection(this->getSignalsInSameDirection(train, sg->networkSignalsGroup));
-            //this->turnOffSignal(sg->getFeedback().second);
-//            if (train == this->trains[1]) {
-//                std::cerr<< "---------";
-//                for (auto& signal: this->network->networkSignals){
-//                    std::cerr << *signal;
-//                }
-//            }
+
+            Vector<std::shared_ptr<NetSignal>> sameDirSignals =
+                    this->getSignalsInSameDirection(train, sg->networkSignalsGroup);
+
+            sg->sendPassRequestToControlTo(nextSignal, this->simulationTime, sameDirSignals);
+
+            Vector<std::shared_ptr<NetSignal>> otherDirSignals =
+                    sg->getFeedback().second;
+            this->turnOffSignal(otherDirSignals);
+
         }
     }
 }

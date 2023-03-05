@@ -33,7 +33,6 @@ NeTrainSim::NeTrainSim(QWidget *parent)
 
 
 void NeTrainSim::setupGenerals(){
-#pragma region general {
     // next page button
     QObject::connect(ui->pushButton_projectNext, &QPushButton::clicked, [=]() {
         // switch to the next tab page if it is not the last page
@@ -52,7 +51,6 @@ void NeTrainSim::setupGenerals(){
             ui->pushButton_projectNext->setText("Next");
         }
     });
-#pragma endregion }
 }
 
 
@@ -62,15 +60,11 @@ void NeTrainSim::setupPage0(){
 
 
 void NeTrainSim::setupPage1(){
-#pragma region page2 {
 
-#pragma region netNetworkPlot{
     // disable viewing the axies
     ui->plot_createNetwork->xAxis->setVisible(false);
     ui->plot_createNetwork->yAxis->setVisible(false);
-#pragma endregion }
 
-#pragma region newNetworkNode {
     // make the default show the old network only
     ui->widget_oldNetwork->show();
     ui->widget_newNetwork->hide();
@@ -214,9 +208,6 @@ void NeTrainSim::setupPage1(){
     //QObject::connect(ui->table_newNodes, &QTableWidget::keyPressEvent, deleteRow);
 
 
-#pragma endregion }
-
-#pragma region newNetworkLink {
     ui->table_newLinks->setItemDelegateForColumn(1, new IntNumericDelegate());
     ui->table_newLinks->setItemDelegateForColumn(2, new IntNumericDelegate());
     ui->table_newLinks->setItemDelegateForColumn(3, new NumericDelegate());
@@ -294,9 +285,6 @@ void NeTrainSim::setupPage1(){
     // connect the cellChanged signal of the QTableWidget to the updatePlot slot
     QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged, updateLinksPlot);
 
-#pragma endregion }
-
-#pragma endregion }
 }
 
 

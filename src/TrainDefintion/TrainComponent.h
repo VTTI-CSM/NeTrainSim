@@ -10,6 +10,7 @@
 // #include "TrainTypes.h"
 #include "../network/NetLink.h"
 #include "EnergyConsumption.h"
+#include <memory>
 using namespace std;
 
 /**

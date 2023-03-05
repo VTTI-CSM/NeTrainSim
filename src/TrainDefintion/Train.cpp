@@ -70,7 +70,9 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     }
 };
 
-#pragma region utilities
+// ##################################################################
+// #                        start: utilities                        #
+// ##################################################################
 
 int Train::getActiveLocomotivesNumber() {
     this->ActiveLocos.erase(std::remove_if(this->ActiveLocos.begin(), this->ActiveLocos.end(),
@@ -260,9 +262,13 @@ void Train::updateLocNotch() {
     }
 }
 
-#pragma endregion
+// ##################################################################
+// #                        end: utilities                          #
+// ##################################################################
 
-#pragma region trainDynamics
+// ##################################################################
+// #                   start: train dynamics                        #
+// ##################################################################
 
 double Train::getTotalResistance(double speed) {
     double totalRes = 0.0;
@@ -539,9 +545,13 @@ void Train::kickForwardADistance(double& distance) {
     this->travelledDistance += distance;
 }
 
-#pragma endregion
+// ##################################################################
+// #                   end: train dynamics                          #
+// ##################################################################
 
-#pragma region trainStatistics
+// ##################################################################
+// #                 start: train statistics                        #
+// ##################################################################
 
 void Train::calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow, double timeStep, 
         std::string currentRegion) {
@@ -595,9 +605,13 @@ double Train::getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds) {
         return 0.0;
     }
 }
-#pragma endregion
+// ##################################################################
+// #                   end: train statistics                        #
+// ##################################################################
 
-#pragma region energyConsumption
+// ##################################################################
+// #                 start: train energy consumption                #
+// ##################################################################
 
 int Train::getRechargableCarsNumber() {
     int count = 0;
@@ -882,7 +896,9 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     }
 }
 
-#pragma endregion
+// ##################################################################
+// #                   end: train energy consumption                #
+// ##################################################################
 
 
 void Train::resetTrainLookAhead(){

@@ -1,12 +1,12 @@
 #include "NetSignalGroupController.h"
 #include "NetNode.h"
 #include "NetSignal.h"
-#include "NetLink.h"
+//#include "NetLink.h"
 #include "../util/Vector.h"
 
 NetSignalGroupController::NetSignalGroupController(std::set<std::shared_ptr<NetNode>> nodes) {
 	
-	for (std::shared_ptr<NetNode> node : nodes) {
+    for (const std::shared_ptr<NetNode> &node : nodes) {
 		this->atNodes.push_back(node);
 		for (int i = 0; i < node->networkSignals.size(); i++) {
 			if (!this->networkSignalsGroup.exist(std::shared_ptr<NetSignal>(node->networkSignals.at(i)))) {
@@ -33,40 +33,54 @@ void NetSignalGroupController::addNode(std::shared_ptr<NetNode> node) {
 	}
 }
 
-void NetSignalGroupController::sendPassRequestToControlTo(std::shared_ptr<NetSignal> networkSignal, double& simulationTime) {
+void NetSignalGroupController::sendPassRequestToControlTo(std::shared_ptr<NetSignal> networkSignal,
+                                                          double& simulationTime,
+                                                          Vector<std::shared_ptr<NetSignal>>& sameDirectionSignals) {
 	if (this->lockedOnSignal == networkSignal) {
 		this->timeStamp = simulationTime;
 	}
 	else {
-		if (simulationTime - this->timeStamp > 5) {
+        if (simulationTime - this->timeStamp > timeout) {
 			this->timeStamp = simulationTime;
 			this->clear();
             this->movements[networkSignal] = true;
+
+            // if none is provided, make all signals in the group as the other direction except the LockSignal
+            if (sameDirectionSignals.empty()) {
+                // all signals are should be in the opposite direction except the LockSignal
+                this->otherDirectionSignals = this->networkSignalsGroup;
+                // remove the lock signal from the other direction signals
+                if (this->lockedOnSignal != nullptr) {
+                    if (this->otherDirectionSignals.exist(this->lockedOnSignal)) {
+                        this->otherDirectionSignals.removeValue(this->lockedOnSignal);
+                    }
+                }
+            }
+            else {
+                // Add all signals in the controller to the other direction
+                // signals if they are not in the same direction
+                for (auto& netSignal : this->networkSignalsGroup) {
+                    if (! sameDirectionSignals.exist(netSignal)) {
+                        this->otherDirectionSignals.push_back(netSignal);
+                    }
+                }
+            }
+
         }
     }
 }
 
 void NetSignalGroupController::setSignalsInSameDirection(Vector<std::shared_ptr<NetSignal>> sameDirectionSignals) {
-    // if none is provided, make all signals in the group as the other direction except the LockSignal
-    if (sameDirectionSignals.empty()) {
-        // all signals are should be in the opposite direction except the LockSignal
-        this->otherDirectionSignals = this->networkSignalsGroup;
-        // remove the lock signal from the other direction signals
-        if (this->lockedOnSignal != nullptr) {
-            if (this->otherDirectionSignals.exist(this->lockedOnSignal)) {
-                this->otherDirectionSignals.removeValue(this->lockedOnSignal);
-            }
-        }
-    }
-    // if other direction signals is None, add all signals in the controller to the other direction
-    // signals if they are not in the same direction
-    if (this->otherDirectionSignals.empty()) {
+    if (this->lockedOnSignal == nullptr) { return; }
+    if (sameDirectionSignals.exist(this->lockedOnSignal)) {
+        this->otherDirectionSignals.clear();
+        // Add all signals in the controller to the other direction
+        // signals if they are not in the same direction
         for (auto& netSignal : this->networkSignalsGroup) {
             if (! sameDirectionSignals.exist(netSignal)) {
                 this->otherDirectionSignals.push_back(netSignal);
             }
         }
-
     }
 }
 

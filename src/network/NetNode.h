@@ -65,7 +65,9 @@ public:
 	/** The neighbour nodes with their link connection */
 	Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo;
 
-#pragma region graphSearch
+// ##################################################################
+// #                 start: graph search variables                  #
+// ##################################################################
 
 	/** The graph search distance from start */
 	double graphSearchDistanceFromStart;
@@ -73,7 +75,9 @@ public:
 	bool graphSearchVisited;
 	/** The path search previous node */
 	std::shared_ptr<NetNode> graphSearchPreviousNode;
-#pragma endregion
+// ##################################################################
+// #                   end: graph search variables                  #
+// ##################################################################
 
 public:
 

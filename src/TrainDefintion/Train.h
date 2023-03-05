@@ -16,6 +16,7 @@
 #include "../util/Map.h"
 #include <utility>
 #include <variant>
+#include <memory>
 
 /**
  * A net node.
@@ -827,7 +828,9 @@ public:
      */
     double pickOptimalThrottleLevelAStar(Vector<double> throttleLevels, int lookAheadCounterToUpdate);
 
-#pragma region StatsCalc
+// ##################################################################
+// #                  start: statistics calculations                #
+// ##################################################################
 
     /**
      * \brief Calculates the train statistics
@@ -899,7 +902,9 @@ public:
      */
     void resetTrainLookAhead();
 
-#pragma endregion
+// ##################################################################
+// #                    end: statistics calculations                #
+// ##################################################################
 
     /**
      * \brief Stream insertion operator

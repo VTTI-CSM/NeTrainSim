@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <filesystem>
+#include <memory>
 
 /**
  * A simulator.

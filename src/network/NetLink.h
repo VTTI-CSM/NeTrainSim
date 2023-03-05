@@ -10,7 +10,7 @@
 #include <iostream>
 #include <map>
 #include "../util/Vector.h"
-
+#include <memory>
 /**
  * A net node.
  *

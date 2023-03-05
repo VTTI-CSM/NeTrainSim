@@ -11,6 +11,7 @@
 #include "TrainTypes.h"
 #include "EnergyConsumption.h"
 #include "TrainComponent.h"
+#include <memory>
 using namespace std;
 
 /**

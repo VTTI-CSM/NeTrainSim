@@ -5,7 +5,7 @@
 
 namespace EC {
 
-    double EC::getDriveLineEff(double trainSpeed, int notchNumberIndex, TrainTypes::PowerType powerType) {
+    double getDriveLineEff(double trainSpeed, int notchNumberIndex, TrainTypes::PowerType powerType) {
         double u_kmh = trainSpeed * 3.6;
         double wheelToDCBusEff = (u_kmh < 33.0) ? 0.2 + 0.018182 * u_kmh : (u_kmh < 44.0) ? 0.8 + 0.009091 * (u_kmh - 33.0) : 0.9;
         double DCBusToTank = 0.0;
