@@ -92,17 +92,12 @@ public:
 	 * Sends a pass request from the train to control a specific networkSignal at time step t
 	 * @author	Ahmed
 	 * @date	2/14/2023
-	 * @param 	networkSignal	The requirested-to-control network signal.
+     * @param 	networkSignal           The requirested-to-control network signal.
+     * @param   simulationTime          The current simulation time.
+     * @param   sameDirectionSignals    The group signals that are in the direction of the train.
 	 */
-	void sendPassRequestToControlTo(std::shared_ptr<NetSignal> networkSignal, double& simulationTime);
-
-	/**
-	 * Sets signals in same direction for the requested train
-	 * @author	Ahmed Aredah
-	 * @date	2/21/2023
-	 * @param 	SameDirectionSignals	The same direction signals.
-	 */
-	void setSignalsInSameDirection(Vector<std::shared_ptr<NetSignal>> SameDirectionSignals);
+    void sendPassRequestToControlTo(std::shared_ptr<NetSignal> networkSignal,
+                                    double& simulationTime);
 
 	/**
 	 * Keep the previous group feedback as and maintain the current network signal as on and the
@@ -114,12 +109,18 @@ public:
 	void updateTimeStep(double& timeStep);
 
 	/**
-	 * Gets feed back of the group controller of which network signal should be turned on.
+     * Gets feed back of the group controller of which network signal should be turned on/off.
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 */
-	std::pair<std::shared_ptr<NetSignal>, Vector<std::shared_ptr<NetSignal>>> getFeedback();
+    std::pair<std::shared_ptr<NetSignal>, Vector<std::shared_ptr<NetSignal>>> getFeedback();
 	//NetSignal(Vector<std::shared_ptr <NetSignal>> groupSignals, Vector<std::shared_ptr<NetLink>> monitoredLinks);
+
+    /**
+     * @brief setSignalsInSameDirection
+     * @param sameDirectionSignals
+     */
+    void setSignalsInSameDirection(Vector<std::shared_ptr<NetSignal>> sameDirectionSignals);
 
 	/**
 	 * Stream insertion operator. It returns a string of the group details
@@ -132,5 +133,7 @@ public:
 	friend ostream& operator<<(ostream& ostr, const NetSignalGroupController& group);
 
 
+private:
+    void turnOffSignals(Vector<std::shared_ptr<NetSignal>> turnOffSignals);
 };
 #endif // !NeTrainSim_NetSignalGroupController_h
