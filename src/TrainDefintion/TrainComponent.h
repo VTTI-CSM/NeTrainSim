@@ -7,7 +7,8 @@
 
 #include <string>
 #include <iostream>
-#include "TrainTypes.h"
+// #include "TrainTypes.h"
+#include "../network/NetLink.h"
 #include "EnergyConsumption.h"
 using namespace std;
 
@@ -34,6 +35,8 @@ public:
 	double frontalArea;
 	/** The weight of the vehicle when the train is travelling */
 	double currentWeight;
+    /** The weight of the vehicle when the train is travelling */
+    double emptyWeight;
 	/** The number of axiles the car has */
 	int noOfAxiles;
 	/** Auxiliary power */
@@ -66,6 +69,8 @@ public:
 	double energyRegenerated = 0.0;
 	/** The amount of cummulative energy regenerated */
 	double cumEnergyRegenerated = 0.0;
+    /** Holds the current link this vehicle is on. */
+    std::shared_ptr<NetLink> hostLink;
 
 	/**
 	 * \brief Gets the resistance applied on only this vehicle.
@@ -141,7 +146,7 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	virtual bool consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+    virtual bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
 		double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
 		double dieselDensity = EC::DefaultDieselDensity);
 
