@@ -1,6 +1,4 @@
 #include <iostream>
-#include "../util/List.h"
-#include "../util/Vector.h"
 #include "car.h"
 #include "TrainTypes.h"
 #include "EnergyConsumption.h"
@@ -51,7 +49,7 @@ Car::Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, doub
 		this->batteryCurrentCharge = 0.0;
 		this->batteryStateOfCharge = 0.0;
 	}
-	
+    this->hostLink = std::shared_ptr<NetLink>();
 	this->trackCurvature = 0;
 	this->trackGrade = 0;
 };
@@ -79,77 +77,95 @@ double Car::getEnergyConsumption(double &timeStep) {
 	return this->auxiliaryPower* timeStep* (3600 / 1000);
 }
 
+bool Car::consumeDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity) {
+    // tenderCurrentCapacity is in liters in that case
+    double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
+    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
 
-bool Car::consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor, 
+        this->tankCurrentCapacity -= consumedQuantity;
+        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
+        this->currentWeight -= consumedQuantity * dieselDensity;
+        return true; // returns the tender still has fuel and can provide it to the locomotive
+    }
+    return false; // return the tender is empty now and cannot provide any more fuel
+}
+
+bool Car::consumeBattery(double EC_kwh) {
+    if (! this->hostLink->hasCatenary) {
+        if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultCarMinBatterySOC) {
+            this->energyConsumed = EC_kwh;
+            this->cumEnergyConsumed += this->energyConsumed;
+
+            this->batteryCurrentCharge -= EC_kwh;
+            this->batteryStateOfCharge = this->batteryStateOfCharge / this->batteryMaxCharge;
+            return true; // returns the tender still has fuel and can provide it to the locomotive
+        }
+        return false; // return the tender is empty now and cannot provide any more energy
+    }
+    else {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
+        this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
+        return true;
+    }
+}
+
+bool Car::consumeHydrogen(double EC_kwh, double hydrogenConversionFactor) {
+    // tenderCurrentCapacity is in kg in that case
+    double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
+    if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
+
+        this->tankCurrentCapacity -= consumedWeight;
+        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
+        this->currentWeight -= consumedWeight;
+        return true; // returns the tender still has fuel and can provide it to the locomotive
+    }
+    return false; // return the tender is empty now and cannot provide any more fuel
+}
+
+bool Car::RefillBattery(double EC_kwh) {
+    if (this->carType == TrainTypes::CarType::batteryTender) {
+        double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
+
+        if (this->batteryCurrentCharge < this->batteryMaxCharge) {
+            this->energyRegenerated = ER;
+            this->cumEnergyRegenerated += this->energyRegenerated;
+
+            this->batteryCurrentCharge += ER;
+            this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
+            return true; // return the battery is rechargable
+        }
+        else {
+            return false; // return the battery is full
+        }
+    }
+    return true; // you do not want to process anything more
+
+}
+
+bool Car::consumeFuel(double EC_kwh, double dieselConversionFactor,
 	double hydrogenConversionFactor, double dieselDensity) {
-	if (EC_kwh > 0.0) {
-		if (this->carType == TrainTypes::CarType::dieselTender) {
-			// tenderCurrentCapacity is in liters in that case
-			double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
-			if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
+    this->energyConsumed = 0.0;
+    this->energyRegenerated = 0.0;
 
-				this->tankCurrentCapacity -= consumedQuantity;
-				this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-				this->currentWeight -= consumedQuantity * dieselDensity;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more fuel
-		}
-		else if (this->carType == TrainTypes::CarType::batteryTender && isOffGrid) {
-			if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultCarMinBatterySOC) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
+    if (EC_kwh > 0.0) {
+        if (this->carType == TrainTypes::CarType::dieselTender) {
+            return this->consumeDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
+        }
+        else if (this->carType == TrainTypes::CarType::batteryTender) {
+            return this->consumeBattery(EC_kwh);
+        }
+        else if (this->carType == TrainTypes::CarType::hydrogenTender) {
+            return this->consumeHydrogen(EC_kwh, hydrogenConversionFactor);
+        }
+        return false;
+    }
+    return false;  // cannot consume
 
-				this->batteryCurrentCharge -= EC_kwh;
-				this->batteryStateOfCharge = this->batteryStateOfCharge / this->batteryMaxCharge;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more energy
-		}
-		else if (this->carType == TrainTypes::CarType::batteryTender && !isOffGrid) {
-			this->energyConsumed = EC_kwh;
-			this->cumEnergyConsumed += this->energyConsumed;
-			return true;
-		}
-		else if (this->carType == TrainTypes::CarType::hydrogenTender) {
-			// tenderCurrentCapacity is in kg in that case
-			double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
-			if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
-
-				this->tankCurrentCapacity -= consumedWeight;
-				this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-				this->currentWeight -= consumedWeight;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more fuel
-		}
-		return false;
-	}
-	else {
-		if (this->DefaultCarRechargeCapability) {
-			if (this->carType == TrainTypes::CarType::batteryTender) {
-				if (this->batteryCurrentCharge < this->batteryMaxCharge) {
-					this->energyRegenerated = EC_kwh;
-					this->cumEnergyRegenerated += this->energyRegenerated;
-
-					this->batteryCurrentCharge += EC_kwh;
-					this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-					return true; // return the tender is recharging
-				}
-				else {
-					this->batteryCurrentCharge = this->batteryMaxCharge;
-					this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-					return true;// return the tender is recharging
-				}
-			}
-		}
-
-		return false; // cannot recharge tender because it only recharges at depots
-	}
 }
 
 ostream& operator<<(ostream& ostr, Car& car) {

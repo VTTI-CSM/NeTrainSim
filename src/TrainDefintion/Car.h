@@ -29,18 +29,9 @@ private:
 	static constexpr double DefaultCarMinBatterySOC = 0.2;
 	/** (Immutable) the default car minimum tank sot */
 	static constexpr double DefaultCarMinTankSOT = 0.0;
-	/** brief (Immutable) the car has the capability to recharge if it is deccelerating.
-
-	/**
-	 * the default recharge capability for the tenders (only for battery tenders)
-	 */
-	static const bool DefaultCarRechargeCapability = true;
 
 
 public:
-	/** The weight of the vehicle when it is empty */
-	double emptyWeight;
-
 	/** The type of the car */
 	TrainTypes::CarType carType;
 
@@ -111,6 +102,36 @@ public:
 	 */
 	double getEnergyConsumption(double &timeStep);
 
+    /**
+     * @brief consume the tender diesel fuel.
+     * @param EC_kwh
+     * @param dieselConversionFactor
+     * @param dieselDensity
+     * @return
+     */
+    bool consumeDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
+
+    /**
+     * @brief consume the tender hydrogen.
+     * @param EC_kwh
+     * @param hydrogenConversionFactor
+     * @return
+     */
+    bool consumeHydrogen(double EC_kwh, double hydrogenConversionFactor);
+    /**
+     * @brief consume the car battery.
+     * @param EC_kwh
+     * @return
+     */
+    bool consumeBattery(double EC_kwh);
+
+    /**
+     * @brief Refill the car battery.
+     * @param EC_kwh
+     * @return
+     */
+    bool RefillBattery(double EC_kwh);
+
 	/**
 	 * Consume fuel from the tender
 	 *
@@ -125,9 +146,9 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	bool consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-		double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor, 
-		double dieselDensity = EC::DefaultDieselDensity) override;
+    bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+        double dieselDensity = EC::DefaultDieselDensity) override;
 
 	/**
 	 * Stream insertion operator
