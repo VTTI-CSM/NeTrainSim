@@ -41,7 +41,9 @@ private:
 	/** (Immutable) the default locomotive minimum tank sot */
 	static constexpr double DefaultLocomotiveMinTankSOT = 0.2;
 	/** (Immutable) the default locomotive minimum battery soc */
-	static constexpr double DefaultLocomotiveMinBatterySOC = 0.0;;
+    static constexpr double DefaultLocomotiveMinBatterySOC = 0.0;
+    /** (Immutable) the default locomotive minimum weight. */
+    static constexpr double DefaultLocomotiveEmptyWeight = 180;
 
 
 public:
@@ -68,7 +70,6 @@ public:
 	double throttleLevel;
 	/** The throttle levels */
 	Vector<double> throttleLevels;
-
 	/** (Immutable) the gravitation acceleration */
 	const double g = 9.8067;
 
@@ -270,6 +271,44 @@ public:
 	double getEnergyConsumption(double& LocomotiveVirtualTractivePowerdouble, double& speed, double& acceleration,
 		double& timeStep);
 
+
+    /**
+     * @brief consume the locomotive diesel fuel.
+     * @param EC_kwh
+     * @param dieselConversionFactor
+     * @param dieselDensity
+     * @return
+     */
+    bool consumeFuelDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
+
+    /**
+     * @brief consume the locomotive electric energy
+     * @param EC_kwh
+     * @return
+     */
+    bool consumeBattery(double EC_kwh);
+
+    /**
+     * @brief consume the locomotive hydrogen fuel.
+     * @param EC_kwh
+     * @param hydrogenConversionFactor
+     * @return
+     */
+    bool consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor);
+    /**
+     * @brief refill the locomtoive battery
+     * @param EC_kwh
+     * @return
+     */
+    bool refillBattery(double EC_kwh);
+
+    /**
+     * @brief Rechage catenary and grid system if they are available
+     * @param EC_kwh
+     * @return
+     */
+    bool rechageCatenary(double EC_kwh);
+
 	/**
 	 * Consume fuel
 	 *
@@ -284,9 +323,9 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	bool consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-		double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-		double dieselDensity = EC::DefaultDieselDensity) override;
+    bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+        double dieselDensity = EC::DefaultDieselDensity) override;
 
 	/**
 	 * Define throttle levels

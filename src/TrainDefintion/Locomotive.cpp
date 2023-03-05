@@ -1,11 +1,12 @@
 #include <iostream>
-#include "../util/List.h"
 #include "Locomotive.h"
 #include <math.h>
 #include <algorithm> 
 #include "../util/Vector.h"
 #include "EnergyConsumption.h"
 #include "TrainTypes.h"
+#include <cstdlib>
+
 #define stringify( name ) #name
 using namespace std;
 
@@ -36,6 +37,10 @@ Locomotive::Locomotive(
 	this->dragCoef = locomotiveDragCoef;
 	this->frontalArea = locomotiveFrontalArea_sqm;
 	this->currentWeight = locomotiveWeight_t;
+    this->emptyWeight = DefaultLocomotiveEmptyWeight;
+    if (this->emptyWeight > this->currentWeight) {
+        this->emptyWeight = this->currentWeight;
+    }
 	this->noOfAxiles = locomotiveNoOfAxiles;
 	this->powerType = TrainTypes::iToPowerType(locomotivePowerType);
 	this->maxSpeed = locomotiveMaxSpeed_mps;
@@ -43,6 +48,7 @@ Locomotive::Locomotive(
 	this->maxLocNotch = locomotiveMaxAchievableNotch;
 	this->auxiliaryPower = locomotiveAuxiliaryPower_kw;
 
+    // electric has only battery
 	if (this->powerType == TrainTypes::PowerType::electric) {
 		this->batteryMaxCharge = batteryMaxCharge_kwh;
 		this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
@@ -54,7 +60,8 @@ Locomotive::Locomotive(
 		this->tankCurrentCapacity = 0.0;
 		this->tankStateOfCapacity = 0.0;
 	}
-	else {
+    // diesel and hydrogen have only tanks
+    else if (this->powerType == TrainTypes::PowerType::diesel || this->powerType == TrainTypes::PowerType::hydrogen){
 		this->batteryMaxCharge = 0.0;
 		this->batteryInitialCharge = 0.0;
 		this->batteryCurrentCharge = 0.0;
@@ -65,10 +72,23 @@ Locomotive::Locomotive(
 		this->tankCurrentCapacity = this->tankInitialCapacity;
 		this->tankStateOfCapacity = tankInitialCapacity_perc;
 	}
+    // hybrid locomotives have both source of energy
+    else {
+        this->batteryMaxCharge = batteryMaxCharge_kwh;
+        this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
+        this->batteryCurrentCharge = this->batteryInitialCharge;
+        this->batteryStateOfCharge = batteryInitialCharge_perc;
+
+        this->tankMaxCapacity = tankMaxCapacity_; //kg for hydrogen and liters for fuel
+        this->tankInitialCapacity = tankInitialCapacity_perc * this->tankMaxCapacity;
+        this->tankCurrentCapacity = this->tankInitialCapacity;
+        this->tankStateOfCapacity = tankInitialCapacity_perc;
+    }
 
 
 	this->trackCurvature = 0;
 	this->trackGrade = 0;
+    this->hostLink = std::shared_ptr<NetLink>();
 	this->discritizedLamda.push_back(0.0);
 	this->throttleLevels = this->defineThrottleLevels();
 };	
@@ -223,7 +243,7 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, 
 		return this->auxiliaryPower * unitConversionFactor;
 	}
 	else if(tractivePower > 0) {
-        return ((tractivePower / EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
+        return (((tractivePower / EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType)) +
 			this->auxiliaryPower) * unitConversionFactor);
 	}
 	else {
@@ -256,89 +276,124 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, 
 	}
 }
 
+bool Locomotive::consumeFuelDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity) {
+    // tenderCurrentCapacity is in liters in that case
+    double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
+    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
 
-bool Locomotive::consumeFuel(double EC_kwh, bool isOffGrid, double dieselConversionFactor,
-	double hydrogenConversionFactor, double dieselDensity) {
-	if (EC_kwh > 0.0) {
-		this->energyConsumed = 0.0;
-		this->energyRegenerated = 0.0;
-        if (this->powerType == TrainTypes::PowerType::diesel || this->powerType == TrainTypes::PowerType::dieselElectric) {
-			// tenderCurrentCapacity is in liters in that case
-			double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
-			if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
-
-				this->tankCurrentCapacity -= consumedQuantity;
-				this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-				this->currentWeight -= consumedQuantity * dieselDensity;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more fuel
-		}
-		else if (this->powerType == TrainTypes::PowerType::electric && isOffGrid) {
-			if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultLocomotiveMinBatterySOC) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
-
-				this->batteryCurrentCharge -= EC_kwh;
-				this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more energy
-		}
-		else if (this->powerType == TrainTypes::PowerType::electric && !isOffGrid) {
-			this->energyConsumed = EC_kwh;
-			this->cumEnergyConsumed += this->energyConsumed;
-			return true;
-		}
-        else if (this->powerType == TrainTypes::PowerType::hydrogen || this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-			// tenderCurrentCapacity is in kg in that case
-			double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
-			if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
-				this->energyConsumed = EC_kwh;
-				this->cumEnergyConsumed += this->energyConsumed;
-
-				this->tankCurrentCapacity -= consumedWeight;
-				this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-				this->currentWeight -= consumedWeight;
-				return true; // returns the tender still has fuel and can provide it to the locomotive
-			}
-			return false; // return the tender is empty now and cannot provide any more fuel
-		}
-		return false;
-	}
-	else {
-
-		if (this->powerType == TrainTypes::PowerType::electric && isOffGrid) {
-			if (this->batteryCurrentCharge < this->batteryMaxCharge) {
-				this->energyRegenerated = EC_kwh;
-				this->cumEnergyRegenerated += this->energyRegenerated;
-
-				this->batteryCurrentCharge -= EC_kwh;
-				this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-				return true; // return the tender is recharging
-			}
-			else {
-				this->energyRegenerated = EC_kwh;
-				this->cumEnergyRegenerated += this->energyRegenerated;
-
-				this->batteryCurrentCharge = this->batteryMaxCharge;
-				this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-				return true;// return the tender is recharging
-			}
-		}
-		else {
-			this->energyRegenerated = EC_kwh;
-			this->cumEnergyRegenerated += this->energyRegenerated;
-			return false; // cannot recharge tender because it only recharges at depots
-		}
-		
-	}
+        this->tankCurrentCapacity -= consumedQuantity;
+        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
+        this->currentWeight -= consumedQuantity * dieselDensity;
+        this->currentWeight = (this->currentWeight <= this->emptyWeight) ? this->emptyWeight : this->currentWeight;
+        return true; // returns the tender still has fuel and can provide it to the locomotive
+    }
+    return false; // return the tender is empty now and cannot provide any more fuel
 }
 
+bool Locomotive::consumeBattery(double EC_kwh) {
+    if (!this->hostLink->hasCatenary){
+        if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultLocomotiveMinBatterySOC) {
+            this->energyConsumed = EC_kwh;
+            this->cumEnergyConsumed += this->energyConsumed;
 
+            this->batteryCurrentCharge -= EC_kwh;
+            this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
+            return true; // returns the tender still has fuel and can provide it to the locomotive
+        }
+        return false; // return the tender is empty now and cannot provide any more energy
+    }
+    else {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
+        this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
+        return true;
+    }
 
+}
+
+bool Locomotive::consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor) {
+    // tenderCurrentCapacity is in kg in that case
+    double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
+    if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
+
+        this->tankCurrentCapacity -= consumedWeight;
+        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
+        this->currentWeight -= consumedWeight;
+        this->currentWeight = (this->currentWeight <= this->emptyWeight) ? this->emptyWeight : this->currentWeight;
+        return true; // returns the tender still has fuel and can provide it to the locomotive
+    }
+    return false; // return the tender is empty now and cannot provide any more fuel
+}
+
+bool Locomotive::refillBattery(double EC_kwh) {
+    double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
+
+    if (this->batteryCurrentCharge < this->batteryMaxCharge) {
+        this->energyRegenerated = ER;
+        this->cumEnergyRegenerated += this->energyRegenerated;
+
+        this->batteryCurrentCharge += ER;
+        this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
+        return true; // return the battery is rechargable
+    }
+    else {
+        return false; // return the battery is full
+    }
+
+}
+
+bool Locomotive::rechageCatenary(double EC_kwh) {
+    if (this->hostLink->hasCatenary){
+        this->hostLink->catenaryCumRegeneratedEnergy += std::abs(EC_kwh);
+        return true;
+    }
+    return false;
+}
+
+bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
+	double hydrogenConversionFactor, double dieselDensity) {
+    // reset energy stats first
+    this->energyConsumed = 0.0;
+    this->energyRegenerated = 0.0;
+
+    // if energy should be consumed
+    if (EC_kwh > 0.0) {
+        if (this->powerType == TrainTypes::PowerType::diesel ) {
+            return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
+        }
+        else if (this->powerType == TrainTypes::PowerType::dieselElectric) {
+            if (! this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity)) {
+                return this->consumeBattery(EC_kwh);
+            }
+            return true;
+        }
+        else if (this->powerType == TrainTypes::PowerType::electric) {
+            return this->consumeBattery(EC_kwh);
+		}
+        else if (this->powerType == TrainTypes::PowerType::hydrogen) {
+            return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor);
+		}
+        else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
+            if (! this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor)) {
+                return this->consumeBattery(EC_kwh);
+            }
+            return true;
+        }
+        // if it is something else
+		return false;
+	}
+    // if energy is generated
+    else if (EC_kwh < 0.0) {
+        return this->refillBattery(EC_kwh);
+	}
+    else {
+        return true;  // no need to do any further calculations if no energy is feed or consumed
+    }
+}
 
 
 double Locomotive::getResistance(double trainSpeed) {
