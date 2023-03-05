@@ -60,6 +60,8 @@ public:
 	bool isDepot;
 	/** Is the dwell time at the depot */
 	double dwellTimeIfDepot;
+    /** refill trains batteries and batteries if passed by this node. */
+    bool refillTanksAndBatteries;
 	/** The neighbour nodes with their link connection */
 	Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo;
 

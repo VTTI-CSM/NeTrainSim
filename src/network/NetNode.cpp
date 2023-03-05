@@ -1,6 +1,6 @@
 #include "NetNode.h"
 #include <iostream>
-#include "../util/List.h"
+// #include "../util/List.h"
 #include "../util/Vector.h"
 #include "NetLink.h"
 #include <math.h>
@@ -22,6 +22,7 @@ NetNode::NetNode(int ID, double xCoord, double yCoord, string desc, double xDirS
     this->networkSignals = Vector<std::shared_ptr<NetSignal>>();
     this->isDepot = false;
     this->dwellTimeIfDepot = 0.0;
+    this->refillTanksAndBatteries = false;
     NetNode::NumberOfNodesInSimulator++;
 
     this->graphSearchDistanceFromStart = INFINITY;
@@ -29,8 +30,7 @@ NetNode::NetNode(int ID, double xCoord, double yCoord, string desc, double xDirS
     this->graphSearchPreviousNode = std::shared_ptr<NetNode>();
 }
 
-Vector<std::shared_ptr<NetNode>> NetNode::getNeighbors()
-{
+Vector<std::shared_ptr<NetNode>> NetNode::getNeighbors() {
     return this->linkTo.get_keys();
 }
 
@@ -40,8 +40,7 @@ void NetNode::clearGraphSearchParams() {
     this->graphSearchPreviousNode = std::shared_ptr<NetNode>();
 }
 
-unsigned int NetNode::getNumberOfNodesInSimulator()
-{
+unsigned int NetNode::getNumberOfNodesInSimulator() {
     return NetNode::NumberOfNodesInSimulator;
 }
 
@@ -53,11 +52,13 @@ void NetNode::addSignal(std::shared_ptr<NetSignal> networkSignal) {
 void NetNode::updateXScale(const double& newScale) {
     double oldScale = this->xScale;
     this->x = (this->x / oldScale) * newScale;
+    this->xScale = newScale;
 }
 
 void NetNode::updateYScale(const double& newScale) {
     double oldScale = this->xScale;
     this->y = (this->y / oldScale) * newScale;
+    this->yScale = newScale;
 }
 
 pair<double, double> NetNode::coordinates() {
