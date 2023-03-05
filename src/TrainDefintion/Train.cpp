@@ -2,7 +2,7 @@
 #include "../util/Vector.h"
 #include "train.h"
 #include "../network//NetNode.h"
-//#include "../network/NetLink.h"
+#include "../network/NetLink.h"
 #include <variant>
 #include "TrainTypes.h"
 #include <algorithm>
@@ -17,13 +17,12 @@ unsigned int Train::NumberOfTrainsInSimulator = 0;
 
 Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
     Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize, 
-    double desiredDecelerationRate_mPs, double operatorReactionTime_s, bool stopIfNoEnergy, bool isRunnigOffGrid,
+    double desiredDecelerationRate_mPs, double operatorReactionTime_s, bool stopIfNoEnergy,
     double maxAllowedJerk_mPcs) {
 
     this->d_des = desiredDecelerationRate_mPs;
     this->operatorReactionTime = operatorReactionTime_s;
     this->stopTrainIfNoEnergy = stopIfNoEnergy;
-    this->isOffGrid = isRunnigOffGrid;
     this->maxJerk = maxAllowedJerk_mPcs;
     this->id = Train::NumberOfTrainsInSimulator;
     this->trainUserID = id;
@@ -37,6 +36,7 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     this->nlocs = static_cast<int>(locomotives.size());
     this->locomotives = locomotives;
     this->isOn = true;
+    this->waitedTimeAtNode = 0.0;
 
     this->rearrangeTrain(); //rearrange order of each loco and car
 
@@ -78,6 +78,10 @@ int Train::getActiveLocomotivesNumber() {
             return !loco->isLocOn;
         }), this->ActiveLocos.end());
 
+    if (this->ActiveLocos.size() == 0){
+        this->outOfEnergy = true;
+        std::cerr << "All locomotives of train (" << this->id << ") are out of energy" << std::endl;
+    }
     return this->ActiveLocos.size();
 }
 
@@ -217,7 +221,6 @@ void Train::setTrainWeight() {
     for (Vector< std::shared_ptr<Car>>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
         totalTrainWeight += it->get()->currentWeight;
         totalEmptyWeight += it->get()->emptyWeight;
-        //cout << totalEmptyWeight<<endl;
     }
     this->totalMass = totalTrainWeight * 1000; //convert to kg
     this->totalEmptyMass = totalEmptyWeight * 1000;  //convert to kg
@@ -562,7 +565,7 @@ void Train::calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinF
 }
 
 double Train::calculateAverage(double previousAverage, double currentTimeStepData, double timeStep) {
-    int n = this->tripTime / timeStep;
+    double n = this->tripTime / timeStep;
     return (previousAverage * ((n - 1)/n)) + (currentTimeStepData / n);
 }
 
@@ -720,7 +723,7 @@ pair<Vector<double>, double> Train::getTractivePower(double speed, double accele
         if (!this->ActiveLocos.empty()) {
             for (const auto& loco : this->ActiveLocos) {
                 virtualPower = loco->getSharedVirtualTractivePower(this->currentSpeed, this->currentAcceleration,
-                    oneLocoWeight, oneLocoResistance);
+                                                                    oneLocoWeight, oneLocoResistance);
                 currentVirtualTractivePowerList.push_back(virtualPower);
             }
         }
@@ -745,11 +748,29 @@ double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTr
     return energy;
 }
 
+void Train::setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>> newLinks) {
+    // clear the vector
+    this->currentLinks = Vector<std::shared_ptr<NetLink>>();
+    for (auto &lnk: newLinks) {
+        if (! this->currentLinks.exist(lnk)) {
+            this->currentLinks.push_back(lnk);
+        }
+    }
+    int j = 0;
+    for (int i = 0; i < this->trainVehicles.size(); i++) {
+        j = i;
+        if (j >= newLinks.size()) {
+            j = newLinks.size() - 1;
+        }
+        this->trainVehicles[i]->hostLink = newLinks[j];
+    }
+    this->currentFirstLink = newLinks.at(0);
+}
+
 bool Train::consumeEnergy(double& timeStep, Vector<double>& usedTractivePower) {
     this->resetTrainEnergyConsumption();
     // if the train is off, return
     if (!this->isOn) { return false; }
-    // TODO: regenerate cars energy if decelerating
     int offLocos = 0;   // count the number of locomotives that are off
     double EC_kwh = 0;  // locomotive Energy consumption
     
@@ -763,9 +784,10 @@ bool Train::consumeEnergy(double& timeStep, Vector<double>& usedTractivePower) {
         if (this->ActiveLocos.at(i)->isLocOn) {
             // calculate the amount of energy consumption 
             EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumption(usedTractivePower.at(i), 
-                this->currentAcceleration, this->currentSpeed, timeStep);
-            // consume fuel from the locomotive if it still has fuel
-            bool fuelConsumed = this->ActiveLocos.at(i)->consumeFuel(EC_kwh, isOffGrid);
+                                                        this->currentAcceleration, this->currentSpeed, timeStep);
+
+            // consume/recharge fuel from/to the locomotive if it still has fuel or can be rechargable
+            bool fuelConsumed = this->ActiveLocos.at(i)->consumeFuel(EC_kwh);
 
             // if it is energy consumption and fuel was not consumed from the locomotive, consume it by the tenders
             if (EC_kwh > 0.0 && !fuelConsumed) {
@@ -774,6 +796,11 @@ bool Train::consumeEnergy(double& timeStep, Vector<double>& usedTractivePower) {
                 if (!fuelConsumedFromTender) {
                     this->ActiveLocos.at(i)->isLocOn = false;
                 }
+            }
+            // if it is energy regenerated and fuel was not recharged to the locomotive, recharge the cars' batteries
+            else if (EC_kwh < 0.0 && !fuelConsumed) {
+                // recharge cars batteries
+                this->rechargeCarsBatteries(EC_kwh, this->ActiveLocos.at(i));
             }
         }
         // increment the offLocos if the locomotive is off
@@ -786,19 +813,41 @@ bool Train::consumeEnergy(double& timeStep, Vector<double>& usedTractivePower) {
 
 bool Train::consumeTendersEnergy(double EC_kwh, TrainTypes::PowerType powerType,
     double dieselConversionFactor, double hydrogenConversionFactor, double dieselDensity) {
+
     bool consumed = false;
     int count = this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)].size();
     double ECD = 0.0;
     if (count > 0) { ECD = EC_kwh / count; }
     else { return consumed; }
 
+
     for (auto& car : this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)]) {
+        // if the tender/battery still has energy to draw from, consume it
         if (car->batteryCurrentCharge > 0 || car->tankCurrentCapacity > 0) {
             car->consumeFuel(ECD, dieselConversionFactor, hydrogenConversionFactor, dieselDensity);
             consumed = true;
         }
+        // remove the car from the active list
         else {
             this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)].removeValue(car);
+        }
+    }
+    return consumed;
+}
+
+bool Train::rechargeCarsBatteries(double EC_kwh, std::shared_ptr<Locomotive> &loco){
+    bool consumed = false;
+    int count = this->carsTypes[TrainTypes::CarType::batteryTender].size();
+    double ECD = 0.0;
+    // if the count is > 0, there are cars to rechange
+    if (count > 0) { ECD = EC_kwh / count; }
+    else { return false; }  // no cars to recharge. this is redundant
+
+    // refill all cars by that shared portion
+    for (auto& car : this->carsTypes[TrainTypes::CarType::batteryTender]) {
+        if (! car->RefillBattery(ECD)) {
+            loco->rechageCatenary(ECD);
+            consumed = true;
         }
     }
     return consumed;
@@ -818,8 +867,8 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     this->energyStat = 0.0;
     this->cumEnergyStat = 0.0;
     for (auto& vehicle : this->trainVehicles) {
-        this->energyStat += vehicle->energyConsumed + vehicle->energyRegenerated;
-        this->cumEnergyStat += vehicle->cumEnergyConsumed + vehicle->cumEnergyRegenerated;
+        this->energyStat += vehicle->energyConsumed - vehicle->energyRegenerated;
+        this->cumEnergyStat += vehicle->cumEnergyConsumed - vehicle->cumEnergyRegenerated;
         this->totalEConsumed += vehicle->energyConsumed;
         this->totalERegenerated += vehicle->energyRegenerated;
     }
@@ -835,6 +884,11 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
 
 #pragma endregion
 
+
+void Train::resetTrainLookAhead(){
+    this->lookAheadCounterToUpdate = DefaultLookAheadCounterToUpdate;
+    this->lookAheadStepCounter = DefaultLookAheadCounter;
+}
 
 void Train::resetTrain() {
     this->betweenNodesLengths.clear();

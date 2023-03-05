@@ -50,66 +50,35 @@ private:
     static constexpr double DefaultOperatorReactionTime = 1.0;
     /** (Immutable) the default switch of the train behaviour if no energy source */
     static constexpr bool DefaultStopIfNoEnergy = false;
-    /** (Immutable) the default switch if the train is running off the grid or on the grid */
-    static constexpr bool DefaultIsRunningOffGrid = false;
     /** (Immutable) the default allowed jerk */
     static constexpr double DefaultMaxAllowedJerk = 2.0;
     /** (Immutable) the min gap between the current train and the leading train in m */
     static constexpr double DefaultMinFollowingGap = 2.0;
-
     /** The default look ahead counter to update the throttle level of the train */
     static constexpr int DefaultLookAheadCounterToUpdate = 1;
-
     /** The default look ahead number of steps */
     static constexpr int DefaultLookAheadCounter = 1;
 
 public:
-
-#pragma region DefaultTrainCharacteristics
 
     /**
      * (Immutable) the speed of sound in m / s, this is an approximation of the brackes back
      * propagation
      */
     static constexpr double speedOfSound = 343.0;
+    /** (Immutable) gravitational acceleration */
+    const double g = 9.8066;
     /** The desired decceleration value */
     double d_des;
-
-    /**
-     * the perception reaction time of the train operator
-     *
-     * @returns	The reaction time.
-     */
+    /** the perception reaction time of the train operator. */
     double operatorReactionTime;
-    /** Change this to true if you want the train to stop if it runs out of energy */
-    bool stopTrainIfNoEnergy;
-    /** Change this to true if you want the train to run on off - grid mode */
-    bool isOffGrid;
-    /** True if the train has energy, false if dead */
-    bool isOn;
-#pragma endregion
-
-#pragma region generalVariables
-    /** The name of the train */
-    string trainUserID;
-    /** Number of cars in the train */
-    int nCars = 0;
-    /** Number of locomotives in the train */
-    int nlocs = 0;
     /** Total length of the train */
     double totalLength;
-    /** Holds all cars in the train */
-    Vector<std::shared_ptr<Car>> cars;
-    /** Holds all locomotives in the train */
-    Vector<std::shared_ptr<Locomotive>> locomotives;
     /** The total weight of the train */
     double totalMass;
     /** The total empty weight of the train */
     double totalEmptyMass = 0;
-    /** The name of the train */
-    int id;
-    /** (Immutable) gravitational acceleration */
-    const double g = 9.8066;  
+
     /** Coefficient of fricition between the trains' wheels and the track */
     double coefficientOfFriction = 0.9;
     /** Max allowable jerk (m/s^3) for the train */
@@ -120,81 +89,10 @@ public:
     double trainStartTime;
     /** Total time spent between the train entering and leaving the network */
     double tripTime;
-    /** If the train is on the network, it is true, false otherwise. */
-    bool offloaded = false;
-
-    /**
-     * The predefined path of the train by the simulator node id. It is originally populated by the
-     * user node ids. the simulator replaces it by the simulator node ids.
-     */
-    Vector<int> trainPath;
-    /** The predefined path of the train by the node reference. */
-    Vector<std::shared_ptr<NetNode>> trainPathNodes;
-
-    /** The train stopping stations */
-    Vector<bool> trainStoppingStations;
-    
-    /** True if the simulator reached its destination, false otherwise. */
-    bool reachedDestination = false;
     /** The total length of the path the train is suppost to be taking. */
     double trainTotalPathLength;
-    /** Holds the current coordinates of the tip of the train */
-    pair<double, double> currentCoordinates;
-    /** The spanned links the train is on. works as blocks */
-    Vector<std::shared_ptr<NetLink>> currentLinks;
-    /** Holds the centroid location mapped by the car/loco and relative to the tip of the train */
-    Map<std::shared_ptr<TrainComponent>, double> WeightCentroids;
-    /** Holds the first link the train is on */
-    std::shared_ptr<NetLink> currentFirstLink;
-    /** True if the train is loaded to the simulator, false otherwise */
-    bool loaded = false;
-    /** The previous node ID the tip of the train just passed */
-    int previousNodeID;
-    /** The previous node ID the last point of the train just passed */
-    int LastTrainPointpreviousNodeID;
-    /** Holds the computed distances between two nodes along the train's path */
-    Vector<Vector<double>> betweenNodesLengths;
-
-    /**
-     * Holds the cummulative distance from the start of the train's path to each and every node in
-     * the path
-     */
-    Vector<double> linksCumLengths;
-    /** Holds the lower speed node ID's the train will have to reduce its speed at */
-    Vector<Vector<Map<int, double>>> LowerSpeedNodeIDs;
-    /** The next node the train is targetting */
-    int nextNodeID;
-    /** Holds both the start and end tips' coordinates of the train */
-    Vector<pair<double, double>> startEndPoints;
-    /** The previous links the train spanned before. */
-    Vector<std::shared_ptr<NetLink>> previousLinks;
-    /** Grade of the links the train is taking and it is mapped by the link ID */
-    Map<int, double> LinkGradeDirection;
-
-    /**
-     * holds the arrangement of the train and how locomotives and cars are arranged in that train
-     *
-     * @returns	The train vehicles.
-     */
-    Vector < std::shared_ptr<TrainComponent>> trainVehicles;
-
-    /**
-     * Counts the number of steps the train could not move forward because of the lack of power
-     * source
-     */
-    int NoPowerCountStep;
-    /** Maps the train cars types */
-    Map<TrainTypes::CarType, Vector<std::shared_ptr<Car>>> carsTypes;
-    /** Maps the train active cars types */
-    Map<TrainTypes::CarType, Vector<std::shared_ptr<Car>>> ActiveCarsTypes;
-    /** Maps the train active locomotives types */
-    Vector<std::shared_ptr<Locomotive>> ActiveLocos;
-#pragma endregion
-
-#pragma region dynamicsVariables
     /** Travelled distance of the train measured from the front tip of the train */
     double travelledDistance;
-
     /**
      * Travelled distance of the train measured from the front tip of the train (virtual and does
      * not affect train movement. it is only used for optimization.
@@ -216,26 +114,10 @@ public:
     double currentTractiveForce;
     /** The current resistance forces on the train */
     double currentResistanceForces;
-
     /** The current used tractive power that the locomotives provides */
     double currentUsedTractivePower;
-    /** The current used tractive power list */
-    Vector<double> currentUsedTractivePowerList;
-
-    /** The number of steps ahead the train is looking aheaf for optimization */
-    int lookAheadStepCounter;
-    /** The number of steps ahead the train should update its optimization at */
-    int lookAheadCounterToUpdate;
     /** The optimum throttle level that the train should go by to minimize its energy use */
     double optimumThrottleLevel;
-    /** True if the train should optimize its energy consumption. train trajectory will vary here. */
-    bool optimize;
-
-    /** The throttle levels that the train will go by. */
-    Vector<double> throttleLevels;
-#pragma endregion
-
-#pragma region EnergyConsumptionAndStatsVariables
     /** Total energy consumption (consumed + regenerated) at time step t */
     double energyStat;
     /** Cumulative total energy consumed till time step t */
@@ -244,34 +126,120 @@ public:
     double totalEConsumed;
     /** Energy regenerated of the train till time t */
     double totalERegenerated;
-    /** Total energy consumed till time step t mapped by region */
-    Map<string, double> cumRegionalConsumedEnergyStat;
-
-    /**
-     * The time the train is delayed at time step t, relative to min free flow speed of all spanned
-     * links
-     */
+    /** The time the train is delayed at time step t, relative to min free flow speed of all spanned links. */
     double delayTimeStat;
-
-    /**
-     * Cumulative total time delayed untill time step t, relative to min free flow speed of all
-     * spanned links
-     */
+    /** Cumulative total time delayed untill time step t, relative to min free flow speed of all spanned links. */
     double cumDelayTimeStat;
-
-    /**
-     * The time the train is delayed at time step t, relative to max free flow speed of all spanned
-     * links
-     */
+    /** The time the train is delayed at time step t, relative to max free flow speed of all spanned links. */
     double maxDelayTimeStat;
-    /** Total time delayed untill time step t, relative to max free flow speed of all spanned links */
+    /** Total time delayed untill time step t, relative to max free flow speed of all spanned links. */
     double cumMaxDelayTimeStat;
     /** Statistic of the stoppings at time t. */
     double stoppedStat;
     /** Statistic of stoppings untill time t. */
     double cumStoppedStat;
+    /** holds the waited time at any depot */
+    double waitedTimeAtNode;
 
-#pragma endregion
+    /** Holds the current coordinates of the tip of the train */
+    pair<double, double> currentCoordinates;
+
+
+    /** Holds the first link the train is on */
+    std::shared_ptr<NetLink> currentFirstLink;
+    /** Holds the centroid location mapped by the car/loco and relative to the tip of the train */
+    Map<std::shared_ptr<TrainComponent>, double> WeightCentroids;
+    /** Grade of the links the train is taking and it is mapped by the link ID */
+    Map<int, double> LinkGradeDirection;
+    /** Maps the train cars types */
+    Map<TrainTypes::CarType, Vector<std::shared_ptr<Car>>> carsTypes;
+    /** Maps the train active cars types */
+    Map<TrainTypes::CarType, Vector<std::shared_ptr<Car>>> ActiveCarsTypes;
+    /** Total energy consumed till time step t mapped by region */
+    Map<string, double> cumRegionalConsumedEnergyStat;
+
+
+    /** Holds all cars in the train */
+    Vector<std::shared_ptr<Car>> cars;
+    /** Holds all locomotives in the train */
+    Vector<std::shared_ptr<Locomotive>> locomotives;
+    /** The predefined path of the train by the simulator node id. It is originally populated by the
+     * user node ids. the simulator replaces it by the simulator node ids. */
+    Vector<int> trainPath;
+    /** The predefined path of the train by the node reference. */
+    Vector<std::shared_ptr<NetNode>> trainPathNodes;
+    /** The spanned links the train is on. works as blocks */
+    Vector<std::shared_ptr<NetLink>> currentLinks;
+    /** Holds the computed distances between two nodes along the train's path */
+    Vector<Vector<double>> betweenNodesLengths;
+    /** Holds the cummulative distance from the start of the train's path to each and every node in
+     * the path. */
+    Vector<double> linksCumLengths;
+    /** Holds the lower speed node ID's the train will have to reduce its speed at */
+    Vector<Vector<Map<int, double>>> LowerSpeedNodeIDs;
+    /** Holds both the start and end tips' coordinates of the train */
+    Vector<pair<double, double>> startEndPoints;
+    /** The previous links the train spanned before. */
+    Vector<std::shared_ptr<NetLink>> previousLinks;
+    /** holds the arrangement of the train and how locomotives and cars are arranged in that train. */
+    Vector < std::shared_ptr<TrainComponent>> trainVehicles;
+    /** Maps the train active locomotives types */
+    Vector<std::shared_ptr<Locomotive>> ActiveLocos;
+    /** The current used tractive power list */
+    Vector<double> currentUsedTractivePowerList;
+    /** The throttle levels that the train will go by. */
+    Vector<double> throttleLevels;
+
+    /** The name of the train */
+    string trainUserID;
+
+    /** The train stopping stations */
+    Vector<bool> trainStoppingStations;
+
+
+    /** Number of cars in the train */
+    int nCars = 0;
+    /** Number of locomotives in the train */
+    int nlocs = 0;
+    /** The name of the train */
+    int id;
+    /** The previous node ID the tip of the train just passed */
+    int previousNodeID;
+    /** The previous node ID the last point of the train just passed */
+    int LastTrainPointpreviousNodeID;
+    /** The next node the train is targetting */
+    int nextNodeID;
+    /** Counts the number of steps the train could not move forward because of the lack of power
+     * source. */
+    int NoPowerCountStep;
+    /** The number of steps ahead the train is looking aheaf for optimization */
+    int lookAheadStepCounter;
+    /** The number of steps ahead the train should update its optimization at */
+    int lookAheadCounterToUpdate;
+
+
+    /** Change this to true if you want the train to stop if it runs out of energy */
+    bool stopTrainIfNoEnergy;
+    /** True if the train has energy, false if dead */
+    bool isOn;
+    /** If the train is on the network, it is true, false otherwise. */
+    bool offloaded = false;
+    /** True if the simulator reached its destination, false otherwise. */
+    bool reachedDestination = false;
+    /** True if the train ran out of energy. */
+    bool outOfEnergy = false;
+    /** True if the train is loaded to the simulator, false otherwise */
+    bool loaded = false;
+    /** True if the train should optimize its energy consumption. train trajectory will vary here. */
+    bool optimize;
+
+
+    /**
+     * @brief recharge all train cars batteries.
+     * @param EC_kwh
+     * @return
+     */
+    bool rechargeCarsBatteries(double EC_kwh, std::shared_ptr<Locomotive> &loco);
 
     /**
      * this function returns how many trains are loaded in the simulator
@@ -302,11 +270,11 @@ public:
      * @param 	isRunnigOffGrid			   	(Optional) True if is runnig off grid, false if not.
      * @param 	maxAllowedJerk_mPcs		   	(Optional) The maximum allowed jerk m pcs.
      */
-    Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff, 
-        Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize, 
+    Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
+        Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize,
         double desiredDecelerationRate_mPs = DefaultDesiredDecelerationRate,
-        double operatorReactionTime_s = DefaultOperatorReactionTime, 
-        bool stopIfNoEnergy = DefaultStopIfNoEnergy, bool isRunnigOffGrid = DefaultIsRunningOffGrid,
+        double operatorReactionTime_s = DefaultOperatorReactionTime,
+        bool stopIfNoEnergy = DefaultStopIfNoEnergy,
         double maxAllowedJerk_mPcs = DefaultMaxAllowedJerk);
 
     /**
@@ -319,6 +287,11 @@ public:
      */
     double getMinFollowingTrainGap();
 
+    /**
+     * @brief set the current links the train is spanning
+     * @param newLinks
+     */
+    void setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink> > newLinks);
     /**
      * \brief Gets cargo net weight
      *
@@ -920,6 +893,11 @@ public:
      * @returns	The stopping time stat.
      */
     double getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds);
+
+    /**
+     * @brief reset train look ahead parameters
+     */
+    void resetTrainLookAhead();
 
 #pragma endregion
 
