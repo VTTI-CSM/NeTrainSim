@@ -46,7 +46,7 @@ unsigned int NetSignal::getNumberOfSignalsInSimulator()
 
 
 ostream& operator<<(ostream& ostr, const NetSignal& networkSignal) {
-	ostr << "Network signal:: id: " << networkSignal.userID << ", green: " << networkSignal.isGreen;
+    ostr << "Network signal:: id: " << networkSignal.userID << ", green: " << ((networkSignal.isGreen)? "true": "false");
 	ostr << ", previous node id: " << networkSignal.previousNode.lock()->id;
 	ostr << ", current node id: " << networkSignal.currentNode.lock()->id << endl;
 	return ostr;
