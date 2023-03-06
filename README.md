@@ -1,6 +1,6 @@
 # Network Train Simulator (NeTrainSim)
 
-NeTrainSim is an open-source train simulation software that allows users to simulate and analyze train operations on a rail network. It is designed to be flexible, modular, and easy to use.
+NeTrainSim is an open-source train simulation software that allows users to simulate and analyze train operations on a large rail network. It is designed to be flexible, modular, and easy to use.
 
 ## How to Cite
 
@@ -14,15 +14,14 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 ```
 
 
-
 ## Getting Started
-To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the releases page. 
+To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the releases page.
 
 ### Prerequisites
-There is no Prerequisites required to run NeTrainSim as the installer has all the required 3rd party packages. 
+There is no prerequisite required to run NeTrainSim as the installer has all the required 3rd party packages. 
 
 ### Installing
-Once the file is downloaded on your hard drive. double click the downloaded file and follow the instruction to install the application. The default installation folder is "C:\Program Files\NeTrainSim"; however, you can alter this installation path as you wish. 
+Once the file is downloaded on your hard drive. Double click the downloaded file and follow the instruction to install the application. The default installation folder is "C:\Program Files\NeTrainSim"; however, you can alter this installation path as you wish during the installation process. 
 
 Note that this version of NeTrainSim does not have a GUI and it only allows access through the command line interface.
 
@@ -50,12 +49,14 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
      -n, --nodes <nodesFile>                 [Required] the nodes filename.
      -l, --links <linksFile>                 [Required] the links filename.
      -t, --trains <trainsFile>               [Required] the trains filename.
-     -o, --output <outputLocation>           [Optional] the output folder address.
-     -s, --summary <summaryFilename>         [Optional] the summary filename.
-     -e, --export <exportTrajectoryOptions>  [Optional] bool to export
-                                             instantaneous trajectory
-     -i, --insta <instaTrajectoryFile>       [Optional] the instantaneous
-                                             trajectory filename
+     -o, --output <outputLocation>           [Optional] the output folder address. Default 
+	 									     is C:\Users\<USERNAME>\Documents\NeTrainSim
+     -s, --summary <summaryFilename>         [Optional] the summary filename. Default
+	 										 is trainSummary_timestamp.txt
+     -e, --export <exportTrajectoryOptions>  [Optional] true to export instantaneous 
+	 									     trajectory, false otherwise. Default is false.
+     -i, --insta <instaTrajectoryFile>       [Optional] the instantaneous trajectory 
+	 									     filename. Default is trainTrajectory_timestamp.csv
    ```
 
    Example of a minimum-flag command
