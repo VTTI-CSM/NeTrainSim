@@ -164,6 +164,7 @@ int main(int argc, char *argv[]) {
 
     // run the actual simulation
     sim.runSimulation();
+    std::cout << "Output folder: " << sim.getOutputFolder() << std::endl;
     return 0;
 #endif
 
