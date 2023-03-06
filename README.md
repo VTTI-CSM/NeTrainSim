@@ -45,7 +45,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
 
 4. NeTrainSim allows the following command flags. Flags with required values are necessary to run the simulator.  
 
-   ```shell
+   ```html
    -n, --nodes <nodesFile>                 [Required] the nodes filename.
    -l, --links <linksFile>                 [Required] the links filename.
    -t, --trains <trainsFile>               [Required] the trains filename.
