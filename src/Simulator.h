@@ -32,9 +32,9 @@ private:
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
 //	/** (Immutable) the default output folder */
 //	inline static const std::string DefaultOutputFolder = "";
-//	/** (Immutable) the default instantaneous trajectory empty filename */
+    /** (Immutable) the default instantaneous trajectory empty filename */
     inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
-//	/** (Immutable) the default summary empty filename */
+    /** (Immutable) the default summary empty filename */
     inline static const std::string DefaultSummaryEmptyFilename = "";
 	/** (Immutable) the default instantaneous trajectory filename */
     inline static const std::string DefaultInstantaneousTrajectoryFilename = "trainTrajectory_";
@@ -75,30 +75,6 @@ private:
 	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
 public:
 
-//	/**
-//     * Simulator constructor
-//	 *
-//	 * @author	Ahmed Aredah
-//	 * @date	2/28/2023
-//	 *
-//	 * @param [in,out]	theNetwork					   	the network.
-//	 * @param 		  	networkTrains				   	The network trains.
-//	 * @param 		  	simulationEndTime_			   	(Optional) The simulation end time.
-//	 * @param 		  	simulationTimeStep_			   	(Optional) The simulation time step.
-//	 * @param 		  	exportInstantaneousTrajectory  	(Optional) True to export instantaneous
-//	 * 													trajectory.
-//	 * @param 		  	outputFolderLocation		   	(Optional) The output folder location.
-//	 * @param 		  	instantaneousTrajectoryFilename	(Optional) Filename of the instantaneous
-//	 * 													trajectory file.
-//	 * @param 		  	summaryFilename				   	(Optional) Filename of the summary file.
-//	 */
-//    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulationEndTime_ = DefaultEndTime,
-//        double simulationTimeStep_ = DefaultTimeStep,
-//        bool exportInstantaneousTrajectory = DefaultExportInstantaneousTrajectory,
-//        string outputFolderLocation = DefaultOutputFolder,
-//        string instantaneousTrajectoryFilename = DefaultInstantaneousTrajectoryEmptyFilename,
-//        string summaryFilename = DefaultSummaryEmptyFilename);
-
 
     /**
      * @brief Simulator constructor
@@ -121,6 +97,15 @@ public:
      */
     void setTimeStep(double newTimeStep);
 
+    /**
+     * @brief Get the output folder directory.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return the directory.
+     */
+    std::string getOutputFolder();
     /**
      * @brief set simulator end time.
      *

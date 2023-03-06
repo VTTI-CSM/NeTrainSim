@@ -147,6 +147,10 @@ void Simulator::openTrajectoryFile() {
 	}
 }
 
+std::string Simulator::getOutputFolder() {
+    return this->outputLocation.string();
+}
+
 void Simulator::openSummaryFile() {
 	try {
 		this->summaryFile.open(this->outputLocation / this->summaryFileName, std::ios::out | std::ios::trunc);
@@ -917,6 +921,8 @@ void Simulator::runSimulation() {
         << "    |_ Train Total Path Length(meters)                   : " << Utils::thousandSeparator(t->trainTotalPathLength) << "\n"
         << "  |-> Train Performance:\n"
         << "    |_ Operating Time                                    : " << Utils::formatDuration(t->tripTime) << "\n"
+        << "    |_ Average Speed(meter/second)                       : " << t->averageSpeed << "\n"
+        << "    |_ Average Acceleration(meter/square second)         : " << t->averageAcceleration << "\n"
         << "    |_ Travelled Distance(meters)                        : " << Utils::thousandSeparator(t->travelledDistance) << "\n"
         << "    |_ Total Energy Consumed(KW.h)                       : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
         << "        |_ Single-Train Trajectory Optimization Enabled  : " << (t->optimize? "true": "false") << "\n"
@@ -974,10 +980,9 @@ void Simulator::runSimulation() {
                 }
             }
             exportLine << "..............\n";
-
-		exportLine.imbue(locale());
-		this->summaryFile << exportLine.str();
 	}
+    exportLine.imbue(locale());
+    this->summaryFile << exportLine.str();
 // ##################################################################
 // #                       end: summary file                      #
 // ##################################################################
