@@ -65,7 +65,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
    NeTrainSim -n "path\to\nodes\file" -l "path\to\links\file" -t "path\to\trains\file"
    ```
 
-   In this case, the default output Location is "C:\Users\<USERNAME>\Documents\NeTrainSim"  where <USERNAME> should be replaced with the current session user name.
+   In this case, the default output Location is "C:\Users\<USERNAME>\Documents\NeTrainSim"  where \<USERNAME> should be replaced with the current session user name.
 
 ## Contributing
 
