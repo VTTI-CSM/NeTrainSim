@@ -21,7 +21,7 @@ To get started with NeTrainSim, you will need to download and install the softwa
 There is no prerequisite required to run NeTrainSim as the installer has all the required 3rd party packages. 
 
 ### Installing
-Once the file is downloaded on your hard drive. Double click the downloaded file and follow the instruction to install the application. The default installation folder is "C:\Program Files\NeTrainSim"; however, you can alter this installation path as you wish during the installation process. 
+Once the file is downloaded on your hard drive. Double click the downloaded file and follow the instruction to install the application. The default installation folder is `C:\Program Files\NeTrainSim`; however, you can alter this installation path as you wish during the installation process. 
 
 Note that this version of NeTrainSim does not have a GUI and it only allows access through the command line interface.
 
@@ -35,7 +35,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
    cd "C:\Program Files\NeTrainSim"
    ```
 
-   if you changed the default installation path, make sure to replace C:\Program Files\NeTrainSim with your installation path.
+   if you changed the default installation path, make sure to replace `C:\Program Files\NeTrainSim` with your installation path.
 
 3. To request help from NeTrainSim, type the following in the shell
 
