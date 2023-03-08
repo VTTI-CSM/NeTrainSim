@@ -49,7 +49,7 @@ Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> network
     this->trains = networkTrains;
     // define train path as per simulator
     this->setTrainSimulatorPath();
-    this->setTrainsStoppingStations();
+    this->setTrainsPathNodes();
     this->setTrainPathLength();
     this->simulationEndTime = DefaultEndTime;
     this->timeStep = DefaultTimeStep;
@@ -178,7 +178,6 @@ bool Simulator::checkAllTrainsReachedDestination() {
 
 void Simulator::loadTrain(std::shared_ptr <Train> train) {
 	train->loaded = true;
-
     train->currentCoordinates = train->trainPathNodes.at(0)->coordinates();
     train->setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>>(1, this->network->getFirstTrainLink(train)));
 	train->linksCumLengths = this->network->generateCumLinksLengths(train);
@@ -354,7 +353,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 
 	// Check if the train start time is passed
 	// if such, load train first and then run the simulation
-	if (this->simulationTime >= train->trainStartTime and not train->loaded) {
+    if (this->simulationTime >= train->trainStartTime && !train->loaded) {
 		bool skipLoadingTrain = false;
 
 		// check if there is a train that is already loaded in the same node and still on the same starting node
@@ -375,7 +374,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		}
 	}
 
-	if ((train->trainStartTime <= this->simulationTime) and train->loaded) {
+    if ((train->trainStartTime <= this->simulationTime) && train->loaded) {
 
 		// holds track data and speed
 		std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
@@ -522,9 +521,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 				<< train->stoppedStat << ","
 				<< train->currentTractiveForce << ","
 				<< train->currentResistanceForces << ","
+                << train->currentUsedTractivePower << ","
 				<< grades[0] << ","
 				<< curvatures[0] << ","
-				<< train->locomotives.at(0)->currentLocNotch
 				<< std::endl;
 
 			this->trajectoryFile << exportLine.str();
@@ -831,7 +830,7 @@ void Simulator::runSimulation() {
         std::stringstream exportLine;
         exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,";
         exportLine << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,";
-        exportLine << "ResistanceForces_N,GradeAtTip_Perc,CurvatureAtTip_Perc,FirstLocoNotch\n";
+        exportLine << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc\n";
         this->trajectoryFile << exportLine.str();
     }
     // setup the summary file
@@ -923,6 +922,7 @@ void Simulator::runSimulation() {
         << "    |_ Operating Time                                    : " << Utils::formatDuration(t->tripTime) << "\n"
         << "    |_ Average Speed(meter/second)                       : " << t->averageSpeed << "\n"
         << "    |_ Average Acceleration(meter/square second)         : " << t->averageAcceleration << "\n"
+        << "    |_ Average Energy Consumption per torque(KW.h/ton.km): " << Utils::thousandSeparator(t->totalEConsumed / (t->getTrainTotalTorque() / 1000)) << "\n"
         << "    |_ Travelled Distance(meters)                        : " << Utils::thousandSeparator(t->travelledDistance) << "\n"
         << "    |_ Total Energy Consumed(KW.h)                       : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
         << "        |_ Single-Train Trajectory Optimization Enabled  : " << (t->optimize? "true": "false") << "\n"
@@ -945,12 +945,14 @@ void Simulator::runSimulation() {
                 exportLine << "      |_ Locomotive Number                               : " << locI << "\n"
                            << "        |_ Is Locomotive On                              : " << ((loc->isLocOn)? "true": "false") << "\n"
                            << "        |_ Power Type                                    : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
-                if (loc->powerType == TrainTypes::PowerType::electric){
+                if (TrainTypes::locomotiveBatteryOnly.exist(loc->powerType) ||
+                        TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
                     exportLine << "        |_ Battery Initial Charge (KW.h)                 : " << Utils::thousandSeparator(loc->batteryInitialCharge) << "\n"
                                << "        |_ Battery Current Charge (KW.h)                 : " << Utils::thousandSeparator(loc->batteryCurrentCharge) << "\n"
                                << "        |_ Battery Current State of Charge (%)           : " << Utils::thousandSeparator(loc->batteryStateOfCharge) << "\n";
                 }
-                else {
+                else if (TrainTypes::locomotiveTankOnly.exist(loc->powerType) ||
+                         TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
                     exportLine << "        |_ Tank Initial Capacity                         : " << Utils::thousandSeparator(loc->tankInitialCapacity) << "\n"
                                << "        |_ Tank Current Capacity                         : " << Utils::thousandSeparator(loc->tankCurrentCapacity) << "\n"
                                << "        |_ Tank Current State of Capacity (%)            : " << Utils::thousandSeparator(loc->tankStateOfCapacity) << "\n";
@@ -1019,13 +1021,24 @@ bool Simulator::checkTrainsCollision() {
 
 void Simulator::setTrainSimulatorPath() {
 	for (std::shared_ptr <Train>& t : this->trains) {
+        // set the train path ids to the simulator ids instead of the users ids
 		t->trainPath = this->network->getSimulatorTrainPath(t->trainPath);
+
+        if (t->trainPath.size() == 2) {
+            Vector<std::shared_ptr<NetNode>> nPath = this->network->shortestPathSearch(t->trainPath[0], t->trainPath[1]).first;
+            Vector<int> path;
+            for (auto &n: nPath) {
+                path.push_back(n->id);
+            }
+            t->setTrainPath(path);
+        }
 	}
+
 }
 
 
 
-void Simulator::setTrainsStoppingStations() {
+void Simulator::setTrainsPathNodes() {
 	for (std::shared_ptr<Train>& t : this->trains) {
 		for (int tpn : t->trainPath) {
 			t->trainPathNodes.push_back(this->network->getNodeByID(tpn));
