@@ -1,5 +1,5 @@
 TARGET = NeTrainSim
-VERSION = 0.0.1
+VERSION = 0.0.2
 
 
 DEFINES += AS_CMD       #Un-remark this line, if you want to build NeTrainSim as GUI
