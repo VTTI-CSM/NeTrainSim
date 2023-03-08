@@ -6,7 +6,7 @@
 #include "EnergyConsumption.h"
 #include "TrainTypes.h"
 #include <cstdlib>
-
+#include "../util/Utils.h"
 #define stringify( name ) #name
 using namespace std;
 
@@ -49,7 +49,7 @@ Locomotive::Locomotive(
 	this->auxiliaryPower = locomotiveAuxiliaryPower_kw;
 
     // electric has only battery
-	if (this->powerType == TrainTypes::PowerType::electric) {
+    if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
 		this->batteryMaxCharge = batteryMaxCharge_kwh;
 		this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
 		this->batteryCurrentCharge = this->batteryInitialCharge;
@@ -61,7 +61,7 @@ Locomotive::Locomotive(
 		this->tankStateOfCapacity = 0.0;
 	}
     // diesel and hydrogen have only tanks
-    else if (this->powerType == TrainTypes::PowerType::diesel || this->powerType == TrainTypes::PowerType::hydrogen){
+    else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
 		this->batteryMaxCharge = 0.0;
 		this->batteryInitialCharge = 0.0;
 		this->batteryCurrentCharge = 0.0;
@@ -94,7 +94,11 @@ Locomotive::Locomotive(
 };	
 
 
-
+void Locomotive::setCurrentWeight(double newCurrentWeight) {
+    if (newCurrentWeight > this->emptyWeight) {
+        this->currentWeight = newCurrentWeight;
+    }
+}
 
 double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed) {
 	double dv, um;
@@ -122,7 +126,7 @@ double Locomotive::getlamdaDiscretized(double &lamda) {
 	Vector<double> lamdaDlst(this->Nmax);
 	//define the throttle levels
 	for (int N = 1; N <= this->Nmax; N++) {
-		lamdaD = pow((double)N / (double)this->Nmax, 2);
+        lamdaD = Utils::power((double)N / (double)this->Nmax, 2);
 		index = N - 1;
 		lamdaDlst[index] = lamdaD;
 		dfr[index] = abs(lamda - lamdaD);
@@ -159,16 +163,10 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 	return lamdaDiscretized;
 }
 
-double Locomotive::getThrottleLevel(double & trainSpeed, double& TrainAcceleration, bool &optimize, double &optimumThrottleLevel) {
+double Locomotive::getThrottleLevel(double & trainSpeed, bool &optimize, double &optimumThrottleLevel) {
 	double currentThrottleLevel = 0;
     double throttleL = 0;
-	if (TrainAcceleration < 0) {
-		throttleL = this->throttleLevels[0];
-	}
-	else {
-		throttleL = getDiscretizedThrottleCoef(trainSpeed);
-	};
-
+    throttleL = getDiscretizedThrottleCoef(trainSpeed);
 	if (optimize) {
         if (optimumThrottleLevel < 0){
             optimumThrottleLevel = this->throttleLevels.max();
@@ -187,7 +185,7 @@ void Locomotive::updateLocNotch(double &trainSpeed) {
 		// get the discretized Throttle Level and compare it to the list
 		double lamdaDiscretized = this->getDiscretizedThrottleCoef(trainSpeed);
 		// the index of it is the current Loc Notch
-		this->currentLocNotch = this->discritizedLamda.index(lamdaDiscretized);
+        this->currentLocNotch = this->throttleLevels.index(lamdaDiscretized);
 		// readjust its value if it is higher than what the locomotive have
 		if (this->currentLocNotch > this->maxLocNotch) { this->currentLocNotch = this->maxLocNotch; }
 	}
@@ -200,14 +198,15 @@ Vector<double> Locomotive::defineThrottleLevels() {
 	Vector<double> lamdaDlst(this->Nmax,0);
 	//for each notch, calculate the throttle level
 	for (int N = 1; N <= this->Nmax; N++) {
-		lamdaD = pow(N / this->Nmax, 2);
+        double div = (double)N / (double)this->Nmax;
+        lamdaD = Utils::power(div,2);
 		index = N - 1;
 		lamdaDlst[index] = lamdaD;
 	};
 	return lamdaDlst;
 }
 
-double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed, double &trainAcceleration,
+double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed,
 								 bool &optimize, double &optimumThrottleLevel) {
 	if (!this->isLocOn) {
 		return 0;
@@ -218,7 +217,7 @@ double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed, do
 		return f1;
 	}
 	else {
-		f = min((1000 * this->transmissionEfficiency * this->getThrottleLevel(trainSpeed, trainAcceleration, optimize, optimumThrottleLevel)
+        f = min((1000 * this->transmissionEfficiency * this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel)
 			* (this->maxPower) / trainSpeed), f1);
 		return f;
 	};
@@ -230,24 +229,28 @@ double Locomotive::getSharedVirtualTractivePower(double &trainSpeed, double& tra
 	return ((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed * this->isLocOn;
 }
 
-double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, double &trainSpeed, 
-                                            double& trainAcceleration, double &timeStep) {
+double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
+                                        double& trainAcceleration,
+                                        double &trainSpeed, double &timeStep) {
 	// if the locomotive is turned off already, do not consume anything
 	if (!this->isLocOn) {
 		return 0.0;
 	}
 	// else calculate how much to consume
 	double tractivePower = LocomotiveVirtualTractivePower;
-	double unitConversionFactor = timeStep / static_cast<unsigned int>(3600 * 1000);
+    double unitConversionFactor = timeStep / (double)(3600.0 * 1000.0);
 	if (tractivePower == 0) {
-		return this->auxiliaryPower * unitConversionFactor;
+        return this->auxiliaryPower * unitConversionFactor;
 	}
 	else if(tractivePower > 0) {
-        return (((tractivePower / EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType)) +
-			this->auxiliaryPower) * unitConversionFactor);
+        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) *
+                        EC::getGeneratorEff(this->powerType);
+        double EC = (((tractivePower/ eff ) + this->auxiliaryPower ) * unitConversionFactor);
+        return EC;
 	}
 	else {
-		if (this->powerType == TrainTypes::PowerType::diesel || this->powerType == TrainTypes::PowerType::hydrogen) {
+        // if it is diesel or hydrogen, do no regenerate electricity
+        if (TrainTypes::locomotiveNonRechargableTechnologies.exist(this->powerType)) {
 			return 0.0;
 		}
 		else {
@@ -269,9 +272,9 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower, 
 				else {
 					regenerativeEff = 0.0;
 				}
-			}
+            }
             return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
-				this->auxiliaryPower) * unitConversionFactor);
+                this->auxiliaryPower) * unitConversionFactor);
 		}		
 	}
 }
@@ -285,8 +288,24 @@ bool Locomotive::consumeFuelDiesel(double EC_kwh, double dieselConversionFactor,
 
         this->tankCurrentCapacity -= consumedQuantity;
         this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        this->currentWeight -= consumedQuantity * dieselDensity;
-        this->currentWeight = (this->currentWeight <= this->emptyWeight) ? this->emptyWeight : this->currentWeight;
+        double newWeight = this->currentWeight - consumedQuantity * dieselDensity;
+        this->setCurrentWeight(newWeight);
+        return true; // returns the tender still has fuel and can provide it to the locomotive
+    }
+    return false; // return the tender is empty now and cannot provide any more fuel
+}
+
+bool Locomotive::consumeFuelBioDiesel(double EC_kwh, double bioDieselConversionFactor, double bioDieselDensity) {
+    // tenderCurrentCapacity is in liters in that case
+    double consumedQuantity = (EC_kwh * bioDieselConversionFactor); //convert to liters
+    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
+        this->energyConsumed = EC_kwh;
+        this->cumEnergyConsumed += this->energyConsumed;
+
+        this->tankCurrentCapacity -= consumedQuantity;
+        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
+        double newWeight = this->currentWeight - consumedQuantity * bioDieselDensity;
+        this->setCurrentWeight(newWeight);
         return true; // returns the tender still has fuel and can provide it to the locomotive
     }
     return false; // return the tender is empty now and cannot provide any more fuel
@@ -313,17 +332,17 @@ bool Locomotive::consumeBattery(double EC_kwh) {
 
 }
 
-bool Locomotive::consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor) {
+bool Locomotive::consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity) {
     // tenderCurrentCapacity is in kg in that case
-    double consumedWeight = (EC_kwh * hydrogenConversionFactor); //converts to kg
-    if (this->tankCurrentCapacity >= consumedWeight && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
+    double consumedQuantity = (EC_kwh * hydrogenConversionFactor); //converts to litters
+    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
         this->energyConsumed = EC_kwh;
         this->cumEnergyConsumed += this->energyConsumed;
 
-        this->tankCurrentCapacity -= consumedWeight;
+        this->tankCurrentCapacity -= consumedQuantity;
         this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        this->currentWeight -= consumedWeight;
-        this->currentWeight = (this->currentWeight <= this->emptyWeight) ? this->emptyWeight : this->currentWeight;
+        double newWeight = this->currentWeight - consumedQuantity * hydrogenDensity;
+        this->setCurrentWeight(newWeight);
         return true; // returns the tender still has fuel and can provide it to the locomotive
     }
     return false; // return the tender is empty now and cannot provide any more fuel
@@ -355,7 +374,11 @@ bool Locomotive::rechageCatenary(double EC_kwh) {
 }
 
 bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
-	double hydrogenConversionFactor, double dieselDensity) {
+                             double bioDieselConversionFactor,
+                             double hydrogenConversionFactor,
+                             double dieselDensity,
+                             double bioDieselDensity,
+                             double hydrogenDensity) {
     // reset energy stats first
     this->energyConsumed = 0.0;
     this->energyRegenerated = 0.0;
@@ -365,7 +388,7 @@ bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
         if (this->powerType == TrainTypes::PowerType::diesel ) {
             return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
         }
-        else if (this->powerType == TrainTypes::PowerType::dieselElectric) {
+        else if (this->powerType == TrainTypes::PowerType::dieselHybrid) {
             if (! this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity)) {
                 return this->consumeBattery(EC_kwh);
             }
@@ -375,10 +398,16 @@ bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
             return this->consumeBattery(EC_kwh);
 		}
         else if (this->powerType == TrainTypes::PowerType::hydrogen) {
-            return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor);
+            return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
 		}
         else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-            if (! this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor)) {
+            if (! this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity)) {
+                return this->consumeBattery(EC_kwh);
+            }
+            return true;
+        }
+        else if (this->powerType == TrainTypes::PowerType::biodieselHybrid) {
+            if (! this->consumeFuelBioDiesel(EC_kwh, bioDieselConversionFactor, bioDieselDensity)) {
                 return this->consumeBattery(EC_kwh);
             }
             return true;
@@ -408,9 +437,9 @@ double Locomotive::getResistance(double trainSpeed) {
 	return rVal;
 }
 
-double Locomotive::getNetForce(double &frictionCoef, double &trainAcceleration,
+double Locomotive::getNetForce(double &frictionCoef,
 	double &trainSpeed, bool &optimize, double &optimumThrottleLevel) {
-	return (this->getTractiveForce(frictionCoef, trainAcceleration, trainSpeed, optimize, optimumThrottleLevel) - this->getResistance(trainSpeed));
+    return (this->getTractiveForce(frictionCoef, trainSpeed, optimize, optimumThrottleLevel) - this->getResistance(trainSpeed));
 }
 
 ostream& operator<<(std::ostream& ostr, const Locomotive& loco) {
