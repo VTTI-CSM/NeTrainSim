@@ -36,4 +36,4 @@ NeTrainSim is committed to providing a welcoming and inclusive environment for a
 
 ## License
 
-By contributing to NeTrainSim, you agree to license your contributions under the MIT License. See the [LICENSE](https://github.com/AhmedAredah/NeTrainSim/blob/main/LICENSE) file for more information.
+By contributing to NeTrainSim, you agree to license your contributions under the GPL3.0 License. See the [LICENSE](https://github.com/AhmedAredah/NeTrainSim/blob/main/LICENSE) file for more information.
