@@ -147,9 +147,13 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    virtual bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-		double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-		double dieselDensity = EC::DefaultDieselDensity);
+    virtual bool consumeFuel(double EC_kwh,
+                             double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                             double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                             double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                             double dieselDensity = EC::DefaultDieselDensity,
+                             double biodieselDensity = EC::DefaultBioDieselDensity,
+                             double hydrogenDensity = EC::DefaultHydrogenDensity);
 
 	/**
 	 * \brief Stream insertion operator
