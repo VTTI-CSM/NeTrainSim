@@ -113,6 +113,9 @@ namespace Utils {
     inline std::string getPrefix(std::string str) {
         std::string prefix;
         bool skipFirstChar = isupper(str[0]);
+        if (skipFirstChar) {
+            prefix += str[0];
+        }
         for (size_t i = skipFirstChar ? 1 : 0; i < str.length(); i++) {
             char c = str[i];
             if (c == '_' || isalpha(c) || c == ' ') {
