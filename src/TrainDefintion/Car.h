@@ -24,8 +24,6 @@ class Car : public TrainComponent {
 private:
 	/** (Immutable) the default car name */
 	inline static const  string DefaultCarName = "Railcar";
-	/** (Immutable) the default car auxiliary power */
-	static constexpr double DefaultCarAuxiliaryPower = 0.0;
 	/** (Immutable) the default car minimum battery soc */
 	static constexpr double DefaultCarMinBatterySOC = 0.2;
 	/** (Immutable) the default car minimum tank sot */
@@ -71,13 +69,19 @@ public:
 	 */
 	Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t,
 		double carCurrentWeight_t, int carNoOfAxiles, int carType,
-		double auxiliaryPower_kw = DefaultCarAuxiliaryPower,
+        double auxiliaryPower_kw = EC::DefaultCarAuxiliaryPower,
 		double batteryMaxCapacity_kwh = EC::DefaultCarBatteryMaxCapacity,
 		double batteryInitialCharge_perc = EC::DefaultCarBatteryInitialCharge,
 		double tenderMaxCapacity_kg_l = EC::DefaultCarTenderMaxCapacity,
 		double tenderInitialCapacity_perc = EC::DefaultCarTenderInitialCapacity,
 		std::string carName = DefaultCarName
 		);
+
+    /**
+     * @brief setCarCurrentWeight
+     * @param newCurrentWeight
+     */
+    void setCarCurrentWeight(double newCurrentWeight);
 
 	/**
 	 * Gets a resistance
@@ -113,12 +117,22 @@ public:
     bool consumeDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
 
     /**
+     * @brief consume the tender bio diesel fuel.
+     * @param EC_kwh
+     * @param biodieselConversionFactor
+     * @param biodieselDensity
+     * @return
+     */
+    bool consumeBioDiesel(double EC_kwh, double biodieselConversionFactor, double biodieselDensity);
+
+    /**
      * @brief consume the tender hydrogen.
      * @param EC_kwh
      * @param hydrogenConversionFactor
+     * @param hydrogenDensity
      * @return
      */
-    bool consumeHydrogen(double EC_kwh, double hydrogenConversionFactor);
+    bool consumeHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity);
     /**
      * @brief consume the car battery.
      * @param EC_kwh
@@ -148,11 +162,14 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
     bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-        double dieselDensity = EC::DefaultDieselDensity) override;
+                     double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                     double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                     double dieselDensity = EC::DefaultDieselDensity,
+                     double biodieselDensity = EC::DefaultBioDieselDensity,
+                     double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
-	 * Stream insertion operator
+     * Stream insertion operator
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
