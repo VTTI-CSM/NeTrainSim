@@ -242,6 +242,7 @@ public:
      */
     bool rechargeCarsBatteries(double EC_kwh, std::shared_ptr<Locomotive> &loco);
 
+    void setTrainPath(Vector<int> path);
     /**
      * this function returns how many trains are loaded in the simulator
      *
