@@ -1,6 +1,7 @@
 # Network Train Simulator (NeTrainSim)
 
-NeTrainSim is an open-source train simulation software that allows users to simulate and analyze train operations on a large rail network. It is designed to be flexible, modular, and easy to use.
+NeTrainSim is an open-source train simulation software that allows users to simulate and analyze train operations on a large rail network. It is designed to be flexible, modular, and easy to use. It is built using Qt6 under the [GNU General Public License (GPL) version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
 
 ## How to Cite
 
@@ -71,6 +72,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
 
 If you are interested in contributing to NeTrainSim, please read the CONTRIBUTING.md file for more information on how to get started.
 
+
 ## License
 
-NeTrainSim is licensed under the MIT License. See the LICENSE file for more information.
+This program is distributed under the terms of the [GNU General Public License (GPL) version 3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see the `LICENSE` file for more information.
