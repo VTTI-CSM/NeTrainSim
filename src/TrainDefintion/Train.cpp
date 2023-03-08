@@ -70,6 +70,13 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     }
 };
 
+void Train::setTrainPath(Vector<int> path) {
+    this->trainPath = path;
+    int sizeOfPath = this->trainPath.size();
+    this->LowerSpeedNodeIDs = Vector<Vector<Map<int, double>>>(sizeOfPath,
+        Vector<Map<int,double>>(sizeOfPath, Map<int,double>()));
+}
+
 // ##################################################################
 // #                        start: utilities                        #
 // ##################################################################
@@ -196,7 +203,7 @@ void Train::rearrangeTrain() {
         //append second cars
         for (int i = firstCarSize; i < firstCarSize + carSize; i++) { this->trainVehicles.push_back((this->cars.at(i))); }
         //append third locos
-        for (int i = (firstLocoSize + locoSize); i < this->cars.size(); i++) { this->trainVehicles.push_back((this->locomotives.at(i))); }
+        for (int i = (firstLocoSize + locoSize); i < this->locomotives.size(); i++) { this->trainVehicles.push_back((this->locomotives.at(i))); }
     }  
 }
 
@@ -285,7 +292,7 @@ double Train::getTotalTractiveForce(double speed, double acceleration, bool opti
     double totalForce = 0;
     // loop over all locomotives
     for (Vector< std::shared_ptr<Locomotive>>::iterator it = this->locomotives.begin(); it != this->locomotives.end(); ++it) {
-        totalForce += it->get()->getTractiveForce(this->coefficientOfFriction, speed, acceleration,
+        totalForce += it->get()->getTractiveForce(this->coefficientOfFriction, speed,
             optimize, optimumThrottleLevel);
     }
     this->currentTractiveForce = totalForce;
@@ -396,13 +403,14 @@ double Train::get_acceleration_an2(double gap, double minGap, double speed, doub
     
 double Train::accelerate(double gap, double mingap, double speed, double acceleration, double leaderSpeed, 
     double freeFlowSpeed, double deltaT, bool optimize, double throttleLevel) {
+    //cout<<"----------------" << "speed: " << speed << "leader speed: " << leaderSpeed << " gap: " << gap <<  endl;
 //    if (throttleLevel == -1) {
 //        throttleLevel = this->optimumThrottleLevel;
 //    };
 
     //get the maximum acceleration that the train can go by
     double amax = this->getAccelerationUpperBound(speed, acceleration, freeFlowSpeed, optimize, throttleLevel);
-
+    //std::cout << "amax: " << amax << endl;
     if ((gap > this->getSafeGap(mingap, speed, freeFlowSpeed, this->T_s, false)) && (amax > 0)) {
         if (speed < freeFlowSpeed) {
             return amax;
@@ -412,17 +420,31 @@ double Train::accelerate(double gap, double mingap, double speed, double acceler
         }
     }
     double u_hat = this->getNextTimeStepSpeed(gap, mingap, speed, freeFlowSpeed, amax, this->T_s, deltaT);
+    //std::cout << "u_hat: " << u_hat << endl;
     double TTC_s = this->getTimeToCollision(gap, mingap, speed, leaderSpeed);
+    //std::cout << "TTC_s: " <<TTC_s << endl;
     double an11 = this->get_acceleration_an11(u_hat, speed, TTC_s, this->coefficientOfFriction);
+    //std::cout << "an11: " <<an11 << endl;
     double an12 = this->get_acceleration_an12(u_hat, speed, this->T_s, amax);
+    //std::cout << "an12: " <<an12 << endl;
     double beta1 = this->get_beta1(an11);
+    //std::cout << "beta1: " <<beta1 << endl;
     double an13 = this->get_acceleration_an13(beta1, an11, an12);
+    //std::cout << "an13: " <<an13<< endl;
     double an14 = this->get_acceleration_an14(speed, leaderSpeed, this->T_s, amax, this->coefficientOfFriction);
+    //std::cout << "an14: " <<an14 << endl;
     double beta2 = this->get_beta2();
+    //std::cout << "beta2: " <<beta2 << endl;
     double an1 = this->get_acceleration_an1(beta2, an13, an14);
-    double gamma = this->get_gamma(speed - leaderSpeed);
+    //std::cout << "an1: " <<an1 << endl;
+    double du = speed - leaderSpeed;
+    //std::cout << "du: " << du << endl;
+    double gamma = this->get_gamma(du);
+    //std::cout << "gamma: " <<gamma << endl;
     double an2 = this->get_acceleration_an2(gap, mingap, speed, leaderSpeed, this->T_s, this->coefficientOfFriction );
+    //std::cout << "an2: " <<an2 << endl;
     double a = an1 * (1.0 - gamma) - gamma * an2;
+    //std::cout << "a: " <<a << endl;
     return a;
 }
 
@@ -461,7 +483,6 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
     // set the min gap to the next train / station
     double minGap = 0.0;
     double GapFollowing = this->getMinFollowingTrainGap();
-
     Vector<double> allAccelerations;
 
     for (int i = 0; i < gapToNextCriticalPoint.size(); i++) {
@@ -523,10 +544,6 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
 
     // update the throttle level of the train
     this->updateLocNotch();
-
-    //if (this->travelledDistance > 39911.279) {
-    //    exit(0);
-    //}
 }
 
 void Train::immediateStop(double timestep){
@@ -616,7 +633,7 @@ double Train::getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds) {
 int Train::getRechargableCarsNumber() {
     int count = 0;
     for (Vector< std::shared_ptr<Car>>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
-        if (it->get()->carType == TrainTypes::CarType::batteryTender) {
+        if (TrainTypes::carRechargableTechnologies.exist(it->get()->carType)) {
             count++;
         }
     }
@@ -626,7 +643,7 @@ int Train::getRechargableCarsNumber() {
 int Train::getRechargableLocsNumber() {
     int count = 0;
     for (Vector< std::shared_ptr<Locomotive>>::iterator it = this->locomotives.begin(); it != this->locomotives.end(); ++it) {
-        if (it->get()->powerType == TrainTypes::PowerType::electric) {
+        if (TrainTypes::locomotiveRechargableTechnologies.exist(it->get()->powerType)) {
             count++;
         }
     }
@@ -867,15 +884,6 @@ bool Train::rechargeCarsBatteries(double EC_kwh, std::shared_ptr<Locomotive> &lo
     return consumed;
 }
 
-//double Train::getEnergyConsumption(double timeStep) {
-//    double totalEC = 0.0;
-//    if (!this->locomotives.empty()) {
-//        for (Vector< std::shared_ptr<Locomotive>>::iterator it = this->locomotives.begin(); it != this->locomotives.end(); ++it) {
-//            totalEC += it->get()->getEnergyConsumption(this->currentSpeed, this->currentAcceleration, timeStep);
-//        }
-//    }
-//    return totalEC;
-//}
 
 void Train::calculateEnergyConsumption(double timeStep, std::string currentRegion) {
     this->energyStat = 0.0;
