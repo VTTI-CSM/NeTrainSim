@@ -243,17 +243,13 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
         return this->auxiliaryPower * unitConversionFactor;
 	}
 	else if(tractivePower > 0) {
-        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) *
-                        EC::getGeneratorEff(this->powerType);
+        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType);
         double EC = (((tractivePower/ eff ) + this->auxiliaryPower ) * unitConversionFactor);
         return EC;
 	}
 	else {
-        // if it is diesel or hydrogen, do no regenerate electricity
-        if (TrainTypes::locomotiveNonRechargableTechnologies.exist(this->powerType)) {
-			return 0.0;
-		}
-		else {
+        // if it is a regenerative locomotive, regenerate energy
+        if (TrainTypes::locomotiveRechargableTechnologies.exist(this->powerType)) {
 			// get regenerative eff
 			double regenerativeEff = 0;
 			//if there is an deceleration value, calculate the eff directly
@@ -275,7 +271,11 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
             }
             return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
                 this->auxiliaryPower) * unitConversionFactor);
-		}		
+        }
+        // if it is diesel or hydrogen, do no regenerate electricity
+        else {
+            return 0.0;
+        }
 	}
 }
 
@@ -385,14 +385,11 @@ bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
 
     // if energy should be consumed
     if (EC_kwh > 0.0) {
+        // if hybrid locomotive, convert energy to battery first before consuming it
+        double EC_kwh_hybrid = EC_kwh/EC::getGeneratorEff(this->powerType);
+
         if (this->powerType == TrainTypes::PowerType::diesel ) {
             return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
-        }
-        else if (this->powerType == TrainTypes::PowerType::dieselHybrid) {
-            if (! this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity)) {
-                return this->consumeBattery(EC_kwh);
-            }
-            return true;
         }
         else if (this->powerType == TrainTypes::PowerType::electric) {
             return this->consumeBattery(EC_kwh);
@@ -400,18 +397,28 @@ bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
         else if (this->powerType == TrainTypes::PowerType::hydrogen) {
             return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
 		}
+        else if (this->powerType == TrainTypes::PowerType::dieselElectric) {
+            return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
+        }
+        else if (this->powerType == TrainTypes::PowerType::dieselHybrid) {
+            if (! this->consumeFuelDiesel(EC_kwh_hybrid, dieselConversionFactor, dieselDensity)) {
+                return this->consumeBattery(EC_kwh);
+            }
+            return true;
+        }
         else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-            if (! this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity)) {
+            if (! this->consumeFuelHydrogen(EC_kwh_hybrid, hydrogenConversionFactor, hydrogenDensity)) {
                 return this->consumeBattery(EC_kwh);
             }
             return true;
         }
         else if (this->powerType == TrainTypes::PowerType::biodieselHybrid) {
-            if (! this->consumeFuelBioDiesel(EC_kwh, bioDieselConversionFactor, bioDieselDensity)) {
+            if (! this->consumeFuelBioDiesel(EC_kwh_hybrid, bioDieselConversionFactor, bioDieselDensity)) {
                 return this->consumeBattery(EC_kwh);
             }
             return true;
         }
+
         // if it is something else
 		return false;
 	}
