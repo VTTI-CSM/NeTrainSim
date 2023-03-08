@@ -30,8 +30,6 @@ private:
 	static constexpr double DefaultLocomotiveMaxSpeed = 100.0 / 3.0;
 	/** (Immutable) the default locomotive maximum acheivable notch */
 	static constexpr double DefaultLocomotiveMaxAcheivableNotch = 0;
-	/** (Immutable) the default locomotive auxiliary power */
-	static constexpr double DefaultLocomotiveAuxiliaryPower = 0.0;
 	/** (Immutable) the default locomotive no of notches */
 	static const int DefaultLocomotiveNoOfNotches = 8;
 	/** (Immutable) the default locomotive no of axiles */
@@ -112,13 +110,14 @@ public:
 		double locomotiveMaxSpeed_mps = DefaultLocomotiveMaxSpeed,
 		int totalNotches = DefaultLocomotiveNoOfNotches,
 		int locomotiveMaxAchievableNotch = DefaultLocomotiveMaxAcheivableNotch,
-		double locomotiveAuxiliaryPower_kw = DefaultLocomotiveAuxiliaryPower,
+        double locomotiveAuxiliaryPower_kw = EC::DefaultLocomotiveAuxiliaryPower,
 		string locomotiveName = DefaultLocomotiveName,
 		double batteryMaxCharge_kwh = EC::DefaultLocomotiveBatteryMaxCharge,
 		double batteryInitialCharge_perc = EC::DefaultLocomotiveBatteryInitialCharge,
 		double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacity,
 		double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity);
 
+    void setCurrentWeight(double newCurrentWeight);
 	/**
 	 * Gets power type string
 	 *
@@ -184,13 +183,12 @@ public:
 	 * @date	2/28/2023
 	 *
 	 * @param [in,out]	trainSpeed				The train speed.
-	 * @param [in,out]	TrainAcceleration   	The train acceleration.
 	 * @param [in,out]	optimize				True to optimize.
 	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
 	 *
 	 * @returns	The throttle level.
 	 */
-	double getThrottleLevel(double &trainSpeed, double& TrainAcceleration, bool &optimize, double &optimumThrottleLevel);
+    double getThrottleLevel(double &trainSpeed, bool &optimize, double &optimumThrottleLevel);
 
 	/**
 	 * Gets a resistance
@@ -212,14 +210,13 @@ public:
 	 *
 	 * @param [in,out]	frictionCoef			The friction coef.
 	 * @param [in,out]	trainSpeed				The train speed.
-	 * @param [in,out]	trainAcceleration   	The train acceleration.
 	 * @param [in,out]	optimize				True to optimize.
 	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
 	 *
 	 * @returns	The tractive force.
 	 */
-	double getTractiveForce(double &frictionCoef, double &trainSpeed, double& trainAcceleration,
-		bool &optimize, double &optimumThrottleLevel);
+    double getTractiveForce(double &frictionCoef, double &trainSpeed,
+        bool &optimize, double &optimumThrottleLevel);
 
 	/**
 	 * Gets net force
@@ -229,14 +226,13 @@ public:
 	 *
 	 * @param [in,out]	frictionCoef			The friction coef.
 	 * @param [in,out]	trainSpeed				The train speed.
-	 * @param [in,out]	trainAcceleration   	The train acceleration.
 	 * @param [in,out]	optimize				True to optimize.
 	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
 	 *
 	 * @returns	The net force.
 	 */
-	double getNetForce(double &frictionCoef, double &trainSpeed, double &trainAcceleration,
-		bool &optimize, double &optimumThrottleLevel);
+    double getNetForce(double &frictionCoef, double &trainAcceleration,
+        bool &optimize, double &optimumThrottleLevel);
 
 	/**
 	 * Gets shared virtual tractive power
@@ -268,8 +264,8 @@ public:
 	 *
 	 * @returns	The energy consumption.
 	 */
-	double getEnergyConsumption(double& LocomotiveVirtualTractivePowerdouble, double& speed, double& acceleration,
-		double& timeStep);
+    double getEnergyConsumption(double& LocomotiveVirtualTractivePowerdouble, double& acceleration, double& speed,
+        double& timeStep);
 
 
     /**
@@ -281,6 +277,14 @@ public:
      */
     bool consumeFuelDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
 
+    /**
+     * @brief consume the locomotive bio diesel fuel.
+     * @param EC_kwh
+     * @param bioDieselConversionFactor
+     * @param bioDieselDensity
+     * @return
+     */
+    bool consumeFuelBioDiesel(double EC_kwh, double bioDieselConversionFactor, double bioDieselDensity);
     /**
      * @brief consume the locomotive electric energy
      * @param EC_kwh
@@ -294,7 +298,7 @@ public:
      * @param hydrogenConversionFactor
      * @return
      */
-    bool consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor);
+    bool consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity);
     /**
      * @brief refill the locomtoive battery
      * @param EC_kwh
@@ -324,8 +328,11 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
     bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-        double dieselDensity = EC::DefaultDieselDensity) override;
+                     double bioDieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                     double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                     double dieselDensity = EC::DefaultDieselDensity,
+                     double bioDieselDensity = EC::DefaultBioDieselDensity,
+                     double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
 	 * Define throttle levels
