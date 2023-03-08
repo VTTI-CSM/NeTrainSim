@@ -382,12 +382,12 @@ public:
 	void setTrainSimulatorPath();
 
 	/**
-	 * Sets trains stopping stations
+     * Sets trains nodes from their path.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-	void setTrainsStoppingStations();
+    void setTrainsPathNodes();
 
 	/**
 	 * Sets train path length
