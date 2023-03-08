@@ -199,7 +199,7 @@ public:
      */
     bool DistanceToEndOfAllLinkTrainsIsLarge(const std::shared_ptr <NetLink> link, const std::shared_ptr <Train> train) {
         std::set<double> distanceToOtherTrains;
-        for (std::shared_ptr <Train> t : link->currentTrains) {
+        for (std::shared_ptr <Train>& t : link->currentTrains) {
             if (t != train) {
                 distanceToOtherTrains.insert(
                     getDistanceByTwoCoordinates(t->startEndPoints[1], train->currentCoordinates));
@@ -604,7 +604,9 @@ public:
             for (auto& n : currentNode->getNeighbors()) {
                 if ((currentNode->graphSearchDistanceFromStart + 
                     currentNode->linkTo.at(n).at(0)->length) < n->graphSearchDistanceFromStart) {
-
+                    if (n->graphSearchDistanceFromStart == INFINITY) {
+                        n->graphSearchDistanceFromStart = 0.0;
+                    }
                     n->graphSearchDistanceFromStart += currentNode->linkTo.at(n).at(0)->length;
                     n->graphSearchPreviousNode = currentNode;
                 }
