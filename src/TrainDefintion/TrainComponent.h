@@ -9,6 +9,8 @@
 #include <iostream>
 // #include "TrainTypes.h"
 #include "../network/NetLink.h"
+#include "battery.h"
+#include "tank.h"
 #include "EnergyConsumption.h"
 #include <memory>
 using namespace std;
@@ -19,8 +21,7 @@ using namespace std;
  * @author	Ahmed
  * @date	2/14/2023
  */
-class TrainComponent {
-
+class TrainComponent : public Battery, public Tank{
 public:
 	/** The name of the car */
 	std::string name;
@@ -43,23 +44,23 @@ public:
 	/** Auxiliary power */
 	double auxiliaryPower;
 
-	/** Fuel cell variables if other fuel types and battery tender max capacity */
-	double batteryMaxCharge;
-	/** Tender initial capacity */
-	double batteryInitialCharge;
-	/** Tender current capacity */
-	double batteryCurrentCharge;
-	/** Tender fuel cell state */
-	double batteryStateOfCharge;
+//	/** Fuel cell variables if other fuel types and battery tender max capacity */
+//	double batteryMaxCharge;
+//	/** Tender initial capacity */
+//	double batteryInitialCharge;
+//	/** Tender current capacity */
+//	double batteryCurrentCharge;
+//	/** Tender fuel cell state */
+//	double batteryStateOfCharge;
 
-	/** Fuel cell variables if other fuel types and battery tender max capacity */
-	double tankMaxCapacity;
-	/** Tender initial capacity */
-	double tankInitialCapacity;
-	/** Tender current capacity */
-	double tankCurrentCapacity;
-	/** Tender fuel cell state */
-	double tankStateOfCapacity;
+//	/** Fuel cell variables if other fuel types and battery tender max capacity */
+//	double tankMaxCapacity;
+//	/** Tender initial capacity */
+//	double tankInitialCapacity;
+//	/** Tender current capacity */
+//	double tankCurrentCapacity;
+//	/** Tender fuel cell state */
+//	double tankStateOfCapacity;
 
 
 	/** The amount of energy consumed */
@@ -70,9 +71,10 @@ public:
 	double energyRegenerated = 0.0;
 	/** The amount of cummulative energy regenerated */
 	double cumEnergyRegenerated = 0.0;
+
+
     /** Holds the current link this vehicle is on. */
     std::shared_ptr<NetLink> hostLink;
-
 	/**
 	 * \brief Gets the resistance applied on only this vehicle.
 	 * 
@@ -101,6 +103,80 @@ public:
 	 * @date	2/18/2023
 	 */
 	virtual void resetTimeStepConsumptions();
+
+
+    /**
+     * @brief setCurrentWeight
+     * @param newCurrentWeight
+     */
+    virtual void setCurrentWeight(double newCurrentWeight);
+
+    /**
+     * @brief consume the locomotive diesel fuel.
+     * @param EC_kwh
+     * @param dieselConversionFactor
+     * @param dieselDensity
+     * @return
+     */
+    virtual std::pair<bool, double> consumeFuelDiesel(double EC_kwh,
+                                                      double dieselConversionFactor,
+                                                      double dieselDensity);
+
+    /**
+     * @brief consume the locomotive bio diesel fuel.
+     * @param EC_kwh
+     * @param bioDieselConversionFactor
+     * @param bioDieselDensity
+     * @return
+     */
+    virtual std::pair<bool, double> consumeFuelBioDiesel(double EC_kwh,
+                                                         double bioDieselConversionFactor,
+                                                         double bioDieselDensity);
+
+    /**
+     * @brief consume any source of electricity in the locomotive; either the catenary or the batteries.
+     *
+     * @details the function consumes the electricity stored in the locomotive batteries or provided
+     * by the catenary if available.
+     * For battery:
+     * It checks the amout of energy required by the locomotive below the max amount the
+     * battery can provide.
+     *      1. if yes, it consumes it from the battery and returns (true, 0.0),
+     *      2. if no, it consumes the max that the battery can provide and return (true, 0.0),
+     * If the battery cannot provide any energy because it is empty, it returns (false, 0.0).
+     * For Catenary:
+     * It consumes the whole amount of energy required from the catenary.
+     *
+     * @param EC_kwh        is the energy required for the locomotive
+     * @param minBatterySOC is the battery min state of charge, which below it, the battery is considered empty.
+     * @return
+     */
+    virtual std::pair<bool, double> consumeElectricity(double timeStep, double EC_kwh);
+
+    /**
+     * @brief consume the locomotive hydrogen fuel.
+     * @param EC_kwh
+     * @param hydrogenConversionFactor
+     * @return
+     */
+    virtual std::pair<bool, double> consumeFuelHydrogen(double EC_kwh,
+                                                        double hydrogenConversionFactor,
+                                                        double hydrogenDensity);
+    /**
+     * @brief refill the locomtoive battery
+     * @param timeStep
+     * @param EC_kwh
+     * @return
+     */
+    virtual bool refillBattery(double timeStep, double EC_kwh);
+
+    /**
+     * @brief Rechage catenary and grid system if they are available
+     * @param EC_kwh
+     * @return
+     */
+    virtual bool rechargeCatenary(double EC_kwh);
+
 
 	/**
 	 * \brief Consume fuel or battery from the vehicle. if it energy required is greater than stored energy
@@ -147,13 +223,14 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    virtual bool consumeFuel(double EC_kwh,
-                             double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-                             double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
-                             double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-                             double dieselDensity = EC::DefaultDieselDensity,
-                             double biodieselDensity = EC::DefaultBioDieselDensity,
-                             double hydrogenDensity = EC::DefaultHydrogenDensity);
+    virtual std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
+                                               double EC_kwh,
+                                               double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                                               double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                                               double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                                               double dieselDensity = EC::DefaultDieselDensity,
+                                               double biodieselDensity = EC::DefaultBioDieselDensity,
+                                               double hydrogenDensity = EC::DefaultHydrogenDensity);
 
 	/**
 	 * \brief Stream insertion operator
@@ -167,6 +244,14 @@ public:
 	 * @returns	The shifted result.
 	 */
 	friend ostream& operator<<(ostream& ostr, TrainComponent& stud);
+
+    /**
+     * @brief consume the locomotive electric energy
+     * @param EC_kwh
+     * @return
+     */
+private:
+    //virtual bool consumeBattery(double EC_kwh, double minBatterySOC);
 };
 
 /**

@@ -75,7 +75,7 @@ public:
     double operatorReactionTime;
     /** Total length of the train */
     double totalLength;
-    /** The total weight of the train */
+    /** The total weight of the train in kg*/
     double totalMass;
     /** The total empty weight of the train */
     double totalEmptyMass = 0;
@@ -111,11 +111,11 @@ public:
     double previousAcceleration;
     /** The average journey acceleration of the train from t = 0 to t */
     double averageAcceleration;
-    /** The current tractive forces the train is using */
+    /** The current tractive forces the train is using in Newton.*/
     double currentTractiveForce;
-    /** The current resistance forces on the train */
+    /** The current resistance forces on the train in Newton*/
     double currentResistanceForces;
-    /** The current used tractive power that the locomotives provides */
+    /** The current used tractive power that the locomotives provides in kw*/
     double currentUsedTractivePower;
     /** The optimum throttle level that the train should go by to minimize its energy use */
     double optimumThrottleLevel;
@@ -240,8 +240,18 @@ public:
      * @param EC_kwh
      * @return
      */
-    bool rechargeCarsBatteries(double EC_kwh, std::shared_ptr<Locomotive> &loco);
+    bool rechargeCarsBatteries(double timeStep, double EC_kwh, std::shared_ptr<Locomotive> &loco);
 
+    /**
+     * @brief getTrainConsumedTank
+     * @return number of litters consumed from the tank.
+     */
+    double getTrainConsumedTank();
+
+    /**
+     * @brief set the train path.
+     * @param path the new path of the simulator node ids.
+     */
     void setTrainPath(Vector<int> path);
     /**
      * this function returns how many trains are loaded in the simulator
@@ -345,7 +355,38 @@ public:
     double getAverageLocomotivesBatteryStatus();
 
     /**
-     * \brief Gets train total torque
+     * @brief Gets average locomotives tank status
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return The average locomotives tank status.
+     */
+    double getAverageLocomotiveTankStatus();
+
+    /**
+     * @brief Gets average tenders tank status
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return The average tenders tank status.
+     */
+    double getAverageTendersTankStatus();
+
+    /**
+     * @brief Gets average tenders battery status
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return The average tenders battery status.
+     */
+    double getAverageTendersBatteryStatus();
+
+
+    /**
+     * \brief Gets train total torque in tons x meters.
      *
      * @author	Ahmed Aredah
      * @date	2/28/2023
@@ -712,7 +753,7 @@ public:
      *
      * @returns	True if it succeeds, false if it fails.
      */
-    bool consumeEnergy(double& timeStep, Vector<double>& usedTractivePower);
+    bool consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& usedTractivePower);
 
     /**
      * \brief Resets the train energy consumption
@@ -736,10 +777,10 @@ public:
      *
      * @returns	True if it succeeds, false if it fails.
      */
-    bool consumeTendersEnergy(double EC_kwh, TrainTypes::PowerType powerType,
-        double dieselConversionFactor = EC::DefaultDieselConversionFactor, 
-        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor, 
-        double dieselDensity = EC::DefaultDieselDensity);
+    bool consumeTendersEnergy(double timeStep, double trainSpeed, double EC_kwh, TrainTypes::PowerType powerType,
+                              double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                              double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                              double dieselDensity = EC::DefaultDieselDensity);
 
     /**
      * \brief Gets active tanks of type
