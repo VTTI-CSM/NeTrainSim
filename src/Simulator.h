@@ -73,6 +73,9 @@ private:
 	//Vector<Vector<Vector < std::shared_ptr<NetNode>>>> conflictTrainsIntersections;
 	/** Groups the signals belongs to */
 	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
+    /** export individualized trains summary in the summary file*/
+    bool exportIndividualizedTrainsSummary = false;
+
 public:
 
 
@@ -414,7 +417,10 @@ public:
 	 * @param 	train   	The train.
 	 * @param 	timeStep	The time step.
 	 */
-	void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
+    void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
+    bool getExportIndividualizedTrainsSummary() const;
+    void setExportIndividualizedTrainsSummary(bool newExportIndividualizedTrainsSummary);
+
 private:
 
 	/**
