@@ -39,6 +39,8 @@ SOURCES += \
     src/trainDefintion/Train.cpp \
     src/trainDefintion/TrainComponent.cpp \
     src/trainDefintion/TrainsList.cpp \
+    src/trainDefintion/battery.cpp \
+    src/trainDefintion/tank.cpp \
     src/util/Logger.cpp
 
 HEADERS += \
@@ -63,6 +65,9 @@ HEADERS += \
     src/trainDefintion/TrainComponent.h \
     src/trainDefintion/TrainTypes.h \
     src/trainDefintion/TrainsList.h \
+    src/trainDefintion/battery.h \
+    src/trainDefintion/tank.h \
+    src/util/Error.h \
     src/util/List.h \
     src/util/Logger.h \
     src/util/Map.h \
