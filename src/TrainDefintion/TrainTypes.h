@@ -95,7 +95,7 @@ namespace TrainTypes {
     enum class _PowerType {
         diesel,
         electric,
-        hydrogen,
+        biodiesel,
         dieselElectric,
         dieselHybrid,
         hydrogenHybrid,
@@ -104,6 +104,7 @@ namespace TrainTypes {
 
     using PowerType = _PowerType;
 
+    // they can be recharged and have a battery
     static const Vector<PowerType> locomotiveRechargableTechnologies = {
         PowerType::electric,
         PowerType::dieselHybrid,
@@ -111,21 +112,23 @@ namespace TrainTypes {
         PowerType::biodieselHybrid
     };
 
+    // they cannot be recharge and/or do not have a battery
     static const Vector<PowerType> locomotiveNonRechargableTechnologies = {
         PowerType::diesel,
-        PowerType::hydrogen,
+        PowerType::biodiesel,
         PowerType::dieselElectric  // it does not have a battery to store energy in
     };
 
     static const Vector<PowerType> locomotiveTankOnly = {
         PowerType::diesel,
-        PowerType::hydrogen
+        PowerType::biodiesel
     };
 
     static const Vector<PowerType> locomotiveBatteryOnly = {
         PowerType::electric
     };
 
+    // they have two types
     static const Vector<PowerType> locomotiveHybrid = {
         PowerType::dieselElectric,
         PowerType::dieselHybrid,
@@ -136,7 +139,7 @@ namespace TrainTypes {
     static const std::string powerTypeStrings[] = {
     "Diesel Locomotive",
     "Electric Locomotive",
-    "Hydrogen Locomotive",
+    "Biodiesel Locomotive",
     "Diesel-Electric Locomotive",
     "Diesel-Hyprid Locomotive",
     "Hydrogen-Hyprid Locomotive",
@@ -146,8 +149,8 @@ namespace TrainTypes {
     static const PowerType powerTypeArray[] = {
     PowerType::diesel,
     PowerType::electric,
-    PowerType::hydrogen,
-    PowerType::dieselElectric,
+    PowerType::biodiesel,
+    PowerType::dieselElectric,   // all locomotives now are diesel
     PowerType::dieselHybrid,
     PowerType::hydrogenHybrid,
     PowerType::biodieselHybrid
@@ -156,7 +159,7 @@ namespace TrainTypes {
     static const std::map<std::string, PowerType> powerTypeMap = {
     {"Diesel Locomotive", PowerType::diesel},
     {"Electric Locomotive", PowerType::electric},
-    {"Hydrogen Locomotive", PowerType::hydrogen},
+    {"Biodiesel Locomotive", PowerType::biodiesel},
     {"Diesel-Electric Locomotive", PowerType::dieselElectric},
     {"Diesel-Hyprid Locomotive", PowerType::dieselHybrid},
     {"Hydrogen-Hyprid Locomotive", PowerType::hydrogenHybrid},
@@ -166,7 +169,7 @@ namespace TrainTypes {
     static const std::map<PowerType, CarType> powerToCarMap = {
         {PowerType::diesel, CarType::dieselTender},
         {PowerType::electric, CarType::batteryTender},
-        {PowerType::hydrogen, CarType::hydrogenTender},
+        {PowerType::biodiesel, CarType::biodieselTender},
         {PowerType::dieselHybrid, CarType::dieselTender},
         {PowerType::hydrogenHybrid, CarType::hydrogenTender},
         {PowerType::biodieselHybrid, CarType::biodieselTender}
