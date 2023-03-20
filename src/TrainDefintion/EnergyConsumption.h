@@ -20,8 +20,8 @@ namespace EC {
     /** (Immutable) the default locomotive auxiliary power */
     static constexpr double DefaultLocomotiveAuxiliaryPower = 0.0;
     /** The default locomotive battery maximum charge in kWh.
-     Battery capacity of up to 2.4 megawatt hours. */
-    static double DefaultLocomotiveBatteryMaxCharge = 240000.0;
+     Battery capacity of up to 2.5 megawatt hours. */
+    static double DefaultLocomotiveBatteryMaxCharge = 4000.0;
 	/** The default locomotive battery initial charge */
 	static double DefaultLocomotiveBatteryInitialCharge = 0.9;
 
@@ -30,6 +30,19 @@ namespace EC {
     static double DefaultLocomotiveTankMaxCapacity = 20065.0;
     /** The default locomotive tank initial capacity in Gallons */
 	static double DefaultLocomotiveTankInitialCapacity = 0.9;
+
+    /** (Immutable) the default locomotive minimum tank depth of discharge */
+    static constexpr double DefaultLocomotiveMinTankDOD = 0.8;
+
+    /** (Immutable) the default locomotive battery depth of discharge = 1 - (SOC/100) */
+    static constexpr double DefaultLocomotiveBatteryDOD = 0.9;
+    /** (Immutable) the default locomotive battery C-Rate */
+    static constexpr double DefaultLocomotiveBatteryCRate = 2.0;
+
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.5;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.7;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.1;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.5;
 // ##################################################################
 // #             end: define locomotive default values            #
 // ##################################################################
@@ -41,7 +54,7 @@ namespace EC {
     static constexpr double DefaultCarAuxiliaryPower = 0.0;
     /** The default car battery maximum capacity in kWh.
      Tender car could carry 5.1–6.2MWh*/
-    static double DefaultCarBatteryMaxCapacity = 510000.0;
+    static double DefaultCarBatteryMaxCapacity = 10000.0;
 	/** The default car battery initial charge */
 	static double DefaultCarBatteryInitialCharge = 0.9;
 
@@ -50,6 +63,13 @@ namespace EC {
     static double DefaultCarTenderMaxCapacity = 87064.471;
 	/** The default car tender initial capacity */
     static double DefaultCarTenderInitialCapacity = 0.9;
+
+    /** (Immutable) the default car minimum battery depth of discharge = 1 - (SOC/100) */
+    static constexpr double DefaultCarBatteryDOD = 0.9;
+    /** (Immutable) the default battery c-rate */
+    static constexpr double DefaultCarBatteryCRate = 2.0;
+    /** (Immutable) the default car minimum tank sot */
+    static constexpr double DefaultCarMinTankDOD = 0.9;
 // ##################################################################
 // #                 end: define cars default values                #
 // ##################################################################
@@ -57,6 +77,7 @@ namespace EC {
 // ##################################################################
 // #        start: general energy consumption default values        #
 // ##################################################################
+
     /** the default diesel conversion factor.
      Diesel (Gallons) = Energy Consumption (KW.h) * 0.028571
      Diesel (Litters) = Energy Consumption (KW.h) * 0.1005 */
@@ -89,16 +110,20 @@ namespace EC {
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	trainSpeed			The train speed.
-	 * @param 	notchNumberIndex	Zero-based index of the notch number.
-	 * @param 	powerType			Type of the power.
+     * @param 	trainSpeed              The train speed.
+     * @param 	notchNumberIndex        Zero-based index of the notch number.
+     * @param   powerAtWheelProportion  The Power required for the time step of the train at the wheel.
+     * @param 	powerType               Type of the power.
 	 *
 	 * @returns	The drive line eff.
 	 */
-    double getDriveLineEff(double &trainSpeed, int notchNumberIndex, TrainTypes::PowerType powerType);
+    double getDriveLineEff(double &trainSpeed, int notchNumberIndex, double powerAtWheelProportion, TrainTypes::PowerType powerType);
 
     double getGeneratorEff(TrainTypes::PowerType powerType);
 
+    double getRequiredGeneratorPowerForRecharge(double batterySOC);
+
+    tuple<double, double, double, double> getEmissions(double fuelConsumption);
 }
 
 
