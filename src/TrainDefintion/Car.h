@@ -24,11 +24,6 @@ class Car : public TrainComponent {
 private:
 	/** (Immutable) the default car name */
 	inline static const  string DefaultCarName = "Railcar";
-	/** (Immutable) the default car minimum battery soc */
-	static constexpr double DefaultCarMinBatterySOC = 0.2;
-	/** (Immutable) the default car minimum tank sot */
-	static constexpr double DefaultCarMinTankSOT = 0.0;
-
 
 public:
 	/** The type of the car */
@@ -107,46 +102,6 @@ public:
 	 */
 	double getEnergyConsumption(double &timeStep);
 
-    /**
-     * @brief consume the tender diesel fuel.
-     * @param EC_kwh
-     * @param dieselConversionFactor
-     * @param dieselDensity
-     * @return
-     */
-    bool consumeDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
-
-    /**
-     * @brief consume the tender bio diesel fuel.
-     * @param EC_kwh
-     * @param biodieselConversionFactor
-     * @param biodieselDensity
-     * @return
-     */
-    bool consumeBioDiesel(double EC_kwh, double biodieselConversionFactor, double biodieselDensity);
-
-    /**
-     * @brief consume the tender hydrogen.
-     * @param EC_kwh
-     * @param hydrogenConversionFactor
-     * @param hydrogenDensity
-     * @return
-     */
-    bool consumeHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity);
-    /**
-     * @brief consume the car battery.
-     * @param EC_kwh
-     * @return
-     */
-    bool consumeBattery(double EC_kwh);
-
-    /**
-     * @brief Refill the car battery.
-     * @param EC_kwh
-     * @return
-     */
-    bool RefillBattery(double EC_kwh);
-
 	/**
 	 * Consume fuel from the tender
 	 *
@@ -161,12 +116,13 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-                     double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
-                     double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-                     double dieselDensity = EC::DefaultDieselDensity,
-                     double biodieselDensity = EC::DefaultBioDieselDensity,
-                     double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+    std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+                                        double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                                        double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                                        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                                        double dieselDensity = EC::DefaultDieselDensity,
+                                        double biodieselDensity = EC::DefaultBioDieselDensity,
+                                        double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
      * Stream insertion operator

@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-#include "../util/List.h"
+//#include "../util/List.h"
 #include "../util/Vector.h"
 #include "TrainTypes.h"
 #include "EnergyConsumption.h"
@@ -23,11 +23,12 @@ using namespace std;
  * @date	2/28/2023
  */
 class Locomotive : public TrainComponent{
+
 private:
 	/** (Immutable) the default locomotive name */
 	inline static const  string DefaultLocomotiveName = "locomotive";
-	/** (Immutable) the default locomotive maximum speed */
-	static constexpr double DefaultLocomotiveMaxSpeed = 100.0 / 3.0;
+    /** (Immutable) the default locomotive maximum speed = 120 km/h*/
+    static constexpr double DefaultLocomotiveMaxSpeed = 100.0 / 3.0;
 	/** (Immutable) the default locomotive maximum acheivable notch */
 	static constexpr double DefaultLocomotiveMaxAcheivableNotch = 0;
 	/** (Immutable) the default locomotive no of notches */
@@ -36,16 +37,13 @@ private:
 	static const int DefaultLocomotiveNoOfAxiles = 6;
 	/** diesel */
 	static const int DefaultLocomotiveType = 0;
-	/** (Immutable) the default locomotive minimum tank sot */
-	static constexpr double DefaultLocomotiveMinTankSOT = 0.2;
-	/** (Immutable) the default locomotive minimum battery soc */
-    static constexpr double DefaultLocomotiveMinBatterySOC = 0.0;
     /** (Immutable) the default locomotive minimum weight. */
     static constexpr double DefaultLocomotiveEmptyWeight = 180;
 
-
+private:
+    double maxTractiveForce = 0.0;
 public:
-	/** The max power of the locomotive */
+    /** The max power of the locomotive in kw. */
 	double maxPower;
 	/** Transmission effeciency of the locomotive */
 	double transmissionEfficiency;
@@ -62,6 +60,8 @@ public:
 	int maxLocNotch = 0;
 	/** The current notch the locomotive is going by */
 	int currentLocNotch = 0;
+    /** The forced lower notch position to the locomotive in case lower energy consumption is required. */
+    int reducedPowerNotch = 0;
 	/** The discretized throttlelevels */
 	Vector<double> discritizedLamda;
 	/** The current throttle level based on the current notch */
@@ -103,21 +103,22 @@ public:
 	 * @param 	tankInitialCapacity_perc			(Optional) The tank initial capacity perc.
 	 */
 	Locomotive(double locomotiveMaxPower_kw, double locomotiveTransmissionEfficiency,
-		double locomotiveLength_m, double locomotiveDragCoef, double locomotiveFrontalArea_sqm,
-		double locomotiveWeight_t,
-		int locomotiveNoOfAxiles = DefaultLocomotiveNoOfAxiles,
-		int locomotivePowerType = DefaultLocomotiveType,
-		double locomotiveMaxSpeed_mps = DefaultLocomotiveMaxSpeed,
-		int totalNotches = DefaultLocomotiveNoOfNotches,
-		int locomotiveMaxAchievableNotch = DefaultLocomotiveMaxAcheivableNotch,
-        double locomotiveAuxiliaryPower_kw = EC::DefaultLocomotiveAuxiliaryPower,
-		string locomotiveName = DefaultLocomotiveName,
-		double batteryMaxCharge_kwh = EC::DefaultLocomotiveBatteryMaxCharge,
-		double batteryInitialCharge_perc = EC::DefaultLocomotiveBatteryInitialCharge,
-		double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacity,
-		double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity);
+               double locomotiveLength_m, double locomotiveDragCoef, double locomotiveFrontalArea_sqm,
+               double locomotiveWeight_t,
+               int locomotiveNoOfAxiles = DefaultLocomotiveNoOfAxiles,
+               int locomotivePowerType = DefaultLocomotiveType,
+               double locomotiveMaxSpeed_mps = DefaultLocomotiveMaxSpeed,
+               int totalNotches = DefaultLocomotiveNoOfNotches,
+               int locomotiveMaxAchievableNotch = DefaultLocomotiveMaxAcheivableNotch,
+               double locomotiveAuxiliaryPower_kw = EC::DefaultLocomotiveAuxiliaryPower,
+               string locomotiveName = DefaultLocomotiveName,
+               double batteryMaxCharge_kwh = EC::DefaultLocomotiveBatteryMaxCharge,
+               double batteryInitialCharge_perc = EC::DefaultLocomotiveBatteryInitialCharge,
+               double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacity,
+               double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity,
+               double batteryCRate = EC::DefaultLocomotiveBatteryCRate);
 
-    void setCurrentWeight(double newCurrentWeight);
+
 	/**
 	 * Gets power type string
 	 *
@@ -268,50 +269,6 @@ public:
         double& timeStep);
 
 
-    /**
-     * @brief consume the locomotive diesel fuel.
-     * @param EC_kwh
-     * @param dieselConversionFactor
-     * @param dieselDensity
-     * @return
-     */
-    bool consumeFuelDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity);
-
-    /**
-     * @brief consume the locomotive bio diesel fuel.
-     * @param EC_kwh
-     * @param bioDieselConversionFactor
-     * @param bioDieselDensity
-     * @return
-     */
-    bool consumeFuelBioDiesel(double EC_kwh, double bioDieselConversionFactor, double bioDieselDensity);
-    /**
-     * @brief consume the locomotive electric energy
-     * @param EC_kwh
-     * @return
-     */
-    bool consumeBattery(double EC_kwh);
-
-    /**
-     * @brief consume the locomotive hydrogen fuel.
-     * @param EC_kwh
-     * @param hydrogenConversionFactor
-     * @return
-     */
-    bool consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity);
-    /**
-     * @brief refill the locomtoive battery
-     * @param EC_kwh
-     * @return
-     */
-    bool refillBattery(double EC_kwh);
-
-    /**
-     * @brief Rechage catenary and grid system if they are available
-     * @param EC_kwh
-     * @return
-     */
-    bool rechageCatenary(double EC_kwh);
 
 	/**
 	 * Consume fuel
@@ -327,12 +284,25 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    bool consumeFuel(double EC_kwh, double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-                     double bioDieselConversionFactor = EC::DefaultBiodieselConversionFactor,
-                     double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-                     double dieselDensity = EC::DefaultDieselDensity,
-                     double bioDieselDensity = EC::DefaultBioDieselDensity,
-                     double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+    std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+                                       double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                                       double bioDieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                                       double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                                       double dieselDensity = EC::DefaultDieselDensity,
+                                       double bioDieselDensity = EC::DefaultBioDieselDensity,
+                                       double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+
+    /**
+     * @brief Get the max energy the locomotive can regenerate.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param timeStep
+     * @param trainSpeed
+     * @return
+     */
+    double getMaxRechargeEnergy(double timeStep, double trainSpeed);
 
 	/**
 	 * Define throttle levels
@@ -354,6 +324,24 @@ public:
 	 */
 	void updateLocNotch(double &trainSpeed);
 
+    /**
+     * @brief reduce the power that the locomotive is producing by
+     * reducing the notch position to a lower position.
+     * if the locomotive could reduce the notch position to a lower position, reduce it.
+     * O.W, turn the locomotive off in case the locomotive was already moving by the notch 1.
+     *
+     * @author	Ahmed Aredah
+     * @date	3/12/2023
+     */
+    void reducePower();
+
+    /**
+     * @brief reset lower power restriction on the locomotive.
+     *
+     * @author	Ahmed Aredah
+     * @date	3/12/2023
+     */
+    void resetPowerRestriction();
 	/**
 	 * Stream insertion operator
 	 *

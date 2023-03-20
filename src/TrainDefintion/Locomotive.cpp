@@ -12,23 +12,24 @@ using namespace std;
 
 
 Locomotive::Locomotive(
-	double locomotiveMaxPower_kw, 
-	double locomotiveTransmissionEfficiency,
-	double locomotiveLength_m, 
-	double locomotiveDragCoef, 
-	double locomotiveFrontalArea_sqm, 
-	double locomotiveWeight_t,
-	int locomotiveNoOfAxiles,
-	int locomotivePowerType,
-	double locomotiveMaxSpeed_mps,
-	int totalNotches,
-	int locomotiveMaxAchievableNotch,
-	double locomotiveAuxiliaryPower_kw,
-	string locomotiveName, 
-	double batteryMaxCharge_kwh,
-	double batteryInitialCharge_perc,
-	double tankMaxCapacity_,
-	double tankInitialCapacity_perc) {
+        double locomotiveMaxPower_kw,
+        double locomotiveTransmissionEfficiency,
+        double locomotiveLength_m,
+        double locomotiveDragCoef,
+        double locomotiveFrontalArea_sqm,
+        double locomotiveWeight_t,
+        int locomotiveNoOfAxiles,
+        int locomotivePowerType,
+        double locomotiveMaxSpeed_mps,
+        int totalNotches,
+        int locomotiveMaxAchievableNotch,
+        double locomotiveAuxiliaryPower_kw,
+        string locomotiveName,
+        double batteryMaxCharge_kwh,
+        double batteryInitialCharge_perc,
+        double tankMaxCapacity_,
+        double tankInitialCapacity_perc,
+        double batteryCRate) {
 
 	this->name = locomotiveName;
 	this->maxPower = locomotiveMaxPower_kw;
@@ -50,39 +51,32 @@ Locomotive::Locomotive(
 
     // electric has only battery
     if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
-		this->batteryMaxCharge = batteryMaxCharge_kwh;
-		this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
-		this->batteryCurrentCharge = this->batteryInitialCharge;
-		this->batteryStateOfCharge = batteryInitialCharge_perc;
+        this->setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
+                         EC::DefaultLocomotiveBatteryDOD, batteryCRate);
+        this->SetTank(0.0, 0.0, EC::DefaultLocomotiveMinTankDOD);
 
-		this->tankMaxCapacity = 0.0; //kg for hydrogen and liters for fuel
-		this->tankInitialCapacity = 0.0;
-		this->tankCurrentCapacity = 0.0;
-		this->tankStateOfCapacity = 0.0;
 	}
     // diesel and hydrogen have only tanks
     else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
-		this->batteryMaxCharge = 0.0;
-		this->batteryInitialCharge = 0.0;
-		this->batteryCurrentCharge = 0.0;
-		this->batteryStateOfCharge = 0.0;
-
-		this->tankMaxCapacity = tankMaxCapacity_; //kg for hydrogen and liters for fuel
-		this->tankInitialCapacity = tankInitialCapacity_perc * this->tankMaxCapacity;
-		this->tankCurrentCapacity = this->tankInitialCapacity;
-		this->tankStateOfCapacity = tankInitialCapacity_perc;
+        this->setBattery(0.0, 0.0, 1.0, batteryCRate);
+        this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc, EC::DefaultLocomotiveMinTankDOD);
 	}
     // hybrid locomotives have both source of energy
     else {
-        this->batteryMaxCharge = batteryMaxCharge_kwh;
-        this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
-        this->batteryCurrentCharge = this->batteryInitialCharge;
-        this->batteryStateOfCharge = batteryInitialCharge_perc;
-
-        this->tankMaxCapacity = tankMaxCapacity_; //kg for hydrogen and liters for fuel
-        this->tankInitialCapacity = tankInitialCapacity_perc * this->tankMaxCapacity;
-        this->tankCurrentCapacity = this->tankInitialCapacity;
-        this->tankStateOfCapacity = tankInitialCapacity_perc;
+        double maxRSOC = 0.0;
+        double minRSOC = 0.0;
+        if (this->powerType == TrainTypes::PowerType::diesel ||
+                this->powerType == TrainTypes::PowerType::biodiesel) {
+            maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Diesel;
+            minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Diesel;
+        }
+        else {
+            maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Other;
+            minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Other;
+        }
+        this->setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
+                         EC::DefaultLocomotiveBatteryDOD, batteryCRate, maxRSOC, minRSOC);
+        this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc, EC::DefaultLocomotiveMinTankDOD);
     }
 
 
@@ -93,12 +87,6 @@ Locomotive::Locomotive(
 	this->throttleLevels = this->defineThrottleLevels();
 };	
 
-
-void Locomotive::setCurrentWeight(double newCurrentWeight) {
-    if (newCurrentWeight > this->emptyWeight) {
-        this->currentWeight = newCurrentWeight;
-    }
-}
 
 double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed) {
 	double dv, um;
@@ -144,6 +132,9 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 	if (this->maxLocNotch > this->Nmax) {
 		this->maxLocNotch = this->Nmax;
 	}
+    if (reducedPowerNotch == 0 ){
+        reducedPowerNotch = this->Nmax;
+    }
 	// get the lambda value from the continous equation
 	lmda = this->getHyperbolicThrottleCoef(trainSpeed);
 	// discritize the lambda value
@@ -160,6 +151,9 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 		crntLocNotch = this->maxLocNotch;
 		lamdaDiscretized = this->discritizedLamda[crntLocNotch];
 	}
+    if (crntLocNotch > reducedPowerNotch) {
+        lamdaDiscretized = this->discritizedLamda[reducedPowerNotch];
+    }
 	return lamdaDiscretized;
 }
 
@@ -190,7 +184,20 @@ void Locomotive::updateLocNotch(double &trainSpeed) {
 		if (this->currentLocNotch > this->maxLocNotch) { this->currentLocNotch = this->maxLocNotch; }
 	}
 
-};
+}
+
+void Locomotive::reducePower() {
+    if (this->currentLocNotch > 2) {
+        this->reducedPowerNotch = this->currentLocNotch - 1;
+    }
+    else {
+        this->isLocOn = false;
+    }
+}
+
+void Locomotive::resetPowerRestriction() {
+    this->reducedPowerNotch = 0;
+}
 
 Vector<double> Locomotive::defineThrottleLevels() {
 	double lamdaD;
@@ -214,19 +221,25 @@ double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed,
 	double f1,f = 0;
 	f1 = frictionCoef * this->currentWeight * 1000 * this->g;
 	if (trainSpeed == 0) {
+        this->maxTractiveForce = f1;
 		return f1;
 	}
 	else {
         f = min((1000 * this->transmissionEfficiency * this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel)
 			* (this->maxPower) / trainSpeed), f1);
+        this->maxTractiveForce = f;
 		return f;
 	};
 }
 
 double Locomotive::getSharedVirtualTractivePower(double &trainSpeed, double& trainAcceleration, 
 	double& sharedWeight, double& sharedResistance) {
+    if (! this->isLocOn) {
+        return 0.0;
+    }
 
-	return ((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed * this->isLocOn;
+    return ((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed;
+
 }
 
 double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
@@ -236,14 +249,21 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
 	if (!this->isLocOn) {
 		return 0.0;
 	}
-	// else calculate how much to consume
+    // else calculate how much to consume in watt (kg * m^3/s^3)
 	double tractivePower = LocomotiveVirtualTractivePower;
+    // the conversion from watt to kwh
     double unitConversionFactor = timeStep / (double)(3600.0 * 1000.0);
+    // the max power of the locomotive in watt
+    double maxPower = this->maxPower * (double)1000.0; // Kw to watt
+    // power portion watt/watt (unitless)
+    // it is limited because at the begining of the deceleration, the power is very high
+    double powerPortion = std::min(tractivePower / maxPower, 1.0);
+
 	if (tractivePower == 0) {
         return this->auxiliaryPower * unitConversionFactor;
 	}
-	else if(tractivePower > 0) {
-        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType);
+    else if(tractivePower > 0) {
+        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, powerPortion ,this->powerType);
         double EC = (((tractivePower/ eff ) + this->auxiliaryPower ) * unitConversionFactor);
         return EC;
 	}
@@ -269,116 +289,32 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
 					regenerativeEff = 0.0;
 				}
             }
-            return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed, this->currentLocNotch, this->powerType) +
-                this->auxiliaryPower) * unitConversionFactor);
+            return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed,
+                                                                           this->currentLocNotch,
+                                                                           std::abs(powerPortion),
+                                                                           this->powerType) +
+                     this->auxiliaryPower) * unitConversionFactor);
         }
-        // if it is diesel or hydrogen, do no regenerate electricity
+        // if it is diesel-electric, do no regenerate electricity
         else {
             return 0.0;
         }
 	}
 }
 
-bool Locomotive::consumeFuelDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity) {
-    // tenderCurrentCapacity is in liters in that case
-    double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * dieselDensity;
-        this->setCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
+double Locomotive::getMaxRechargeEnergy(double timeStep, double trainSpeed) {
+    return (this->maxTractiveForce * trainSpeed * timeStep / ((double)3600.0)) *
+            EC::getRequiredGeneratorPowerForRecharge(getBatteryStateOfCharge());
 }
 
-bool Locomotive::consumeFuelBioDiesel(double EC_kwh, double bioDieselConversionFactor, double bioDieselDensity) {
-    // tenderCurrentCapacity is in liters in that case
-    double consumedQuantity = (EC_kwh * bioDieselConversionFactor); //convert to liters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * bioDieselDensity;
-        this->setCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
-}
-
-bool Locomotive::consumeBattery(double EC_kwh) {
-    if (!this->hostLink->hasCatenary){
-        if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultLocomotiveMinBatterySOC) {
-            this->energyConsumed = EC_kwh;
-            this->cumEnergyConsumed += this->energyConsumed;
-
-            this->batteryCurrentCharge -= EC_kwh;
-            this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-            return true; // returns the tender still has fuel and can provide it to the locomotive
-        }
-        return false; // return the tender is empty now and cannot provide any more energy
-    }
-    else {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-        this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
-        return true;
-    }
-
-}
-
-bool Locomotive::consumeFuelHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity) {
-    // tenderCurrentCapacity is in kg in that case
-    double consumedQuantity = (EC_kwh * hydrogenConversionFactor); //converts to litters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultLocomotiveMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * hydrogenDensity;
-        this->setCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
-}
-
-bool Locomotive::refillBattery(double EC_kwh) {
-    double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
-
-    if (this->batteryCurrentCharge < this->batteryMaxCharge) {
-        this->energyRegenerated = ER;
-        this->cumEnergyRegenerated += this->energyRegenerated;
-
-        this->batteryCurrentCharge += ER;
-        this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-        return true; // return the battery is rechargable
-    }
-    else {
-        return false; // return the battery is full
-    }
-
-}
-
-bool Locomotive::rechageCatenary(double EC_kwh) {
-    if (this->hostLink->hasCatenary){
-        this->hostLink->catenaryCumRegeneratedEnergy += std::abs(EC_kwh);
-        return true;
-    }
-    return false;
-}
-
-bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
-                             double bioDieselConversionFactor,
-                             double hydrogenConversionFactor,
-                             double dieselDensity,
-                             double bioDieselDensity,
-                             double hydrogenDensity) {
+std::pair<bool, double> Locomotive::consumeFuel(double timeStep, double trainSpeed,
+                                                double EC_kwh,
+                                                double dieselConversionFactor,
+                                                double bioDieselConversionFactor,
+                                                double hydrogenConversionFactor,
+                                                double dieselDensity,
+                                                double bioDieselDensity,
+                                                double hydrogenDensity) {
     // reset energy stats first
     this->energyConsumed = 0.0;
     this->energyRegenerated = 0.0;
@@ -392,42 +328,126 @@ bool Locomotive::consumeFuel(double EC_kwh, double dieselConversionFactor,
             return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
         }
         else if (this->powerType == TrainTypes::PowerType::electric) {
-            return this->consumeBattery(EC_kwh);
+            return this->consumeElectricity(timeStep, EC_kwh);
 		}
-        else if (this->powerType == TrainTypes::PowerType::hydrogen) {
-            return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
-		}
+        else if (this->powerType == TrainTypes::PowerType::biodiesel) {
+            return this->consumeFuelBioDiesel(EC_kwh, bioDieselConversionFactor, bioDieselDensity);
+        }
         else if (this->powerType == TrainTypes::PowerType::dieselElectric) {
             return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
         }
         else if (this->powerType == TrainTypes::PowerType::dieselHybrid) {
-            if (! this->consumeFuelDiesel(EC_kwh_hybrid, dieselConversionFactor, dieselDensity)) {
-                return this->consumeBattery(EC_kwh);
+            // consume electricity from the battery
+            auto EC = this->consumeElectricity(timeStep, EC_kwh);
+            // check if the battery reached a low level and it needs a recharge
+            if (this->isRechargeRequired()) {
+                // the max Energy the locomotive can regenerate
+                double maxLocoRecharge = this->getMaxRechargeEnergy(timeStep, trainSpeed);
+                // get the max recharge current that the battery can take
+                double requiredE = this->getBatteryMaxRecharge(timeStep);
+                // the amount that should be recharged to the battery
+                double minE = std::min(maxLocoRecharge, requiredE);
+                // if the locomotive has fuel, consume the required amound of energy from Diesel
+                // --> since portion of the energy will be lost when stored in the battery, use
+                //     the effeciency of the generator
+                if (this->consumeFuelDiesel(minE / EC::getGeneratorEff(this->powerType),
+                                            dieselConversionFactor, dieselDensity).first) {
+                    // recharge battery
+                    this->rechargeBattery(timeStep, minE);
+                }
             }
-            return true;
+            // if it did not consume any energy from the battery, get all energy from the generator
+            if (!EC.first) {
+                return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor,
+                                               dieselDensity);
+            }
+            // if it consumed portion of the energy by the battery but also there is an excessive energy required,
+            // get the excessive energy from the generator
+            else if (EC.first && EC.second > 0.0) {
+                return this->consumeFuelDiesel(EC.second,
+                                               dieselConversionFactor, dieselDensity);
+            }
+            // if it consumed all the required energy from the battery, return true
+            return std::make_pair(true, 0.0);
         }
         else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-            if (! this->consumeFuelHydrogen(EC_kwh_hybrid, hydrogenConversionFactor, hydrogenDensity)) {
-                return this->consumeBattery(EC_kwh);
+            auto EC = this->consumeElectricity(timeStep, EC_kwh);
+            // check if the battery reached a low level and it needs a recharge
+            if (this->isRechargeRequired()) {
+                // the max Energy the locomotive can regenerate
+                double maxLocoRecharge = this->getMaxRechargeEnergy(timeStep, trainSpeed);
+                // get the max recharge current that the battery can take
+                double requiredE = this->getBatteryMaxRecharge(timeStep);
+                // the amount that should be recharged to the battery
+                double minE = std::min(maxLocoRecharge, requiredE);
+                // if the locomotive has fuel, consume the required amound of energy from Diesel
+                // --> since portion of the energy will be lost when stored in the battery, use
+                //     the effeciency of the generator
+                if (this->consumeFuelHydrogen(minE / EC::getGeneratorEff(this->powerType),
+                                              hydrogenConversionFactor, hydrogenDensity).first) {
+                    this->rechargeBattery(timeStep, minE);
+                }
+
             }
-            return true;
+            // if it did not consume any energy from the battery, get all energy from the generator
+            if (!EC.first) {
+                return this->consumeFuelHydrogen(EC_kwh_hybrid, hydrogenConversionFactor,
+                                                 hydrogenDensity);
+            }
+            // if it consumed portion of the energy by the battery but also there is an excessive energy required,
+            // get the excessive energy from the generator
+            else if (EC.first && EC.second > 0.0) {
+                return this->consumeFuelHydrogen(EC.second/EC::getGeneratorEff(this->powerType),
+                                               hydrogenConversionFactor, hydrogenDensity);
+            }
+            // if it consumed all the required energy from the battery, return true
+            return std::make_pair(true, 0.0);
         }
         else if (this->powerType == TrainTypes::PowerType::biodieselHybrid) {
-            if (! this->consumeFuelBioDiesel(EC_kwh_hybrid, bioDieselConversionFactor, bioDieselDensity)) {
-                return this->consumeBattery(EC_kwh);
+
+            auto EC = this->consumeElectricity(timeStep, EC_kwh);
+            // check if the battery reached a low level and it needs a recharge
+            if (this->isRechargeRequired()) {
+                // the max Energy the locomotive can regenerate
+                double maxLocoRecharge = this->getMaxRechargeEnergy(timeStep, trainSpeed);
+                // get the max recharge current that the battery can take
+                double requiredE = this->getBatteryMaxRecharge(timeStep);
+                // the amount that should be recharged to the battery
+                double minE = std::min(maxLocoRecharge, requiredE);
+                // if the locomotive has fuel, consume the required amound of energy from Diesel
+                // --> since portion of the energy will be lost when stored in the battery, use
+                //     the effeciency of the generator
+                if (this->consumeFuelBioDiesel(minE / EC::getGeneratorEff(this->powerType),
+                                           bioDieselConversionFactor, bioDieselDensity).first) {
+                    this->rechargeBattery(timeStep, minE);
+                }
+
             }
-            return true;
+            // if it did not consume any energy from the battery, get all energy from the generator
+            if (!EC.first) {
+                return this->consumeFuelBioDiesel(EC_kwh_hybrid, bioDieselConversionFactor,
+                                                 bioDieselDensity);
+            }
+            // if it consumed portion of the energy by the battery but also there is an excessive energy required,
+            // get the excessive energy from the generator
+            else if (EC.first && EC.second > 0.0) {
+                return this->consumeFuelBioDiesel(EC.second/EC::getGeneratorEff(this->powerType),
+                                               bioDieselConversionFactor, bioDieselDensity);
+            }
+            // if it consumed all the required energy from the battery, return true
+            return std::make_pair(true, 0.0);
         }
 
         // if it is something else
-		return false;
+        return std::make_pair(false, EC_kwh);
 	}
     // if energy is generated
     else if (EC_kwh < 0.0) {
-        return this->refillBattery(EC_kwh);
+        // if not all the energy is stored, the rest of the energy is dissipated in heat
+        return std::make_pair(this->refillBattery(timeStep, EC_kwh), 0.0);
 	}
     else {
-        return true;  // no need to do any further calculations if no energy is feed or consumed
+        return std::make_pair(true, 0.0);  // no need to do any further calculations if no energy is feed or consumed
     }
 }
 
@@ -454,7 +474,7 @@ ostream& operator<<(std::ostream& ostr, const Locomotive& loco) {
 	ostr << ", length: " << loco.length << ", drag coef: " << loco.dragCoef << ", frontal area: " << loco.frontalArea;
 	ostr << ", current weight: " << loco.currentWeight << ", no axles: " << loco.noOfAxiles;
 	ostr << ", max speed: " << loco.maxSpeed << ", locomotive type: " << TrainTypes::PowerTypeToStr(loco.powerType);
-	ostr << ", battery capacity: " << loco.batteryMaxCharge << ", current battery status: " << loco.batteryStateOfCharge;
-	ostr << ", tank capacity: " << loco.tankMaxCapacity << ", current tank status: " << loco.tankStateOfCapacity << std::endl;
+    ostr << ", battery capacity: " << loco.getBatteryMaxCharge() << ", current battery status: " << loco.getBatteryStateOfCharge();
+    ostr << ", tank capacity: " << loco.getTankMaxCapacity() << ", current tank status: " << loco.getTankStateOfCapacity() << std::endl;
 	return ostr;
 }

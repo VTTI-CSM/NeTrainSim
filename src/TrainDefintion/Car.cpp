@@ -14,8 +14,7 @@ Car::Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, doub
 	double batteryInitialCharge_perc,
     double tenderMaxCapacity_l,
 	double tenderInitialCapacity_perc,
-	std::string carName)
-{
+    std::string carName) {
 	// <summary> this method is used to construct a rail car 
 	// <para> carLength is the total length of the car in meters</para>
 	this->name = carName;
@@ -27,30 +26,20 @@ Car::Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, doub
 	this->noOfAxiles = carNoOfAxiles;
 	this->carType = static_cast<TrainTypes::CarType>(carType);;
 	this->auxiliaryPower = auxiliaryPower_kw;
-
-	if (this->carType == TrainTypes::CarType::batteryTender) {
-		this->batteryMaxCharge= batteryMaxCapacity_kwh;
-		this->batteryInitialCharge = batteryInitialCharge_perc * this->batteryMaxCharge;
-		this->batteryCurrentCharge = this->batteryInitialCharge;
-		this->batteryStateOfCharge = batteryInitialCharge_perc;
-
-		this->tankMaxCapacity = 0.0; //kg for hydrogen, liters for fuel
-		this->tankInitialCapacity = 0.0;
-		this->tankCurrentCapacity = 0.0;
-		this->tankStateOfCapacity = 0.0;
+    if (this->carType == TrainTypes::CarType::cargo){
+        this->setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
+        this->SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
+    }
+    else if (TrainTypes::carRechargableTechnologies.exist(this->carType) &&
+             this->carType != TrainTypes::CarType::cargo) {
+        this->setBattery(batteryMaxCapacity_kwh, batteryInitialCharge_perc,
+                         EC::DefaultCarBatteryDOD, EC::DefaultCarBatteryCRate);
+        this->SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
 	}
-    else if (this->carType == TrainTypes::CarType::dieselTender ||
-             this->carType == TrainTypes::CarType::hydrogenTender ||
-             this->carType == TrainTypes::CarType::biodieselTender) {
-        this->tankMaxCapacity = tenderMaxCapacity_l;
-		this->tankInitialCapacity = tenderInitialCapacity_perc * this->tankMaxCapacity;
-		this->tankCurrentCapacity = this->tankInitialCapacity;
-		this->tankStateOfCapacity = tenderInitialCapacity_perc;
-
-		this->batteryMaxCharge= 0.0;
-		this->batteryInitialCharge = 0.0;
-		this->batteryCurrentCharge = 0.0;
-		this->batteryStateOfCharge = 0.0;
+    else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType) &&
+             this->carType != TrainTypes::CarType::cargo) {
+        this->setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
+        this->SetTank(tenderMaxCapacity_l, tenderInitialCapacity_perc, EC::DefaultCarMinTankDOD);
 	}
     this->hostLink = std::shared_ptr<NetLink>();
 	this->trackCurvature = 0;
@@ -86,116 +75,31 @@ double Car::getEnergyConsumption(double &timeStep) {
 	return this->auxiliaryPower* timeStep* (3600 / 1000);
 }
 
-bool Car::consumeDiesel(double EC_kwh, double dieselConversionFactor, double dieselDensity) {
-    // tenderCurrentCapacity is in liters in that case
-    double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
 
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * dieselDensity;
-        this->setCarCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
-}
-
-bool Car::consumeBioDiesel(double EC_kwh, double biodieselConversionFactor, double biodieselDensity) {
-    // tenderCurrentCapacity is in liters in that case
-    double consumedQuantity = (EC_kwh * biodieselConversionFactor); //convert to liters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * biodieselDensity;
-        this->setCarCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
-}
-
-bool Car::consumeBattery(double EC_kwh) {
-    if (! this->hostLink->hasCatenary) {
-        if (this->batteryCurrentCharge >= EC_kwh && this->batteryStateOfCharge > DefaultCarMinBatterySOC) {
-            this->energyConsumed = EC_kwh;
-            this->cumEnergyConsumed += this->energyConsumed;
-
-            this->batteryCurrentCharge -= EC_kwh;
-            this->batteryStateOfCharge = this->batteryStateOfCharge / this->batteryMaxCharge;
-            return true; // returns the tender still has fuel and can provide it to the locomotive
-        }
-        return false; // return the tender is empty now and cannot provide any more energy
-    }
-    else {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-        this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
-        return true;
-    }
-}
-
-bool Car::consumeHydrogen(double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity) {
-    // tenderCurrentCapacity is in kg in that case
-    double consumedQuantity = (EC_kwh * hydrogenConversionFactor); //converts to litters
-    if (this->tankCurrentCapacity >= consumedQuantity && this->tankStateOfCapacity > DefaultCarMinTankSOT) {
-        this->energyConsumed = EC_kwh;
-        this->cumEnergyConsumed += this->energyConsumed;
-
-        this->tankCurrentCapacity -= consumedQuantity;
-        this->tankStateOfCapacity = this->tankCurrentCapacity / this->tankMaxCapacity;
-        double newWeight = this->currentWeight - consumedQuantity * hydrogenDensity;
-        this->setCarCurrentWeight(newWeight);
-        return true; // returns the tender still has fuel and can provide it to the locomotive
-    }
-    return false; // return the tender is empty now and cannot provide any more fuel
-}
-
-bool Car::RefillBattery(double EC_kwh) {
-    if (this->carType == TrainTypes::CarType::batteryTender) {
-        double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
-
-        if (this->batteryCurrentCharge < this->batteryMaxCharge) {
-            this->energyRegenerated = ER;
-            this->cumEnergyRegenerated += this->energyRegenerated;
-
-            this->batteryCurrentCharge += ER;
-            this->batteryStateOfCharge = this->batteryCurrentCharge / this->batteryMaxCharge;
-            return true; // return the battery is rechargable
-        }
-        else {
-            return false; // return the battery is full
-        }
-    }
-    return true; // you do not want to process anything more
-
-}
-
-bool Car::consumeFuel(double EC_kwh, double dieselConversionFactor,
-                      double biodieselConversionFactor, double hydrogenConversionFactor,
-                      double dieselDensity, double biodieselDensity, double hydrogenDensity) {
+std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
+                                         double EC_kwh, double dieselConversionFactor,
+                                         double biodieselConversionFactor,
+                                         double hydrogenConversionFactor, double dieselDensity,
+                                         double biodieselDensity, double hydrogenDensity) {
     this->energyConsumed = 0.0;
     this->energyRegenerated = 0.0;
 
     if (EC_kwh > 0.0) {
         if (this->carType == TrainTypes::CarType::dieselTender) {
-            return this->consumeDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
+            return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
         }
         else if (this->carType == TrainTypes::CarType::biodieselTender) {
-            return this->consumeBioDiesel(EC_kwh, biodieselConversionFactor, biodieselDensity);
+            return this->consumeFuelBioDiesel(EC_kwh, biodieselConversionFactor, biodieselDensity);
         }
         else if (this->carType == TrainTypes::CarType::batteryTender) {
-            return this->consumeBattery(EC_kwh);
+            return this->consumeElectricity(timeStep, EC_kwh);
         }
         else if (this->carType == TrainTypes::CarType::hydrogenTender) {
-            return this->consumeHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
+            return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
         }
-        return false;
+        return std::pair(false, EC_kwh);
     }
-    return false;  // cannot consume
+    return std::pair(false, EC_kwh);  // cannot consume
 }
 
 ostream& operator<<(ostream& ostr, Car& car) {
