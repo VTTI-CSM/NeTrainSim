@@ -68,11 +68,16 @@ int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName(MYAPP_TARGET);
     QCoreApplication::setApplicationVersion(MYAPP_VERSION );
+    QCoreApplication::setOrganizationName(QString::fromStdString(Institution));
 
     QCommandLineParser parser;
     parser.setApplicationDescription("Open-source network train simulator");
-    parser.addHelpOption();
+    QCommandLineOption helpOption(QStringList() << "h" << "help" << "?",
+                                   "Display this help message.");
+    parser.addOption(helpOption);
+    //parser.addHelpOption();
     parser.addVersionOption();
+
 
     const QCommandLineOption nodesOption(QStringList() << "n" << "nodes",
                                             QCoreApplication::translate("main", "[Required] the nodes filename."), "nodesFile", "");
@@ -87,25 +92,40 @@ int main(int argc, char *argv[]) {
     parser.addOption(trainsOption);
 
     const QCommandLineOption outputLocationOption(QStringList() << "o" << "output",
-                                            QCoreApplication::translate("main", "[Optional] the output folder address."), "outputLocation", "");
+                                            QCoreApplication::translate("main", "[Optional] the output folder address. \nDefault is 'C:\\Users\\<USERNAME>\\Documents\\NeTrainSim\\'."), "outputLocation", "");
     parser.addOption(outputLocationOption);
 
     const QCommandLineOption summaryFilenameOption(QStringList() << "s" << "summary",
-                                             QCoreApplication::translate("main", "[Optional] the summary filename."), "summaryFilename", "");
+                                             QCoreApplication::translate("main", "[Optional] the summary filename. \nDefault is 'trainSummary_timeStamp.txt'."), "summaryFilename", "");
     parser.addOption(summaryFilenameOption);
 
+    const QCommandLineOption summaryExportAllOption(QStringList() << "a" << "all",
+                                             QCoreApplication::translate("main", "[Optional] bool to show summary of all trains in the summary file. \nDefault is 'false'."), "summarizeAllTrains", "false");
+    parser.addOption(summaryExportAllOption);
+
     const QCommandLineOption exportInstaTrajOption(QStringList() << "e" << "export",
-                                             QCoreApplication::translate("main", "[Optional] bool to export instantaneous trajectory"), "exportTrajectoryOptions" ,"false");
+                                             QCoreApplication::translate("main", "[Optional] bool to export instantaneous trajectory. \nDefault is 'false'."), "exportTrajectoryOptions" ,"false");
     parser.addOption(exportInstaTrajOption);
 
     const QCommandLineOption instaTrajOption(QStringList() << "i" << "insta",
-                                       QCoreApplication::translate("main", "[Optional] the instantaneous trajectory filename"), "instaTrajectoryFile", "");
+                                       QCoreApplication::translate("main", "[Optional] the instantaneous trajectory filename. \nDefault is 'trainTrajectory_timeStamp.csv'."), "instaTrajectoryFile", "");
     parser.addOption(instaTrajOption);
 
 
     // process all the arguments
     parser.process(app);
 
+    // display the help if requested and exit
+    if (parser.isSet(helpOption)) {
+        parser.showHelp(0);
+    }
+
+    // show app details
+    stringstream hellos;
+    hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << "]" << endl;
+    hellos << Institution << endl;
+    hellos << GithubLink << endl;
+    std::cout << hellos.str() << "\n";
 
 
 
@@ -147,8 +167,11 @@ int main(int argc, char *argv[]) {
     if (checkParserValue(parser, instaTrajOption, "", false)){ instaTrajFilename = parser.value(instaTrajOption).toStdString(); }
     else { instaTrajFilename = ""; }
 
+    std::cout << "Reading Trains!                 \r";
     Vector<std::shared_ptr<Train>> trains = TrainsList::readTrainsFile(trainsFile);
+    std::cout << "Reading Network!                \r";
     Network net = Network(nodesFile, linksFile);
+    std::cout << "Define Simulator Space!         \r";
     Simulator sim = Simulator(net, trains);
 
     if (exportLocation != "" ) { sim.setOutputFolderLocation(exportLocation); }
@@ -156,13 +179,8 @@ int main(int argc, char *argv[]) {
 
     sim.setExportInstantaneousTrajectory(exportInstaTraj, instaTrajFilename);
 
-    stringstream hellos;
-    hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << "]" << endl;
-    hellos << Institution << endl;
-    hellos << GithubLink << endl;
-    std::cout << hellos.str() << "\n";
-
     // run the actual simulation
+    std::cout <<"Starting the Simulator!          \n";
     sim.runSimulation();
     std::cout << "Output folder: " << sim.getOutputFolder() << std::endl;
     return 0;
