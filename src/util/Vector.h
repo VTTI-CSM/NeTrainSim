@@ -131,6 +131,35 @@ public:
     }
 
     /**
+     * @brief check if the other vector contains any value in the current vector
+     * @param other
+     * @return
+     */
+    [[nodiscard]] bool hasCommonElement(const Vector<T>& other) const {
+        for (const auto& elem : other) {
+            if (std::find(this->begin(), this->end(), elem) != this->end()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * @brief check if the other vector is a subset of the current vector
+     * @param other
+     * @return
+     */
+    bool isSubsetOf(const Vector<T>& other) const {
+        for (const auto& elem : *this) {
+            if (std::find(other.begin(), other.end(), elem) == other.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * insert another vector to the end of this vector
      *
      * @author	Ahmed Aredah
