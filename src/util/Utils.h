@@ -21,9 +21,35 @@ namespace Utils {
 
     using namespace std;
 
+    /**
+     * Powers
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param 	base		The base.
+     * @param 	exponent	The exponent.
+     *
+     * @returns	A double.
+     */
+    inline double power(double base, int exponent) {
+        if (exponent == 0) {
+            return 1.0;
+        }
+        else if (exponent < 0) {
+            return 1.0 / power(base, -exponent);
+        }
+        else if (exponent % 2 == 0) {
+            double temp = power(base, exponent / 2);
+            return temp * temp;
+        }
+        else {
+            return base * power(base, exponent - 1);
+        }
+    }
+
 
     template<typename T>
-
     /**
      * Convert a plain numeric value to thousand separated value
      *
@@ -36,16 +62,17 @@ namespace Utils {
      *
      * @tparam	T	Generic type parameter.
      */
-    inline std::string thousandSeparator(T n) {
+    inline std::string thousandSeparator(T n, int decimals = 3) {
         // Get the sign of the number and remove it
         int sign = (n < 0) ? -1 : 1;
+        double approx = power((double)10.0, decimals);
         n *= sign;
         // Get the integer part of the number
         long long intPart = (long long)n;
         // Check if the fractional part has any value
         bool hasFracPart = (n - intPart > 0);
-        // Get the fractional part of the number and trim it to 2 decimal places
-        double fracPart = round((n - intPart) * 100.0) / 100.0;
+        // Get the fractional part of the number and trim it to n decimal places
+        double fracPart = round((n - intPart) * (approx)) / (approx);
         // Create a locale object to represent a specific localization
         locale loc("");
         // Set the thousand separator according to the localization
@@ -56,10 +83,10 @@ namespace Utils {
         for (int i = intStr.length() - 3; i > 0; i -= 3) {
             intStr.insert(i, 1, separator);
         }
-        // Convert the fractional part to a string and trim it to 2 decimal places
+        // Convert the fractional part to a string and trim it to n decimal places
         stringstream stream;
         if (hasFracPart) {
-            stream << fixed << setprecision(2) << fracPart;
+            stream << fixed << setprecision(decimals) << fracPart;
         }
         string fracStr = (hasFracPart) ? stream.str().substr(1) : "";
         // Combine the integer and fractional parts into a single string
@@ -224,33 +251,6 @@ namespace Utils {
             return !std::isspace(ch);
             }).base(), s.end());
         return s;
-    }
-
-    /**
-     * Powers
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param 	base		The base.
-     * @param 	exponent	The exponent.
-     *
-     * @returns	A double.
-     */
-    inline double power(double base, int exponent) {
-        if (exponent == 0) {
-            return 1.0;
-        }
-        else if (exponent < 0) {
-            return 1.0 / power(base, -exponent);
-        }
-        else if (exponent % 2 == 0) {
-            double temp = power(base, exponent / 2);
-            return temp * temp;
-        }
-        else {
-            return base * power(base, exponent - 1);
-        }
     }
 }
 
