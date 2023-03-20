@@ -16,6 +16,7 @@
 #include "NetSignal.h"
 #include "src/trainDefintion/Train.h"
 #include "src/util/Utils.h"
+#include "src/Util/Error.h"
 //#include <qapplication.h>
 
 /**
@@ -123,7 +124,9 @@ public:
         if (this->nodes.count(id)) {
             return this->nodes[id];
         }
-        throw std::runtime_error("Could not find the simulator node ID: " + std::to_string(id));
+        throw std::runtime_error(std::string("Error: ") +
+                                     std::to_string(static_cast<int>(Error::cannotFindNode)) +
+                                     "\nCould not find the simulator node ID: " + std::to_string(id) + "\n");
     }
 
     /**
@@ -432,7 +435,7 @@ public:
     std::shared_ptr<NetLink> getFirstTrainLink(const std::shared_ptr <Train> train) {
         if (train->trainPath.size() == 0) {
             cout << "Train path cannot be null!" << endl;
-            exit(1);
+            exit(static_cast<int>(Error::trainPathCannotBeNull));
         }
         else {
             int strartID = train->trainPath.at(0);
@@ -514,7 +517,9 @@ public:
                 return n->id;
             }
         }
-        throw std::runtime_error("Node with oldID : " + to_string(oldID) + " not found");
+        throw std::runtime_error(std::string("Error: ") +
+                                     std::to_string(static_cast<int>(Error::cannotFindNode)) +
+                                     "\nCould not find the node ID: " + std::to_string(oldID) + "\n");
     }
 
     /**
@@ -532,7 +537,9 @@ public:
             }
         }
         //return nullptr;
-        throw std::runtime_error("Node with oldID : " + to_string(oldID) + " not found");
+        throw std::runtime_error(std::string("Error: ") +
+                                     std::to_string(static_cast<int>(Error::cannotFindNode)) +
+                                     "\nCould not find the node ID: " + std::to_string(oldID) + "\n");
     }
 
     /**
@@ -589,34 +596,44 @@ public:
      * @param 	targetNodeID	Identifier for the target node.
      */
     std::pair<Vector<std::shared_ptr<NetNode>>, double> shortestPathSearch(int startNodeID, int targetNodeID) {
+        // clear all the nodes for the new sheart path
         for (auto& n : this->nodes) {
             n.second->clearGraphSearchParams();
         }
-
+        // get the nodes by their user id's
         std::shared_ptr<NetNode> startNode = this->getNodeByID(startNodeID);
         std::shared_ptr<NetNode> targetNode = this->getNodeByID(targetNodeID);
+        // override the inf value of the start node
         startNode->graphSearchDistanceFromStart = 0.0;
 
+        // keep looping until the target node is reached
         while (! targetNode->graphSearchVisited) {
+            // get the min-distance-unvisited node
             std::shared_ptr<NetNode> currentNode = minimumDistance();
+            // if nothing was found, break
             if (currentNode == nullptr) { break; }
+            // set the node as visited
             currentNode->graphSearchVisited = true;
-            for (auto& n : currentNode->getNeighbors()) {
+            // check all the connected links/nodes
+            for (auto& connectedNode : currentNode->getNeighbors()) {
+                // check if a new node has a lower value
                 if ((currentNode->graphSearchDistanceFromStart + 
-                    currentNode->linkTo.at(n).at(0)->length) < n->graphSearchDistanceFromStart) {
-                    if (n->graphSearchDistanceFromStart == INFINITY) {
-                        n->graphSearchDistanceFromStart = 0.0;
-                    }
-                    n->graphSearchDistanceFromStart += currentNode->linkTo.at(n).at(0)->length;
-                    n->graphSearchPreviousNode = currentNode;
+                    currentNode->linkTo.at(connectedNode).at(0)->length) < connectedNode->graphSearchDistanceFromStart) {
+                    // set the value
+                    connectedNode->graphSearchDistanceFromStart = currentNode->graphSearchDistanceFromStart +
+                            currentNode->linkTo.at(connectedNode).at(0)->length;
+                    //n->graphSearchDistanceFromStart += currentNode->linkTo.at(n).at(0)->length;
+                    connectedNode->graphSearchPreviousNode = currentNode;
                 }
             }
         }
+
         Vector<std::shared_ptr<NetNode>> path;
         path.push_back(targetNode);
         while (true) {
             std::shared_ptr<NetNode> node = path.back();
             if (node->graphSearchPreviousNode == nullptr) { break; }
+            //if (path.exist(node->graphSearchPreviousNode)) { break; }
             path.push_back(node->graphSearchPreviousNode);
         }
         std::reverse(path.begin(), path.end());
@@ -666,7 +683,9 @@ private:
             std::ifstream file(fileName);
             if (!file.good()) {
                 std::cerr << "Nodes file does not exist" << std::endl;
-                throw std::runtime_error("Nodes file does not exist");
+                throw std::runtime_error(std::string("Error: ") +
+                                             std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
+                                             "\nNodes file does not exist!\n");
             }
             Vector<std::string> lines;
             std::string line;
@@ -678,7 +697,9 @@ private:
 
             if (lines.size() == 0) {
                 std::cerr << "Nodes File is empty!" << std::endl;
-                throw std::runtime_error("Nodes File is empty");
+                throw std::runtime_error(std::string("Error: ") +
+                                             std::to_string(static_cast<int>(Error::emptyNodesFile)) +
+                                             "\nNodes File is empty!\n");
             }
             // Read scale values
             std::istringstream ss(lines[1]);
@@ -714,7 +735,9 @@ private:
 
         } catch (const exception &e) {
             std::cerr << "Bad nodes file structure:" << e.what() << std::endl;
-            throw std::runtime_error("Bad nodes file structure!");
+            throw std::runtime_error(std::string("Error: ") +
+                                         std::to_string(static_cast<int>(Error::wrongNodesFileStructure)) +
+                                         "\nBad nodes file structure!\n");
 
         }
     }
@@ -791,7 +814,9 @@ private:
         std::ifstream file(fileName);
         if (!file.good()) {
             std::cerr << "Links file does not exist" << std::endl;
-            throw std::runtime_error("Links file does not exist");
+            throw std::runtime_error(std::string("Error: ") +
+                                         std::to_string(static_cast<int>(Error::linksFileDoesNotExist)) +
+                                         "\Links File does not exist!");
         }
         std::string line;
         Vector<std::string> lines;
@@ -802,6 +827,9 @@ private:
 
         if (lines.size() == 0) {
             std::cerr << "Links file is empty" << std::endl;
+            throw std::runtime_error(std::string("Error: ") +
+                                         std::to_string(static_cast<int>(Error::emptyLinksFile)) +
+                                         "\Links File is empty!");
             throw std::runtime_error("Links file is empty");
         }
 
@@ -847,7 +875,9 @@ private:
         return links;
         } catch (const exception &e) {
             std::cerr << "Bad links file structure:" << e.what() << std::endl;
-            throw std::runtime_error("Bad links file structure!");
+            throw std::runtime_error(std::string("Error: ") +
+                                         std::to_string(static_cast<int>(Error::wrongLinksFileStructure)) +
+                                         "\nBad links file structure!\n");
         }
     }
 
@@ -865,7 +895,7 @@ private:
             double lLength = sqrt(dx * dx + dy * dy);
             if (lLength <= 0) {
                 cout << "Horizontal distance between nodes should be greater than 0!\nReview the nodes file!... " << l->id << "'s length is equal to zero!" << endl;
-                exit(1);
+                exit(static_cast<int>(Error::wrongLinksLength));
             }
             l->length = lLength;
         }
