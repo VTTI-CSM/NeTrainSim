@@ -14,6 +14,16 @@
 
 namespace TrainsList {
 
+    /**
+     * Reads trains file
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @param 	fileName	Filename of the file.
+     *
+     * @returns	The trains file.
+     */
     Vector<std::shared_ptr<Train>> readTrainsFile(const std::string& fileName);
 
 };

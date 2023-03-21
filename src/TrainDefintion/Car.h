@@ -64,7 +64,7 @@ public:
 	 */
 	Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t,
 		double carCurrentWeight_t, int carNoOfAxiles, int carType,
-        double auxiliaryPower_kw = EC::DefaultCarAuxiliaryPower,
+		double auxiliaryPower_kw = EC::DefaultCarAuxiliaryPower,
 		double batteryMaxCapacity_kwh = EC::DefaultCarBatteryMaxCapacity,
 		double batteryInitialCharge_perc = EC::DefaultCarBatteryInitialCharge,
 		double tenderMaxCapacity_kg_l = EC::DefaultCarTenderMaxCapacity,
@@ -72,11 +72,11 @@ public:
 		std::string carName = DefaultCarName
 		);
 
-    /**
-     * @brief setCarCurrentWeight
-     * @param newCurrentWeight
-     */
-    void setCarCurrentWeight(double newCurrentWeight);
+	/**
+	 * @brief setCarCurrentWeight
+	 * @param newCurrentWeight
+	 */
+	void setCarCurrentWeight(double newCurrentWeight);
 
 	/**
 	 * Gets a resistance
@@ -116,16 +116,16 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
-                                        double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-                                        double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
-                                        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-                                        double dieselDensity = EC::DefaultDieselDensity,
-                                        double biodieselDensity = EC::DefaultBioDieselDensity,
-                                        double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+	std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+										double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+										double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+										double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+										double dieselDensity = EC::DefaultDieselDensity,
+										double biodieselDensity = EC::DefaultBioDieselDensity,
+										double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
-     * Stream insertion operator
+	 * Stream insertion operator
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023

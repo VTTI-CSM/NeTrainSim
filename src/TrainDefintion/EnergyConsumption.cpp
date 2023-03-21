@@ -19,13 +19,15 @@ namespace EC {
         double DCBusToTank = 0.0;
         double notchN = (double) notchNumberIndex;
         switch (powerType) {
+            // for all diesel similar generators, use the same eff
         case TrainTypes::PowerType::diesel:
         case TrainTypes::PowerType::biodiesel:
         case TrainTypes::PowerType::dieselElectric:
             DCBusToTank = -0.0021 * std::pow(notchN, (double)2) + 0.0407 * notchN + 0.2618;
             break;
+            // for electric, use an average value of 0.965
         case TrainTypes::PowerType::electric:
-            DCBusToTank = 0.95;
+            DCBusToTank = 0.965;
             break;
         case TrainTypes::PowerType::dieselHybrid:
             DCBusToTank = 0.2939 * std::pow(notchN,(double)0.2075);
@@ -57,22 +59,16 @@ namespace EC {
     }
 
     double getRequiredGeneratorPowerForRecharge(double batterySOC) {
+        // get the battery SOC index 
         int ind = min(static_cast<int>(ceil(batterySOC * 10.0)) , 8);
+        // create a map by the soc index
         double map[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
         return map[ind];
     }
 
-    tuple<double,double,double,double> getEmissions(double fuelConsumption) {
+    double getEmissions(double fuelConsumption) {
+        // convert from liters to gram
         double fuelConsumption_gPersec = fuelConsumption * (double)1000.0;
-        double hc =  0.00003 * Utils::power(fuelConsumption_gPersec,2) -
-                0.0002 * fuelConsumption_gPersec + 0.0422;
-        double co = 0.000006 * Utils::power(fuelConsumption_gPersec,3) -
-                0.0004 * Utils::power(fuelConsumption_gPersec,2) +
-                0.008 * fuelConsumption_gPersec + 0.0468;
-        double NOX = 0.000005 * Utils::power(fuelConsumption_gPersec,3) +
-                0.0008 * Utils::power(fuelConsumption_gPersec,2) +
-                0.0293 * fuelConsumption_gPersec + 0.0933;
-        double co2 = 3.1119 * fuelConsumption_gPersec + 1.2728;
-        return std::make_tuple(hc, co, NOX, co2);
+        return 3.1119 * fuelConsumption_gPersec + 1.2728;
     }
 }

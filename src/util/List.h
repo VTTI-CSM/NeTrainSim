@@ -1,6 +1,5 @@
 /**
- * @file	C:\Users\Ahmed\OneDrive - Virginia
- * 			Tech\03.Work\02.VTTI\02.ResearchWork\01.TrainModelling\02.Code\00.CPP\NeTrainSim\NeTrainSim\src\util\List.h.
+ * @file	~\NeTrainSim\src\util\List.h.
  *
  * Declares the list class
  */

@@ -17,7 +17,7 @@
 #include <memory>
 
 /**
- * A simulator.
+ * A simulator class.
  *
  * @author	Ahmed Aredah
  * @date	2/28/2023
@@ -32,16 +32,16 @@ private:
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
 //	/** (Immutable) the default output folder */
 //	inline static const std::string DefaultOutputFolder = "";
-    /** (Immutable) the default instantaneous trajectory empty filename */
-    inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
-    /** (Immutable) the default summary empty filename */
-    inline static const std::string DefaultSummaryEmptyFilename = "";
+	/** (Immutable) the default instantaneous trajectory empty filename */
+	inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
+	/** (Immutable) the default summary empty filename */
+	inline static const std::string DefaultSummaryEmptyFilename = "";
 	/** (Immutable) the default instantaneous trajectory filename */
-    inline static const std::string DefaultInstantaneousTrajectoryFilename = "trainTrajectory_";
+	inline static const std::string DefaultInstantaneousTrajectoryFilename = "trainTrajectory_";
 	/** (Immutable) the default summary filename */
-    inline static const std::string DefaultSummaryFilename =  "trainSummary_";
-    /** (Immutable) true to optimize each train trajectory */
-    static constexpr bool DefaultOptimizeSingleTrains = false;
+	inline static const std::string DefaultSummaryFilename =  "trainSummary_";
+	/** (Immutable) true to optimize each train trajectory */
+	static constexpr bool DefaultOptimizeSingleTrains = false;
 
 private:
 	/** The trains */
@@ -73,79 +73,79 @@ private:
 	//Vector<Vector<Vector < std::shared_ptr<NetNode>>>> conflictTrainsIntersections;
 	/** Groups the signals belongs to */
 	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
-    /** export individualized trains summary in the summary file*/
-    bool exportIndividualizedTrainsSummary = false;
+	/** export individualized trains summary in the summary file*/
+	bool exportIndividualizedTrainsSummary = false;
 
 public:
 
 
-    /**
-     * @brief Simulator constructor
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param  [in,out]	theNetwork        The network.
-     * @param           networkTrains     The network trains.
-     */
-    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains);
+	/**
+	 * @brief Simulator constructor
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param  [in,out]	theNetwork        The network.
+	 * @param           networkTrains     The network trains.
+	 */
+	Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains);
 
-    /**
-     * @brief set simulator time step
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param newTimeStep
-     */
-    void setTimeStep(double newTimeStep);
+	/**
+	 * @brief set simulator time step
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param newTimeStep
+	 */
+	void setTimeStep(double newTimeStep);
 
-    /**
-     * @brief Get the output folder directory.
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @return the directory.
-     */
-    std::string getOutputFolder();
-    /**
-     * @brief set simulator end time.
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param newEndTime    the new end time of the simulator in seconds.
-     *                      Zero means do not stop untill all trains reach destination.
-     */
-    void setEndTime(double newEndTime);
+	/**
+	 * @brief Get the output folder directory.
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @return the directory.
+	 */
+	std::string getOutputFolder();
+	/**
+	 * @brief set simulator end time.
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param newEndTime    the new end time of the simulator in seconds.
+	 *                      Zero means do not stop untill all trains reach destination.
+	 */
+	void setEndTime(double newEndTime);
 
-    /**
-     * @brief setOutputFolderLocation.
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param newOutputFolderLocation   the new output folder location on the disk.
-     */
-    void setOutputFolderLocation(string newOutputFolderLocation);
+	/**
+	 * @brief setOutputFolderLocation.
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param newOutputFolderLocation   the new output folder location on the disk.
+	 */
+	void setOutputFolderLocation(string newOutputFolderLocation);
 
-    /**
-     * @brief set summary filename.
-     * @param newfilename           the new file name of the summary file.
-     */
-    void setSummaryFilename(string newfilename = DefaultSummaryEmptyFilename);
+	/**
+	 * @brief set summary filename.
+	 * @param newfilename           the new file name of the summary file.
+	 */
+	void setSummaryFilename(string newfilename = DefaultSummaryEmptyFilename);
 
-    /**
-     * @brief setExportInstantaneousTrajectory
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param exportInstaTraject
-     * @param newInstaTrajectFilename
-     */
-    void setExportInstantaneousTrajectory(bool exportInstaTraject, string newInstaTrajectFilename = DefaultInstantaneousTrajectoryEmptyFilename);
+	/**
+	 * @brief setExportInstantaneousTrajectory
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param exportInstaTraject
+	 * @param newInstaTrajectFilename
+	 */
+	void setExportInstantaneousTrajectory(bool exportInstaTraject, string newInstaTrajectFilename = DefaultInstantaneousTrajectoryEmptyFilename);
 
 
 	/**
@@ -289,17 +289,17 @@ public:
 	Map<int, double> getAllLowerSpeedsIDs(std::shared_ptr<Train> train, int& previousNodeID, int& nextStoppingNodeID);
 
 	/**
-     * Gets the ahead train and the gap between the current train and the ahead train.
+	 * Gets the ahead train and the gap between the current train and the ahead train.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-     * @param 	train	The current train.
+	 * @param 	train	The current train.
 	 *
-     * @returns	a pointer to the ahead train and the gap between the current train and
-     *          the ahead train.
+	 * @returns	a pointer to the ahead train and the gap between the current train and
+	 *          the ahead train.
 	 */
-    std::pair<std::shared_ptr<Train>, double> getAheadTrainAndGap(std::shared_ptr <Train> train);
+	std::pair<std::shared_ptr<Train>, double> getAheadTrainAndGap(std::shared_ptr <Train> train);
 
 	/**
 	 * Gets start end points
@@ -374,7 +374,7 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-    void runSimulation();
+	void runSimulation();
 
 	/**
 	 * Sets train simulator path
@@ -385,12 +385,12 @@ public:
 	void setTrainSimulatorPath();
 
 	/**
-     * Sets trains nodes from their path.
+	 * Sets trains nodes from their path.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-    void setTrainsPathNodes();
+	void setTrainsPathNodes();
 
 	/**
 	 * Sets train path length
@@ -417,9 +417,28 @@ public:
 	 * @param 	train   	The train.
 	 * @param 	timeStep	The time step.
 	 */
-    void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
-    bool getExportIndividualizedTrainsSummary() const;
-    void setExportIndividualizedTrainsSummary(bool newExportIndividualizedTrainsSummary);
+	void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
+
+	/**
+	 * Gets export individualized trains summary
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	3/20/2023
+	 *
+	 * @returns	True if it succeeds, false if it fails.
+	 */
+	bool getExportIndividualizedTrainsSummary() const;
+
+	/**
+	 * Sets export individualized trains summary
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	3/20/2023
+	 *
+	 * @param 	newExportIndividualizedTrainsSummary	True to new export individualized trains
+	 * 													summary.
+	 */
+	void setExportIndividualizedTrainsSummary(bool newExportIndividualizedTrainsSummary);
 
 private:
 
@@ -431,15 +450,15 @@ private:
 	 */
 	void turnOnAllSignals();
 
-    /**
-     * Turn off signal
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param 	networkSignals	The network signals.
-     */
-    void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
+	/**
+	 * Turn off signal
+	 *
+	 * @author	Ahmed Aredah
+	 * @date	2/28/2023
+	 *
+	 * @param 	networkSignals	The network signals.
+	 */
+	void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
 
 	/**
 	 * Check links are free

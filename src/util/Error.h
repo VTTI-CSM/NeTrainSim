@@ -1,6 +1,12 @@
+/**
+ * @file	~\NeTrainSim\src\util\Error.h.
+ *
+ * Declares the error class
+ */
 #ifndef ERROR_H
 #define ERROR_H
 
+/** Values that represent errors */
 enum class Error {
     // base starts with 0
     cannotRetrieveHomeDir           = 010,

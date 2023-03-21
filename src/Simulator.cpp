@@ -1,3 +1,8 @@
+/**
+ * @file	~\NeTrainSim\src\Simulator.cpp.
+ *
+ * Implements the simulator class
+ */
 #include "Simulator.h"
 #include "network/NetSignalGroupController.h"
 #include <filesystem>
@@ -35,116 +40,116 @@ std::filesystem::path getHomeDirectory() {
 			}
 			catch (const std::filesystem::filesystem_error& ex)
 			{
-                throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
-                                         "\nHome directory cannot be retreived!" +
-                                         folder.string() + ex.what() + "\n");
+				throw std::runtime_error(std::string("Error: ") +
+										 std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
+										 "\nHome directory cannot be retreived!" +
+										 folder.string() + ex.what() + "\n");
 			}
 		}
 		return folder;
 	}
-    throw std::runtime_error(std::string("Error: ") +
-                                 std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
-                                 "\nHome directory cannot be retreived!");
+	throw std::runtime_error(std::string("Error: ") +
+								 std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
+								 "\nHome directory cannot be retreived!");
 }
 
 
 bool Simulator::getExportIndividualizedTrainsSummary() const {
-    return exportIndividualizedTrainsSummary;
+	return exportIndividualizedTrainsSummary;
 }
 
 void Simulator::setExportIndividualizedTrainsSummary(bool newExportIndividualizedTrainsSummary) {
-    exportIndividualizedTrainsSummary = newExportIndividualizedTrainsSummary;
+	exportIndividualizedTrainsSummary = newExportIndividualizedTrainsSummary;
 }
 
 Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains) {
-    // variables initialization
-    this->network = &theNetwork;
-    this->trains = networkTrains;
-    // define train path as per simulator
-    this->setTrainSimulatorPath();
-    this->setTrainsPathNodes();
-    this->setTrainPathLength();
-    this->simulationEndTime = DefaultEndTime;
-    this->timeStep = DefaultTimeStep;
-    this->simulationTime = 0.0;
-    this->progress = 0.0;
-    if (this->simulationEndTime == 0.0) {
-        this->runSimulationEndlessly = true;
-    }
-    else {
-        this->runSimulationEndlessly = false;
-    }
+	// variables initialization
+	this->network = &theNetwork;
+	this->trains = networkTrains;
+	// define train path as per simulator
+	this->setTrainSimulatorPath();
+	this->setTrainsPathNodes();
+	this->setTrainPathLength();
+	this->simulationEndTime = DefaultEndTime;
+	this->timeStep = DefaultTimeStep;
+	this->simulationTime = 0.0;
+	this->progress = 0.0;
+	if (this->simulationEndTime == 0.0) {
+		this->runSimulationEndlessly = true;
+	}
+	else {
+		this->runSimulationEndlessly = false;
+	}
 
-    this->outputLocation = getHomeDirectory();
+	this->outputLocation = getHomeDirectory();
 
-    // Get a high-resolution time point
-    auto now = std::chrono::high_resolution_clock::now();
+	// Get a high-resolution time point
+	auto now = std::chrono::high_resolution_clock::now();
 
-    // Convert the time point to a numerical value
-    auto serial_number = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+	// Convert the time point to a numerical value
+	auto serial_number = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 
-    this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename + std::to_string(serial_number) + ".csv";
-    this->summaryFileName = DefaultSummaryFilename + std::to_string(serial_number) + ".txt";
+	this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename + std::to_string(serial_number) + ".csv";
+	this->summaryFileName = DefaultSummaryFilename + std::to_string(serial_number) + ".txt";
 
-    this->exportTrajectory = false;
+	this->exportTrajectory = false;
 
-    // Define signals groups
-    auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
-                                          [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
-                                              return t1->totalLength < t2->totalLength;
-                                          });
+	// Define signals groups
+	auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
+										  [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
+											  return t1->totalLength < t2->totalLength;
+										  });
 
-    defineSignalsGroups((*max_train)->totalLength);
+	defineSignalsGroups((*max_train)->totalLength);
 }
 
 void Simulator::setTimeStep(double newTimeStep) {
-    this->timeStep = newTimeStep;
+	this->timeStep = newTimeStep;
 }
 
 
 void Simulator::setEndTime(double newEndTime) {
-    this->simulationEndTime = newEndTime;
+	this->simulationEndTime = newEndTime;
 }
 
 
 void Simulator::setOutputFolderLocation(string newOutputFolderLocation) {
-    this->outputLocation = newOutputFolderLocation;
+	this->outputLocation = newOutputFolderLocation;
 }
 
 void Simulator::setSummaryFilename(string newfilename) {
-    if (newfilename != ""){
-        if (std::filesystem::path(newfilename).has_extension()){
-            this->summaryFileName = newfilename;
-        }
-        else{
-            this->summaryFileName = newfilename + ".csv";
-        }
-    }
-    else {
-        this->summaryFileName = DefaultSummaryFilename;
-    }
+	if (newfilename != ""){
+		if (std::filesystem::path(newfilename).has_extension()){
+			this->summaryFileName = newfilename;
+		}
+		else{
+			this->summaryFileName = newfilename + ".csv";
+		}
+	}
+	else {
+		this->summaryFileName = DefaultSummaryFilename;
+	}
 }
 
 void Simulator::setExportInstantaneousTrajectory(bool exportInstaTraject, string newInstaTrajectFilename) {
-    this->exportTrajectory = exportInstaTraject;
-    if (newInstaTrajectFilename != ""){
-        if (std::filesystem::path(newInstaTrajectFilename).has_extension()){
-            this->trajectoryFilename = newInstaTrajectFilename;
-        }
-        else{
-            this->trajectoryFilename = newInstaTrajectFilename + ".csv";
-        }
-    }
-    else {
-        // Get a high-resolution time point
-        auto now = std::chrono::high_resolution_clock::now();
+	this->exportTrajectory = exportInstaTraject;
+	if (newInstaTrajectFilename != ""){
+		if (std::filesystem::path(newInstaTrajectFilename).has_extension()){
+			this->trajectoryFilename = newInstaTrajectFilename;
+		}
+		else{
+			this->trajectoryFilename = newInstaTrajectFilename + ".csv";
+		}
+	}
+	else {
+		// Get a high-resolution time point
+		auto now = std::chrono::high_resolution_clock::now();
 
-        // Convert the time point to a numerical value
-        auto serial_number = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+		// Convert the time point to a numerical value
+		auto serial_number = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 
-        this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename + std::to_string(serial_number) + ".csv";
-    }
+		this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename + std::to_string(serial_number) + ".csv";
+	}
 }
 
 
@@ -153,46 +158,46 @@ void Simulator::openTrajectoryFile() {
 	try {
 		this->trajectoryFile.open(this->outputLocation / this->trajectoryFilename, std::ios::out | std::ios::trunc);
 		if (!this->trajectoryFile.is_open()) {
-            throw std::ios_base::failure(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::cannotOpenTrajectoryFile)) +
-                                         "\nError opening file: " + this->trajectoryFilename + "!\n");
+			throw std::ios_base::failure(std::string("Error: ") +
+										 std::to_string(static_cast<int>(Error::cannotOpenTrajectoryFile)) +
+										 "\nError opening file: " + this->trajectoryFilename + "!\n");
 		}
 	}
 	catch (const std::ios_base::failure& e) {
 		std::cerr << e.what() << std::endl;
-        throw std::ios_base::failure(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::cannotOpenTrajectoryFile)) +
-                                     "\nCould not create/open the trajectory file!\n");
+		throw std::ios_base::failure(std::string("Error: ") +
+									 std::to_string(static_cast<int>(Error::cannotOpenTrajectoryFile)) +
+									 "\nCould not create/open the trajectory file!\n");
 	}
 }
 
 std::string Simulator::getOutputFolder() {
-    return this->outputLocation.string();
+	return this->outputLocation.string();
 }
 
 void Simulator::openSummaryFile() {
 	try {
 		this->summaryFile.open(this->outputLocation / this->summaryFileName, std::ios::out | std::ios::trunc);
 		if (!this->summaryFile.is_open()) {
-            throw std::ios_base::failure(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::cannotOpenSummaryFile)) +
-                                         "\nError opening file: " + this->summaryFileName + "!\n");
+			throw std::ios_base::failure(std::string("Error: ") +
+										 std::to_string(static_cast<int>(Error::cannotOpenSummaryFile)) +
+										 "\nError opening file: " + this->summaryFileName + "!\n");
 		}
 	}
 	catch (const std::ios_base::failure& e) {
 		std::cerr << e.what() << std::endl;
-        throw std::ios_base::failure(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::cannotOpenSummaryFile)) +
-                                     "\nCould not create/open the trajectory file!\n");
+		throw std::ios_base::failure(std::string("Error: ") +
+									 std::to_string(static_cast<int>(Error::cannotOpenSummaryFile)) +
+									 "\nCould not create/open the trajectory file!\n");
 	}
 }
 
 bool Simulator::checkAllTrainsReachedDestination() {
 	for (std::shared_ptr<Train>& t : (this->trains)) {
-        if (t->outOfEnergy) {
-            continue;
-        }
-        if (! t->reachedDestination) {
+		if (t->outOfEnergy) {
+			continue;
+		}
+		if (! t->reachedDestination) {
 			return false;
 		}
 	}
@@ -201,15 +206,15 @@ bool Simulator::checkAllTrainsReachedDestination() {
 
 void Simulator::loadTrain(std::shared_ptr <Train> train) {
 	train->loaded = true;
-    train->currentCoordinates = train->trainPathNodes.at(0)->coordinates();
-    train->setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>>(1, this->network->getFirstTrainLink(train)));
+	train->currentCoordinates = train->trainPathNodes.at(0)->coordinates();
+	train->setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>>(1, this->network->getFirstTrainLink(train)));
 	train->linksCumLengths = this->network->generateCumLinksLengths(train);
 	train->previousNodeID = train->trainPath.at(0);
-    train->LastTrainPointpreviousNodeID = train->trainPath.at(0);
+	train->LastTrainPointpreviousNodeID = train->trainPath.at(0);
 }
 
 std::tuple<Vector<double>, Vector<double>, Vector<double>, 
-            Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(std::shared_ptr<Train> train, bool isVirtual) {
+			Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(std::shared_ptr<Train> train, bool isVirtual) {
 
 	Vector<double> curvatures;
 	Vector<double> grades;
@@ -220,12 +225,12 @@ std::tuple<Vector<double>, Vector<double>, Vector<double>,
 	// loop over all train's vehicles
 	for (const auto& vehicle : train->trainVehicles) {
 		// get centroid distance from start of the train
-        if (isVirtual){
-            distance = train->virtualTravelledDistance - train->WeightCentroids.at(vehicle);
-        }
-        else{
-            distance = train->travelledDistance - train->WeightCentroids.at(vehicle);
-        }
+		if (isVirtual){
+			distance = train->virtualTravelledDistance - train->WeightCentroids.at(vehicle);
+		}
+		else{
+			distance = train->travelledDistance - train->WeightCentroids.at(vehicle);
+		}
 
 		// set the boundries
 		if (distance < 0.0) { distance = 0.0; }
@@ -246,7 +251,7 @@ std::tuple<Vector<double>, Vector<double>, Vector<double>,
 		}
 		grades.push_back(train->LinkGradeDirection[link->id]);
 		freeFlowSpeeds.push_back(link->freeFlowSpeed);
-        links.push_back(link);
+		links.push_back(link);
 	}
 	std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> myreturn;
 	myreturn = std::make_tuple(curvatures, grades, freeFlowSpeeds, links);
@@ -270,26 +275,26 @@ int Simulator::getSignalFromLink(Vector<std::shared_ptr<NetSignal>> networkSigna
 
 pair<int, bool> Simulator::getNextStoppingNodeID(std::shared_ptr<Train> train, int &previousNodeID) {
 	int previousNodeIndex = train->trainPath.index(previousNodeID);
-    for (int i = previousNodeIndex + 1; i < train->trainPath.size(); i++) {
-        if (i >= train->trainPath.size()) { return std::make_pair(train->trainPath.back(), false); }
+	for (int i = previousNodeIndex + 1; i < train->trainPath.size(); i++) {
+		if (i >= train->trainPath.size()) { return std::make_pair(train->trainPath.back(), false); }
 		if (train->trainPathNodes[i]->isDepot && i > 0) {
 			return std::make_pair(train->trainPath[i], false);
 		}
 		else if (!train->trainPathNodes[i]->networkSignals.empty()) {
 			int prevI = i - 1;
-            for (auto &s: train->trainPathNodes[i]->networkSignals) {
-                if (s->currentNode.lock()->id == train->trainPathNodes[i]->id &&
-                        s->previousNode.lock()->id == train->trainPathNodes[prevI]->id) {
-                    if (! s->isGreen) {
-                        return std::make_pair(train->trainPath[i], true);
-                    }
-                    else {
-                        break;
-                    }
-                }
+			for (auto &s: train->trainPathNodes[i]->networkSignals) {
+				if (s->currentNode.lock()->id == train->trainPathNodes[i]->id &&
+						s->previousNode.lock()->id == train->trainPathNodes[prevI]->id) {
+					if (! s->isGreen) {
+						return std::make_pair(train->trainPath[i], true);
+					}
+					else {
+						break;
+					}
+				}
 
-            }
-            // this->getNextStoppingNodeID(train, train->trainPath[i]);
+			}
+			// this->getNextStoppingNodeID(train, train->trainPath[i]);
 		}
 	}
 	return std::make_pair(train->trainPath.back(), false);
@@ -309,9 +314,9 @@ Map<int, double> Simulator::getAllLowerSpeedsIDs(std::shared_ptr<Train> train, i
 	int prevI = train->trainPath.index(previousNodeID);
 	int nextSI = train->trainPath.index(nextStoppingNodeID);
 
-    // check if the values have been already memorized
-    // if not, get them
-    if (train->LowerSpeedNodeIDs[prevI][nextSI].empty()) {
+	// check if the values have been already memorized
+	// if not, get them
+	if (train->LowerSpeedNodeIDs[prevI][nextSI].empty()) {
 		Map<int, double> lowerSpeedMapping;
 		for (int i = prevI + 1; i < train->trainPath.size(); i++) {
 			if (nextStoppingNodeID == train->trainPath[i]) { break; }
@@ -326,7 +331,7 @@ Map<int, double> Simulator::getAllLowerSpeedsIDs(std::shared_ptr<Train> train, i
 		train->LowerSpeedNodeIDs[prevI][nextSI] = lowerSpeedMapping;
 		return lowerSpeedMapping;
 	}
-    // else, return the memorized value
+	// else, return the memorized value
 	else {
 		return train->LowerSpeedNodeIDs[prevI][nextSI];
 	}
@@ -359,7 +364,7 @@ void Simulator::setOccupiedLinksByTrains(std::shared_ptr <Train> train) {
 		if (l->currentTrains.exist(train)) {
 			l->currentTrains.removeValue(train);
 		}
-        //else { break; }
+		//else { break; }
 	}
 	for (std::shared_ptr <NetLink>& l : train->currentLinks) {
 		if (! l->currentTrains.exist(train)) {
@@ -376,7 +381,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 
 	// Check if the train start time is passed
 	// if such, load train first and then run the simulation
-    if (this->simulationTime >= train->trainStartTime && !train->loaded) {
+	if (this->simulationTime >= train->trainStartTime && !train->loaded) {
 		bool skipLoadingTrain = false;
 
 		// check if there is a train that is already loaded in the same node and still on the same starting node
@@ -397,12 +402,12 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		}
 	}
 
-    if ((train->trainStartTime <= this->simulationTime) && train->loaded) {
+	if ((train->trainStartTime <= this->simulationTime) && train->loaded) {
 
 		// holds track data and speed
 		std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
 		// Load path geometric data for each vehicle in the train (at mass centroid of each)
-        linksdata = this->loadTrainLinksData(train, false);
+		linksdata = this->loadTrainLinksData(train, false);
 		// train spanned links curvatures
 		Vector<double> curvatures = std::get<0>(linksdata);
 		// train spanned links grades
@@ -415,10 +420,10 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		// the free flow speed of the tip of the train
 		double currentLinkFreeSpeed = this->loadTrainFreeSpeed(train);
 		// the spanned links of the train
-        train->setTrainsCurrentLinks(links);
-        // all previous links the train passed on
-        for (const std::shared_ptr<NetLink> &link : train->currentLinks) {
-            if (!train->previousLinks.exist(link)) {
+		train->setTrainsCurrentLinks(links);
+		// all previous links the train passed on
+		for (const std::shared_ptr<NetLink> &link : train->currentLinks) {
+			if (!train->previousLinks.exist(link)) {
 				train->previousLinks.push_back(link);
 			}
 		}
@@ -430,7 +435,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		double lastTrainTipTravelledDistance = train->travelledDistance - train->totalLength;
 		if (lastTrainTipTravelledDistance < 0.0) { lastTrainTipTravelledDistance = 0.0; }
 		int LastTrainTipPreviousNodeID;
-        LastTrainTipPreviousNodeID = (train->LastTrainPointpreviousNodeID <= 0.0) ? train->trainPath[0] : train->LastTrainPointpreviousNodeID;
+		LastTrainTipPreviousNodeID = (train->LastTrainPointpreviousNodeID <= 0.0) ? train->trainPath[0] : train->LastTrainPointpreviousNodeID;
 		train->LastTrainPointpreviousNodeID = this->network->getPreviousNodeByDistance(train, 
 			lastTrainTipTravelledDistance, LastTrainTipPreviousNodeID)->id;
 // ##################################################################
@@ -462,7 +467,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 			std::get<2>(criticalPointsDefinition).push_back(lwrSpeedNS.second);
 		}
 		// add the leading train to the list
-        std::pair<std::shared_ptr<Train>, double> trainAheadWithDistance = this->getAheadTrainAndGap(train);
+		std::pair<std::shared_ptr<Train>, double> trainAheadWithDistance = this->getAheadTrainAndGap(train);
 		if (trainAheadWithDistance.first != nullptr) {
 			std::get<0>(criticalPointsDefinition).push_back(trainAheadWithDistance.second);
 			std::get<1>(criticalPointsDefinition).push_back(true);
@@ -516,15 +521,15 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 			// holds track data and speed
 			std::tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
 			// Load path geometric data for each vehicle in the train (at mass centroid of each)
-            linksdata = this->loadTrainLinksData(train, false);
-            links = std::get<3>(linksdata);
+			linksdata = this->loadTrainLinksData(train, false);
+			links = std::get<3>(linksdata);
 			// the spanned links of the train
-            train->setTrainsCurrentLinks(links);
+			train->setTrainsCurrentLinks(links);
 			// the first link the train is on
-            train->currentFirstLink = links.at(0);
+			train->currentFirstLink = links.at(0);
 			// all previous links the train passed on
-            for (const std::shared_ptr<NetLink> &link : train->currentLinks) {
-                if (!train->previousLinks.exist(link)) {
+			for (const std::shared_ptr<NetLink> &link : train->currentLinks) {
+				if (!train->previousLinks.exist(link)) {
 					train->previousLinks.push_back(link);
 				}
 			}
@@ -544,7 +549,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 				<< train->stoppedStat << ","
 				<< train->currentTractiveForce << ","
 				<< train->currentResistanceForces << ","
-                << train->currentUsedTractivePower << ","
+				<< train->currentUsedTractivePower << ","
 				<< grades[0] << ","
 				<< curvatures[0] << ","
 				<< std::endl;
@@ -557,59 +562,59 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 
 void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
 
-    if (train->trainStartTime <= this->simulationTime){
+	if (train->trainStartTime <= this->simulationTime){
 
-        train->virtualTravelledDistance = train->travelledDistance;
-        double speed = train->currentSpeed;
-        double prevSpeed = train->previousSpeed;
-        double accel = train->currentAcceleration;
-        double throttleLevel = -1;
-        Vector<double> throttleLevelVec = Vector<double>();
+		train->virtualTravelledDistance = train->travelledDistance;
+		double speed = train->currentSpeed;
+		double prevSpeed = train->previousSpeed;
+		double accel = train->currentAcceleration;
+		double throttleLevel = -1;
+		Vector<double> throttleLevelVec = Vector<double>();
 
-        for (int i = 0; i < train->lookAheadStepCounter; i++){
-            train->virtualTravelledDistance += speed *timeStep;
-            auto linksData = this->loadTrainLinksData(train, true);
-            auto CurrentFreeSpeed_ms = std::get<2>(linksData).min();
+		for (int i = 0; i < train->lookAheadStepCounter; i++){
+			train->virtualTravelledDistance += speed *timeStep;
+			auto linksData = this->loadTrainLinksData(train, true);
+			auto CurrentFreeSpeed_ms = std::get<2>(linksData).min();
 
-            unsigned int pindx = 0;
-            for (int i = 0; i < train->linksCumLengths.size() ; i++) {
-                if (train->linksCumLengths[i] >= train->virtualTravelledDistance) {
-                    pindx = i-1;
-                    break;
-                }
-            }
+			unsigned int pindx = 0;
+			for (int i = 0; i < train->linksCumLengths.size() ; i++) {
+				if (train->linksCumLengths[i] >= train->virtualTravelledDistance) {
+					pindx = i-1;
+					break;
+				}
+			}
 
-            int pNodeID = train->trainPath[pindx];
-            auto nextStop = this->getNextStoppingNodeID(train, pNodeID);
-            Vector<double> oDistanceToNextStationTrain;
-            Vector<double> oAheadSpeed;
+			int pNodeID = train->trainPath[pindx];
+			auto nextStop = this->getNextStoppingNodeID(train, pNodeID);
+			Vector<double> oDistanceToNextStationTrain;
+			Vector<double> oAheadSpeed;
 
-            // get all lower speed IDs
-            for ( auto N : this->getAllLowerSpeedsIDs(train, pNodeID, nextStop.first)){
-                int theNodeID = N.first;
-                oDistanceToNextStationTrain.push_back(
-                            this->network->getDistanceToSpecificNodeByTravelledDistance(train,
-                                                                                        train->virtualTravelledDistance,
-                                                                                        theNodeID));
-                oAheadSpeed.push_back(N.second);
-            }
+			// get all lower speed IDs
+			for ( auto N : this->getAllLowerSpeedsIDs(train, pNodeID, nextStop.first)){
+				int theNodeID = N.first;
+				oDistanceToNextStationTrain.push_back(
+							this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+																						train->virtualTravelledDistance,
+																						theNodeID));
+				oAheadSpeed.push_back(N.second);
+			}
 
-            oDistanceToNextStationTrain.push_back(this->network->getDistanceToSpecificNodeByTravelledDistance(train,
-                                                                                        train->virtualTravelledDistance,
-                                                                                        nextStop.first));
-            oAheadSpeed.push_back(0.0);
+			oDistanceToNextStationTrain.push_back(this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+																						train->virtualTravelledDistance,
+																						nextStop.first));
+			oAheadSpeed.push_back(0.0);
 
-            auto out = train->AStarOptimization( prevSpeed, speed, accel, throttleLevel,
-                                      std::get<1>(linksData), std::get<0>(linksData),
-                                      CurrentFreeSpeed_ms, timeStep, oAheadSpeed, oDistanceToNextStationTrain);
-            speed = std::get<0>(out);
-            accel = std::get<1>(out);
-            throttleLevel = std::get<2>(out);
-            throttleLevelVec.push_back(throttleLevel);
-        }
+			auto out = train->AStarOptimization( prevSpeed, speed, accel, throttleLevel,
+									  std::get<1>(linksData), std::get<0>(linksData),
+									  CurrentFreeSpeed_ms, timeStep, oAheadSpeed, oDistanceToNextStationTrain);
+			speed = std::get<0>(out);
+			accel = std::get<1>(out);
+			throttleLevel = std::get<2>(out);
+			throttleLevelVec.push_back(throttleLevel);
+		}
 
-        train->pickOptimalThrottleLevelAStar(throttleLevelVec, train->lookAheadCounterToUpdate);
-    }
+		train->pickOptimalThrottleLevelAStar(throttleLevelVec, train->lookAheadCounterToUpdate);
+	}
 }
 
 
@@ -618,14 +623,14 @@ Vector<Vector<Vector < std::shared_ptr<NetNode>>>> Simulator::getConflictTrainsI
 	if (this->trains.size() < 2) {return trainSignalsGroups;}
 	vector<pair<std::shared_ptr<Train>, std::shared_ptr<Train>>> ts;
 	for (int i = 0; i < this->trains.size(); ++i) {
-        // if the train has the same nodes as the previous train, skip it
-        if (i > 0){
-            int prevI = i - 1;
-            if (this->trains.at(i)->trainPath.isSubsetOf(this->trains.at(prevI)->trainPath) ||
-                    this->trains.at(prevI)->trainPath.isSubsetOf(this->trains.at(i)->trainPath)) {
-                continue;
-            }
-        }
+		// if the train has the same nodes as the previous train, skip it
+		if (i > 0){
+			int prevI = i - 1;
+			if (this->trains.at(i)->trainPath.isSubsetOf(this->trains.at(prevI)->trainPath) ||
+					this->trains.at(prevI)->trainPath.isSubsetOf(this->trains.at(i)->trainPath)) {
+				continue;
+			}
+		}
 
 		for (int j = i + 1; j < this->trains.size(); ++j) {
 			if (i == j) { continue; }
@@ -647,10 +652,10 @@ Vector<std::shared_ptr<NetNode>> Simulator::getTrainsIntersections(std::shared_p
 	Vector<std::shared_ptr<NetNode>> intersections;
 	for (std::shared_ptr<NetNode>& value : train1->trainPathNodes) {
 		if (find(train2->trainPathNodes.begin(), train2->trainPathNodes.end(), value) != train2->trainPathNodes.end()) {
-            // check if the node has signals, if yes, add it to control
-            if (value->networkSignals.size() > 0){
-                intersections.push_back(value);
-            }
+			// check if the node has signals, if yes, add it to control
+			if (value->networkSignals.size() > 0){
+				intersections.push_back(value);
+			}
 		}
 	}
 	return intersections;
@@ -673,7 +678,7 @@ void Simulator::defineSignalsGroups(double& minSafeDistance) {
 			std::make_shared< NetSignalGroupController>(NetSignalGroupController(group));
 		s->confinedLinks = this->getLinksByNodes(nodesGroup.at(i));
 
-        for (std::shared_ptr<NetNode> n : group) {
+		for (std::shared_ptr<NetNode> n : group) {
 			this->signalsGroups[n] = s;
 		}
 	}
@@ -705,30 +710,30 @@ Vector<Vector< Map<int, std::set<std::shared_ptr<NetNode>>>>> Simulator::getNode
 	if (this->trains.size() < 2) { return nodesGroups; }
 	for (int t1i = 0; t1i < ConflictTrainsIntersections.size(); t1i++) {
 		for (int t2i = 0; t2i < ConflictTrainsIntersections.at(t1i).size(); t2i++) {
-            // if it is the same train, skip
+			// if it is the same train, skip
 			if (t1i == t2i) { continue; }
-            // get the conflicts of train t1i and t2i
+			// get the conflicts of train t1i and t2i
 			Vector<std::shared_ptr<NetNode>> trainIntersections = ConflictTrainsIntersections[t1i][t2i];
-            // if the intersections is empty, skip
+			// if the intersections is empty, skip
 			if (trainIntersections.size() < 1) { continue; }
-            // map of group number and nodes of intersections
+			// map of group number and nodes of intersections
 			Map<int, std::set<std::shared_ptr<NetNode>>> G;
 			int gn = 0;
-            // loop over all intersecting nodes
+			// loop over all intersecting nodes
 			for (int i = 0; i < trainIntersections.size() - 1; i++) {
 				int nextI = i + 1;
 				double d = this->network->getDistanceBetweenTwoNodes(this->trains.at(t1i), 
 					trainIntersections.at(i), trainIntersections.at(nextI));
 
-                // if the distance is short or the section has only 1 link, it is a conflict
-                // and shoud be controlled by one controller
-                if ((d < minSafeDistance) || (this->network->isConflictZone(this->trains.at(t1i), trainIntersections.at(i),
-                                                                            trainIntersections.at(nextI)))) {
+				// if the distance is short or the section has only 1 link, it is a conflict
+				// and shoud be controlled by one controller
+				if ((d < minSafeDistance) || (this->network->isConflictZone(this->trains.at(t1i), trainIntersections.at(i),
+																			trainIntersections.at(nextI)))) {
 					G[gn].insert(trainIntersections.at(i)); 
 					G[gn].insert(trainIntersections.at(nextI)); 
 				}
 				else {
-                    G[gn].insert(trainIntersections.at(i));
+					G[gn].insert(trainIntersections.at(i));
 					gn++;
 					G[gn].insert(trainIntersections.at(nextI));
 				}
@@ -755,13 +760,13 @@ Vector<std::set<std::shared_ptr<NetNode>>> Simulator::unionNodesIntersectionsFor
 					isUnified = false;
 					std::set<std::shared_ptr<NetNode>> intersections;
 					std::set_intersection(g.at(i).begin(), g.at(i).end(), 
-                                            unified.at(j).begin(), unified.at(j).end(),
-                                            std::inserter(intersections, intersections.begin()));
+											unified.at(j).begin(), unified.at(j).end(),
+											std::inserter(intersections, intersections.begin()));
 					if (!intersections.empty()) {
 						std::set<std::shared_ptr<NetNode>> union_set;
 						std::set_union(g.at(i).begin(), g.at(i).end(),
-                                        unified.at(j).begin(), unified.at(j).end(),
-                                        std::inserter(union_set, union_set.begin()));
+										unified.at(j).begin(), unified.at(j).end(),
+										std::inserter(union_set, union_set.begin()));
 						unified.at(j) = union_set;
 						isUnified = true;
 					}
@@ -830,8 +835,8 @@ Vector<std::shared_ptr<NetLink>> Simulator::getLinksByNodes(std::set<std::shared
 					for (int i = 0; i < path.size() - 1; i++) {
 						int nextI = i + 1;
 						Vector<std::shared_ptr<NetLink>> betweenLinks =
-                                                        this->network->getLinksByStartandEndNode(path.at(i),
-                                                                                                 path.at(nextI));
+														this->network->getLinksByStartandEndNode(path.at(i),
+																								 path.at(nextI));
 						for (auto& link : betweenLinks) {
 							links.push_back(link);
 						}
@@ -867,32 +872,32 @@ Vector<std::pair<double, double>> Simulator::getStartEndPoints(std::shared_ptr<T
 }
 
 void Simulator::runSimulation() {
-    // define trajectory file and set it up
-    if (this->exportTrajectory) {
-        this->openTrajectoryFile();
-        std::stringstream exportLine;
-        exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,";
-        exportLine << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,";
-        exportLine << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc\n";
-        this->trajectoryFile << exportLine.str();
-    }
+	// define trajectory file and set it up
+	if (this->exportTrajectory) {
+		this->openTrajectoryFile();
+		std::stringstream exportLine;
+		exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,";
+		exportLine << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,";
+		exportLine << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc\n";
+		this->trajectoryFile << exportLine.str();
+	}
 
 
-    time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-    while (this->simulationTime <= this->simulationEndTime || this->runSimulationEndlessly) {
+	while (this->simulationTime <= this->simulationEndTime || this->runSimulationEndlessly) {
 		if (this->checkAllTrainsReachedDestination()) {
 			break;
 		}
 		for (std::shared_ptr <Train>& t : (this->trains)) {
 			if (t->reachedDestination) { continue;  }
 
-            if (t->optimize){
-                if (t->lookAheadCounterToUpdate <= 0) {
-                    t->resetTrainLookAhead();
-                    this->PlayTrainVirtualStepsAStarOptimization(t, this->timeStep);
-                }
-            }
+			if (t->optimize){
+				if (t->lookAheadCounterToUpdate <= 0) {
+					t->resetTrainLookAhead();
+					this->PlayTrainVirtualStepsAStarOptimization(t, this->timeStep);
+				}
+			}
 
 			this->playTrainOneTimeStep(t);
 		}
@@ -906,10 +911,10 @@ void Simulator::runSimulation() {
 			travelledDistances.push_back(t->travelledDistance);
 		}
 		this->runSignalsforTrains();
-        double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
-        double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
+		double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
+		double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
 
-        this->ProgressBar(trainsAv, totalTrainAv);
+		this->ProgressBar(trainsAv, totalTrainAv);
 
 		this->checkTrainsCollision();
 
@@ -922,270 +927,270 @@ void Simulator::runSimulation() {
 	time_t fin_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	double difTime = difftime(fin_time, init_time);
 	std::stringstream exportLine;
-    std::tuple<double, double, double, double, double> networkStats = this->network->getNetworkStats();
+	std::tuple<double, double, double, double, double> networkStats = this->network->getNetworkStats();
 
 	exportLine << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
-        << MYAPP_TARGET << " SIMULATION SUMMARY\n"
-        << "Version: " << MYAPP_VERSION << "\n"
+		<< MYAPP_TARGET << " SIMULATION SUMMARY\n"
+		<< "Version: " << MYAPP_VERSION << "\n"
 		<< "Simulation Time: " << Utils::formatDuration(difTime) << " (dd:hh:mm:ss)\n"
-        << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"
-        << "+ NETWORK STATISTICS:\n"
-        << "  |_ Network Name                                                               : " << this->network->networkName << "\n"
-        << "  |_ Nodes Count                                                                : " << Utils::thousandSeparator(this->network->nodes.size()) << "\n"
-        << "  |_ Links Count                                                                : " << Utils::thousandSeparator(this->network->links.size()) << "\n"
-        << "    |_ Total Lengths of All Links (meters)                                      : " << Utils::thousandSeparator(std::get<3>(networkStats)) << "\n"
-        << "    |_ Total Lengths of All Links with Catenary (meters)                        : " << Utils::thousandSeparator(std::get<4>(networkStats)) << "\n"
-        << "  |_ Total Signals                                                              : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
-        << "  |_ Total Number of Trains on Network                                          : " << Utils::thousandSeparator(this->trains.size()) << "\n"
-        << "  |_ Percentage of Links with Catenaries to All Links (%)                       : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
-        << "    |_ Catenary Energy Consumed (KW.h)                                          : " << Utils::thousandSeparator(std::get<1>(networkStats)) << "\n"
-        << "    |_ Catenary Energy Regenerated (KW.h)                                       : " << Utils::thousandSeparator(std::get<2>(networkStats)) << "\n"
-        << "....................................................\n\n"
-        << "\n";
+		<< "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"
+		<< "+ NETWORK STATISTICS:\n"
+		<< "  |_ Network Name                                                               : " << this->network->networkName << "\n"
+		<< "  |_ Nodes Count                                                                : " << Utils::thousandSeparator(this->network->nodes.size()) << "\n"
+		<< "  |_ Links Count                                                                : " << Utils::thousandSeparator(this->network->links.size()) << "\n"
+		<< "    |_ Total Lengths of All Links (meters)                                      : " << Utils::thousandSeparator(std::get<3>(networkStats)) << "\n"
+		<< "    |_ Total Lengths of All Links with Catenary (meters)                        : " << Utils::thousandSeparator(std::get<4>(networkStats)) << "\n"
+		<< "  |_ Total Signals                                                              : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
+		<< "  |_ Total Number of Trains on Network                                          : " << Utils::thousandSeparator(this->trains.size()) << "\n"
+		<< "  |_ Percentage of Links with Catenaries to All Links (%)                       : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
+		<< "    |_ Catenary Energy Consumed (KW.h)                                          : " << Utils::thousandSeparator(std::get<1>(networkStats)) << "\n"
+		<< "    |_ Catenary Energy Regenerated (KW.h)                                       : " << Utils::thousandSeparator(std::get<2>(networkStats)) << "\n"
+		<< "....................................................\n\n"
+		<< "\n";
 
-    exportLine
-            << "+ AGGREGATED/ACCUMULATED TRAINS STATISTICS:\n"
-            << "  |-> Train Information:\n"
-            << "    |_ Number of Locomotives/Cars                                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                       [](int total, const auto& train) {
-                                                                                                           return total + train->nlocs;
-                                                                                                       }) << "/"
-                                                                                                            << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                            [](int total, const auto& train) {
-                                                                                                                return total + train->nCars;
-                                                                                                            }) << "\n"
-            << "    |_ Locomotives (Technology, count)                                          : " << std::accumulate(
-                                                                                                       this->trains.begin(), this->trains.end(), Map<TrainTypes::PowerType, int>(),
-                                                                                                          [](Map<TrainTypes::PowerType, int> a, const auto& train) {
-                                                                                                              auto c = train->LocTypeCount();
-                                                                                                              for (const auto& [key, value] : c) {
-                                                                                                                 a[key] += value;
-                                                                                                              }
-                                                                                                              a.insert(c.begin(), c.end());
-                                                                                                              return a;
-                                                                                                          }
-                                                                                                      ).toString() << "\n"
-            << "    |_ Operating Locomotives to End of Trains Trip                              : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                       [](int total, const auto& train) {
-                                                                                                           return total + train->getActiveLocomotivesNumber();
-                                                                                                       }) << "\n"
-            << "    |-> Cars Summary:\n"
-            << "      |_ Cargo Cars Count                                                       : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                       [](int total, const auto& train) {
-                                                                                                           return total + train->carsTypes[TrainTypes::CarType::cargo].size();
-                                                                                                       }) << "\n"
-            << "  |-> Route Information:\n"
-            << "    |_ Trains Reached Destination                                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                        [](int total, const auto& train) {
-                                                                                                            return total + train->reachedDestination;
-                                                                                                        }) << "\n"
-            << "    |_ Train Total Path Length (meters)                                         : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                    return total + train->trainTotalPathLength;
-                                                                                                                                })) << "\n"
-            << "  |-> Moved Commodity:\n"
-            << "    |_ Total Moved Cargo (ton)                                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getCargoNetWeight());
-                                                                                                                                })) << "\n"
-            << "    |_ Total Torque (ton.Km)                                                    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getTrainTotalTorque());
-                                                                                                                                })) << "\n"
+	exportLine
+			<< "+ AGGREGATED/ACCUMULATED TRAINS STATISTICS:\n"
+			<< "  |-> Train Information:\n"
+			<< "    |_ Number of Locomotives/Cars                                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																									   [](int total, const auto& train) {
+																										   return total + train->nlocs;
+																									   }) << "/"
+																											<< std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																											[](int total, const auto& train) {
+																												return total + train->nCars;
+																											}) << "\n"
+			<< "    |_ Locomotives (Technology, count)                                          : " << std::accumulate(
+																									   this->trains.begin(), this->trains.end(), Map<TrainTypes::PowerType, int>(),
+																										  [](Map<TrainTypes::PowerType, int> a, const auto& train) {
+																											  auto c = train->LocTypeCount();
+																											  for (const auto& [key, value] : c) {
+																												 a[key] += value;
+																											  }
+																											  a.insert(c.begin(), c.end());
+																											  return a;
+																										  }
+																									  ).toString() << "\n"
+			<< "    |_ Operating Locomotives to End of Trains Trip                              : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																									   [](int total, const auto& train) {
+																										   return total + train->getActiveLocomotivesNumber();
+																									   }) << "\n"
+			<< "    |-> Cars Summary:\n"
+			<< "      |_ Cargo Cars Count                                                       : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																									   [](int total, const auto& train) {
+																										   return total + train->carsTypes[TrainTypes::CarType::cargo].size();
+																									   }) << "\n"
+			<< "  |-> Route Information:\n"
+			<< "    |_ Trains Reached Destination                                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																										[](int total, const auto& train) {
+																											return total + train->reachedDestination;
+																										}) << "\n"
+			<< "    |_ Train Total Path Length (meters)                                         : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& train) {
+																																	return total + train->trainTotalPathLength;
+																																})) << "\n"
+			<< "  |-> Moved Commodity:\n"
+			<< "    |_ Total Moved Cargo (ton)                                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getCargoNetWeight());
+																																})) << "\n"
+			<< "    |_ Total Torque (ton.Km)                                                    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getTrainTotalTorque());
+																																})) << "\n"
 
-            << "  |-> Train Performance:\n"
-            << "    |_ Operating Time                                                           : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                             [](double total, const auto& train) {
-                                                                                                                                 return total + train->tripTime;
-                                                                                                                             })) << "\n"
-            << "    |_ Average Speed (meter/second)                                             : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                       [](double total, const auto& train) {
-                                                                                                                           return total + train->averageSpeed;
-                                                                                                                       })/this->trains.size() << "\n"
-            << "    |_ Average Acceleration (meter/square second)                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                       [](double total, const auto& train) {
-                                                                                                                           return total + train->averageAcceleration;
-                                                                                                                       })/this->trains.size() << "\n"
-            << "    |_ Travelled Distance (meters)                                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->travelledDistance;
-                                                                                                                                                })) << "\n"
-            << "    |_ Total Energy Consumed (KW.h)                                             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->cumEnergyStat;
-                                                                                                                                                })) << "\n"
-            << "        |_ Total Consumed (KW.h)                                                : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->totalEConsumed;
-                                                                                                                                                })) << "\n"
-            << "        |_ Total Regenerated (KW.h)                                             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->totalERegenerated;
-                                                                                                                                                })) << "\n"
-            << "        |_ Fuel Consumption:\n"
-            << "            |_ Total Fuel Consumed (litters)                                    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->getTrainConsumedTank();
-                                                                                                                                                })) << "\n"
-            << "            |_ Average Fuel Consumed per Net Torque (littersx10^3/ton.km)       : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total +
-                                                                                                                                                            (train->getTrainConsumedTank() * (double)1000.0);
-                                                                                                                                                }) /
-                                                                                                                                std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->getTrainTotalTorque();
-                                                                                                                                                })) << "\n"
-            << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + (train->getTrainConsumedTank() * (double)1000.0);
-                                                                                                                                                }) /
-                                                                                                                                std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& train) {
-                                                                                                                                                    return total + train->getCargoNetWeight();
-                                                                                                                                                })) << "\n"
-            << "        |_ Energy Consumption:\n"
-            << "            |_ Average Energy Consumption per Net Weight (KW.h/ton)             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                               [](double total, const auto& t) {
-                                                                                                                                                   return total + (t->cumEnergyStat);
-                                                                                                                                               }) /
-                                                                                                                                std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                                                    return total + (t->getCargoNetWeight());
-                                                                                                                                                                })) << "\n"
-            << "            |_ Average Energy Consumption per Net Torque (KW.hx10^3/ton.km)     : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total +
-                                                                                                                                            (t->totalEConsumed * (double) 1000.0);
-                                                                                                                                }) /
-                                                                                                                                std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                                    return total + t->getTrainTotalTorque();
-                                                                                                                                                })) << "\n"
-            << "        |_ Tank/Battery Status:\n"
-            << "            |_ Average Locomotives Tank Status (%)                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getAverageLocomotiveTankStatus() * (double)100.0);
-                                                                                                                                })/ (double)this->trains.size()) << "\n"
-            << "            |_ Average Locomotives Battery Status (%)                           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getAverageLocomotivesBatteryStatus() * (double)100.0);
-                                                                                                                                }) / (double)this->trains.size()) << "\n"
-            << "            |_ Average Tenders Tank Status (%)                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getAverageTendersTankStatus() * (double)100.0);
-                                                                                                                                }) / (double)this->trains.size()) << "\n"
-            << "            |_ Average Tenders Battery Status (%)                               : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->getAverageTendersBatteryStatus() * (double)100.0);
-                                                                                                                                }) / (double)this->trains.size()) << "\n"
+			<< "  |-> Train Performance:\n"
+			<< "    |_ Operating Time                                                           : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																															 [](double total, const auto& train) {
+																																 return total + train->tripTime;
+																															 })) << "\n"
+			<< "    |_ Average Speed (meter/second)                                             : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																													   [](double total, const auto& train) {
+																														   return total + train->averageSpeed;
+																													   })/this->trains.size() << "\n"
+			<< "    |_ Average Acceleration (meter/square second)                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																													   [](double total, const auto& train) {
+																														   return total + train->averageAcceleration;
+																													   })/this->trains.size() << "\n"
+			<< "    |_ Travelled Distance (meters)                                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->travelledDistance;
+																																				})) << "\n"
+			<< "    |_ Total Energy Consumed (KW.h)                                             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->cumEnergyStat;
+																																				})) << "\n"
+			<< "        |_ Total Consumed (KW.h)                                                : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->totalEConsumed;
+																																				})) << "\n"
+			<< "        |_ Total Regenerated (KW.h)                                             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->totalERegenerated;
+																																				})) << "\n"
+			<< "        |_ Fuel Consumption:\n"
+			<< "            |_ Total Fuel Consumed (litters)                                    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->getTrainConsumedTank();
+																																				})) << "\n"
+			<< "            |_ Average Fuel Consumed per Net Torque (littersx10^3/ton.km)       : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total +
+																																							(train->getTrainConsumedTank() * (double)1000.0);
+																																				}) /
+																																std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->getTrainTotalTorque();
+																																				})) << "\n"
+			<< "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + (train->getTrainConsumedTank() * (double)1000.0);
+																																				}) /
+																																std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& train) {
+																																					return total + train->getCargoNetWeight();
+																																				})) << "\n"
+			<< "        |_ Energy Consumption:\n"
+			<< "            |_ Average Energy Consumption per Net Weight (KW.h/ton)             : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																			   [](double total, const auto& t) {
+																																				   return total + (t->cumEnergyStat);
+																																			   }) /
+																																std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																								[](double total, const auto& t) {
+																																									return total + (t->getCargoNetWeight());
+																																								})) << "\n"
+			<< "            |_ Average Energy Consumption per Net Torque (KW.hx10^3/ton.km)     : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total +
+																																			(t->totalEConsumed * (double) 1000.0);
+																																}) /
+																																std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																				[](double total, const auto& t) {
+																																					return total + t->getTrainTotalTorque();
+																																				})) << "\n"
+			<< "        |_ Tank/Battery Status:\n"
+			<< "            |_ Average Locomotives Tank Status (%)                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getAverageLocomotiveTankStatus() * (double)100.0);
+																																})/ (double)this->trains.size()) << "\n"
+			<< "            |_ Average Locomotives Battery Status (%)                           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getAverageLocomotivesBatteryStatus() * (double)100.0);
+																																}) / (double)this->trains.size()) << "\n"
+			<< "            |_ Average Tenders Tank Status (%)                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getAverageTendersTankStatus() * (double)100.0);
+																																}) / (double)this->trains.size()) << "\n"
+			<< "            |_ Average Tenders Battery Status (%)                               : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->getAverageTendersBatteryStatus() * (double)100.0);
+																																}) / (double)this->trains.size()) << "\n"
 
-            << "  |-> Statistics:\n"
-            << "    |_ Average Delay Time To Each Link Speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                             [](double total, const auto& t) {
-                                                                                                                                 return total + (t->cumDelayTimeStat);
-                                                                                                                             }) / (double)this->trains.size()) << "\n"
-            << "    |_ Average Delay Time To Max Links speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                             [](double total, const auto& t) {
-                                                                                                                                 return total + (t->cumMaxDelayTimeStat);
-                                                                                                                             }) / (double)this->trains.size()) << "\n"
-            << "    |_ Average Stoppings                                                        : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                [](double total, const auto& t) {
-                                                                                                                                    return total + (t->cumStoppedStat);
-                                                                                                                                }) / (double)this->trains.size()) << "\n"
-            << "....................................................\n\n";
+			<< "  |-> Statistics:\n"
+			<< "    |_ Average Delay Time To Each Link Speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																															 [](double total, const auto& t) {
+																																 return total + (t->cumDelayTimeStat);
+																															 }) / (double)this->trains.size()) << "\n"
+			<< "    |_ Average Delay Time To Max Links speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																															 [](double total, const auto& t) {
+																																 return total + (t->cumMaxDelayTimeStat);
+																															 }) / (double)this->trains.size()) << "\n"
+			<< "    |_ Average Stoppings                                                        : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+																																[](double total, const auto& t) {
+																																	return total + (t->cumStoppedStat);
+																																}) / (double)this->trains.size()) << "\n"
+			<< "....................................................\n\n";
 
-    if (this->exportIndividualizedTrainsSummary) {
-        for (auto& t : this->trains) {
-            exportLine
-            << "+ TRAIN STATISTICS:\n"
-            << "  |-> Train Information:\n"
-            << "    |_ Train ID                                                                 : " << t->trainUserID << "\n"
-            << "    |_ Number of Locomotives/Cars                                               : " << t->nlocs << "/" << t->nCars << "\n"
-            << "    |_ Locomotives (Technology, count)                                          : " << t->LocTypeCount().toString() << "\n"
-            << "    |_ Operating Locomotives to End of Trip                                     : " << t->getActiveLocomotivesNumber() << "\n"
-            << "    |-> Cars Summary:\n"
-            << "      |_ Cargo Cars Count                                                       : " << t->carsTypes[TrainTypes::CarType::cargo].size() << "\n"
-            << "  |-> Route Information:\n"
-            << "    |_ Train Reached Destination                                                : " << (t->reachedDestination ? "true" : "false") << "\n"
-            << "    |_ Start Node                                                               : " << t->trainPathNodes.at(0)->userID << "\n"
-            << "    |_ Destination Node                                                         : " << t->trainPathNodes.back()->userID << "\n"
-            << "    |_ Train Total Path Length (meters)                                         : " << Utils::thousandSeparator(t->trainTotalPathLength) << "\n"
-            << "  |-> Train Performance:\n"
-            << "    |_ Operating Time                                                           : " << Utils::formatDuration(t->tripTime) << "\n"
-            << "    |_ Average Speed (meter/second)                                             : " << t->averageSpeed << "\n"
-            << "    |_ Average Acceleration (meter/square second)                               : " << t->averageAcceleration << "\n"
-            << "    |_ Travelled Distance (meters)                                              : " << Utils::thousandSeparator(t->travelledDistance) << "\n"
-            << "    |_ Total Energy Consumed (KW.h)                                             : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
-            << "        |_ Single-Train Trajectory Optimization Enabled                         : " << (t->optimize? "true": "false") << "\n"
-            << "        |_ Total Consumed (KW.h)                                                : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
-            << "        |_ Total Regenerated (KW.h)                                             : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
-            << "        |_ Total Fuel Consumed (litters)                                        : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
-            << "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      : " << Utils::thousandSeparator(t->getTrainConsumedTank()/t->getCargoNetWeight()) << "\n"
-            << "        |_ Total Energy Consumption per Torque (KW.h/ton.km)                    : " << Utils::thousandSeparator(t->totalEConsumed / (t->getTrainTotalTorque())) << "\n"
-            << "        |_ Total Energy Consumed by Region (Region:KW.h)                        : " << t->cumRegionalConsumedEnergyStat.toString() << "\n"
-            << "        |_ Average Locomotives Battery Status (%)                               : " << Utils::thousandSeparator(t->getAverageLocomotivesBatteryStatus() * 100.0) << "\n"
-            << "  |-> Moved Commodity:\n"
-            << "    |_ Total Moved Cargo (ton)                                                  : " << Utils::thousandSeparator(t->getCargoNetWeight()) << "\n"
-            << "    |_ Total Torque (ton.Km)                                                    : " << Utils::thousandSeparator(t->getTrainTotalTorque()) << "\n"
-            << "    |_ Average Energy Consumption per Ton (KW.h/ton)                            : " << Utils::thousandSeparator(t->cumEnergyStat / t->getCargoNetWeight()) << "\n"
-            << "  |-> Statistics:\n"
-            << "    |_ Total Delay Time To Each Link Speed                                      : " << Utils::formatDuration(t->cumDelayTimeStat) << "\n"
-            << "    |_ Total Delay Time To Max Links speed                                      : " << Utils::formatDuration(t->cumMaxDelayTimeStat) << "\n"
-            << "    |_ Total Stoppings                                                          : " << Utils::thousandSeparator(t->cumStoppedStat) << "\n"
-            << "  |-> Locomotives Details:\n";
-                // print the locomotives summary
-                int locI = 1;
-                for (auto &loc: t->locomotives){
-                    exportLine << "      |_ Locomotive Number                                                       : " << locI << "\n"
-                               << "        |_ Is Locomotive On                                                      : " << ((loc->isLocOn)? "true": "false") << "\n"
-                               << "        |_ Power Type                                                            : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
-                    if (TrainTypes::locomotiveBatteryOnly.exist(loc->powerType) ||
-                            TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        exportLine << "        |_ Battery Initial Charge (KW.h)                                         : " << Utils::thousandSeparator(loc->getBatteryInitialCharge()) << "\n"
-                                   << "        |_ Battery Current Charge (KW.h)                                         : " << Utils::thousandSeparator(loc->getBatteryCurrentCharge()) << "\n"
-                                   << "        |_ Battery Initial State of Charge (%)                                   : " << Utils::thousandSeparator(loc->getBatteryInitialCharge() / loc->getBatteryMaxCharge() * 100.0) << "\n"
-                                   << "        |_ Battery Current State of Charge (%)                                   : " << Utils::thousandSeparator(loc->getBatteryStateOfCharge() * 100.0) << "\n";
-                    }
-                    else if (TrainTypes::locomotiveTankOnly.exist(loc->powerType) ||
-                             TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        exportLine << "        |_ Tank Initial Capacity                                                 : " << Utils::thousandSeparator(loc->getTankInitialCapacity()) << "\n"
-                                   << "        |_ Tank Current Capacity                                                 : " << Utils::thousandSeparator(loc->getTankCurrentCapacity()) << "\n"
-                                   << "        |_ Tank Initial State of Capacity (%)                                    : " << Utils::thousandSeparator(loc->getTankInitialCapacity() / loc->getTankMaxCapacity() * 100.0) << "\n"
-                                   << "        |_ Tank Current State of Capacity (%)                                    : " << Utils::thousandSeparator(loc->getTankStateOfCapacity() * 100.0) << "\n";
-                    }
-                    locI ++;
-                }
-                // if we have tenders, print their summary
-                if (t->carsTypes[TrainTypes::CarType::cargo].size() != t->cars.size()) {
-                    exportLine << "    |-> Tenders Details:\n";
-                    int tenderI = 1;
-                    for (auto &car: t->cars){
-                        if (car->carType != TrainTypes::CarType::cargo) {
-                            exportLine << "      |_ Tender Number                                                           : " << tenderI << "\n"
-                                       << "        |_ Tender Type                                                           : " << TrainTypes::carTypeToStr(car->carType) << "\n";
-                            if (car->carType == TrainTypes::CarType::batteryTender){
-                                exportLine << "        |_ Battery Initial Charge                                                : " << Utils::thousandSeparator(car->getBatteryInitialCharge()) << "\n"
-                                           << "        |_ Battery Current Charge                                                : " << Utils::thousandSeparator(car->getBatteryCurrentCharge()) << "\n"
-                                           << "        |_ Battery Current State of Charge (%)                                   : " << Utils::thousandSeparator(car->getBatteryStateOfCharge()) << "\n";
-                            }
-                            else {
-                                exportLine << "        |_ Tank Initial Capacity                                                 : " << Utils::thousandSeparator(car->getTankInitialCapacity()) << "\n"
-                                           << "        |_ Tank Current Capacity                                                 : " << Utils::thousandSeparator(car->getTankCurrentCapacity()) << "\n"
-                                           << "        |_ Tank Current State of Capacity (%)                                    : " << Utils::thousandSeparator(car->getTankStateOfCapacity()) << "\n";
-                            }
-                            tenderI ++;
-                        }
-                    }
-                }
-                exportLine << "..............\n";
-        }
-    }
+	if (this->exportIndividualizedTrainsSummary) {
+		for (auto& t : this->trains) {
+			exportLine
+			<< "+ TRAIN STATISTICS:\n"
+			<< "  |-> Train Information:\n"
+			<< "    |_ Train ID                                                                 : " << t->trainUserID << "\n"
+			<< "    |_ Number of Locomotives/Cars                                               : " << t->nlocs << "/" << t->nCars << "\n"
+			<< "    |_ Locomotives (Technology, count)                                          : " << t->LocTypeCount().toString() << "\n"
+			<< "    |_ Operating Locomotives to End of Trip                                     : " << t->getActiveLocomotivesNumber() << "\n"
+			<< "    |-> Cars Summary:\n"
+			<< "      |_ Cargo Cars Count                                                       : " << t->carsTypes[TrainTypes::CarType::cargo].size() << "\n"
+			<< "  |-> Route Information:\n"
+			<< "    |_ Train Reached Destination                                                : " << (t->reachedDestination ? "true" : "false") << "\n"
+			<< "    |_ Start Node                                                               : " << t->trainPathNodes.at(0)->userID << "\n"
+			<< "    |_ Destination Node                                                         : " << t->trainPathNodes.back()->userID << "\n"
+			<< "    |_ Train Total Path Length (meters)                                         : " << Utils::thousandSeparator(t->trainTotalPathLength) << "\n"
+			<< "  |-> Train Performance:\n"
+			<< "    |_ Operating Time                                                           : " << Utils::formatDuration(t->tripTime) << "\n"
+			<< "    |_ Average Speed (meter/second)                                             : " << t->averageSpeed << "\n"
+			<< "    |_ Average Acceleration (meter/square second)                               : " << t->averageAcceleration << "\n"
+			<< "    |_ Travelled Distance (meters)                                              : " << Utils::thousandSeparator(t->travelledDistance) << "\n"
+			<< "    |_ Total Energy Consumed (KW.h)                                             : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
+			<< "        |_ Single-Train Trajectory Optimization Enabled                         : " << (t->optimize? "true": "false") << "\n"
+			<< "        |_ Total Consumed (KW.h)                                                : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
+			<< "        |_ Total Regenerated (KW.h)                                             : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
+			<< "        |_ Total Fuel Consumed (litters)                                        : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
+			<< "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      : " << Utils::thousandSeparator(t->getTrainConsumedTank()/t->getCargoNetWeight()) << "\n"
+			<< "        |_ Total Energy Consumption per Torque (KW.h/ton.km)                    : " << Utils::thousandSeparator(t->totalEConsumed / (t->getTrainTotalTorque())) << "\n"
+			<< "        |_ Total Energy Consumed by Region (Region:KW.h)                        : " << t->cumRegionalConsumedEnergyStat.toString() << "\n"
+			<< "        |_ Average Locomotives Battery Status (%)                               : " << Utils::thousandSeparator(t->getAverageLocomotivesBatteryStatus() * 100.0) << "\n"
+			<< "  |-> Moved Commodity:\n"
+			<< "    |_ Total Moved Cargo (ton)                                                  : " << Utils::thousandSeparator(t->getCargoNetWeight()) << "\n"
+			<< "    |_ Total Torque (ton.Km)                                                    : " << Utils::thousandSeparator(t->getTrainTotalTorque()) << "\n"
+			<< "    |_ Average Energy Consumption per Ton (KW.h/ton)                            : " << Utils::thousandSeparator(t->cumEnergyStat / t->getCargoNetWeight()) << "\n"
+			<< "  |-> Statistics:\n"
+			<< "    |_ Total Delay Time To Each Link Speed                                      : " << Utils::formatDuration(t->cumDelayTimeStat) << "\n"
+			<< "    |_ Total Delay Time To Max Links speed                                      : " << Utils::formatDuration(t->cumMaxDelayTimeStat) << "\n"
+			<< "    |_ Total Stoppings                                                          : " << Utils::thousandSeparator(t->cumStoppedStat) << "\n"
+			<< "  |-> Locomotives Details:\n";
+				// print the locomotives summary
+				int locI = 1;
+				for (auto &loc: t->locomotives){
+					exportLine << "      |_ Locomotive Number                                                       : " << locI << "\n"
+							   << "        |_ Is Locomotive On                                                      : " << ((loc->isLocOn)? "true": "false") << "\n"
+							   << "        |_ Power Type                                                            : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
+					if (TrainTypes::locomotiveBatteryOnly.exist(loc->powerType) ||
+							TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
+						exportLine << "        |_ Battery Initial Charge (KW.h)                                         : " << Utils::thousandSeparator(loc->getBatteryInitialCharge()) << "\n"
+								   << "        |_ Battery Current Charge (KW.h)                                         : " << Utils::thousandSeparator(loc->getBatteryCurrentCharge()) << "\n"
+								   << "        |_ Battery Initial State of Charge (%)                                   : " << Utils::thousandSeparator(loc->getBatteryInitialCharge() / loc->getBatteryMaxCharge() * 100.0) << "\n"
+								   << "        |_ Battery Current State of Charge (%)                                   : " << Utils::thousandSeparator(loc->getBatteryStateOfCharge() * 100.0) << "\n";
+					}
+					else if (TrainTypes::locomotiveTankOnly.exist(loc->powerType) ||
+							 TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
+						exportLine << "        |_ Tank Initial Capacity                                                 : " << Utils::thousandSeparator(loc->getTankInitialCapacity()) << "\n"
+								   << "        |_ Tank Current Capacity                                                 : " << Utils::thousandSeparator(loc->getTankCurrentCapacity()) << "\n"
+								   << "        |_ Tank Initial State of Capacity (%)                                    : " << Utils::thousandSeparator(loc->getTankInitialCapacity() / loc->getTankMaxCapacity() * 100.0) << "\n"
+								   << "        |_ Tank Current State of Capacity (%)                                    : " << Utils::thousandSeparator(loc->getTankStateOfCapacity() * 100.0) << "\n";
+					}
+					locI ++;
+				}
+				// if we have tenders, print their summary
+				if (t->carsTypes[TrainTypes::CarType::cargo].size() != t->cars.size()) {
+					exportLine << "    |-> Tenders Details:\n";
+					int tenderI = 1;
+					for (auto &car: t->cars){
+						if (car->carType != TrainTypes::CarType::cargo) {
+							exportLine << "      |_ Tender Number                                                           : " << tenderI << "\n"
+									   << "        |_ Tender Type                                                           : " << TrainTypes::carTypeToStr(car->carType) << "\n";
+							if (car->carType == TrainTypes::CarType::batteryTender){
+								exportLine << "        |_ Battery Initial Charge                                                : " << Utils::thousandSeparator(car->getBatteryInitialCharge()) << "\n"
+										   << "        |_ Battery Current Charge                                                : " << Utils::thousandSeparator(car->getBatteryCurrentCharge()) << "\n"
+										   << "        |_ Battery Current State of Charge (%)                                   : " << Utils::thousandSeparator(car->getBatteryStateOfCharge()) << "\n";
+							}
+							else {
+								exportLine << "        |_ Tank Initial Capacity                                                 : " << Utils::thousandSeparator(car->getTankInitialCapacity()) << "\n"
+										   << "        |_ Tank Current Capacity                                                 : " << Utils::thousandSeparator(car->getTankCurrentCapacity()) << "\n"
+										   << "        |_ Tank Current State of Capacity (%)                                    : " << Utils::thousandSeparator(car->getTankStateOfCapacity()) << "\n";
+							}
+							tenderI ++;
+						}
+					}
+				}
+				exportLine << "..............\n";
+		}
+	}
 
-    exportLine.imbue(locale());
-    // setup the summary file
-    this->openSummaryFile();
-    this->summaryFile << exportLine.str();
+	exportLine.imbue(locale());
+	// setup the summary file
+	this->openSummaryFile();
+	this->summaryFile << exportLine.str();
 // ##################################################################
 // #                       end: summary file                      #
 // ##################################################################
@@ -1206,10 +1211,10 @@ bool Simulator::checkTrainsCollision() {
 	for (auto &t : comb) {
 		if (t.first->loaded && t.second->loaded) {
 			if (this->network->twoLinesIntersect(t.first->startEndPoints[0], t.first->startEndPoints[1],
-                                                 t.second->startEndPoints[0], t.second->startEndPoints[1])
-                    && (t.second->currentLinks.hasCommonElement(t.first->currentLinks))
-                    && (!t.first->reachedDestination && !t.second->reachedDestination)
-                    && (this->timeStep > t.first->trainStartTime && this->timeStep > t.second->trainStartTime)) {
+												 t.second->startEndPoints[0], t.second->startEndPoints[1])
+					&& (t.second->currentLinks.hasCommonElement(t.first->currentLinks))
+					&& (!t.first->reachedDestination && !t.second->reachedDestination)
+					&& (this->timeStep > t.first->trainStartTime && this->timeStep > t.second->trainStartTime)) {
 				return true;
 			}
 		}
@@ -1221,26 +1226,26 @@ bool Simulator::checkTrainsCollision() {
 
 void Simulator::setTrainSimulatorPath() {
 	for (std::shared_ptr <Train>& t : this->trains) {
-        // set the train path ids to the simulator ids instead of the users ids
+		// set the train path ids to the simulator ids instead of the users ids
 		t->trainPath = this->network->getSimulatorTrainPath(t->trainPath);
 
-        if (t->trainPath.size() == 2) {
-            // check if the path is only 2 nodes
-            auto nodes= this->network->getNodeByID(t->trainPath[0])->linkTo.get_keys();
-            auto targetN = this->network->getNodeByID(t->trainPath[1]);
-            for (auto & n: nodes){
-                if (n == targetN) {
-                    continue;
-                }
-            }
-            // if the path is more than 2 nodes but the user wants the simulator to decide the path.
-            Vector<std::shared_ptr<NetNode>> nPath = this->network->shortestPathSearch(t->trainPath[0], t->trainPath[1]).first;
-            Vector<int> path;
-            for (auto &n: nPath) {
-                path.push_back(n->id);
-            }
-            t->setTrainPath(path);
-        }
+		if (t->trainPath.size() == 2) {
+			// check if the path is only 2 nodes
+			auto nodes= this->network->getNodeByID(t->trainPath[0])->linkTo.get_keys();
+			auto targetN = this->network->getNodeByID(t->trainPath[1]);
+			for (auto & n: nodes){
+				if (n == targetN) {
+					continue;
+				}
+			}
+			// if the path is more than 2 nodes but the user wants the simulator to decide the path.
+			Vector<std::shared_ptr<NetNode>> nPath = this->network->shortestPathSearch(t->trainPath[0], t->trainPath[1]).first;
+			Vector<int> path;
+			for (auto &n: nPath) {
+				path.push_back(n->id);
+			}
+			t->setTrainPath(path);
+		}
 	}
 
 }
@@ -1267,48 +1272,48 @@ void Simulator::turnOnAllSignals() {
 }
 
 void Simulator::turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals) {
-    if (networkSignals.empty()) { return; }
-    for (auto& networkSignal : networkSignals) {
-        networkSignal->isGreen = false;
-    }
+	if (networkSignals.empty()) { return; }
+	for (auto& networkSignal : networkSignals) {
+		networkSignal->isGreen = false;
+	}
 }
 
 void Simulator::runSignalsforTrains() {
 	this->turnOnAllSignals();
 
-    for (auto& train : this->trains) {
-        if (!train->loaded || train->reachedDestination) { continue; }
+	for (auto& train : this->trains) {
+		if (!train->loaded || train->reachedDestination) { continue; }
 
-        std::shared_ptr<NetSignal> nextSignal = this->getClosestSignal(train);
-        if (nextSignal == nullptr) { continue; }
+		std::shared_ptr<NetSignal> nextSignal = this->getClosestSignal(train);
+		if (nextSignal == nullptr) { continue; }
 
-        double d = this->network->getDistanceToSpecificNodeByTravelledDistance(train,
-            train->travelledDistance, nextSignal->currentNode.lock()->id);
+		double d = this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+			train->travelledDistance, nextSignal->currentNode.lock()->id);
 
-        std::shared_ptr<NetSignalGroupController> sg = nullptr;
-        if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextSignal->currentNode))) {
-            sg = this->signalsGroups.at(std::shared_ptr<NetNode>(nextSignal->currentNode));
-        }
-        if (sg == nullptr) { continue; }
+		std::shared_ptr<NetSignalGroupController> sg = nullptr;
+		if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextSignal->currentNode))) {
+			sg = this->signalsGroups.at(std::shared_ptr<NetNode>(nextSignal->currentNode));
+		}
+		if (sg == nullptr) { continue; }
 
-        Vector<std::shared_ptr<NetLink>> lockedLinks = sg->confinedLinks;
-        if (lockedLinks.size() == 0 || ! this->checkLinksAreFree(lockedLinks)) {
-            sg->updateTimeStep(this->simulationTime);
-        }
+		Vector<std::shared_ptr<NetLink>> lockedLinks = sg->confinedLinks;
+		if (lockedLinks.size() == 0 || ! this->checkLinksAreFree(lockedLinks)) {
+			sg->updateTimeStep(this->simulationTime);
+		}
 
-        if ((d <= nextSignal->proximityToActivate) || (this->checkTrainOnLinks(train, lockedLinks))) {
+		if ((d <= nextSignal->proximityToActivate) || (this->checkTrainOnLinks(train, lockedLinks))) {
 
-            Vector<std::shared_ptr<NetSignal>> sameDirSignals =
-                    this->getSignalsInSameDirection(train, sg->networkSignalsGroup);
+			Vector<std::shared_ptr<NetSignal>> sameDirSignals =
+					this->getSignalsInSameDirection(train, sg->networkSignalsGroup);
 
-            sg->sendPassRequestToControlTo(nextSignal, this->simulationTime, sameDirSignals);
+			sg->sendPassRequestToControlTo(nextSignal, this->simulationTime, sameDirSignals);
 
-            Vector<std::shared_ptr<NetSignal>> otherDirSignals =
-                    sg->getFeedback().second;
-            this->turnOffSignal(otherDirSignals);
+			Vector<std::shared_ptr<NetSignal>> otherDirSignals =
+					sg->getFeedback().second;
+			this->turnOffSignal(otherDirSignals);
 
-        }
-    }
+		}
+	}
 }
 
 Vector<std::shared_ptr<NetSignal>> Simulator::getSignalsInSameDirection(std::shared_ptr<Train>& train, 
@@ -1330,9 +1335,9 @@ Vector<std::shared_ptr<NetSignal>> Simulator::getSignalsInSameDirection(std::sha
 
 bool Simulator::checkTrainOnLinks(std::shared_ptr<Train> &train, Vector<std::shared_ptr<NetLink>>& links) {
 	if (links.empty()) { return false; }
-    std::set<std::shared_ptr<NetLink>> currenttrainLinks = getAccurateTrainCurrentLink(train);
-    if (currenttrainLinks.empty()) { return false; }
-    for (auto& link : currenttrainLinks) {
+	std::set<std::shared_ptr<NetLink>> currenttrainLinks = getAccurateTrainCurrentLink(train);
+	if (currenttrainLinks.empty()) { return false; }
+	for (auto& link : currenttrainLinks) {
 		if (links.exist(link)) { return true; }
 	}
 	return false;
@@ -1367,7 +1372,7 @@ std::shared_ptr<NetSignal> Simulator::getClosestSignal(std::shared_ptr<Train>& t
 			for (int j = 0; j < networkSignals.size(); j++) {
 				if (train->trainPathNodes.exist(std::shared_ptr<NetNode>(networkSignals.at(j)->previousNode))) {
 
-                    if (train->trainPath.index(networkSignals.at(j)->currentNode.lock()->id) >
+					if (train->trainPath.index(networkSignals.at(j)->currentNode.lock()->id) >
 						(train->trainPath.index(networkSignals.at(j)->previousNode.lock()->id))) {
 						return networkSignals.at(j);
 					}

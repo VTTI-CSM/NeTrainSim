@@ -1,6 +1,5 @@
 /**
- * @file	C:\Users\Ahmed\OneDrive - Virginia
- * 			Tech\03.Work\02.VTTI\02.ResearchWork\01.TrainModelling\02.Code\00.CPP\NeTrainSim\NeTrainSim\src\util\Vector.h.
+ * @file	~\NeTrainSim\src\util\Vector.h.
  *
  * Declares the vector class
  */
