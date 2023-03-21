@@ -1,0 +1,25 @@
+var class_net_link =
+[
+    [ "NetLink", "d8/d2d/class_net_link.html#adf50d295e37c90d5ccd9ae1702db4698", null ],
+    [ "updateLinksScaleFreeSpeed", "d8/d2d/class_net_link.html#a48a90919209d5bde62eaa1080a6f163c", null ],
+    [ "updateLinksScaleLength", "d8/d2d/class_net_link.html#aae6309a90838b6130bdb104a5dd2b366", null ],
+    [ "catenaryCumConsumedEnergy", "d8/d2d/class_net_link.html#a1d676a1dfc0d95e55fcc32b2ad73d203", null ],
+    [ "catenaryCumRegeneratedEnergy", "d8/d2d/class_net_link.html#a9a392dd0c3c04a494f750428bd308447", null ],
+    [ "cost", "d8/d2d/class_net_link.html#ae2bb4738b8b2e575259f9289cb04f92e", null ],
+    [ "currentTrains", "d8/d2d/class_net_link.html#a954b241bb4dfc77d288c15edb31cb9fa", null ],
+    [ "curvature", "d8/d2d/class_net_link.html#a0868d93b446d56394fa7321570bd9879", null ],
+    [ "direction", "d8/d2d/class_net_link.html#ae1bb2c56f9f416c0f3a79bba4be19ad8", null ],
+    [ "freeFlowSpeed", "d8/d2d/class_net_link.html#a2ec0d4a5e27bff0c9104c91ace41188c", null ],
+    [ "fromLoc", "d8/d2d/class_net_link.html#a2159346f9695c9dd34235b32ba55d35c", null ],
+    [ "grade", "d8/d2d/class_net_link.html#aee00749932ac5f1409681e6828721817", null ],
+    [ "hasCatenary", "d8/d2d/class_net_link.html#a076f9feb7fd7c579c7c9b9a9620561e8", null ],
+    [ "id", "d8/d2d/class_net_link.html#aaf6dd053f23acb76b1521112656d5bda", null ],
+    [ "length", "d8/d2d/class_net_link.html#a71b7e6b560502e660938d7a3132bdaf3", null ],
+    [ "linksScaleFreeSpeed", "d8/d2d/class_net_link.html#a24d1b577f1e91fce08eb6fc0a84d66de", null ],
+    [ "linksScaleLength", "d8/d2d/class_net_link.html#a5c21bdc2976f05df050be75df359753f", null ],
+    [ "region", "d8/d2d/class_net_link.html#a58a8c49c8dda8467670140074c510564", null ],
+    [ "speedVariation", "d8/d2d/class_net_link.html#a8e37c379126a4dcc80a1cae80d914fd1", null ],
+    [ "toLoc", "d8/d2d/class_net_link.html#a654a0889894197c415301f6209541d6d", null ],
+    [ "trafficSignalNo", "d8/d2d/class_net_link.html#afc7764300ec902750a107c337e435bfd", null ],
+    [ "userID", "d8/d2d/class_net_link.html#aa8003dcf1c11b4d0ea523b5dc34f771e", null ]
+];

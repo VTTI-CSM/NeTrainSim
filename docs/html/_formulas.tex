@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{ifthen}
+\usepackage{epsfig}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{newunicodechar}
+  \newunicodechar{⁻}{${}^{-}$}% Superscript minus
+  \newunicodechar{²}{${}^{2}$}% Superscript two
+  \newunicodechar{³}{${}^{3}$}% Superscript three
+
+\pagestyle{empty}
+\begin{document}
+\begin{eqnarray*}
+Resistance = (1.5 + \frac{18}{axileWeight} + 0.03 * speed + \frac{frontalArea * dragCoef*
+speed^2}{vehicleWeight}) * totalWeight + 20 * vehicleWeight (trackGrade + 0.04 * curvature)\\
+\end{eqnarray*}
+\pagebreak
+
+\end{document}

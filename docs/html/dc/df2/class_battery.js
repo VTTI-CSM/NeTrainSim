@@ -1,0 +1,25 @@
+var class_battery =
+[
+    [ "consumeBattery", "dc/df2/class_battery.html#ad7ab120d717e1df86f8f11898400a4c9", null ],
+    [ "getBatteryCRate", "dc/df2/class_battery.html#ac9080904d869356e0d6607e8fbb69720", null ],
+    [ "getBatteryCurrentCharge", "dc/df2/class_battery.html#a6a253846630704574fe7ffeb4ca80e93", null ],
+    [ "getBatteryDOD", "dc/df2/class_battery.html#a0ac58b06a673893d8a542b64afaf96a3", null ],
+    [ "getBatteryInitialCharge", "dc/df2/class_battery.html#adfddf26b1e97e22ee43c6c9684a42be3", null ],
+    [ "getBatteryMaxCharge", "dc/df2/class_battery.html#a9f351bd5656a89157c019a6fce19d548", null ],
+    [ "getBatteryMaxDischarge", "dc/df2/class_battery.html#ab5927b896e9bced6221e53983889605b", null ],
+    [ "getBatteryMaxRecharge", "dc/df2/class_battery.html#a52237c0121fe9ce18fea9f551640d2ef", null ],
+    [ "getBatteryRechargeSOCLowerBound", "dc/df2/class_battery.html#ab6409c7e7c3ce9fab818291da03c5268", null ],
+    [ "getBatteryRechargeSOCUpperBound", "dc/df2/class_battery.html#a09e02958dbbe290add0356eab2bb8639", null ],
+    [ "getBatteryStateOfCharge", "dc/df2/class_battery.html#a873989befaab8bf674ab8849430730d9", null ],
+    [ "isBatteryDrainable", "dc/df2/class_battery.html#a395f63faac3084a97c7997b67c9ec1c0", null ],
+    [ "isBatteryRechargable", "dc/df2/class_battery.html#aac00bb30b4870adb3872d975815c2fb4", null ],
+    [ "isRechargeRequired", "dc/df2/class_battery.html#a741f0f8641faa43bc967e742ff445661", null ],
+    [ "rechargeBattery", "dc/df2/class_battery.html#aae8e79ed74906acb9d3a4d9263417510", null ],
+    [ "setBattery", "dc/df2/class_battery.html#a06c01fb09d64fdd9a364a413c829bd92", null ],
+    [ "setBatteryCRate", "dc/df2/class_battery.html#a39c9943d69a8367180a2053962909eb3", null ],
+    [ "setBatteryDOD", "dc/df2/class_battery.html#a71d6622e729c52a0102eaaf1c4010d1b", null ],
+    [ "setBatteryInitialCharge", "dc/df2/class_battery.html#af02104660afe339edfe4e003e275e8e7", null ],
+    [ "setBatteryMaxCharge", "dc/df2/class_battery.html#a344363a6b5558aa8331ba3227396ee62", null ],
+    [ "setBatteryRechargeSOCLowerBound", "dc/df2/class_battery.html#aad09351df82896aaac9d653e95ceffc2", null ],
+    [ "setBatteryRechargeSOCUpperBound", "dc/df2/class_battery.html#a6b8815ffc4de5af4decf6596c74232f5", null ]
+];
