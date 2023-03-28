@@ -42,6 +42,10 @@ using namespace std;
  * @date	2/28/2023
  */
 class Train {
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
+
 private:
     /** Holds the number of trains in the simulator. */
     static unsigned int NumberOfTrainsInSimulator;

@@ -1,6 +1,6 @@
 //
 // Created by Ahmed Aredah
-// Version 0.1
+// Version 0.0.1
 //
 
 #ifndef NeTrainSim_Car_h
@@ -15,12 +15,21 @@
 using namespace std;
 
 /**
- * A car.
+ * defines a rail car. this class inherits the TrainComponent class
+ *
+ * @details The car does not provide power to the train unlike the locomtotive.
+ *          Cars only cary either commodities or fuel only. if it is fuel tender,
+ *          it can provide power to the locomotive once the locomotive's stored
+ *          power is low. In that case, the car losses weight by the fuel consumption.
  *
  * @author	Ahmed
  * @date	2/14/2023
  */
 class Car : public TrainComponent {
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
+
 private:
 	/** (Immutable) the default car name */
 	inline static const  string DefaultCarName = "Railcar";
@@ -31,35 +40,24 @@ public:
 
 
 public:
-
-	/**
-	 * Gets cargo net weight
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @returns	The cargo net weight.
-	 */
-	double getCargoNetWeight();
-
 	/**
 	 * Constructor
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 *
-	 * @param 	carLength_m				  	The car length m.
+     * @param 	carLength_m				  	The car length in meters.
 	 * @param 	carDragCoef				  	The car drag coef.
-	 * @param 	carFrontalArea_sqm		  	The car frontal area sqm.
-	 * @param 	carEmptyWeight_t		  	The car empty weight.
-	 * @param 	carCurrentWeight_t		  	The car current weight.
+     * @param 	carFrontalArea_sqm		  	The car frontal area in square meters.
+     * @param 	carEmptyWeight_t		  	The car empty weight in ton.
+     * @param 	carCurrentWeight_t		  	The car current weight in ton.
 	 * @param 	carNoOfAxiles			  	The car no of axiles.
 	 * @param 	carType					  	Type of the car.
-	 * @param 	auxiliaryPower_kw		  	(Optional) The auxiliary power kw.
-	 * @param 	batteryMaxCapacity_kwh	  	(Optional) The battery maximum capacity kwh.
-	 * @param 	batteryInitialCharge_perc 	(Optional) The battery initial charge perc.
-	 * @param 	tenderMaxCapacity_kg_l	  	(Optional) The tender maximum capacity kilograms l.
-	 * @param 	tenderInitialCapacity_perc	(Optional) The tender initial capacity perc.
+     * @param 	auxiliaryPower_kw		  	(Optional) The auxiliary power in kw. Default is 0.0.
+     * @param 	batteryMaxCapacity_kwh	  	(Optional) The battery maximum capacity in kwh. Default is 10,000.
+     * @param 	batteryInitialCharge_perc 	(Optional) The battery initial charge percentage. Default is 0.9.
+     * @param 	tenderMaxCapacity_kg_l	  	(Optional) The tender maximum capacity kilograms or liters.
+     * @param 	tenderInitialCapacity_perc	(Optional) The tender initial capacity perc. Default is 0.9.
 	 * @param 	carName					  	(Optional) Name of the car.
 	 */
 	Car(double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t,
@@ -72,33 +70,51 @@ public:
 		std::string carName = DefaultCarName
 		);
 
+
+
+    /**
+     * Gets cargo net weight
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @returns	The cargo net weight in ton.
+     */
+    double getCargoNetWeight();
+
+
 	/**
 	 * @brief setCarCurrentWeight
-	 * @param newCurrentWeight
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param newCurrentWeight  is the new gross weight of the car, this weight cannot be less
+     *                          than the light weight of the car.
 	 */
 	void setCarCurrentWeight(double newCurrentWeight);
 
 	/**
-	 * Gets a resistance
+     * Gets the resistance this car is contributing to the whole train.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	trainSpeed	The train speed.
+     * @param 	trainSpeed	The train speed in m/s.
 	 *
-	 * @returns	The resistance.
+     * @returns	The car resistance in Newton.
 	 */
 	double getResistance(double trainSpeed) override;
 
 	/**
-	 * Gets energy consumption
+     * Gets energy consumption of the car (in case there is auxiliary power). otherwise it returns 0.0
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 *
-	 * @param [in,out]	timeStep	The time step.
+     * @param [in,out]	timeStep	The time step of the simulator in seconds.
 	 *
-	 * @returns	The energy consumption.
+     * @returns	The energy consumption in kWH.
 	 */
 	double getEnergyConsumption(double &timeStep);
 

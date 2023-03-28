@@ -3,6 +3,10 @@
 
 
 class Tank {
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
+
 private:
     /** Fuel cell variables if other fuel types and battery tender max capacity */
     double tankMaxCapacity;

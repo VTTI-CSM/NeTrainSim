@@ -1,5 +1,6 @@
 //
-// Created by Ahmed Aredah Version 0.1.
+// Created by Ahmed Aredah
+// Version 0.1.
 //
 
 #ifndef NeTrainSim_TrainComponent_h
@@ -16,16 +17,20 @@
 using namespace std;
 
 /**
- * A train component base class.
+ * Defines a train component base class. The train component could be a railcar or a locomotive.
  *
  * @author	Ahmed
  * @date	2/14/2023
  */
 class TrainComponent : public Battery, public Tank{
 public:
-	/** The name of the car */
+
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
+    /** The name of the vehicle */
 	std::string name;
-	/** Length of the vehicle */
+    /** Length of the vehicle in meter*/
 	double length;
 	/** The current curvature the vehicle is experiencing */
 	double trackCurvature;
@@ -35,46 +40,34 @@ public:
 	double dragCoef;
 	/** The total frontal area of the vehicle for the aerodynamics resistance */
 	double frontalArea;
-	/** The weight of the vehicle when the train is travelling */
+    /** The gross weight of the vehicle when the train is travelling */
 	double currentWeight;
-	/** The weight of the vehicle when the train is travelling */
+    /** The light weight of the vehicle when the train is travelling */
 	double emptyWeight;
 	/** The number of axiles the car has */
 	int noOfAxiles;
 	/** Auxiliary power */
 	double auxiliaryPower;
 
-//	/** Fuel cell variables if other fuel types and battery tender max capacity */
-//	double batteryMaxCharge;
-//	/** Tender initial capacity */
-//	double batteryInitialCharge;
-//	/** Tender current capacity */
-//	double batteryCurrentCharge;
-//	/** Tender fuel cell state */
-//	double batteryStateOfCharge;
-
-//	/** Fuel cell variables if other fuel types and battery tender max capacity */
-//	double tankMaxCapacity;
-//	/** Tender initial capacity */
-//	double tankInitialCapacity;
-//	/** Tender current capacity */
-//	double tankCurrentCapacity;
-//	/** Tender fuel cell state */
-//	double tankStateOfCapacity;
-
-
-	/** The amount of energy consumed */
+    /** The amount of energy consumed in kwh*/
 	double energyConsumed = 0.0;
-	/** The amount of cummulative energy consumed */
+    /** The amount of cummulative energy consumed in kwh*/
 	double cumEnergyConsumed = 0.0;
-	/** The amount of energy regenerated */
+    /** The amount of energy regenerated in kwh*/
 	double energyRegenerated = 0.0;
-	/** The amount of cummulative energy regenerated */
+    /** The amount of cummulative energy regenerated in kwh*/
 	double cumEnergyRegenerated = 0.0;
-
 
 	/** Holds the current link this vehicle is on. */
 	std::shared_ptr<NetLink> hostLink;
+
+
+    /***********************************************
+    *                   Methods                    *
+    ************************************************/
+    // no need for a constructor or deconstractor
+
+
 	/**
 	 * \brief Gets the resistance applied on only this vehicle.
 	 * 
@@ -106,16 +99,24 @@ public:
 
 
 	/**
-	 * @brief setCurrentWeight
-	 * @param newCurrentWeight
+     * @brief sets the current weight of the vehicle
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
+     * @param newCurrentWeight  is the new weight of the vehicle in ton
 	 */
 	virtual void setCurrentWeight(double newCurrentWeight);
 
 	/**
 	 * @brief consume the locomotive diesel fuel.
-	 * @param EC_kwh
-	 * @param dieselConversionFactor
-	 * @param dieselDensity
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
+     * @param EC_kwh                    is the Energy consumption in kWH
+     * @param dieselConversionFactor    is the diesel conversion factor from kWH to liters
+     * @param dieselDensity             is the diesel density kg/liter
 	 * @return
 	 */
 	virtual std::pair<bool, double> consumeFuelDiesel(double EC_kwh,
@@ -124,9 +125,13 @@ public:
 
 	/**
 	 * @brief consume the locomotive bio diesel fuel.
-	 * @param EC_kwh
-	 * @param bioDieselConversionFactor
-	 * @param bioDieselDensity
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
+     * @param EC_kwh                        is the Energy consumption in kWH
+     * @param bioDieselConversionFactor     is the diesel conversion factor from kWH to liters
+     * @param bioDieselDensity              is the diesel density kg/liter
 	 * @return
 	 */
 	virtual std::pair<bool, double> consumeFuelBioDiesel(double EC_kwh,
@@ -135,7 +140,10 @@ public:
 
 	/**
 	 * @brief consume any source of electricity in the locomotive; either the catenary or the batteries.
-	 *
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
 	 * @details the function consumes the electricity stored in the locomotive batteries or provided
 	 * by the catenary if available.
 	 * For battery:
@@ -147,14 +155,19 @@ public:
 	 * For Catenary:
 	 * It consumes the whole amount of energy required from the catenary.
 	 *
-	 * @param EC_kwh        is the energy required for the locomotive
+     * @param EC_kwh        is the energy required for the locomotive to keep running
 	 * @param minBatterySOC is the battery min state of charge, which below it, the battery is considered empty.
-	 * @return
+     * @return std::pair<bool, double> bool: no energy consumed and
+     *                                 double: rest of energy that needs to be consumed.
 	 */
 	virtual std::pair<bool, double> consumeElectricity(double timeStep, double EC_kwh);
 
 	/**
 	 * @brief consume the locomotive hydrogen fuel.
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
 	 * @param EC_kwh
 	 * @param hydrogenConversionFactor
 	 * @return
@@ -164,6 +177,10 @@ public:
 														double hydrogenDensity);
 	/**
 	 * @brief refill the locomtoive battery
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
 	 * @param timeStep
 	 * @param EC_kwh
 	 * @return
@@ -172,6 +189,10 @@ public:
 
 	/**
 	 * @brief Rechage catenary and grid system if they are available
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
 	 * @param EC_kwh
 	 * @return
 	 */
@@ -245,13 +266,7 @@ public:
 	 */
 	friend ostream& operator<<(ostream& ostr, TrainComponent& stud);
 
-	/**
-	 * @brief consume the locomotive electric energy
-	 * @param EC_kwh
-	 * @return
-	 */
 private:
-	//virtual bool consumeBattery(double EC_kwh, double minBatterySOC);
 };
 
 /**
