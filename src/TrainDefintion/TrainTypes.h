@@ -38,7 +38,6 @@ namespace TrainTypes {
     /** The car non rechargable technologies */
     static const Vector<CarType> carNonRechargableTechnologies = {
         CarType::dieselTender,
-        CarType::batteryTender,
         CarType::hydrogenTender,
         CarType::biodieselTender
     };
@@ -207,13 +206,13 @@ namespace TrainTypes {
 
     /** The power type array[] */
     static const PowerType powerTypeArray[] = {
-    PowerType::diesel,
-    PowerType::electric,
-    PowerType::biodiesel,
-    PowerType::dieselElectric,   // all locomotives now are diesel
-    PowerType::dieselHybrid,
-    PowerType::hydrogenHybrid,
-    PowerType::biodieselHybrid
+    PowerType::diesel, // 0
+    PowerType::electric, // 1
+    PowerType::biodiesel,  //2
+    PowerType::dieselElectric, //3  // all locomotives now are diesel
+    PowerType::dieselHybrid,  //4
+    PowerType::hydrogenHybrid, //5
+    PowerType::biodieselHybrid //6
     };
 
     /** The power type map */
