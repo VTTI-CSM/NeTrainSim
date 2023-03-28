@@ -62,7 +62,7 @@ void Simulator::setExportIndividualizedTrainsSummary(bool newExportIndividualize
 	exportIndividualizedTrainsSummary = newExportIndividualizedTrainsSummary;
 }
 
-Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains) {
+Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains, double simulatorTimeStep) {
 	// variables initialization
 	this->network = &theNetwork;
 	this->trains = networkTrains;
@@ -71,7 +71,7 @@ Simulator::Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> network
 	this->setTrainsPathNodes();
 	this->setTrainPathLength();
 	this->simulationEndTime = DefaultEndTime;
-	this->timeStep = DefaultTimeStep;
+    this->timeStep = simulatorTimeStep;
 	this->simulationTime = 0.0;
 	this->progress = 0.0;
 	if (this->simulationEndTime == 0.0) {
