@@ -31,7 +31,7 @@ var searchData=
   ['getdistancebetweentwonodes_28',['getDistanceBetweenTwoNodes',['../de/de1/class_network.html#a816eaa4173132e272f1b00627a11ba8d',1,'Network']]],
   ['getdistancebytwocoordinates_29',['getDistanceByTwoCoordinates',['../de/de1/class_network.html#aa244bbd3cf1f26139e12acc7ff4b4e15',1,'Network']]],
   ['getdistancetospecificnodebytravelleddistance_30',['getDistanceToSpecificNodeByTravelledDistance',['../de/de1/class_network.html#a9c995c7e89352326e7e20c29f68b0f5a',1,'Network']]],
-  ['getenergyconsumption_31',['getEnergyConsumption',['../d6/d44/class_car.html#a4f69d1f9f7068b9ec52fec65e7a858e2',1,'Car::getEnergyConsumption()'],['../d1/d76/class_locomotive.html#a24c386363d5fe34da15eed2e71a9a31a',1,'Locomotive::getEnergyConsumption()'],['../d4/d01/class_train.html#ab383e53500da2b9557725683729177da',1,'Train::getEnergyConsumption()']]],
+  ['getenergyconsumption_31',['getEnergyConsumption',['../d6/d44/class_car.html#a4f69d1f9f7068b9ec52fec65e7a858e2',1,'Car::getEnergyConsumption()'],['../d1/d76/class_locomotive.html#afc3a29dcfb607ac260f00fc1276aa805',1,'Locomotive::getEnergyConsumption()'],['../d4/d01/class_train.html#ab383e53500da2b9557725683729177da',1,'Train::getEnergyConsumption()']]],
   ['getexportindividualizedtrainssummary_32',['getExportIndividualizedTrainsSummary',['../dd/dd1/class_simulator.html#a28e7684dff84d66b9ce946775433f0d4',1,'Simulator']]],
   ['getfeedback_33',['getFeedback',['../d2/d8c/class_net_signal_group_controller.html#a04d74dded983d5c2981518019f4b4d73',1,'NetSignalGroupController']]],
   ['getfirsttrainlink_34',['getFirstTrainLink',['../de/de1/class_network.html#a8e54deaf473e48e125ec4ce2b36423c7',1,'Network']]],

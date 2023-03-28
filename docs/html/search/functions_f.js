@@ -30,7 +30,7 @@ var searchData=
   ['settrainspathnodes_27',['setTrainsPathNodes',['../dd/dd1/class_simulator.html#abf0da0514078772cc003dcb4201db8ab',1,'Simulator']]],
   ['settrainweight_28',['setTrainWeight',['../d4/d01/class_train.html#a9a461854c18cca13966587db4c16dbaf',1,'Train']]],
   ['shortestpathsearch_29',['shortestPathSearch',['../de/de1/class_network.html#a2193f82a663203536e41bd030c68fbe6',1,'Network']]],
-  ['simulator_30',['Simulator',['../dd/dd1/class_simulator.html#a224eb88f0cfceef59e2ec2c5b2eb73a3',1,'Simulator']]],
+  ['simulator_30',['Simulator',['../dd/dd1/class_simulator.html#a80046c47dbcb49b9184ff4eb2056d376',1,'Simulator']]],
   ['smoothaccelerate_31',['smoothAccelerate',['../d4/d01/class_train.html#afa782f9e24271f7c2c573d48229fb0fe',1,'Train']]],
   ['sort_32',['sort',['../d5/db2/class_vector.html#aeaec0d9f441116a1ac20ca5d0962c2af',1,'Vector']]],
   ['speedupdown_33',['speedUpDown',['../d4/d01/class_train.html#a9cfb731d244264bec76642db4c5cda18',1,'Train']]],

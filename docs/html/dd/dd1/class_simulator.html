@@ -85,9 +85,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a224eb88f0cfceef59e2ec2c5b2eb73a3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a224eb88f0cfceef59e2ec2c5b2eb73a3">Simulator</a> (<a class="el" href="../../de/de1/class_network.html">Network</a> &amp;theNetwork, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &gt; networkTrains)</td></tr>
-<tr class="memdesc:a224eb88f0cfceef59e2ec2c5b2eb73a3"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="../../dd/dd1/class_simulator.html" title="A simulator class.">Simulator</a> constructor.  <br /></td></tr>
-<tr class="separator:a224eb88f0cfceef59e2ec2c5b2eb73a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80046c47dbcb49b9184ff4eb2056d376"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a80046c47dbcb49b9184ff4eb2056d376">Simulator</a> (<a class="el" href="../../de/de1/class_network.html">Network</a> &amp;theNetwork, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &gt; networkTrains, double simulatorTimeStep=DefaultTimeStep)</td></tr>
+<tr class="memdesc:a80046c47dbcb49b9184ff4eb2056d376"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="../../dd/dd1/class_simulator.html" title="A simulator class.">Simulator</a> constructor.  <br /></td></tr>
+<tr class="separator:a80046c47dbcb49b9184ff4eb2056d376"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdf9c765fe2654a1c51c1847789bdb81"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#abdf9c765fe2654a1c51c1847789bdb81">setTimeStep</a> (double newTimeStep)</td></tr>
 <tr class="memdesc:abdf9c765fe2654a1c51c1847789bdb81"><td class="mdescLeft">&#160;</td><td class="mdescRight">set simulator time step  <br /></td></tr>
 <tr class="separator:abdf9c765fe2654a1c51c1847789bdb81"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,8 +193,8 @@ Public Member Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/28/2023 </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a224eb88f0cfceef59e2ec2c5b2eb73a3" name="a224eb88f0cfceef59e2ec2c5b2eb73a3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a224eb88f0cfceef59e2ec2c5b2eb73a3">&#9670;&#160;</a></span>Simulator()</h2>
+<a id="a80046c47dbcb49b9184ff4eb2056d376" name="a80046c47dbcb49b9184ff4eb2056d376"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80046c47dbcb49b9184ff4eb2056d376">&#9670;&#160;</a></span>Simulator()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -209,7 +209,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &gt;&#160;</td>
-          <td class="paramname"><em>networkTrains</em>&#160;</td>
+          <td class="paramname"><em>networkTrains</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>simulatorTimeStep</em> = <code>DefaultTimeStep</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -225,7 +231,8 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">theNetwork</td><td>The network. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">networkTrains</td><td>The network trains. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">networkTrains</td><td>The network trains. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">simulatorTimeStep</td><td>The simulator time step. Default value is 1.0 </td></tr>
   </table>
   </dd>
 </dl>

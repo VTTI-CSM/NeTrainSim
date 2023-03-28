@@ -80,17 +80,17 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>A car.  
+<p>defines a rail car.  
  <a href="../../d6/d44/class_car.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../db/d42/car_8h_source.html">car.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../d5/daa/_car_8h_source.html">Car.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Car:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="../../d6/d44/class_car.png" usemap="#Car_map" alt=""/>
   <map id="Car_map" name="Car_map">
-<area href="../../da/de2/class_train_component.html" title="A train component base class." alt="TrainComponent" shape="rect" coords="57,56,161,80"/>
+<area href="../../da/de2/class_train_component.html" title="Defines a train component base class." alt="TrainComponent" shape="rect" coords="57,56,161,80"/>
 <area href="../../dc/df2/class_battery.html" title="A battery." alt="Battery" shape="rect" coords="0,0,104,24"/>
 <area href="../../d1/da1/class_tank.html" alt="Tank" shape="rect" coords="114,0,218,24"/>
   </map>
@@ -98,20 +98,20 @@ Inheritance diagram for Car:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a431cb4ca9fd4e8ed435035568b4d1e76">getCargoNetWeight</a> ()</td></tr>
-<tr class="memdesc:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets cargo net weight.  <br /></td></tr>
-<tr class="separator:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a384e96129f943430922ad16b4f05e764"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a384e96129f943430922ad16b4f05e764">Car</a> (double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t, double carCurrentWeight_t, int carNoOfAxiles, int <a class="el" href="../../d6/d44/class_car.html#a41c7252ecb95f46c8c3916d2071a68b3">carType</a>, double auxiliaryPower_kw=EC::DefaultCarAuxiliaryPower, double batteryMaxCapacity_kwh=EC::DefaultCarBatteryMaxCapacity, double batteryInitialCharge_perc=EC::DefaultCarBatteryInitialCharge, double tenderMaxCapacity_kg_l=EC::DefaultCarTenderMaxCapacity, double tenderInitialCapacity_perc=EC::DefaultCarTenderInitialCapacity, std::string carName=DefaultCarName)</td></tr>
 <tr class="memdesc:a384e96129f943430922ad16b4f05e764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a384e96129f943430922ad16b4f05e764"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a431cb4ca9fd4e8ed435035568b4d1e76">getCargoNetWeight</a> ()</td></tr>
+<tr class="memdesc:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets cargo net weight.  <br /></td></tr>
+<tr class="separator:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07c9aeff611a5fb4a978e9195120b3cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a07c9aeff611a5fb4a978e9195120b3cc">setCarCurrentWeight</a> (double newCurrentWeight)</td></tr>
 <tr class="memdesc:a07c9aeff611a5fb4a978e9195120b3cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">setCarCurrentWeight  <br /></td></tr>
 <tr class="separator:a07c9aeff611a5fb4a978e9195120b3cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41442d1464a019cdb1e35d3d95a893cc"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a41442d1464a019cdb1e35d3d95a893cc">getResistance</a> (double trainSpeed) override</td></tr>
-<tr class="memdesc:a41442d1464a019cdb1e35d3d95a893cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a resistance.  <br /></td></tr>
+<tr class="memdesc:a41442d1464a019cdb1e35d3d95a893cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the resistance this car is contributing to the whole train.  <br /></td></tr>
 <tr class="separator:a41442d1464a019cdb1e35d3d95a893cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a4f69d1f9f7068b9ec52fec65e7a858e2">getEnergyConsumption</a> (double &amp;timeStep)</td></tr>
-<tr class="memdesc:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets energy consumption.  <br /></td></tr>
+<tr class="memdesc:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets energy consumption of the car (in case there is auxiliary power).  <br /></td></tr>
 <tr class="separator:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a074aec2c79a47a17c5c83e4253beea06"><td class="memItemLeft" align="right" valign="top">std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a074aec2c79a47a17c5c83e4253beea06">consumeFuel</a> (double timeStep, double trainSpeed, double EC_kwh, double dieselConversionFactor=EC::DefaultDieselConversionFactor, double biodieselConversionFactor=EC::DefaultBiodieselConversionFactor, double hydrogenConversionFactor=EC::DefaultHydrogenConversionFactor, double dieselDensity=EC::DefaultDieselDensity, double biodieselDensity=EC::DefaultBioDieselDensity, double hydrogenDensity=EC::DefaultHydrogenDensity) override</td></tr>
 <tr class="memdesc:a074aec2c79a47a17c5c83e4253beea06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume fuel from the tender.  <br /></td></tr>
@@ -124,7 +124,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8e68a2e1b749e109b6698b33014d7b31 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the energy consumptions data for the current time step.  <br /></td></tr>
 <tr class="separator:a8e68a2e1b749e109b6698b33014d7b31 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f6b83a8c63c3005158d95c39b330541 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a9f6b83a8c63c3005158d95c39b330541">setCurrentWeight</a> (double newCurrentWeight)</td></tr>
-<tr class="memdesc:a9f6b83a8c63c3005158d95c39b330541 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">setCurrentWeight  <br /></td></tr>
+<tr class="memdesc:a9f6b83a8c63c3005158d95c39b330541 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">sets the current weight of the vehicle  <br /></td></tr>
 <tr class="separator:a9f6b83a8c63c3005158d95c39b330541 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd78126dad3b19911f8a092a196ee301 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#afd78126dad3b19911f8a092a196ee301">consumeFuelDiesel</a> (double EC_kwh, double dieselConversionFactor, double dieselDensity)</td></tr>
 <tr class="memdesc:afd78126dad3b19911f8a092a196ee301 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">consume the locomotive diesel fuel.  <br /></td></tr>
@@ -258,11 +258,11 @@ Public Attributes</h2></td></tr>
 <tr class="inherit_header pub_attribs_class_train_component"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_class_train_component')"><img src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="../../da/de2/class_train_component.html">TrainComponent</a></td></tr>
 <tr class="memitem:aeb7322e9af9a0733e6adb2a905fe19ef inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="aeb7322e9af9a0733e6adb2a905fe19ef" name="aeb7322e9af9a0733e6adb2a905fe19ef"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
-<tr class="memdesc:aeb7322e9af9a0733e6adb2a905fe19ef inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of the car. <br /></td></tr>
+<tr class="memdesc:aeb7322e9af9a0733e6adb2a905fe19ef inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of the vehicle. <br /></td></tr>
 <tr class="separator:aeb7322e9af9a0733e6adb2a905fe19ef inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a217aa8cbcb7f45f54a9a0cd15db982ac inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a217aa8cbcb7f45f54a9a0cd15db982ac" name="a217aa8cbcb7f45f54a9a0cd15db982ac"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="memdesc:a217aa8cbcb7f45f54a9a0cd15db982ac inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of the vehicle. <br /></td></tr>
+<tr class="memdesc:a217aa8cbcb7f45f54a9a0cd15db982ac inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of the vehicle in meter. <br /></td></tr>
 <tr class="separator:a217aa8cbcb7f45f54a9a0cd15db982ac inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b5a8395ee9ce7c850be3b1c8774dc19 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a2b5a8395ee9ce7c850be3b1c8774dc19" name="a2b5a8395ee9ce7c850be3b1c8774dc19"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>trackCurvature</b></td></tr>
@@ -282,11 +282,11 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>frontalArea</b></td
 <tr class="separator:a8b81fcab39b820e7236323e9db6d13af inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34481f31141c7f6f10202318a5070af5 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a34481f31141c7f6f10202318a5070af5" name="a34481f31141c7f6f10202318a5070af5"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>currentWeight</b></td></tr>
-<tr class="memdesc:a34481f31141c7f6f10202318a5070af5 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The weight of the vehicle when the train is travelling. <br /></td></tr>
+<tr class="memdesc:a34481f31141c7f6f10202318a5070af5 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The gross weight of the vehicle when the train is travelling. <br /></td></tr>
 <tr class="separator:a34481f31141c7f6f10202318a5070af5 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef1fc1bab945b0c4888a74e995bb3a72 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="aef1fc1bab945b0c4888a74e995bb3a72" name="aef1fc1bab945b0c4888a74e995bb3a72"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>emptyWeight</b></td></tr>
-<tr class="memdesc:aef1fc1bab945b0c4888a74e995bb3a72 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The weight of the vehicle when the train is travelling. <br /></td></tr>
+<tr class="memdesc:aef1fc1bab945b0c4888a74e995bb3a72 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The light weight of the vehicle when the train is travelling. <br /></td></tr>
 <tr class="separator:aef1fc1bab945b0c4888a74e995bb3a72 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa62de637ad3f31e27b5083ba7273ad6c inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="aa62de637ad3f31e27b5083ba7273ad6c" name="aa62de637ad3f31e27b5083ba7273ad6c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>noOfAxiles</b></td></tr>
@@ -298,19 +298,19 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>auxiliaryPower</b><
 <tr class="separator:af18d2fda8ed11d49c8ce39719b763b39 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c92724aecea2643ba6405618c4aaa7c inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a1c92724aecea2643ba6405618c4aaa7c" name="a1c92724aecea2643ba6405618c4aaa7c"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>energyConsumed</b> = 0.0</td></tr>
-<tr class="memdesc:a1c92724aecea2643ba6405618c4aaa7c inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of energy consumed. <br /></td></tr>
+<tr class="memdesc:a1c92724aecea2643ba6405618c4aaa7c inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of energy consumed in kwh. <br /></td></tr>
 <tr class="separator:a1c92724aecea2643ba6405618c4aaa7c inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afec5a139bcf2c9234fd937ff9644a161 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="afec5a139bcf2c9234fd937ff9644a161" name="afec5a139bcf2c9234fd937ff9644a161"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>cumEnergyConsumed</b> = 0.0</td></tr>
-<tr class="memdesc:afec5a139bcf2c9234fd937ff9644a161 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of cummulative energy consumed. <br /></td></tr>
+<tr class="memdesc:afec5a139bcf2c9234fd937ff9644a161 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of cummulative energy consumed in kwh. <br /></td></tr>
 <tr class="separator:afec5a139bcf2c9234fd937ff9644a161 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a450ff707cd7c8f2448dc66e8fe1d4ec6 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a450ff707cd7c8f2448dc66e8fe1d4ec6" name="a450ff707cd7c8f2448dc66e8fe1d4ec6"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>energyRegenerated</b> = 0.0</td></tr>
-<tr class="memdesc:a450ff707cd7c8f2448dc66e8fe1d4ec6 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of energy regenerated. <br /></td></tr>
+<tr class="memdesc:a450ff707cd7c8f2448dc66e8fe1d4ec6 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of energy regenerated in kwh. <br /></td></tr>
 <tr class="separator:a450ff707cd7c8f2448dc66e8fe1d4ec6 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="ac39f13eae27da68e9103244b262ad1f7" name="ac39f13eae27da68e9103244b262ad1f7"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>cumEnergyRegenerated</b> = 0.0</td></tr>
-<tr class="memdesc:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of cummulative energy regenerated. <br /></td></tr>
+<tr class="memdesc:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of cummulative energy regenerated in kwh. <br /></td></tr>
 <tr class="separator:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24fdd05bea53482449f8086294633fd6 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top"><a id="a24fdd05bea53482449f8086294633fd6" name="a24fdd05bea53482449f8086294633fd6"></a>
 std::shared_ptr&lt; <a class="el" href="../../d8/d2d/class_net_link.html">NetLink</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>hostLink</b></td></tr>
@@ -324,7 +324,9 @@ Friends</h2></td></tr>
 <tr class="separator:a4402fd954ccb3a40dd259be6756d083e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A car. </p>
+<div class="textblock"><p>defines a rail car. </p>
+<p>this class inherits the <a class="el" href="../../da/de2/class_train_component.html" title="Defines a train component base class.">TrainComponent</a> class</p>
+<p>The car does not provide power to the train unlike the locomtotive. Cars only cary either commodities or fuel only. if it is fuel tender, it can provide power to the locomotive once the locomotive's stored power is low. In that case, the car losses weight by the fuel consumption.</p>
 <dl class="section author"><dt>Author</dt><dd>Ahmed </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -425,18 +427,18 @@ Friends</h2></td></tr>
 <dl class="section date"><dt>Date</dt><dd>2/14/2023</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">carLength_m</td><td>The car length m. </td></tr>
+    <tr><td class="paramname">carLength_m</td><td>The car length in meters. </td></tr>
     <tr><td class="paramname">carDragCoef</td><td>The car drag coef. </td></tr>
-    <tr><td class="paramname">carFrontalArea_sqm</td><td>The car frontal area sqm. </td></tr>
-    <tr><td class="paramname">carEmptyWeight_t</td><td>The car empty weight. </td></tr>
-    <tr><td class="paramname">carCurrentWeight_t</td><td>The car current weight. </td></tr>
+    <tr><td class="paramname">carFrontalArea_sqm</td><td>The car frontal area in square meters. </td></tr>
+    <tr><td class="paramname">carEmptyWeight_t</td><td>The car empty weight in ton. </td></tr>
+    <tr><td class="paramname">carCurrentWeight_t</td><td>The car current weight in ton. </td></tr>
     <tr><td class="paramname">carNoOfAxiles</td><td>The car no of axiles. </td></tr>
     <tr><td class="paramname">carType</td><td>Type of the car. </td></tr>
-    <tr><td class="paramname">auxiliaryPower_kw</td><td>(Optional) The auxiliary power kw. </td></tr>
-    <tr><td class="paramname">batteryMaxCapacity_kwh</td><td>(Optional) The battery maximum capacity kwh. </td></tr>
-    <tr><td class="paramname">batteryInitialCharge_perc</td><td>(Optional) The battery initial charge perc. </td></tr>
-    <tr><td class="paramname">tenderMaxCapacity_kg_l</td><td>(Optional) The tender maximum capacity kilograms l. </td></tr>
-    <tr><td class="paramname">tenderInitialCapacity_perc</td><td>(Optional) The tender initial capacity perc. </td></tr>
+    <tr><td class="paramname">auxiliaryPower_kw</td><td>(Optional) The auxiliary power in kw. Default is 0.0. </td></tr>
+    <tr><td class="paramname">batteryMaxCapacity_kwh</td><td>(Optional) The battery maximum capacity in kwh. Default is 10,000. </td></tr>
+    <tr><td class="paramname">batteryInitialCharge_perc</td><td>(Optional) The battery initial charge percentage. Default is 0.9. </td></tr>
+    <tr><td class="paramname">tenderMaxCapacity_kg_l</td><td>(Optional) The tender maximum capacity kilograms or liters. </td></tr>
+    <tr><td class="paramname">tenderInitialCapacity_perc</td><td>(Optional) The tender initial capacity perc. Default is 0.9. </td></tr>
     <tr><td class="paramname">carName</td><td>(Optional) Name of the car. </td></tr>
   </table>
   </dd>
@@ -558,7 +560,7 @@ Friends</h2></td></tr>
 <p>Gets cargo net weight. </p>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/28/2023</dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>The cargo net weight. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The cargo net weight in ton. </dd></dl>
 
 </div>
 </div>
@@ -578,16 +580,17 @@ Friends</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Gets energy consumption. </p>
+<p>Gets energy consumption of the car (in case there is auxiliary power). </p>
+<p>otherwise it returns 0.0</p>
 <dl class="section author"><dt>Author</dt><dd>Ahmed </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/14/2023</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">timeStep</td><td>The time step.</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">timeStep</td><td>The time step of the simulator in seconds.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The energy consumption. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The energy consumption in kWH. </dd></dl>
 
 </div>
 </div>
@@ -615,16 +618,16 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Gets a resistance. </p>
+<p>Gets the resistance this car is contributing to the whole train. </p>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/28/2023</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">trainSpeed</td><td>The train speed.</td></tr>
+    <tr><td class="paramname">trainSpeed</td><td>The train speed in m/s.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The resistance. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The car resistance in Newton. </dd></dl>
 
 <p>Reimplemented from <a class="el" href="../../da/de2/class_train_component.html#a810f1e95553eed39601b553b5d8bbe10">TrainComponent</a>.</p>
 
@@ -647,9 +650,11 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>setCarCurrentWeight </p>
+<dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/28/2023</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">newCurrentWeight</td><td></td></tr>
+    <tr><td class="paramname">newCurrentWeight</td><td>is the new gross weight of the car, this weight cannot be less than the light weight of the car. </td></tr>
   </table>
   </dd>
 </dl>
@@ -706,7 +711,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>C:/Users/Ahmed/OneDrive - Virginia Tech/03.Work/02.VTTI/02.ResearchWork/01.TrainModelling/02.Code/00.CPP/NeTrainSim/NeTrainSim/src/trainDefintion/<a class="el" href="../../db/d42/car_8h_source.html">car.h</a></li>
+<li>C:/Users/Ahmed/OneDrive - Virginia Tech/03.Work/02.VTTI/02.ResearchWork/01.TrainModelling/02.Code/00.CPP/NeTrainSim/NeTrainSim/src/trainDefintion/<a class="el" href="../../d5/daa/_car_8h_source.html">Car.h</a></li>
 <li>C:/Users/Ahmed/OneDrive - Virginia Tech/03.Work/02.VTTI/02.ResearchWork/01.TrainModelling/02.Code/00.CPP/NeTrainSim/NeTrainSim/src/trainDefintion/Car.cpp</li>
 </ul>
 </div><!-- contents -->
