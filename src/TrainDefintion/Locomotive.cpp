@@ -1,3 +1,8 @@
+//
+// Created by Ahmed Aredah
+// Version 0.0.1
+//
+
 #include <iostream>
 #include "Locomotive.h"
 #include <math.h>
@@ -30,24 +35,26 @@ Locomotive::Locomotive(
 		double tankMaxCapacity_,
 		double tankInitialCapacity_perc,
 		double batteryCRate) {
-
+    // assign the values to the variables
 	this->name = locomotiveName;
-	this->maxPower = locomotiveMaxPower_kw;
-	this->transmissionEfficiency = locomotiveTransmissionEfficiency;
-	this->length = locomotiveLength_m;
-	this->dragCoef = locomotiveDragCoef;
-	this->frontalArea = locomotiveFrontalArea_sqm;
-	this->currentWeight = locomotiveWeight_t;
-	this->emptyWeight = DefaultLocomotiveEmptyWeight;
+    this->maxPower = locomotiveMaxPower_kw;  // in kw
+    this->transmissionEfficiency = locomotiveTransmissionEfficiency; // unitless
+    this->length = locomotiveLength_m; // in meters
+    this->dragCoef = locomotiveDragCoef; // unitless
+    this->frontalArea = locomotiveFrontalArea_sqm; // in square meters
+    this->currentWeight = locomotiveWeight_t; //in tons
+    this->emptyWeight = DefaultLocomotiveEmptyWeight; // in tons
+    // check if the empty weight is greater than the current weight,
+    // if yes, assign it a value equals to the current weight.
 	if (this->emptyWeight > this->currentWeight) {
 		this->emptyWeight = this->currentWeight;
-	}
-	this->noOfAxiles = locomotiveNoOfAxiles;
-	this->powerType = TrainTypes::iToPowerType(locomotivePowerType);
-	this->maxSpeed = locomotiveMaxSpeed_mps;
-	this->Nmax = totalNotches;
-	this->maxLocNotch = locomotiveMaxAchievableNotch;
-	this->auxiliaryPower = locomotiveAuxiliaryPower_kw;
+    } // end if
+    this->noOfAxiles = locomotiveNoOfAxiles; // count
+    this->powerType = TrainTypes::iToPowerType(locomotivePowerType); // convert from digits to enum type
+    this->maxSpeed = locomotiveMaxSpeed_mps; // in meter/second
+    this->Nmax = totalNotches; // count
+    this->maxLocNotch = locomotiveMaxAchievableNotch; //count
+    this->auxiliaryPower = locomotiveAuxiliaryPower_kw; // in kw
 
 	// electric has only battery
 	if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
@@ -55,12 +62,12 @@ Locomotive::Locomotive(
 						 EC::DefaultLocomotiveBatteryDOD, batteryCRate);
 		this->SetTank(0.0, 0.0, EC::DefaultLocomotiveMinTankDOD);
 
-	}
+    }//end if battery tech
 	// diesel and hydrogen have only tanks
 	else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
 		this->setBattery(0.0, 0.0, 1.0, batteryCRate);
 		this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc, EC::DefaultLocomotiveMinTankDOD);
-	}
+    } // end else if tank tech
 	// hybrid locomotives have both source of energy
 	else {
 		double maxRSOC = 0.0;
@@ -69,27 +76,51 @@ Locomotive::Locomotive(
 				this->powerType == TrainTypes::PowerType::biodiesel) {
 			maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Diesel;
 			minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Diesel;
-		}
+        } //end if diesel or biodiesel
 		else {
 			maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Other;
 			minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Other;
-		}
+        } // end else technologies
 		this->setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
 						 EC::DefaultLocomotiveBatteryDOD, batteryCRate, maxRSOC, minRSOC);
 		this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc, EC::DefaultLocomotiveMinTankDOD);
-	}
+    } //end else
 
-
+    if (TrainTypes::locomotiveTankOnly.exist(this->powerType) ||
+            TrainTypes::locomotiveHybrid.exist(this->powerType)) {
+        double fuelWeight = 0.0; // in ton
+        // if the tender is for diesel
+        if (this->powerType == TrainTypes::PowerType::diesel ||
+                this->powerType == TrainTypes::PowerType::dieselElectric ||
+                this->powerType == TrainTypes::PowerType::dieselHybrid) {
+            fuelWeight = this->getTankInitialCapacity() * EC::DefaultDieselDensity;
+        }
+        // if the tender is for biodiesel
+        else if (this->powerType == TrainTypes::PowerType::biodiesel ||
+                 this->powerType == TrainTypes::PowerType::biodieselHybrid) {
+            fuelWeight = this->getTankInitialCapacity() * EC::DefaultBioDieselDensity;
+        }
+        else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
+            fuelWeight = this->getTankInitialCapacity() * EC::DefaultHydrogenDensity;
+        }
+        // check if the fuel weight provided is not correct, update it.
+        // maybe the use accounts for other weights on the locomotive.
+        // and the gross locomotive weight is higher than the empty weight + fuel weight
+        if ((this->currentWeight - this->emptyWeight) < fuelWeight) {
+            this->currentWeight = this->emptyWeight + fuelWeight;
+        }
+    }
 	this->trackCurvature = 0;
 	this->trackGrade = 0;
-	this->hostLink = std::shared_ptr<NetLink>();
-	this->discritizedLamda.push_back(0.0);
-	this->throttleLevels = this->defineThrottleLevels();
+    this->hostLink = std::shared_ptr<NetLink>(); // assign empty placeholder
+    this->discritizedLamda.push_back(0.0); // add idle throttle level
+    this->throttleLevels = this->defineThrottleLevels(); // define all the throttle levels
 };	
 
 
 double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed) {
 	double dv, um;
+    // ratio of current train speed by the max loco speed
 	dv = trainSpeed / this->maxSpeed;
 	um = 0.05 * this->maxSpeed;        //critical speed
 	//if the ratio is greater than 1, we set it to 1
@@ -146,7 +177,7 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 	}
 	//get the Notch # that we drive by now
 	int crntLocNotch = this->discritizedLamda.index(lamdaDiscretized);
-	//if the minimum is too high, we set it to the highest possible value (Restrict max notch to #)
+    //if the minimum is too high, set it to the highest possible value (Restrict max notch to #)
 	if (crntLocNotch > this->maxLocNotch) {
 		crntLocNotch = this->maxLocNotch;
 		lamdaDiscretized = this->discritizedLamda[crntLocNotch];
@@ -358,13 +389,15 @@ std::pair<bool, double> Locomotive::consumeFuel(double timeStep, double trainSpe
 			}
 			// if it did not consume any energy from the battery, get all energy from the generator
 			if (!EC.first) {
-				return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor,
+
+                return this->consumeFuelDiesel(EC_kwh_hybrid,
+                                               dieselConversionFactor,
 											   dieselDensity);
 			}
 			// if it consumed portion of the energy by the battery but also there is an excessive energy required,
 			// get the excessive energy from the generator
 			else if (EC.first && EC.second > 0.0) {
-				return this->consumeFuelDiesel(EC.second,
+                return this->consumeFuelDiesel(EC.second / EC::getGeneratorEff(this->powerType),
 											   dieselConversionFactor, dieselDensity);
 			}
 			// if it consumed all the required energy from the battery, return true
