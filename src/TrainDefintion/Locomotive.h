@@ -1,6 +1,6 @@
 //
 // Created by Ahmed Aredah
-// Version 0.1
+// Version 0.0.1
 //
 
 #ifndef NeTrainSim_Locomotive_h
@@ -17,13 +17,23 @@
 using namespace std;
 
 /**
- * A locomotive.
+ * defines a rail locomotive. This class inherits the TrainComponent class.
+ *
+ * @details The locomotive provide power to the train unlike the railcar.
+ *          locomotives can have different powertrains (different technologies).
+ *          For every technology, there is an associated effeciencies and conversion factors.
+ *          These conversion factors and efficiencies are accessible from the EC namespace.
+ *          The locomotive may have a battery and/or tank based on its type.
+ *          once the locomotive's stored power is low. the locomotive attempts to request
+ *          energy from the tenders if available. if not, the locomotive is turned off.
  *
  * @author	Ahmed Aredah
  * @date	2/28/2023
  */
 class Locomotive : public TrainComponent{
-
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
 private:
 	/** (Immutable) the default locomotive name */
 	inline static const  string DefaultLocomotiveName = "locomotive";
@@ -35,12 +45,13 @@ private:
 	static const int DefaultLocomotiveNoOfNotches = 8;
 	/** (Immutable) the default locomotive no of axiles */
 	static const int DefaultLocomotiveNoOfAxiles = 6;
-	/** diesel */
+    /** (Immutable) make the diesel the default if the user does not provide it.*/
 	static const int DefaultLocomotiveType = 0;
 	/** (Immutable) the default locomotive minimum weight. */
 	static constexpr double DefaultLocomotiveEmptyWeight = 180;
 
 private:
+    /** */
 	double maxTractiveForce = 0.0;
 public:
 	/** The max power of the locomotive in kw. */
@@ -114,60 +125,69 @@ public:
 			   string locomotiveName = DefaultLocomotiveName,
 			   double batteryMaxCharge_kwh = EC::DefaultLocomotiveBatteryMaxCharge,
 			   double batteryInitialCharge_perc = EC::DefaultLocomotiveBatteryInitialCharge,
-			   double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacity,
+               double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacityDiesel,
 			   double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity,
 			   double batteryCRate = EC::DefaultLocomotiveBatteryCRate);
 
 
 	/**
-	 * Gets power type string
+     * Gets power type as a string
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @returns	The power type string.
+     * @returns	The power type as a string.
 	 */
 	string getPowerTypeString();
 
 	/**
-	 * Gets power type enum
+     * Gets power type as an enum
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	powertype	The powertype.
+     * @param 	powertype	The powertype of the locomotive.
 	 *
-	 * @returns	The power type enum.
+     * @returns	The power type as an enum.
 	 */
 	TrainTypes::PowerType getPowerTypeEnum(string powertype);
 
 	/**
-	 * Gets hyperbolic throttle coef
+     * Gets hyperbolic throttle coef. refer to the published paper for more details.
+     * @cite Aredah, A.; Fadhloun, K.; Rakha, H.; List, G. NeTrainSim:
+     *       A Network Freight Train Simulator for Estimating Energy/Fuel Consumption.
+     *       Preprints 2022, 2022080518. https://doi.org/10.20944/preprints202208.0518.v1.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	trainSpeed	The train speed.
+     * @param [in,out]	trainSpeed	The train speed in m/s.
 	 *
-	 * @returns	The hyperbolic throttle coef.
+     * @returns	The hyperbolic throttle coefficient.
 	 */
 	double getHyperbolicThrottleCoef(double &trainSpeed);
 
 	/**
-	 * Getlamda discretized
-	 *
+     * Get lamda discretized. for more details refer to the published paper.
+     * @details this function discretize the continous throttle level function 'getHyperbolicThrottleCoef'
+     * @cite Aredah, A.; Fadhloun, K.; Rakha, H.; List, G. NeTrainSim:
+     *       A Network Freight Train Simulator for Estimating Energy/Fuel Consumption.
+     *       Preprints 2022, 2022080518. https://doi.org/10.20944/preprints202208.0518.v1.
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	lamda	The lamda.
+     * @param [in,out]	lamda	The throttle level coefficient (as a continuous value).
+     *                          This comes from the @getHyper
 	 *
 	 * @returns	A double.
 	 */
 	double getlamdaDiscretized(double &lamda);
 
 	/**
-	 * Gets discretized throttle coef
-	 *
+     * Gets discretized throttle coef. for more details refer to the published paper.
+     * @cite Aredah, A.; Fadhloun, K.; Rakha, H.; List, G. NeTrainSim:
+     *       A Network Freight Train Simulator for Estimating Energy/Fuel Consumption.
+     *       Preprints 2022, 2022080518. https://doi.org/10.20944/preprints202208.0518.v1.
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
@@ -178,43 +198,45 @@ public:
 	double getDiscretizedThrottleCoef(double& trainSpeed);
 
 	/**
-	 * Gets throttle level
-	 *
+     * Gets the throttle level the locomotive should move by. for more details refer to the published paper.
+     * @cite Aredah, A.; Fadhloun, K.; Rakha, H.; List, G. NeTrainSim:
+     *       A Network Freight Train Simulator for Estimating Energy/Fuel Consumption.
+     *       Preprints 2022, 2022080518. https://doi.org/10.20944/preprints202208.0518.v1.
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	trainSpeed				The train speed.
-	 * @param [in,out]	optimize				True to optimize.
-	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
+     * @param [in,out]	trainSpeed				The train speed in m/s.
+     * @param [in,out]	optimize				True to optimize.
+     * @param [in,out]	optimumThrottleLevel	The optimum throttle level in case the optimization is enabled.
 	 *
 	 * @returns	The throttle level.
 	 */
 	double getThrottleLevel(double &trainSpeed, bool &optimize, double &optimumThrottleLevel);
 
 	/**
-	 * Gets a resistance
+     *  Gets the resistance this locomotive is contributing to the whole train.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	trainSpeed	The train speed.
+     * @param 	trainSpeed	The train speed in m/s.
 	 *
-	 * @returns	The resistance.
+     * @returns	The resistance in Newton.
 	 */
 	double getResistance(double trainSpeed) override;
 
 	/**
-	 * Gets tractive force
+     * Gets tractive force that this locomotive can generate by the current speed and notch level.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	frictionCoef			The friction coef.
-	 * @param [in,out]	trainSpeed				The train speed.
+     * @param [in,out]	frictionCoef			The friction coef of the rail.
+     * @param [in,out]	trainSpeed				The train speed in m/s.
 	 * @param [in,out]	optimize				True to optimize.
-	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
+     * @param [in,out]	optimumThrottleLevel	The optimum throttle level in case of optimization is eneabled.
 	 *
-	 * @returns	The tractive force.
+     * @returns	The tractive force in Newton.
 	 */
 	double getTractiveForce(double &frictionCoef, double &trainSpeed,
 		bool &optimize, double &optimumThrottleLevel);
@@ -225,63 +247,75 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	frictionCoef			The friction coef.
-	 * @param [in,out]	trainSpeed				The train speed.
+     * @param [in,out]	frictionCoef			The friction coef of the rail.
+     * @param [in,out]	trainSpeed				The train speed in m/s.
 	 * @param [in,out]	optimize				True to optimize.
-	 * @param [in,out]	optimumThrottleLevel	The optimum throttle level.
+     * @param [in,out]	optimumThrottleLevel	The optimum throttle level in cae of optimization is enabled.
 	 *
-	 * @returns	The net force.
+     * @returns	The net force in Newton.
 	 */
 	double getNetForce(double &frictionCoef, double &trainAcceleration,
 		bool &optimize, double &optimumThrottleLevel);
 
 	/**
-	 * Gets shared virtual tractive power
+     * Gets shared virtual tractive power. The virtual power is the power when the train is on
+     * a negative slope.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	trainSpeed		 	The train speed.
-	 * @param [in,out]	trainAcceleration	The train acceleration.
-	 * @param [in,out]	sharedWeight	 	The shared weight.
-	 * @param [in,out]	sharedResistance 	The shared resistance.
+     * @param [in,out]	trainSpeed		 	The train speed in m/s.
+     * @param [in,out]	trainAcceleration	The train acceleration in m/s^2.
+     * @param [in,out]	sharedWeight	 	The shared weight is the weight this locomotive is pulling.
+     *                                      It includes the portion of the train weight this locomotive is
+     *                                      responsible for.
+     * @param [in,out]	sharedResistance 	The shared resistance. This includes the portion of the train
+     *                                      resistance, this locomotiv is responsible for.
 	 *
-	 * @returns	The shared virtual tractive power.
+     * @returns	The shared virtual tractive power in kW.
 	 */
 	double getSharedVirtualTractivePower(double& trainSpeed, double& trainAcceleration,
 		double& sharedWeight, double& sharedResistance);
 
 	/**
-	 * Gets energy consumption
+     * Gets energy consumption of this locomotive.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	LocomotiveVirtualTractivePowerdouble	The locomotive virtual tractive
-	 * 															powerdouble.
-	 * @param [in,out]	speed									The speed.
-	 * @param [in,out]	acceleration							The acceleration.
-	 * @param [in,out]	timeStep								The time step.
+     * @param [in,out]	LocomotiveVirtualTractivePower  The locomotive virtual tractive power.
+     * @param [in,out]	speed							The train speed in m/s.
+     * @param [in,out]	acceleration					The train acceleration in m/s^2.
+     * @param [in,out]	timeStep						The simulator time step in seconds.
 	 *
-	 * @returns	The energy consumption.
+     * @returns	The energy consumption in KWh.
 	 */
-	double getEnergyConsumption(double& LocomotiveVirtualTractivePowerdouble, double& acceleration, double& speed,
+    double getEnergyConsumption(double& LocomotiveVirtualTractivePower, double& acceleration, double& speed,
 		double& timeStep);
 
 
 
 	/**
-	 * Consume fuel
+     * Consume the locomotive fuel.
+     *
+     * @details If the locomotive does not have the necessary power to continue,
+     * It searches for the power from any other tender. if there is no tenders available, the locomotive
+     * is shut down.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param 	EC_kwh						The ec kwh.
+     * @param   timeStep                    The simulator time step in seconds.
+     * @param   trainSpeed                  The speed of the train in m/s.
+     * @param 	EC_kwh						The energy consumption in kwh.
 	 * @param 	isOffGrid					True if is off grid, false if not.
-	 * @param 	dieselConversionFactor  	(Optional) The diesel conversion factor.
-	 * @param 	hydrogenConversionFactor	(Optional) The hydrogen conversion factor.
-	 * @param 	dieselDensity				(Optional) The diesel density.
-	 *
+     * @param 	dieselConversionFactor  	(Optional) The diesel conversion factor that convert from kwh to liters.
+     * @param 	bioDieselConversionFactor  	(Optional) The biodiesel conversion factor that convert from kwh to liters.
+     * @param 	hydrogenConversionFactor	(Optional) The hydrogen conversion factor that convert from kWh to liters.
+     * @param 	dieselDensity				(Optional) The diesel density in kg/liter.
+     * @param 	biodieselDensity            (Optional) The biodiesel density in kg/liter.
+     * @param   hydrogenDensity             (Optional) The hydrogen density in kg/liter.
+     *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
 	std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
@@ -294,6 +328,7 @@ public:
 
 	/**
 	 * @brief Get the max energy the locomotive can regenerate.
+     * @details this depends on the max power from the generator can produce.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
@@ -315,12 +350,12 @@ public:
 	Vector<double> defineThrottleLevels();
 
 	/**
-	 * Updates the location notch described by trainSpeed
+     * Updates the location notch described by trainSpeed.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 *
-	 * @param [in,out]	trainSpeed	The train speed.
+     * @param [in,out]	trainSpeed	The train speed in m/s.
 	 */
 	void updateLocNotch(double &trainSpeed);
 
@@ -342,6 +377,7 @@ public:
 	 * @date	3/12/2023
 	 */
 	void resetPowerRestriction();
+
 	/**
 	 * Stream insertion operator
 	 *
