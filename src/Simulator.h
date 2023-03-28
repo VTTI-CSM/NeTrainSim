@@ -86,9 +86,11 @@ public:
 	 * @date	2/28/2023
 	 *
 	 * @param  [in,out]	theNetwork        The network.
-	 * @param           networkTrains     The network trains.
+     * @param  [in] 	networkTrains     The network trains.
+     * @param  [in] 	simulatorTimeStep The simulator time step. Default value is 1.0
 	 */
-	Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains);
+    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
+              double simulatorTimeStep = DefaultTimeStep);
 
 	/**
 	 * @brief set simulator time step
