@@ -14,6 +14,9 @@
  * @date	3/20/2023
  */
 class Battery {
+    /***********************************************
+    *              variables declaration           *
+    ************************************************/
 private:
     /** Battery max capacity */
     double batteryMaxCapacity;
