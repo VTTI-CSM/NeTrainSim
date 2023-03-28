@@ -25,9 +25,13 @@ namespace EC {
 	/** The default locomotive battery initial charge */
 	static double DefaultLocomotiveBatteryInitialCharge = 0.9;
 
-	/** The default locomotive tank maximum capacity in Gallons.
+    /** The default locomotive tank maximum capacity in Liters.
 	 Tank capacity of 5,300 gallons. */
-	static double DefaultLocomotiveTankMaxCapacity = 20065.0;
+    static double DefaultLocomotiveTankMaxCapacityDiesel = 20065.0;
+
+    /** The deafult locomotive tank maximum capcity in gallons
+     for hydrogen. */
+    static double DefaultLocomotiveTankMaxCapacityHydrogen = 100.0;
 	/** The default locomotive tank initial capacity in Gallons */
 	static double DefaultLocomotiveTankInitialCapacity = 0.9;
 
@@ -50,6 +54,9 @@ namespace EC {
 	/** (Immutable) the default locomotive battery min state of charge in which
 	it requires recharge once reached state for any generator except diesel.*/
 	static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.5;
+
+    /** required generator power percentage. */
+    static constexpr double requiredGeneratorPower[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
 // ##################################################################
 // #             end: define locomotive default values            #
 // ##################################################################
@@ -91,8 +98,13 @@ namespace EC {
 	static double DefaultDieselConversionFactor = 0.1005;
 	/** the default biodiesel conversion factor.
 	 Diesel (Gallons) = Energy Consumption (KW.h) * 0.028571
-	 Diesel (Litters) = Energy Consumption (KW.h) * 0.1005 */
-	static double DefaultBiodieselConversionFactor = 0.1005;
+     Diesel (Litters) = Energy Consumption (KW.h) * 0.1005
+     -> According to https://afdc.energy.gov/fuels/properties:
+        1 gallon of B100 has 93% of the energy in 1 gallon of diesel,
+        and 1 gallon of B20 has 99% of the energy in 1 gallon of diesel.
+     -->Assume we use B100, then we use 93% and the conversion factor is
+        0.1005 (diesel conversion factor) / 0.93 = 67/620*/
+    static double DefaultBiodieselConversionFactor = 67.0/620.0;
 	/** The default hydrogen conversion factor.
 	 Under ambient conditions, 1 litter of hydrogen = 0.003 kWh
 	 Hydrogen (Litters) = EnergyConsumption (kW.h) * 0.002995*/
@@ -134,12 +146,12 @@ namespace EC {
 	 *
 	 * @param 	powerType	Type of the power.
 	 *
-	 * @returns	The generator eff.
+     * @returns	The generator efficiency.
 	 */
 	double getGeneratorEff(TrainTypes::PowerType powerType);
 
 	/**
-	 * Gets required generator power for recharge
+     * Gets required generator power percentage for recharging the battery
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	3/20/2023
@@ -151,7 +163,7 @@ namespace EC {
 	double getRequiredGeneratorPowerForRecharge(double batterySOC);
 
 	/**
-	 * Gets the emissions
+     * Gets the CO2 emissions
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	3/20/2023
