@@ -111,6 +111,10 @@ int main(int argc, char *argv[]) {
                                        QCoreApplication::translate("main", "[Optional] the instantaneous trajectory filename. \nDefault is 'trainTrajectory_timeStamp.csv'."), "instaTrajectoryFile", "");
     parser.addOption(instaTrajOption);
 
+    const QCommandLineOption timeStepOption(QStringList() << "p" << "timeStep",
+                                       QCoreApplication::translate("main", "[Optional] the simulator time step. \nDefault is '1.0'."), "simulatorTimeStep", "1.0");
+    parser.addOption(timeStepOption);
+
 
     // process all the arguments
     parser.process(app);
@@ -132,6 +136,7 @@ int main(int argc, char *argv[]) {
 
     std::string nodesFile, linksFile, trainsFile, exportLocation, summaryFilename, instaTrajFilename;
     bool exportInstaTraj = false;
+    double timeStep = 1.0;
 
     // read values from the cmd
     // read required values
@@ -167,12 +172,15 @@ int main(int argc, char *argv[]) {
     if (checkParserValue(parser, instaTrajOption, "", false)){ instaTrajFilename = parser.value(instaTrajOption).toStdString(); }
     else { instaTrajFilename = ""; }
 
+    if (checkParserValue(parser, timeStepOption, "", false)) { timeStep = parser.value(timeStepOption).toDouble(); }
+    else { timeStep = 1.0; }
+
     std::cout << "Reading Trains!                 \r";
     Vector<std::shared_ptr<Train>> trains = TrainsList::readTrainsFile(trainsFile);
     std::cout << "Reading Network!                \r";
     Network net = Network(nodesFile, linksFile);
     std::cout << "Define Simulator Space!         \r";
-    Simulator sim = Simulator(net, trains);
+    Simulator sim = Simulator(net, trains, timeStep);
 
     if (exportLocation != "" ) { sim.setOutputFolderLocation(exportLocation); }
     if (summaryFilename != "" ) { sim.setSummaryFilename(summaryFilename); }
