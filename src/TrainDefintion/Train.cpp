@@ -340,11 +340,12 @@ double Train::getTotalResistance(double speed) {
 }
 
 double Train::getTotalTractiveForce(double speed, double acceleration, bool optimize, double optimumThrottleLevel) {
-    double totalForce = 0;
+    double totalForce = 0.0;
     // loop over all locomotives
     for (Vector< std::shared_ptr<Locomotive>>::iterator it = this->locomotives.begin(); it != this->locomotives.end(); ++it) {
-        totalForce += it->get()->getTractiveForce(this->coefficientOfFriction, speed,
-            optimize, optimumThrottleLevel);
+        it->get()->currentTractiveForce = it->get()->getTractiveForce(this->coefficientOfFriction, speed,
+                                                            optimize, optimumThrottleLevel);
+        totalForce += it->get()->currentTractiveForce;
     }
     this->currentTractiveForce = totalForce;
     return totalForce;
@@ -873,7 +874,7 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
                                                         this->currentAcceleration, averageSpeed, timeStep);
 
             // consume/recharge fuel from/to the locomotive if it still has fuel or can be rechargable
-            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh);
+            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, usedTractivePower.at(i));
             //bool fuelConsumed = out.first;
             double restEC = out.second;
 
@@ -924,7 +925,7 @@ bool Train::consumeTendersEnergy(double timeStep, double trainSpeed,
     for (auto& car : this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)]) {
         // if the tender/battery still has energy to draw from, consume it
         if (car->getBatteryCurrentCharge() > 0 || car->getTankCurrentCapacity() > 0) {
-            car->consumeFuel(timeStep, trainSpeed, ECD, dieselConversionFactor,
+            car->consumeFuel(timeStep, trainSpeed, ECD, 0.0 ,dieselConversionFactor,
                              hydrogenConversionFactor, dieselDensity);
             consumed = true;
         }
@@ -942,14 +943,19 @@ bool Train::rechargeCarsBatteries(double timeStep, double EC_kwh, std::shared_pt
     double ECD = 0.0;
     // if the count is > 0, there are cars to rechange
     if (count > 0) { ECD = EC_kwh / count; }
-    else { return false; }  // no cars to recharge. this is redundant
-
+    else {
+        return loco->rechargeCatenary(EC_kwh); // recharge the catenary if the train does not have tenders
+    }
     // refill all cars by that shared portion
     for (auto& car : this->carsTypes[TrainTypes::CarType::batteryTender]) {
         if (! car->refillBattery(timeStep, ECD)) {
             loco->rechargeCatenary(ECD);
             consumed = true;
         }
+    }
+    // if the train does not have tenders or the tenders are full, feed to the catenary
+    if (! consumed) {
+        return loco->rechargeCatenary(EC_kwh);
     }
     return consumed;
 }
@@ -959,8 +965,8 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     double NEC = 0.0;
     double NER = 0.0;
     for (auto& vehicle : this->trainVehicles) {
-        NEC += vehicle->energyConsumed;
-        NER += std::abs(vehicle->energyRegenerated);
+        NEC += vehicle->cumEnergyConsumed;
+        NER += std::abs(vehicle->cumEnergyRegenerated);
     }
 
     this->energyStat = NEC - NER;
@@ -993,6 +999,7 @@ void Train::resetTrain() {
         it->get()->trackCurvature = 0.0;
         it->get()->trackGrade = 0.0;
         it->get()->energyConsumed = 0.0;
+        it->get()->cumEnergyConsumed = 0.0;
     };
 
     this->loaded = false;
