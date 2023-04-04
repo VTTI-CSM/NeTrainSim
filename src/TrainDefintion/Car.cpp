@@ -111,13 +111,17 @@ double Car::getEnergyConsumption(double &timeStep) {
 
 
 std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
-                                         double EC_kwh, double dieselConversionFactor,
+                                         double EC_kwh,
+                                         double carVirtualTractivePower,
+                                         double dieselConversionFactor,
                                          double biodieselConversionFactor,
                                          double hydrogenConversionFactor, double dieselDensity,
                                          double biodieselDensity, double hydrogenDensity) {
     // clear the variables for reassignning
-    this->energyConsumed = 0.0;
-    this->energyRegenerated = 0.0;
+    this->energyConsumed = 0.0; // the step energy consumption of 1 tech
+    this->energyRegenerated = 0.0; // the step energy regeneration of 1 tech
+    this->cumEnergyConsumed = 0.0; // the step energy consumption of multiple technologies (e.g hybrid)
+    this->cumEnergyRegenerated = 0.0; // the step energy regeneration of multiple technologies (e.g hybrid)
 
     // check if the energy consumption (in kWH) is energy consumption not regenerated energy
     if (EC_kwh > 0.0) {
