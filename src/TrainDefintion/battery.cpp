@@ -82,7 +82,7 @@ void Battery::setBatteryCRate(double newBatteryCRate) {
 bool Battery::isBatteryDrainable(double requiredCharge) {
     // check if the battery reaches the low level of charge, enable the recharge request
     if (this->batteryStateOfCharge < this->batteryRechargeSOCLowerBound) { this->enableRecharge = true; }
-    return (requiredCharge <= this->batteryCurrentCharge && batteryStateOfCharge > (1- batteryDOD));
+    return (requiredCharge <= this->batteryCurrentCharge && batteryStateOfCharge > (1.0- batteryDOD));
 }
 
 bool Battery::isBatteryRechargable() {

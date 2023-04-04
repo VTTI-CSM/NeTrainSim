@@ -33,7 +33,7 @@ double Tank::getTankStateOfCapacity() const {
 }
 
 bool Tank::isTankDrainable(double consumedAmount) {
-    return (consumedAmount <= this->tankCurrentCapacity && tankStateOfCapacity > (1- tankDOD));
+    return (consumedAmount <= this->tankCurrentCapacity && tankStateOfCapacity > (1.0- tankDOD));
 }
 
 double Tank::getTankDOD() const {
