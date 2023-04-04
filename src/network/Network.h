@@ -854,7 +854,7 @@ private:
                 std::shared_ptr<NetNode> toLoc = this->getSimulatorNodeByUserID(std::stoi(linkValues[2]));
                 bool hasCaten;
                 stringstream ss(linkValues[10]);
-                ss >> std::boolalpha >> hasCaten;
+                ss >> hasCaten;
 
                 if (linkValues.size() < 12) {
                     NetLink link = NetLink(stoi(linkValues[0]), fromLoc, toLoc, stod(linkValues[3]),
