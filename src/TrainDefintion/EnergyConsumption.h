@@ -19,19 +19,35 @@ namespace EC {
 // ##################################################################
 	/** (Immutable) the default locomotive auxiliary power */
 	static constexpr double DefaultLocomotiveAuxiliaryPower = 0.0;
-	/** The default locomotive battery maximum charge in kWh.
+    /** The default electric locomotive battery maximum charge in kWh.
 	 Battery capacity of up to 2.5 megawatt hours. */
-	static double DefaultLocomotiveBatteryMaxCharge = 4000.0;
-	/** The default locomotive battery initial charge */
-	static double DefaultLocomotiveBatteryInitialCharge = 0.9;
+    static double DefaultLocomotiveBatteryMaxCharge_Electric = 4000.0;
+    /** The default diesel-hybrid locomotive battery maximum charge in kWh.
+     Battery capacity of up to 2.5 megawatt hours. */
+    static double DefaultLocomotiveBatteryMaxCharge_DieselHybrid = 4000.0;
+    /** The default biodiesel-hybrid locomotive battery maximum charge in kWh.
+     Battery capacity of up to 2.5 megawatt hours. */
+    static double DefaultLocomotiveBatteryMaxCharge_BioDieselHybrid = 4000.0;
+    /** The default hydrogen-hybrid locomotive battery maximum charge in kWh.
+     Battery capacity of up to 2.5 megawatt hours. */
+    static double DefaultLocomotiveBatteryMaxCharge_HydogenHybrid = 4000.0;
+
+    /** The default locomotive battery initial charge for the electric locomotive. */
+    static double DefaultLocomotiveBatteryInitialCharge_Electric = 0.9;
+    /** The default locomotive battery initial charge for the diesel hybrid locomotive. */
+    static double DefaultLocomotiveBatteryInitialCharge_DieselHybrid = 0.9;
+    /** The default locomotive battery initial charge for the biodiesel hybrid locomotive. */
+    static double DefaultLocomotiveBatteryInitialCharge_BioDieselHybrid = 0.9;
+
+    static double DefaultLocomotiveBatteryInitialCharge_HydrogenHybrid = 0.1;
 
     /** The default locomotive tank maximum capacity in Liters.
 	 Tank capacity of 5,300 gallons. */
     static double DefaultLocomotiveTankMaxCapacityDiesel = 20065.0;
 
-    /** The deafult locomotive tank maximum capcity in gallons
+    /** The deafult locomotive tank maximum capcity in liters
      for hydrogen. */
-    static double DefaultLocomotiveTankMaxCapacityHydrogen = 100.0;
+    static double DefaultLocomotiveTankMaxCapacityHydrogen = 20065.0;
 	/** The default locomotive tank initial capacity in Gallons */
 	static double DefaultLocomotiveTankInitialCapacity = 0.9;
 
@@ -47,13 +63,13 @@ namespace EC {
 	static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.5;
 	/** (Immutable) the default locomotive battery max state of charge in
 	rechage state for any generator other than diesel.*/
-	static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.7;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.5;//0.7
 	/** (Immutable) the default locomotive battery min state of charge in which 
 	it requires recharge once reached state for diesel generator.*/
 	static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.1;
 	/** (Immutable) the default locomotive battery min state of charge in which
 	it requires recharge once reached state for any generator except diesel.*/
-	static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.5;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.1;//0.5
 
     /** required generator power percentage. */
     static constexpr double requiredGeneratorPower[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
@@ -67,8 +83,8 @@ namespace EC {
 	/** (Immutable) the default car auxiliary power */
 	static constexpr double DefaultCarAuxiliaryPower = 0.0;
 	/** The default car battery maximum capacity in kWh.
-	 Tender car could carry 5.1–6.2MWh*/
-	static double DefaultCarBatteryMaxCapacity = 10000.0;
+     Tender car could carry 5.1–6.2MWh*/
+    static double DefaultCarBatteryMaxCapacity = 10000.0;
 	/** The default car battery initial charge */
 	static double DefaultCarBatteryInitialCharge = 0.9;
 
@@ -97,27 +113,26 @@ namespace EC {
 	 Diesel (Litters) = Energy Consumption (KW.h) * 0.1005 */
 	static double DefaultDieselConversionFactor = 0.1005;
 	/** the default biodiesel conversion factor.
-	 Diesel (Gallons) = Energy Consumption (KW.h) * 0.028571
-     Diesel (Litters) = Energy Consumption (KW.h) * 0.1005
      -> According to https://afdc.energy.gov/fuels/properties:
         1 gallon of B100 has 93% of the energy in 1 gallon of diesel,
         and 1 gallon of B20 has 99% of the energy in 1 gallon of diesel.
      -->Assume we use B100, then we use 93% and the conversion factor is
-        0.1005 (diesel conversion factor) / 0.93 = 67/620*/
+        0.1005 (diesel conversion factor) / 0.93 = 67/620
+     Bio Diesel (Litters) = Energy Consumption (KW.h) * 67/620 */
     static double DefaultBiodieselConversionFactor = 67.0/620.0;
 	/** The default hydrogen conversion factor.
 	 Under ambient conditions, 1 litter of hydrogen = 0.003 kWh
 	 Hydrogen (Litters) = EnergyConsumption (kW.h) * 0.002995*/
-	static double DefaultHydrogenConversionFactor = 0.002995;
+    static double DefaultHydrogenConversionFactor = 0.002995;
 
-	/** 0.85 kg/l   >> should be between 0.82 to 0.85 at 15 degree celsius (average temperature) */
+    /** 0.85 kg/l >> the density is in tons >> should be between 0.82 to 0.85 at 15 degree celsius (average temperature) */
 	static double DefaultDieselDensity = 0.00085;
 
-	/** 0.85 kg/l   >> should be between 0.84 to 0.88 at 15 degree celsius (average temperature) */
+    /** 0.88 kg/l >> the density is in tons >> should be between 0.84 to 0.88 at 15 degree celsius (average temperature) */
 	static double DefaultBioDieselDensity = 0.00088;
-	/** 0.071 kg/l */
-	static double DefaultHydrogenDensity = 0.000071;
-	/** The gamma */
+    /** 0.099836 kg/l  >> the density is in tons */
+    static double DefaultHydrogenDensity = 0.000099836;
+    /** The gamma for regenerating energy */
 	static double gamma = 0.65;
 // ##################################################################
 // #          end: general energy consumption default values        #
@@ -148,7 +163,7 @@ namespace EC {
 	 *
      * @returns	The generator efficiency.
 	 */
-	double getGeneratorEff(TrainTypes::PowerType powerType);
+    double getGeneratorEff(TrainTypes::PowerType powerType, double powerAtWheelProportion);
 
 	/**
      * Gets required generator power percentage for recharging the battery
