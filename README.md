@@ -47,23 +47,36 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
 4. NeTrainSim allows the following command flags. Flags with required values are necessary to run the simulator.  
 
    ```html
+   -h, --help, -?                          Display this help message.
+   -v, --version                           Displays version information.
    -n, --nodes <nodesFile>                 [Required] the nodes filename.
    -l, --links <linksFile>                 [Required] the links filename.
    -t, --trains <trainsFile>               [Required] the trains filename.
-   -o, --output <outputLocation>           [Optional] the output folder address. Default 
-	                                   		is C:\Users\<USERNAME>\Documents\NeTrainSim
-   -s, --summary <summaryFilename>         [Optional] the summary filename. Default
-	                                   		is trainSummary_timestamp.txt
-   -e, --export <exportTrajectoryOptions>  [Optional] true to export instantaneous 
-	                                   		trajectory, false otherwise. Default is false.
-   -i, --insta <instaTrajectoryFile>       [Optional] the instantaneous trajectory 
-	                                   		filename. Default is trainTrajectory_timestamp.csv
+   -o, --output <outputLocation>           [Optional] the output folder address.
+                                          Default is
+                                          'C:\Users\<USERNAME>\Documents\NeTrain
+                                          Sim\'.
+   -s, --summary <summaryFilename>         [Optional] the summary filename.
+                                          Default is
+                                          'trainSummary_timeStamp.txt'.
+   -a, --all <summarizeAllTrains>          [Optional] bool to show summary of
+                                          all trains in the summary file.
+                                          Default is 'false'.
+   -e, --export <exportTrajectoryOptions>  [Optional] bool to export
+                                          instantaneous trajectory.
+                                          Default is 'false'.
+   -i, --insta <instaTrajectoryFile>       [Optional] the instantaneous
+                                          trajectory filename.
+                                          Default is
+                                          'trainTrajectory_timeStamp.csv'.
+   -p, --timeStep <simulatorTimeStep>      [Optional] the simulator time step.
+                                          Default is '1.0'.
    ```
 
    Example of a minimum-flag command
 
    ```shell
-   NeTrainSim -n "path\to\nodes\file" -l "path\to\links\file" -t "path\to\trains\file"
+   NeTrainSim.exe -n "path\to\nodes\file" -l "path\to\links\file" -t "path\to\trains\file"
    ```
 
    In this case, the default output Location is `C:\Users\<USERNAME>\Documents\NeTrainSim`  where `<USERNAME>` should be replaced with the current session user name.
