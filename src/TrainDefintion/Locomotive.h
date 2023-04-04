@@ -56,6 +56,8 @@ private:
 public:
 	/** The max power of the locomotive in kw. */
 	double maxPower;
+    /** The tractive forces of this time step. */
+    double currentTractiveForce = 0.0;
 	/** Transmission effeciency of the locomotive */
 	double transmissionEfficiency;
 	/** The type of the car */
@@ -123,8 +125,8 @@ public:
 			   int locomotiveMaxAchievableNotch = DefaultLocomotiveMaxAcheivableNotch,
 			   double locomotiveAuxiliaryPower_kw = EC::DefaultLocomotiveAuxiliaryPower,
 			   string locomotiveName = DefaultLocomotiveName,
-			   double batteryMaxCharge_kwh = EC::DefaultLocomotiveBatteryMaxCharge,
-			   double batteryInitialCharge_perc = EC::DefaultLocomotiveBatteryInitialCharge,
+               double batteryMaxCharge_kwh = std::numeric_limits<double>::quiet_NaN(), // NAN value should be resolved latter
+               double batteryInitialCharge_perc = std::numeric_limits<double>::quiet_NaN(), // NAN value should be resolved latter
                double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacityDiesel,
 			   double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity,
 			   double batteryCRate = EC::DefaultLocomotiveBatteryCRate);
@@ -318,13 +320,15 @@ public:
      *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+    std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
+                                       double EC_kwh,
+                                       double LocomotiveVirtualTractivePower = std::numeric_limits<double>::quiet_NaN(),
 									   double dieselConversionFactor = EC::DefaultDieselConversionFactor,
 									   double bioDieselConversionFactor = EC::DefaultBiodieselConversionFactor,
 									   double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
 									   double dieselDensity = EC::DefaultDieselDensity,
 									   double bioDieselDensity = EC::DefaultBioDieselDensity,
-									   double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+                                       double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
 	 * @brief Get the max energy the locomotive can regenerate.
