@@ -125,6 +125,8 @@ public:
 	 * @date	2/28/2023
 	 *
 	 * @param 	EC_kwh						The ec kwh.
+     * @param   carVirtualTractivePower     This value is not implemented since a car does not have
+     *                                      an engine.
 	 * @param 	isOffGrid					True if is off grid, false if not.
 	 * @param 	dieselConversionFactor  	(Optional) The diesel conversion factor.
 	 * @param 	hydrogenConversionFactor	(Optional) The hydrogen conversion factor.
@@ -132,13 +134,14 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
-										double dieselConversionFactor = EC::DefaultDieselConversionFactor,
-										double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
-										double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
-										double dieselDensity = EC::DefaultDieselDensity,
-										double biodieselDensity = EC::DefaultBioDieselDensity,
-										double hydrogenDensity = EC::DefaultHydrogenDensity) override;
+    std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+                                        double carVirtualTractivePower = std::numeric_limits<double>::quiet_NaN(),
+                                        double dieselConversionFactor = EC::DefaultDieselConversionFactor,
+                                        double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
+                                        double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
+                                        double dieselDensity = EC::DefaultDieselDensity,
+                                        double biodieselDensity = EC::DefaultBioDieselDensity,
+                                        double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
 	/**
 	 * Stream insertion operator

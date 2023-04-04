@@ -22,13 +22,14 @@ void TrainComponent::setCurrentWeight(double newCurrentWeight) {
 
 // consume the fuel required by the locomotive
 std::pair<bool,double> TrainComponent::consumeFuel(double timeStep, double trainSpeed,
-												   double EC_kwh,
-												   double dieselConversionFactor,
-												   double biodieselConversionFactor,
-												   double hydrogenConversionFactor,
-												   double dieselDensity,
-												   double biodieselDensity,
-												   double hydrogenDensity) {
+                                                   double EC_kwh,
+                                                   double LocomotiveVirtualTractivePower,
+                                                   double dieselConversionFactor,
+                                                   double biodieselConversionFactor,
+                                                   double hydrogenConversionFactor,
+                                                   double dieselDensity,
+                                                   double biodieselDensity,
+                                                   double hydrogenDensity) {
     // a default value for a rail car of false and 0.0. which indicates the railcar cannot consume fuel
 	return std::make_pair(false,0.0);
 }
@@ -73,12 +74,25 @@ std::pair<bool, double> TrainComponent::consumeFuelBioDiesel(double EC_kwh, doub
 std::pair<bool, double> TrainComponent::consumeElectricity(double timeStep, double EC_kwh) {
     // if the link the vehicle is on does not have catenary, consume electricity from the battery
 	if (! this->hostLink->hasCatenary){
-        // update stats
-		this->energyConsumed = EC_kwh;
-		this->cumEnergyConsumed += this->energyConsumed;
         // consume electricity and return its results
-        // true if it could consume electricity, false otherwise
-		return this->consumeBattery(timeStep, EC_kwh);
+        auto out = this->consumeBattery(timeStep, EC_kwh); // true if it could consume electricity, false otherwise
+        // if it could consume all electricity
+        if (out.first && out.second == 0.0){
+            // update stats
+            this->energyConsumed = EC_kwh;
+            this->cumEnergyConsumed += this->energyConsumed;
+            return out;
+        }
+        // if it consume part of the electricity
+        else if (out.first && out.second > 0.0) {
+            // update stats
+            this->energyConsumed = EC_kwh - out.second;
+            this->cumEnergyConsumed += this->energyConsumed;
+            return out;
+        }
+        else {
+            return out;
+        }
     } // end if
 	else {
         // update stats
@@ -114,12 +128,12 @@ std::pair<bool, double> TrainComponent::consumeFuelHydrogen(double EC_kwh, doubl
 bool TrainComponent::refillBattery(double timeStep, double EC_kwh) {
 	double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
 	// get how much regenerated energy and pushed to the battery,
-	// 0.0 means no energy was pushed to the battery
-	this->energyRegenerated = this->rechargeBattery(timeStep, ER);
-	this->cumEnergyRegenerated += this->energyRegenerated;
-	// if the battery is full, it will return 0.0 recharged to the battery.
-	// if the battery recharge all/part of the energy, it will return any other valye
-	return (this->energyRegenerated != 0.0);
+    // 0.0 means no energy was pushed to the battery
+    this->energyRegenerated = this->rechargeBattery(timeStep, ER);
+    this->cumEnergyRegenerated += this->energyRegenerated;
+    // if the battery is full, it will return 0.0 recharged to the battery.
+    // if the battery recharge all/part of the energy, it will return any other valye
+    return (this->energyRegenerated != 0.0);
 }
 
 bool TrainComponent::rechargeCatenary(double EC_kwh) {

@@ -245,13 +245,14 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
 	virtual std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
-											   double EC_kwh,
+                                               double EC_kwh,
+                                               double LocomotiveVirtualTractivePower = std::numeric_limits<double>::quiet_NaN(),
 											   double dieselConversionFactor = EC::DefaultDieselConversionFactor,
 											   double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
 											   double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
 											   double dieselDensity = EC::DefaultDieselDensity,
 											   double biodieselDensity = EC::DefaultBioDieselDensity,
-											   double hydrogenDensity = EC::DefaultHydrogenDensity);
+                                               double hydrogenDensity = EC::DefaultHydrogenDensity);
 
 	/**
 	 * \brief Stream insertion operator
