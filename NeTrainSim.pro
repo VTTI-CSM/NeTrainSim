@@ -96,3 +96,5 @@ DISTFILES += \
 RESOURCES += \
     src.qrc
 
+# add icon to the application
+RC_ICONS += src/resources/icon.ico
