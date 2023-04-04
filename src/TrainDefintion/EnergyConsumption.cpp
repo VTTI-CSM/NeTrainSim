@@ -22,23 +22,19 @@ namespace EC {
         }
 
         double DCBusToTank = 0.0;
-        double notchN = (double) notchNumberIndex;
         switch (powerType) {
             // for all diesel similar motor, use the same eff
         case TrainTypes::PowerType::diesel:
         case TrainTypes::PowerType::biodiesel:
         case TrainTypes::PowerType::dieselElectric:
-            DCBusToTank = -0.0021 * std::pow(notchN, (double)2) + 0.0407 * notchN + 0.2618;
+            DCBusToTank = -0.24 * std::pow(powerAtWheelProportion, (double)2) + 0.3859 * powerAtWheelProportion + 0.29;
             break;
         // for electric similar motor, use an average value of 0.965
         case TrainTypes::PowerType::electric:
         case TrainTypes::PowerType::dieselHybrid:
         case TrainTypes::PowerType::biodieselHybrid:
-            DCBusToTank = 0.965;
-            break;
         case TrainTypes::PowerType::hydrogenHybrid:
-            DCBusToTank = -0.09 * std::pow(powerAtWheelProportion, (double)2.0) -
-                    0.0026 * powerAtWheelProportion + 0.5621;
+            DCBusToTank = 0.965;
             break;
         default:
             break;
@@ -46,15 +42,16 @@ namespace EC {
         return wheelToDCBusEff * DCBusToTank;
     }
 
-    double getGeneratorEff(TrainTypes::PowerType powerType) {
-        // TODO: change it to new values
+    double getGeneratorEff(TrainTypes::PowerType powerType, double powerAtWheelProportion) {
         switch (powerType) {
         case TrainTypes::PowerType::dieselHybrid:
         case TrainTypes::PowerType::biodieselHybrid:
-            return 0.4524; // the full throttle eff
+            return -0.24 * std::pow(powerAtWheelProportion, (double)2.0) +
+                    0.3859 * powerAtWheelProportion + 0.29;
         case TrainTypes::PowerType::hydrogenHybrid:
-            return 0.53;  // the full throttle eff
-       default:
+            return -0.0937 * std::pow(powerAtWheelProportion, (double)2.0) +
+                    0.002 * powerAtWheelProportion + 0.5609;
+        default:
             return 1.0;  // if powertype should not generate
         }
     }
