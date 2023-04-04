@@ -177,7 +177,8 @@ namespace TrainTypes {
     /** The locomotive tank only */
     static const Vector<PowerType> locomotiveTankOnly = {
         PowerType::diesel,
-        PowerType::biodiesel
+        PowerType::biodiesel,
+        PowerType::dieselElectric  // it does not have a battery to store energy in
     };
 
     /** The locomotive battery only */
