@@ -48,6 +48,13 @@ private:
      *  request a recharge till it reaches the batteryMaxSOC. */
     bool enableRecharge = false;
 
+//    double batteryEnergyConsmed = 0.0;
+//    double batteryEnergyRegenerated = 0.0;
+//    double batteryNetEnergyConsumed = 0.0;
+    double batteryCumEnergyConsumed = 0.0;
+    double batteryCumEnergyRegenerated = 0.0;
+    double batteryCumNetEnergyConsumed = 0.0;
+
 public:
 
     /**
@@ -295,6 +302,12 @@ public:
      * @param 	newBatteryRechargeSOCLowerBound	The new battery recharge soc lower bound.
      */
     void setBatteryRechargeSOCLowerBound(double newBatteryRechargeSOCLowerBound);
+
+    double getBatteryCumEnergyConsumption();
+
+    double getBatteryCumEnergyRegenerated();
+
+    double getBatteryCumNetEnergyConsumption();
 };
 
 #endif // BATTERY_H

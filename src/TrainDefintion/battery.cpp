@@ -27,11 +27,14 @@ std::pair<bool, double> Battery::consumeBattery(double timeStep, double consumed
     double batteryMax_kwh = getBatteryMaxDischarge(timeStep);
     if (consumedCharge > batteryMax_kwh) {
         double EC_extra_kwh = consumedCharge - batteryMax_kwh;
+        this->batteryCumEnergyConsumed += batteryMax_kwh;
+        this->batteryCumNetEnergyConsumed += batteryMax_kwh;
         batteryCurrentCharge -= batteryMax_kwh;
         batteryStateOfCharge = batteryCurrentCharge / batteryMaxCapacity;
         return std::make_pair(true, EC_extra_kwh);
     }
-
+    this->batteryCumEnergyConsumed += consumedCharge;
+    this->batteryCumNetEnergyConsumed += consumedCharge;
     batteryCurrentCharge -= consumedCharge;
     batteryStateOfCharge = batteryCurrentCharge / batteryMaxCapacity;
     return std::make_pair(true, 0.0);
@@ -41,10 +44,14 @@ double Battery::rechargeBattery(double timeStep, double recharge) {
     if (! isBatteryRechargable()) { return 0.0; }
     double batteryMax_kwh = getBatteryMaxRecharge(timeStep);
     if (recharge > batteryMax_kwh) {
+        this->batteryCumEnergyRegenerated += batteryMax_kwh;
+        this->batteryCumNetEnergyConsumed -= batteryMax_kwh;
         batteryCurrentCharge += batteryMax_kwh;
         batteryStateOfCharge = batteryCurrentCharge / batteryMaxCapacity;
         return batteryMax_kwh;
     }
+    this->batteryCumEnergyRegenerated += recharge;
+    this->batteryCumNetEnergyConsumed -= recharge;
     batteryCurrentCharge += recharge;
     batteryStateOfCharge = batteryCurrentCharge / batteryMaxCapacity;
     return recharge;
@@ -138,6 +145,18 @@ void Battery::setBatteryRechargeSOCLowerBound(double newBatteryRechargeSOCLowerB
     else{
         batteryRechargeSOCLowerBound = newBatteryRechargeSOCLowerBound;
     }
+}
+
+double Battery::getBatteryCumEnergyConsumption() {
+    return this->batteryCumEnergyConsumed;
+}
+
+double Battery::getBatteryCumEnergyRegenerated() {
+    return this->batteryCumEnergyRegenerated;
+}
+
+double Battery::getBatteryCumNetEnergyConsumption() {
+    return this->batteryCumNetEnergyConsumed;
 }
 
 void Battery::setBattery(double maxCharge,
