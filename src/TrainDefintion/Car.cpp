@@ -120,8 +120,6 @@ std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
     // clear the variables for reassignning
     this->energyConsumed = 0.0; // the step energy consumption of 1 tech
     this->energyRegenerated = 0.0; // the step energy regeneration of 1 tech
-    this->cumEnergyConsumed = 0.0; // the step energy consumption of multiple technologies (e.g hybrid)
-    this->cumEnergyRegenerated = 0.0; // the step energy regeneration of multiple technologies (e.g hybrid)
 
     // check if the energy consumption (in kWH) is energy consumption not regenerated energy
     if (EC_kwh > 0.0) {

@@ -99,6 +99,30 @@ double Train::getMinFollowingTrainGap() {
     return DefaultMinFollowingGap;
 }
 
+double Train::getBatteryEnergyConsumed() {
+    double total = 0.0;
+    for (auto &vehicle:this->trainVehicles) {
+        total += vehicle->getBatteryCumEnergyConsumption();
+    }
+    return total;
+}
+
+double Train::getBatteryEnergyRegenerated() {
+    double total = 0.0;
+    for (auto &vehicle:this->trainVehicles) {
+        total += vehicle->getBatteryCumEnergyRegenerated();
+    }
+    return total;
+}
+
+double Train::getBatteryNetEnergyConsumed() {
+    double total = 0.0;
+    for (auto &vehicle:this->trainVehicles) {
+        total += vehicle->getBatteryCumNetEnergyConsumption();
+    }
+    return total;
+}
+
 double Train::getAverageLocomotivesBatteryStatus() {
     double sum = 0;
     for (auto& loco : this->locomotives) {
@@ -152,7 +176,7 @@ double Train::getTrainTotalTorque() {
 double Train::getTrainConsumedTank() {
     double consumption = 0.0;
     for (auto &loco: this->locomotives) {
-        consumption += loco->getTankInitialCapacity() - loco->getTankCurrentCapacity();
+        consumption += loco->getTankCumConsumedFuel();
     }
     return consumption;
 }
@@ -205,6 +229,19 @@ Map<TrainTypes::PowerType, int> Train::LocTypeCount() {
         }
         else {
             typesCount[loco->powerType] = 1;
+        }
+    }
+    return typesCount;
+}
+
+Map<TrainTypes::CarType, int> Train::carTypeCount() {
+    Map<TrainTypes::CarType, int> typesCount;
+    for (auto& car : this->cars) {
+        if (typesCount.count(car->carType) > 0) {
+            typesCount[car->carType] += 1;
+        }
+        else {
+            typesCount[car->carType] = 1;
         }
     }
     return typesCount;

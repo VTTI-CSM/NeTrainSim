@@ -329,6 +329,15 @@ public:
     Map<TrainTypes::PowerType, int> LocTypeCount();
 
     /**
+     * @brief car type count
+     *
+     * @author	Ahmed Aredah
+     * @date    4/6/2023
+     *
+     * @returns	A Map&lt;TrainTypes::CarTypes,int&gt;
+     */
+    Map<TrainTypes::CarType, int> carTypeCount();
+    /**
      * \brief This function returns the centroids of all vehicles in the train
      *
      * @author	Ahmed Aredah
@@ -347,6 +356,40 @@ public:
      * @returns	The active locomotives number.
      */
     int getActiveLocomotivesNumber();
+
+    /**
+     * @brief Gets the battery energy consumed in kWh.
+     *
+     * @details Gets the battery energy consumed only.
+     *          it does not report the energy regenerated.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return  the energy consumed in kWh.
+     */
+    double getBatteryEnergyConsumed();
+    /**
+     * @brief Gets the battery energy regenerated in kWh.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return  the energy regenerated in kWh.
+     */
+    double getBatteryEnergyRegenerated();
+
+    /**
+     * @brief Gets the battery energy consumed in kWh.
+     *
+     * @details Gets the battery energy consumed and regenerated.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @return  the energy consumed in kWh.
+     */
+    double getBatteryNetEnergyConsumed();
 
     /**
      * \brief Gets average locomotives battery status
