@@ -60,7 +60,7 @@ namespace EC {
 	static constexpr double DefaultLocomotiveBatteryCRate = 2.0;
 	/** (Immutable) the default locomotive battery max state of charge in 
 	rechage state for diesel generator.*/
-	static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.5;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.5;
 	/** (Immutable) the default locomotive battery max state of charge in
 	rechage state for any generator other than diesel.*/
     static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.5;//0.7
@@ -151,7 +151,9 @@ namespace EC {
 	 *
 	 * @returns	The drive line eff.
 	 */
-	double getDriveLineEff(double &trainSpeed, int notchNumberIndex, double powerAtWheelProportion, TrainTypes::PowerType powerType);
+    double getDriveLineEff(double &trainSpeed, int notchNumberIndex, double powerAtWheelProportion,
+                           TrainTypes::PowerType powerType,
+                           TrainTypes::LocomotivePowerMethod hybridMethod);
 
 	/**
 	 * Gets generator effeciency by the power type

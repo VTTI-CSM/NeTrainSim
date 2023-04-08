@@ -62,6 +62,8 @@ public:
 	double transmissionEfficiency;
 	/** The type of the car */
 	TrainTypes::PowerType powerType;
+    /** the hybrid technology whether it is series or paralletl. */
+    TrainTypes::LocomotivePowerMethod hybridMethod;
 	/** Current used notch max speed */
 	double maxSpeed;
 
@@ -83,6 +85,8 @@ public:
 	Vector<double> throttleLevels;
 	/** (Immutable) the gravitation acceleration */
 	const double g = 9.8067;
+
+
 
 	/**
 	 * !
@@ -129,7 +133,8 @@ public:
                double batteryInitialCharge_perc = std::numeric_limits<double>::quiet_NaN(), // NAN value should be resolved latter
                double tankMaxCapacity_kg = EC::DefaultLocomotiveTankMaxCapacityDiesel,
 			   double tankInitialCapacity_perc = EC::DefaultLocomotiveTankInitialCapacity,
-			   double batteryCRate = EC::DefaultLocomotiveBatteryCRate);
+               double batteryCRate = EC::DefaultLocomotiveBatteryCRate,
+               TrainTypes::LocomotivePowerMethod theHybridMethod = TrainTypes::LocomotivePowerMethod::notApplicable);
 
 
 	/**

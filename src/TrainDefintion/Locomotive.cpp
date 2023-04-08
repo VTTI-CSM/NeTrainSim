@@ -16,25 +16,25 @@
 using namespace std;
 
 
-Locomotive::Locomotive(
-		double locomotiveMaxPower_kw,
-		double locomotiveTransmissionEfficiency,
-		double locomotiveLength_m,
-		double locomotiveDragCoef,
-		double locomotiveFrontalArea_sqm,
-		double locomotiveWeight_t,
-		int locomotiveNoOfAxiles,
-		int locomotivePowerType,
-		double locomotiveMaxSpeed_mps,
-		int totalNotches,
-		int locomotiveMaxAchievableNotch,
-		double locomotiveAuxiliaryPower_kw,
-		string locomotiveName,
-		double batteryMaxCharge_kwh,
-		double batteryInitialCharge_perc,
-		double tankMaxCapacity_,
-		double tankInitialCapacity_perc,
-		double batteryCRate) {
+Locomotive::Locomotive(double locomotiveMaxPower_kw,
+        double locomotiveTransmissionEfficiency,
+        double locomotiveLength_m,
+        double locomotiveDragCoef,
+        double locomotiveFrontalArea_sqm,
+        double locomotiveWeight_t,
+        int locomotiveNoOfAxiles,
+        int locomotivePowerType,
+        double locomotiveMaxSpeed_mps,
+        int totalNotches,
+        int locomotiveMaxAchievableNotch,
+        double locomotiveAuxiliaryPower_kw,
+        string locomotiveName,
+        double batteryMaxCharge_kwh,
+        double batteryInitialCharge_perc,
+        double tankMaxCapacity_,
+        double tankInitialCapacity_perc,
+        double batteryCRate,
+        TrainTypes::LocomotivePowerMethod theHybridMethod) {
     // assign the values to the variables
 	this->name = locomotiveName;
     this->maxPower = locomotiveMaxPower_kw;  // in kw
@@ -179,6 +179,16 @@ Locomotive::Locomotive(
     this->hostLink = std::shared_ptr<NetLink>(); // assign empty placeholder
     this->discritizedLamda.push_back(0.0); // add idle throttle level
     this->throttleLevels = this->defineThrottleLevels(); // define all the throttle levels
+    if (theHybridMethod == TrainTypes::LocomotivePowerMethod::notApplicable && TrainTypes::locomotiveHybrid.exist(this->powerType)) {
+        this->hybridMethod = TrainTypes::LocomotivePowerMethod::series;
+    }
+    else if (TrainTypes::locomotiveHybrid.exist(this->powerType)) {
+        this->hybridMethod = theHybridMethod;
+    }
+    else {
+        this->hybridMethod = TrainTypes::LocomotivePowerMethod::notApplicable;
+    }
+
 };	
 
 
@@ -361,7 +371,7 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
 		return this->auxiliaryPower * unitConversionFactor;
 	}
 	else if(tractivePower > 0) {
-		double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, powerPortion ,this->powerType);
+        double eff = EC::getDriveLineEff(trainSpeed, this->currentLocNotch, powerPortion ,this->powerType, this->hybridMethod);
 		double EC = (((tractivePower/ eff ) + this->auxiliaryPower ) * unitConversionFactor);
 		return EC;
 	}
@@ -390,7 +400,8 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
 			return ((tractivePower * regenerativeEff * EC::getDriveLineEff(trainSpeed,
 																		   this->currentLocNotch,
 																		   std::abs(powerPortion),
-																		   this->powerType) +
+                                                                           this->powerType,
+                                                                           this->hybridMethod) +
 					 this->auxiliaryPower) * unitConversionFactor);
 		}
 		// if it is diesel-electric, do no regenerate electricity
@@ -417,8 +428,6 @@ std::pair<bool, double> Locomotive::consumeFuel(double timeStep, double trainSpe
     // reset the locomotive energy stats first
     this->energyConsumed = 0.0; // the step energy consumption of 1 tech
     this->energyRegenerated = 0.0; // the step energy regeneration of 1 tech
-    this->cumEnergyConsumed = 0.0; // the step energy consumption of multiple technologies (e.g hybrid)
-    this->cumEnergyRegenerated = 0.0; // the step energy regeneration of multiple technologies (e.g hybrid)
 
 	// if energy should be consumed
 	if (EC_kwh > 0.0) {

@@ -7,7 +7,8 @@ namespace EC {
 
     double getDriveLineEff(double &trainSpeed, int notchNumberIndex,
                            double powerAtWheelProportion,
-                           TrainTypes::PowerType powerType) {
+                           TrainTypes::PowerType powerType,
+                           TrainTypes::LocomotivePowerMethod hybridMethod) {
         double wheelToDCBusEff = 0.0;     // initialize the variable
         double speed = trainSpeed * 3.6;  // convert the m/s speed to km/h
         // get the wheel to DC Bus effeciency
@@ -31,11 +32,21 @@ namespace EC {
             break;
         // for electric similar motor, use an average value of 0.965
         case TrainTypes::PowerType::electric:
+            DCBusToTank = 0.965;
+            break;
         case TrainTypes::PowerType::dieselHybrid:
         case TrainTypes::PowerType::biodieselHybrid:
         case TrainTypes::PowerType::hydrogenHybrid:
-            DCBusToTank = 0.965;
-            break;
+            switch (hybridMethod) {
+            case TrainTypes::LocomotivePowerMethod::series:
+            case TrainTypes::LocomotivePowerMethod::notApplicable: //default
+                DCBusToTank = 0.965;
+                break;
+            case TrainTypes::LocomotivePowerMethod::parallel:
+                DCBusToTank = 1.0;
+                break;
+            }
+
         default:
             break;
         }

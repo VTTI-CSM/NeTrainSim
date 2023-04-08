@@ -140,6 +140,22 @@ namespace TrainTypes {
     }
 
     /**
+     * Stream insertion operator
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @param [in,out]	ss 	The ss.
+     * @param 		  	obj	The object.
+     *
+     * @returns	The shifted result.
+     */
+    inline std::ostream& operator<<(std::ostream& ss, const CarType& obj) {
+        ss << carTypeStrings[static_cast<int>(obj)];
+        return ss;
+    }
+
+    /**
      * *************************************************************************************
      *  Locomotives power types
      *  ************************************************************************************
@@ -303,6 +319,97 @@ namespace TrainTypes {
      */
     inline std::ostream& operator<<(std::ostream& ss, const PowerType& obj) {
         ss << powerTypeStrings[static_cast<int>(obj)];
+        return ss;
+    }
+
+    /**
+     * *************************************************************************************
+     *  Locomotives power Method
+     *  ************************************************************************************
+     */
+    static const int powerMethodN = 2;
+    /** Values that represent power types */
+    enum class _LocomotivePowerMethod {
+        notApplicable,
+        series,
+        parallel
+    };
+
+    /** Type of the power */
+    using LocomotivePowerMethod = _LocomotivePowerMethod;
+    /** The power type strings[] */
+    static const std::string powerMethodsStrings[] = {
+        "Not Applicable"
+        "Series Hybrid Power",
+        "Parallel Hybrid Power"
+    };
+    /** The power type array[] */
+    static const LocomotivePowerMethod powerMethodArray[] = {
+        LocomotivePowerMethod::notApplicable, //0
+        LocomotivePowerMethod::series, // 1
+        LocomotivePowerMethod::parallel //2
+    };
+
+    /** The power type map */
+    static const std::map<std::string, LocomotivePowerMethod> powerMethodMap = {
+        {"Series Hybrid Power", LocomotivePowerMethod::series},
+        {"Series Hybrid Power", LocomotivePowerMethod::series},
+        {"Parallel Hybrid Power", LocomotivePowerMethod::parallel}
+    };
+
+
+    /**
+     * Converts a string to a power method
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     *
+     * @param 	powertype	The powertype.
+     *
+     * @returns	Powertype as a PowerType.
+     */
+    inline LocomotivePowerMethod strToPowerMethod(std::string powertype) {
+        auto it = powerMethodMap.find(powertype);
+        if (it == powerMethodMap.end()) {
+            throw std::invalid_argument("invalid car type");
+        }
+        return it->second;
+    }
+
+    /**
+     * Converts a powertype to a power type
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     *
+     * @param 	powertype	The powertype.
+     *
+     * @returns	Powertype as a PowerType.
+     */
+    inline LocomotivePowerMethod iToPowerMethod(int powertype) {
+        if (powertype < 0 || powertype >= powerMethodN) {
+            throw std::invalid_argument("invalid car type");
+        }
+        return powerMethodArray[powertype];
+    }
+
+    /**
+     * Stream insertion operator
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @param [in,out]	ss 	The ss.
+     * @param 		  	obj	The object.
+     *
+     * @returns	The shifted result.
+     */
+    inline std::ostream& operator<<(std::ostream& ss, const LocomotivePowerMethod& obj) {
+        ss << powerMethodsStrings[static_cast<int>(obj)];
         return ss;
     }
 
