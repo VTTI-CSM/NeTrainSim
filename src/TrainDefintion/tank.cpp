@@ -23,6 +23,7 @@ double Tank::getTankCurrentCapacity() const {
 
 double Tank::consumeTank(double consumedAmount) {
     if (! isTankDrainable(consumedAmount)) { return consumedAmount; }
+    tankCumConsumedFuel += consumedAmount;
     tankCurrentCapacity -= consumedAmount;
     tankStateOfCapacity = tankCurrentCapacity / tankMaxCapacity;
     return 0.0;
@@ -50,6 +51,10 @@ void Tank::setTankDOD(double newTankDOD) {
                     "1.0. 0.0: no discharge is allowed, 1.0: full "
                     "discharge is allowed");
     }
+}
+
+double Tank::getTankCumConsumedFuel() const {
+    return tankCumConsumedFuel;
 }
 
 void Tank::SetTank(double maxCapacity, double initialCapacityPercentage, double depthOfDischarge){

@@ -18,6 +18,8 @@ private:
     double tankStateOfCapacity;
     /** depth of discharge. */
     double tankDOD;
+    /** consumed amount of fuel in liters.*/
+    double tankCumConsumedFuel = 0.0;
 public:
     /**
      * @brief set the tank main properties (works as init)
@@ -133,6 +135,9 @@ public:
      * @param 	newTankDOD	The new tank dod.
      */
     void setTankDOD(double newTankDOD);
+
+
+    double getTankCumConsumedFuel() const;
 };
 
 #endif // TANK_H
