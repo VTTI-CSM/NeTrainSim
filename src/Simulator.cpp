@@ -552,6 +552,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 				<< train->currentUsedTractivePower << ","
 				<< grades[0] << ","
 				<< curvatures[0] << ","
+                << train->locomotives[0]->currentLocNotch
 				<< std::endl;
 
 			this->trajectoryFile << exportLine.str();
@@ -876,9 +877,10 @@ void Simulator::runSimulation() {
 	if (this->exportTrajectory) {
 		this->openTrajectoryFile();
 		std::stringstream exportLine;
-		exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,";
-		exportLine << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,";
-		exportLine << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc\n";
+        exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,"
+                   << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,"
+                   << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc,"
+                   << "FirstLocoNotchPosition\n";
 		this->trajectoryFile << exportLine.str();
 	}
 
