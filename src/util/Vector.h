@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 
 /**
  * A vector.
@@ -191,6 +192,29 @@ public:
             return true;
         }
         return false;
+    }
+
+    /**
+     * Convert this object into a string representation
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @returns	A std::string that represents this object.
+     */
+    std::string toString() const {
+        std::stringstream ss = std::stringstream("");
+        bool first = true;
+        ss << "[ ";
+        for (const auto& elem : *this) {
+            if (!first) {
+                ss << ", ";
+            }
+            ss << elem;
+            first = false;
+        }
+        ss << "]";
+        return ss.str();
     }
 };
 

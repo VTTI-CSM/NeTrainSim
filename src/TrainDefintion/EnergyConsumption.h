@@ -33,13 +33,13 @@ namespace EC {
     static double DefaultLocomotiveBatteryMaxCharge_HydogenHybrid = 4000.0;
 
     /** The default locomotive battery initial charge for the electric locomotive. */
-    static double DefaultLocomotiveBatteryInitialCharge_Electric = 0.9;
+    static double DefaultLocomotiveBatteryInitialCharge_Electric = 0.6;
     /** The default locomotive battery initial charge for the diesel hybrid locomotive. */
-    static double DefaultLocomotiveBatteryInitialCharge_DieselHybrid = 0.9;
+    static double DefaultLocomotiveBatteryInitialCharge_DieselHybrid = 0.6;
     /** The default locomotive battery initial charge for the biodiesel hybrid locomotive. */
-    static double DefaultLocomotiveBatteryInitialCharge_BioDieselHybrid = 0.9;
+    static double DefaultLocomotiveBatteryInitialCharge_BioDieselHybrid = 0.6;
 
-    static double DefaultLocomotiveBatteryInitialCharge_HydrogenHybrid = 0.1;
+    static double DefaultLocomotiveBatteryInitialCharge_HydrogenHybrid = 0.6;
 
     /** The default locomotive tank maximum capacity in Liters.
 	 Tank capacity of 5,300 gallons. */
@@ -60,19 +60,25 @@ namespace EC {
 	static constexpr double DefaultLocomotiveBatteryCRate = 2.0;
 	/** (Immutable) the default locomotive battery max state of charge in 
 	rechage state for diesel generator.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.5;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.65;
 	/** (Immutable) the default locomotive battery max state of charge in
 	rechage state for any generator other than diesel.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.5;//0.7
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.65;
 	/** (Immutable) the default locomotive battery min state of charge in which 
 	it requires recharge once reached state for diesel generator.*/
-	static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.1;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.20;
 	/** (Immutable) the default locomotive battery min state of charge in which
 	it requires recharge once reached state for any generator except diesel.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.1;//0.5
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.50;//0.5
 
     /** required generator power percentage. */
     static constexpr double requiredGeneratorPower[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
+
+    static constexpr double DefaultLocomotivePowerReduction_DieselHybrid = 0.8;
+
+    static constexpr double DefaultLocomotivePowerReduction_BioDieselHybrid = 0.8;
+
+    static constexpr double DefaultLocomotivePowerReduction_HydrogenHybrid = 0.5;
 // ##################################################################
 // #             end: define locomotive default values            #
 // ##################################################################
@@ -167,6 +173,10 @@ namespace EC {
 	 */
     double getGeneratorEff(TrainTypes::PowerType powerType, double powerAtWheelProportion);
 
+    double getBatteryEff(TrainTypes::PowerType powerType);
+
+    std::pair<double,double> getMaxEffeciencyRange(TrainTypes::PowerType powerType);
+
 	/**
      * Gets required generator power percentage for recharging the battery
 	 *
@@ -190,6 +200,8 @@ namespace EC {
 	 * @returns	The emissions.
 	 */
     double getEmissions(double fuelConsumption);
+
+    double getLocomotivePowerReductionFactor(TrainTypes::PowerType powerType);
 }
 
 

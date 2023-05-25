@@ -185,7 +185,7 @@ public:
 	 * @param EC_kwh
 	 * @return
 	 */
-	virtual bool refillBattery(double timeStep, double EC_kwh);
+    virtual double refillBattery(double timeStep, double EC_kwh);
 
 	/**
 	 * @brief Rechage catenary and grid system if they are available

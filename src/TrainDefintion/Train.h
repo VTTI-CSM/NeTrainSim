@@ -824,7 +824,7 @@ public:
      *
      * @returns	True if it succeeds, false if it fails.
      */
-    bool consumeTendersEnergy(double timeStep, double trainSpeed, double EC_kwh, TrainTypes::PowerType powerType,
+    std::pair<bool, double> consumeTendersEnergy(double timeStep, double trainSpeed, double EC_kwh, TrainTypes::PowerType powerType,
                               double dieselConversionFactor = EC::DefaultDieselConversionFactor,
                               double hydrogenConversionFactor = EC::DefaultHydrogenConversionFactor,
                               double dieselDensity = EC::DefaultDieselDensity);

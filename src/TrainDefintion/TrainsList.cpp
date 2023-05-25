@@ -40,7 +40,7 @@
 
         // if the file has trains continue, else stop and throw error
         if (lines.size() == 0) {
-            std::cerr << "Trains file is empty!" << std::endl;
+            std::cerr << "Trains file " << fileName << " is empty!" << std::endl;
             exit(static_cast<int>(Error::emptyTrainsFile));
         }
 

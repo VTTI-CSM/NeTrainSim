@@ -6,6 +6,7 @@
 #ifndef NeTrainSim_Locomotive_h
 #define NeTrainSim_Locomotive_h
 
+#include <functional>
 #include <string>
 #include <iostream>
 //#include "../util/List.h"
@@ -86,6 +87,7 @@ public:
 	/** (Immutable) the gravitation acceleration */
 	const double g = 9.8067;
 
+    double usedPowerPortion = 0.0;
 
 
 	/**
@@ -344,9 +346,23 @@ public:
 	 *
 	 * @param timeStep
 	 * @param trainSpeed
+     * @param LocomotiveVirtualTractivePower
+     *
 	 * @return
 	 */
-	double getMaxRechargeEnergy(double timeStep, double trainSpeed);
+    double getMaxRechargeEnergy(double timeStep, double trainSpeed, double LocomotiveVirtualTractivePower);
+
+    double getUsedPowerPortion(double trainSpeed, double LocomotiveVirtualTractivePower);
+
+    void rechargeBatteryByMaxFlow(double timeStep, double trainSpeed, double powerPortion,
+                                     double fuelConversionFactor, double fuelDensity,
+                                     double LocomotiveVirtualTractivePower,
+                                     std::function<std::pair<bool, double>(double, double, double)> ConsumeFuelFunc);
+
+    std::pair<bool, double> consumeEnergyFromHybridTechnology(double timeStep, double trainSpeed, double powerPortion,
+                                                          double EC_kwh, double fuelConversionFactor,
+                                                          double fuelDensity, double LocomotiveVirtualTractivePower,
+                                                          std::function<std::pair<bool, double>(double, double, double)> ConsumeFuelFunc);
 
 	/**
 	 * Define throttle levels

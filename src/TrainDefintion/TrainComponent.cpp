@@ -83,24 +83,21 @@ std::pair<bool, double> TrainComponent::consumeElectricity(double timeStep, doub
             // update stats
             this->energyConsumed = EC_kwh;
             this->cumEnergyConsumed += this->energyConsumed;
-            return out;
         }
         // if it consume part of the electricity
         else if (out.first && out.second > 0.0) {
             // update stats
             this->energyConsumed = EC_kwh - out.second;
             this->cumEnergyConsumed += this->energyConsumed;
-            return out;
         }
-        else {
-            return out;
-        }
+
+        return out;
     } // end if
 	else {
         // update stats
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
-		this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
+        this->hostLink->catenaryCumConsumedEnergy += EC_kwh;
         // return true as all energy required is consumed from the catenary
 		return std::make_pair(true, 0.0);
     } // end else
@@ -127,21 +124,25 @@ std::pair<bool, double> TrainComponent::consumeFuelHydrogen(double EC_kwh, doubl
 	return std::make_pair(false, EC_kwh); // return the tender is empty now and cannot provide any more fuel
 }
 
-bool TrainComponent::refillBattery(double timeStep, double EC_kwh) {
+double TrainComponent::refillBattery(double timeStep, double EC_kwh) {
 	double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
 	// get how much regenerated energy and pushed to the battery,
     // 0.0 means no energy was pushed to the battery
-    this->energyRegenerated = this->rechargeBattery(timeStep, ER);
+    this->energyRegenerated = this->rechargeBatteryByRegeneratedEnergy(timeStep, ER);
     this->cumEnergyRegenerated += this->energyRegenerated;
     // if the battery is full, it will return 0.0 recharged to the battery.
     // if the battery recharge all/part of the energy, it will return any other valye
-    return (this->energyRegenerated != 0.0);
+    return (ER - this->energyRegenerated);
 }
 
 bool TrainComponent::rechargeCatenary(double EC_kwh) {
     // if the link the vehicle is on has catenary, recharge it
 	if (this->hostLink->hasCatenary){
+        // trasfer regenerated energy to the catenary
 		this->hostLink->catenaryCumRegeneratedEnergy += std::abs(EC_kwh);
+        // add the total amount of regenerated energy to the train total Regenerated Energy
+        this->energyRegenerated = std::abs(EC_kwh);
+        this->cumEnergyRegenerated += this->energyRegenerated;
 		return true;
     } // end if
 	return false;

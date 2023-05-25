@@ -907,28 +907,37 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
             this->ActiveLocos.at(i)->resetPowerRestriction();
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
-            EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumption(usedTractivePower.at(i), 
+            double UsedTractiveP = usedTractivePower.at(i);
+            EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumption(UsedTractiveP,
                                                         this->currentAcceleration, averageSpeed, timeStep);
 
             // consume/recharge fuel from/to the locomotive if it still has fuel or can be rechargable
-            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, usedTractivePower.at(i));
+            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, UsedTractiveP);
             //bool fuelConsumed = out.first;
             double restEC = out.second;
 
             // if it is energy consumption and fuel was not consumed from the locomotive, consume it by the tenders
             if (restEC > 0.0) {
                 //consume it equally from the tenders with similar fuel type
-                bool fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
+                std::pair<bool, double> fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
                                                                          trainSpeed,
                                                                          restEC,
                                                                          this->ActiveLocos.at(i)->powerType);
+                // TODO: Take care of reducing notch number when there is no enough power >> later releases
+                // make sure all energy is consumed from active locomotives
+                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
+                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
+                                                                        trainSpeed,
+                                                                        fuelConsumedFromTender.second,
+                                                                        this->ActiveLocos.at(i)->powerType);
+                }
                 // When not all the energy is consumed by the tender
                 // reduce the current notch to a lower position,
                 // since there is no power source can provide all required energy
-                if (!fuelConsumedFromTender && restEC != EC_kwh) {
+                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
                     this->ActiveLocos.at(i)->reducePower();
                 }
-                if (!fuelConsumedFromTender && restEC == EC_kwh) {
+                if (!fuelConsumedFromTender.first && restEC == EC_kwh) {
                     this->ActiveLocos.at(i)->isLocOn = false;
                 }
             }
@@ -946,32 +955,37 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
     return (offLocos != this->locomotives.size());
 }
 
-bool Train::consumeTendersEnergy(double timeStep, double trainSpeed,
+std::pair<bool, double> Train::consumeTendersEnergy(double timeStep, double trainSpeed,
                                  double EC_kwh, TrainTypes::PowerType powerType,
                                  double dieselConversionFactor,
                                  double hydrogenConversionFactor,
                                  double dieselDensity) {
 
-    bool consumed = false;
+    // bool consumed = false;
+    double notConsumed = 0.0;
     int count = this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)].size();
     double ECD = 0.0;
     if (count > 0) { ECD = EC_kwh / count; }
-    else { return consumed; }
+    else { return std::make_pair(false, EC_kwh); }
 
 
     for (auto& car : this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)]) {
         // if the tender/battery still has energy to draw from, consume it
         if (car->getBatteryCurrentCharge() > 0 || car->getTankCurrentCapacity() > 0) {
-            car->consumeFuel(timeStep, trainSpeed, ECD, 0.0 ,dieselConversionFactor,
-                             hydrogenConversionFactor, dieselDensity);
-            consumed = true;
+            std::pair<bool, double> out = car->consumeFuel(timeStep, trainSpeed,
+                                                                 ECD, 0.0 ,dieselConversionFactor,
+                                                                 hydrogenConversionFactor, dieselDensity);
+            notConsumed += out.second;
+            // consumed = true;
         }
         // remove the car from the active list
         else {
             this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)].removeValue(car);
+            notConsumed += ECD;
         }
     }
-    return consumed;
+    return std::make_pair( !(EC_kwh == notConsumed), notConsumed);
+    // return consumed;
 }
 
 bool Train::rechargeCarsBatteries(double timeStep, double EC_kwh, std::shared_ptr<Locomotive> &loco) {
@@ -985,8 +999,9 @@ bool Train::rechargeCarsBatteries(double timeStep, double EC_kwh, std::shared_pt
     }
     // refill all cars by that shared portion
     for (auto& car : this->carsTypes[TrainTypes::CarType::batteryTender]) {
-        if (! car->refillBattery(timeStep, ECD)) {
-            loco->rechargeCatenary(ECD);
+        double restEC = car->refillBattery(timeStep, ECD);
+        if ( restEC > 0.0) {
+            loco->rechargeCatenary(restEC);
             consumed = true;
         }
     }
