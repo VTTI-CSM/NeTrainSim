@@ -48,9 +48,6 @@ private:
      *  request a recharge till it reaches the batteryMaxSOC. */
     bool enableRecharge = false;
 
-//    double batteryEnergyConsmed = 0.0;
-//    double batteryEnergyRegenerated = 0.0;
-//    double batteryNetEnergyConsumed = 0.0;
     double batteryCumEnergyConsumed = 0.0;
     double batteryCumEnergyRegenerated = 0.0;
     double batteryCumNetEnergyConsumed = 0.0;
@@ -155,7 +152,9 @@ public:
      *
      * @returns	A double.
      */
-    double rechargeBattery(double timeStep, double recharge);
+    double rechargeBatteryForHybrids(double timeStep, double recharge);
+
+    double rechargeBatteryByRegeneratedEnergy(double timeStep, double recharge);
 
     /**
      * Gets battery state of charge
@@ -228,6 +227,7 @@ public:
      * @returns	True if battery rechargable, false if not.
      */
     bool isBatteryRechargable();
+
 
     /**
      * Gets battery maximum discharge
@@ -303,11 +303,37 @@ public:
      */
     void setBatteryRechargeSOCLowerBound(double newBatteryRechargeSOCLowerBound);
 
+    /**
+     * @brief get the battery cumulative energy consumption for this battery only
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @return the cumulative energy consumption for this battery
+     */
     double getBatteryCumEnergyConsumption();
 
+    /**
+     * @brief get the battery cummulative energy regenerated for this battery only
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @return the cumulative energy regenerated for this battery only
+     */
     double getBatteryCumEnergyRegenerated();
 
+    /**
+     * @brief get the battery cumNetEnergyConsumption
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @return
+     */
     double getBatteryCumNetEnergyConsumption();
+
+    bool IsBatteryExceedingThresholds();
 };
 
 #endif // BATTERY_H
