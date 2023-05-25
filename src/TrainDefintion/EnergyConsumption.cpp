@@ -38,6 +38,8 @@ namespace EC {
         case TrainTypes::PowerType::biodieselHybrid:
         case TrainTypes::PowerType::hydrogenHybrid:
             switch (hybridMethod) {
+            // energy has to pass through the battery.
+            // in this case, the effeciency is only the eff of the chemical-to-electricity conversion
             case TrainTypes::LocomotivePowerMethod::series:
             case TrainTypes::LocomotivePowerMethod::notApplicable: //default
                 DCBusToTank = 0.965;
@@ -67,6 +69,30 @@ namespace EC {
         }
     }
 
+    double getBatteryEff(TrainTypes::PowerType powerType) {
+        switch (powerType) {
+        case TrainTypes::PowerType::dieselHybrid:
+        case TrainTypes::PowerType::biodieselHybrid:
+        case TrainTypes::PowerType::hydrogenHybrid:
+            return 0.965;
+        default:
+            return 1.0; // if powertype does not have a battery
+        }
+    }
+
+    std::pair<double,double> getMaxEffeciencyRange(TrainTypes::PowerType powerType) {
+        switch (powerType) {
+        case TrainTypes::PowerType::dieselHybrid:
+        case TrainTypes::PowerType::biodieselHybrid:
+            return std::make_pair(0.7,0.9);
+
+        case TrainTypes::PowerType::hydrogenHybrid:
+            return std::make_pair(0.0,0.5);
+        default:
+            return std::make_pair(0.0,1.0);
+        }
+    }
+
     double getRequiredGeneratorPowerForRecharge(double batterySOC) {
         // get the battery SOC index 
         int ind = min(static_cast<int>(ceil(batterySOC * 10.0)) , 8);
@@ -80,4 +106,19 @@ namespace EC {
         double fuelConsumption_gPersec = fuelConsumption * (double)1000.0;
         return 3.1119 * fuelConsumption_gPersec + 1.2728;
     }
+
+    double getLocomotivePowerReductionFactor(TrainTypes::PowerType powerType) {
+        //return 1.0;
+        switch (powerType) {
+        case TrainTypes::PowerType::dieselHybrid:
+            return EC::DefaultLocomotivePowerReduction_DieselHybrid;
+        case TrainTypes::PowerType::biodieselHybrid:
+            return EC::DefaultLocomotivePowerReduction_BioDieselHybrid;
+        case TrainTypes::PowerType::hydrogenHybrid:
+            return EC::DefaultLocomotivePowerReduction_HydrogenHybrid;
+        default:
+            return (double)1.0;
+        }
+    }
+
 }
