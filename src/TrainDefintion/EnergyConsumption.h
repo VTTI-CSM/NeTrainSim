@@ -139,7 +139,24 @@ namespace EC {
     /** 0.099836 kg/l  >> the density is in tons */
     static double DefaultHydrogenDensity = 0.000099836;
     /** The gamma for regenerating energy */
-	static double gamma = 0.65;
+    static double gamma = 0.65;
+
+    static std::map<TrainTypes::CarType, double> fuelConversionFactor_carTypes = {
+        {TrainTypes::CarType::dieselTender, DefaultDieselConversionFactor},
+        {TrainTypes::CarType::biodieselTender, DefaultBiodieselConversionFactor},
+        {TrainTypes::CarType::hydrogenTender, DefaultHydrogenConversionFactor},
+        {TrainTypes::CarType::batteryTender, 1.0}
+    };
+
+    static std::map<TrainTypes::PowerType, double> fuelConversionFactor_powerTypes = {
+        {TrainTypes::PowerType::diesel, DefaultDieselConversionFactor},
+        {TrainTypes::PowerType::dieselHybrid, DefaultDieselConversionFactor},
+        {TrainTypes::PowerType::dieselElectric, DefaultDieselConversionFactor},
+        {TrainTypes::PowerType::biodiesel, DefaultBiodieselConversionFactor},
+        {TrainTypes::PowerType::biodieselHybrid, DefaultBiodieselConversionFactor},
+        {TrainTypes::PowerType::hydrogenHybrid, DefaultHydrogenConversionFactor},
+    };
+
 // ##################################################################
 // #          end: general energy consumption default values        #
 // ##################################################################
@@ -202,6 +219,14 @@ namespace EC {
     double getEmissions(double fuelConsumption);
 
     double getLocomotivePowerReductionFactor(TrainTypes::PowerType powerType);
+
+    double getFuelFromEC(TrainTypes::PowerType powerType, double &EC_KWh);
+
+    double getFuelFromEC(TrainTypes::CarType carType, double &EC_KWh);
+
+    double getFuelConversionFactor(TrainTypes::PowerType powerType);
+
+    double getFuelConversionFactor(TrainTypes::CarType carType);
 }
 
 

@@ -121,4 +121,20 @@ namespace EC {
         }
     }
 
+    double getFuelFromEC(TrainTypes::PowerType powerType, double &EC_KWh){
+        return EC_KWh * getFuelConversionFactor(powerType);
+    }
+
+    double getFuelFromEC(TrainTypes::CarType carType, double &EC_KWh) {
+        return EC_KWh * getFuelConversionFactor(carType);
+    }
+
+    double getFuelConversionFactor(TrainTypes::PowerType powerType) {
+        return fuelConversionFactor_powerTypes[powerType];
+    }
+
+    double getFuelConversionFactor(TrainTypes::CarType carType) {
+        return fuelConversionFactor_carTypes[carType];
+    }
+
 }
