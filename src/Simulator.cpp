@@ -504,7 +504,25 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		train->nextNodeID = train->trainPath.at(train->trainPath.index(train->previousNodeID) + 1);
 
 		if (!skipTrainMove) {
-			train->updateGradesCurvatures(grades, curvatures);
+            train->updateGradesCurvatures(grades, curvatures);
+            train->resetPowerRestriction();
+
+            // check if a notch reduction is required
+            // calculate the accelerations and speed
+            auto as = train->getStepDynamics(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
+                                             std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
+            // calculate the total resistance
+            double res = train->getTotalResistance(as.second);
+            // calculate approximate power required
+            pair<Vector<double>, double> out = train->getTractivePower(as.second, as.first, res);
+            // calculate approximate energy required
+            double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
+            // check if the train can provide this required energy
+            if (! train->canProvideEnergy(stepEC, this->timeStep)) {
+                train->reducePower(); // reduce notch by 1 notch
+            }
+
+
 			train->moveTrain(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
 		}
@@ -559,9 +577,36 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 
 		}
 	}
+
+    if (this->checkNoTrainIsOnNetwork()) {
+        double shiftTime = this->getNotLoadedTrainsMinStartTime();
+        if (shiftTime > this->simulationTime) {
+            this->simulationTime = shiftTime;
+        }
+    }
 }
 
-void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
+bool Simulator::checkNoTrainIsOnNetwork() {
+    for (std::shared_ptr<Train>& t : (this->trains)) {
+        if (t->loaded && ! t->reachedDestination) {
+            return false;
+        }
+    }
+    return true;
+}
+
+double Simulator::getNotLoadedTrainsMinStartTime() {
+    Vector<double> st;
+    for (std::shared_ptr<Train>& t : (this->trains)) {
+        if (!t->loaded) {
+            st.push_back(t->trainStartTime);
+        }
+    }
+    if (st.empty()) { return -1.0; }
+    return st.min();
+}
+
+void Simulator::playTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
 
 	if (train->trainStartTime <= this->simulationTime){
 
@@ -897,7 +942,7 @@ void Simulator::runSimulation() {
 			if (t->optimize){
 				if (t->lookAheadCounterToUpdate <= 0) {
 					t->resetTrainLookAhead();
-					this->PlayTrainVirtualStepsAStarOptimization(t, this->timeStep);
+                    this->playTrainVirtualStepsAStarOptimization(t, this->timeStep);
 				}
 			}
 
