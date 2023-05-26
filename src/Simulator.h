@@ -410,6 +410,18 @@ public:
 	 */
 	void runSignalsforTrains();
 
+    /**
+     * @brief checkNoTrainIsOnNetwork
+     * @return
+     */
+    bool checkNoTrainIsOnNetwork();
+
+    /**
+     * @brief getNotLoadedTrainsMinStartTime
+     * @return
+     */
+    double getNotLoadedTrainsMinStartTime();
+
 	/**
 	 * Play train virtual steps a star optimization
 	 *
@@ -419,7 +431,7 @@ public:
 	 * @param 	train   	The train.
 	 * @param 	timeStep	The time step.
 	 */
-	void PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
+    void playTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep);
 
 	/**
 	 * Gets export individualized trains summary
