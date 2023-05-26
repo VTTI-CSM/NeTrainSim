@@ -393,7 +393,7 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	3/12/2023
 	 */
-	void reducePower();
+    bool reducePower();
 
 	/**
 	 * @brief reset lower power restriction on the locomotive.
@@ -402,6 +402,15 @@ public:
 	 * @date	3/12/2023
 	 */
 	void resetPowerRestriction();
+
+
+    /**
+     * @brief check if the locomotive can provide required energy
+     * @param EC
+     * @param timeStep
+     * @return
+     */
+    double canProvideEnergy(double &EC, double &timeStep);
 
 	/**
 	 * Stream insertion operator

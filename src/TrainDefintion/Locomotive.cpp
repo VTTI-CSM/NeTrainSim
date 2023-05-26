@@ -294,13 +294,13 @@ void Locomotive::updateLocNotch(double &trainSpeed) {
 
 }
 
-void Locomotive::reducePower() {
-	if (this->currentLocNotch > 2) {
-		this->reducedPowerNotch = this->currentLocNotch - 1;
+bool Locomotive::reducePower() {
+    if (this->reducedPowerNotch == 0) { this->reducedPowerNotch = this->currentLocNotch; }
+    if (this->reducedPowerNotch >= 2) {
+        this->reducedPowerNotch -= 1;
+        return true;
 	}
-	else {
-		this->isLocOn = false;
-	}
+    return false;
 }
 
 void Locomotive::resetPowerRestriction() {
@@ -345,6 +345,10 @@ double Locomotive::getSharedVirtualTractivePower(double &trainSpeed, double& tra
 	if (! this->isLocOn) {
 		return 0.0;
 	}
+    if (trainAcceleration >= 0.0) {
+        return std::min(((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed,
+                   this->maxTractiveForce * trainSpeed);
+    }
 	return ((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed;
 }
 
@@ -623,6 +627,40 @@ double Locomotive::getNetForce(double &frictionCoef,
 	double &trainSpeed, bool &optimize, double &optimumThrottleLevel) {
 	return (this->getTractiveForce(frictionCoef, trainSpeed, optimize, optimumThrottleLevel) - this->getResistance(trainSpeed));
 }
+
+double Locomotive::canProvideEnergy(double &EC_kwh, double &timeStep) {
+    if (EC_kwh <= 0.0) {
+        return 0.0;
+    }
+    if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
+        if (this->hostLink->hasCatenary) {
+            return 0.0;
+        }
+
+        if (!isBatteryDrainable(EC_kwh)) {
+            return EC_kwh;
+        }
+
+        double restEC = EC_kwh - this->getBatteryMaxDischarge(timeStep);
+        if (restEC >= 0.0) {
+            return restEC;
+        } else {
+            return 0.0;
+        }
+    }
+    else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
+        if (!isTankDrainable(EC::getFuelFromEC(this->powerType, EC_kwh))) {
+            return EC_kwh;
+        }
+    }
+    else if (TrainTypes::locomotiveHybrid.exist(this->powerType)) {
+        if ( ! (this->isBatteryDrainable(EC_kwh || this->isTankDrainable(EC::getFuelFromEC(this->powerType, EC_kwh))) ) ) {
+            return EC_kwh;
+        }
+    }
+    return 0.0;
+}
+
 
 ostream& operator<<(std::ostream& ostr, const Locomotive& loco) {
 	ostr << "Locomotive: Power: " << loco.maxPower << ", transmission eff.: " << loco.transmissionEfficiency;
