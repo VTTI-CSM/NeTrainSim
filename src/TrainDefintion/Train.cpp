@@ -557,8 +557,73 @@ double Train::adjustAcceleration(double speed, double previousSpeed, double delt
 
 void Train::checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT) {
     if ((currentAcceleration - previousAcceleration) / deltaT > this->maxJerk) {
-        throw std::invalid_argument("sudden acceleration change!");
+        // throw std::invalid_argument("sudden acceleration change!");
     }
+}
+
+pair<double, double> Train::getStepDynamics(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+                                            Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
+    // set the min gap to the next train / station
+    double minGap = 0.0;
+    double GapFollowing = this->getMinFollowingTrainGap();
+    Vector<double> allAccelerations;
+
+    for (int i = 0; i < gapToNextCriticalPoint.size(); i++) {
+        if (! (gapToNextCriticalPointType)[i]) {
+            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i],
+                                                        minGap, this->currentSpeed, this->currentAcceleration,
+                                                        (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
+        }
+        else {
+            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i],
+                                                        GapFollowing, this->currentSpeed, this->currentAcceleration,
+                                                        (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
+        }
+    }
+    // get the minimum acceleration from all the accelerations
+    double nonsmoothedAcceleration = allAccelerations.min();
+
+    //restore forces
+    if (allAccelerations.size() > 1) {
+        int newIndx = allAccelerations.index(nonsmoothedAcceleration);
+
+        if (!(gapToNextCriticalPointType)[newIndx]) {
+            this->accelerate((gapToNextCriticalPoint)[newIndx],
+                             minGap, this->currentSpeed, this->currentAcceleration,
+                             (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
+        }
+        else {
+            this->accelerate((gapToNextCriticalPoint)[newIndx],
+                             GapFollowing, this->currentSpeed, this->currentAcceleration,
+                             (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
+        }
+    }
+
+
+    if (nonsmoothedAcceleration < 0.0 && this->currentSpeed <= 0.001 && gapToNextCriticalPoint.back() > 50) {
+        if (this->NoPowerCountStep < 5) {
+            stringstream message;
+            message << "Train " << this->id
+                    << " Slad is short or Resistance is larger than train tractive force at distance "
+                    << travelledDistance << "!\n";
+            Logger::Logger::logMessage(Logger::LogLevel::WARNING, message.str());
+            NoPowerCountStep++;
+        }
+    }
+    // smooth the acceleration and consider jerk
+    double smoothedAcceleration = this->smoothAccelerate(nonsmoothedAcceleration, this->previousAcceleration, 1.0);
+    double jerkedAcceleration = this->accelerateConsideringJerk(smoothedAcceleration, this->previousAcceleration,
+                                                                this->maxJerk, timeStep);
+    if (round(this->currentSpeed*1000)/1000 == 0.0 && jerkedAcceleration < 0) {
+        jerkedAcceleration = 0.0;
+    }
+
+    return std::make_pair(jerkedAcceleration,
+                          this->speedUpDown(this->previousSpeed, jerkedAcceleration,
+                                            timeStep, freeFlowSpeed));
+
+    // update the throttle level of the train
+    this->updateLocNotch();
 }
 
 void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
@@ -569,63 +634,12 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
         this->lookAheadCounterToUpdate -= 1;
     }
 
-    // set the min gap to the next train / station
-    double minGap = 0.0;
-    double GapFollowing = this->getMinFollowingTrainGap();
-    Vector<double> allAccelerations;
+    auto as = this->getStepDynamics(timeStep, freeFlowSpeed, gapToNextCriticalPoint,
+                                     gapToNextCriticalPointType, leaderSpeed);
 
-    for (int i = 0; i < gapToNextCriticalPoint.size(); i++) {
-        if (! (gapToNextCriticalPointType)[i]) {
-            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i], 
-                minGap, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
-        }
-        else {
-            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i],
-                GapFollowing, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
-        }
-    }
-    // get the minimum acceleration from all the accelerations
-    double nonsmoothedAcceleration = allAccelerations.min();
-
-    //restore forces 
-    if (allAccelerations.size() > 1) {
-        int newIndx = allAccelerations.index(nonsmoothedAcceleration);
-
-        if (!(gapToNextCriticalPointType)[newIndx]) {
-            this->accelerate((gapToNextCriticalPoint)[newIndx],
-                minGap, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
-        }
-        else {
-            this->accelerate((gapToNextCriticalPoint)[newIndx],
-                GapFollowing, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
-        }
-    }
-
-
-    if (nonsmoothedAcceleration < 0.0 && this->currentSpeed <= 0.001 && gapToNextCriticalPoint.back() > 50) {
-        if (this->NoPowerCountStep < 5) {
-            stringstream message;
-            message << "Train " << this->id
-                << " Slad is short or Resistance is larger than train tractive force at distance "
-                << travelledDistance << "!\n";
-            Logger::Logger::logMessage(Logger::LogLevel::WARNING, message.str());
-            NoPowerCountStep++;
-        }
-    }
-    // smooth the acceleration and consider jerk
-    double smoothedAcceleration = this->smoothAccelerate(nonsmoothedAcceleration, this->previousAcceleration, 1.0);
-    double jerkedAcceleration = this->accelerateConsideringJerk(smoothedAcceleration, this->previousAcceleration, 
-        this->maxJerk, timeStep);
-    if (round(this->currentSpeed*1000)/1000 == 0.0 && jerkedAcceleration < 0) {
-        jerkedAcceleration = 0.0;
-    }
-    this->currentAcceleration = jerkedAcceleration;
+    this->currentAcceleration = as.first;
     this->previousSpeed = this->currentSpeed;
-    this->currentSpeed = this->speedUpDown(this->previousSpeed, this->currentAcceleration, timeStep, freeFlowSpeed);
+    this->currentSpeed = as.second;
     this->currentAcceleration = this->adjustAcceleration(this->currentSpeed, this->previousSpeed, timeStep);
     this->checkSuddenAccChange(this->previousAcceleration, this->currentAcceleration, timeStep);
     this->travelledDistance += this->currentSpeed * timeStep;
@@ -869,6 +883,20 @@ double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTr
     return energy;
 }
 
+bool Train::reducePower() {
+    bool result = true;
+    for (auto &loco: this->ActiveLocos) {
+        result *= loco->reducePower();
+    }
+    return result;
+}
+
+void Train::resetPowerRestriction() {
+    for (auto &loco: this->ActiveLocos) {
+        loco->resetPowerRestriction();
+    }
+}
+
 void Train::setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>> newLinks) {
     // clear the vector
     this->currentLinks = Vector<std::shared_ptr<NetLink>>();
@@ -904,7 +932,7 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
         // if the locomotive is on, compute the energy consumption
         if (this->ActiveLocos.at(i)->isLocOn) {
             // reset the power reduction restriction
-            this->ActiveLocos.at(i)->resetPowerRestriction();
+            // this->ActiveLocos.at(i)->resetPowerRestriction();
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
             double UsedTractiveP = usedTractivePower.at(i);
@@ -923,20 +951,20 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
                                                                          trainSpeed,
                                                                          restEC,
                                                                          this->ActiveLocos.at(i)->powerType);
-                // TODO: Take care of reducing notch number when there is no enough power >> later releases
-                // make sure all energy is consumed from active locomotives
-                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
-                                                                        trainSpeed,
-                                                                        fuelConsumedFromTender.second,
-                                                                        this->ActiveLocos.at(i)->powerType);
-                }
-                // When not all the energy is consumed by the tender
-                // reduce the current notch to a lower position,
-                // since there is no power source can provide all required energy
-                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-                    this->ActiveLocos.at(i)->reducePower();
-                }
+//                // TODO: Take care of reducing notch number when there is no enough power >> later releases
+//                // make sure all energy is consumed from active locomotives
+//                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
+//                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
+//                                                                        trainSpeed,
+//                                                                        fuelConsumedFromTender.second,
+//                                                                        this->ActiveLocos.at(i)->powerType);
+//                }
+//                // When not all the energy is consumed by the tender
+//                // reduce the current notch to a lower position,
+//                // since there is no power source can provide all required energy
+//                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
+//                    this->ActiveLocos.at(i)->reducePower();
+//                }
                 if (!fuelConsumedFromTender.first && restEC == EC_kwh) {
                     this->ActiveLocos.at(i)->isLocOn = false;
                 }
@@ -1033,6 +1061,51 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     else {
         this->cumRegionalConsumedEnergyStat[currentRegion] = this->energyStat;
     }
+}
+
+Map<TrainTypes::CarType, double> Train::canProvideEnergyFromLocomotivesOnly(double &EC, double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::CarType, double> locoRestEC;
+
+    if (this->ActiveLocos.size() < 1) { return locoRestEC; }
+    // get the required energy by each locomotive
+    double dividedEC = EC / ((double)this->ActiveLocos.size());
+    // check all active locomotives, if any cannot provide, return not the rest of the energy required to get later from tenders
+    for (auto& loco: this->ActiveLocos) {
+        double locoRest = loco->canProvideEnergy(dividedEC, timeStep);  // this is only checked for electric trains only
+        TrainTypes::CarType tenderType = TrainTypes::powerToCarMap.at(loco->powerType);
+
+        // add value to locoRestEC
+        if (locoRestEC.is_key(tenderType)) { locoRestEC[tenderType] = locoRest; }
+        else { locoRestEC[tenderType] += locoRest; }
+    }
+
+    return locoRestEC;
+}
+
+bool Train::canProvideEnergyFromTendersOnly(Map<TrainTypes::CarType, double> &EC, double &timeStep) {
+    bool result = true;
+
+    for (auto& tenderT: EC.get_keys()) {
+        double dividedEC_tenders = EC[tenderT] / this->ActiveCarsTypes[tenderT].size();
+        for (auto& tender: this->ActiveCarsTypes[tenderT]) {
+            result *= tender->canProvideEnergy(dividedEC_tenders, timeStep);
+        }
+    }
+
+    return result;
+}
+bool Train::canProvideEnergy(double &EC, double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::CarType, double> locoRestEC = this->canProvideEnergyFromLocomotivesOnly(EC, timeStep);
+
+    if (locoRestEC.get_keys().size() == 0) { return false; }
+
+    if ( locoRestEC.get_values().sum() == 0.0) { // if no tenders
+        return true; //return true if all energy can be provided and false o.w
+    }
+    return this->canProvideEnergyFromTendersOnly(locoRestEC, timeStep);
+
 }
 
 // ##################################################################

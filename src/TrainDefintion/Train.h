@@ -697,6 +697,17 @@ public:
     void checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT);
 
     /**
+     * @brief getStepDynamics
+     * @param timeStep
+     * @param freeFlowSpeed
+     * @param gapToNextCriticalPoint
+     * @param gapToNextCriticalPointType
+     * @param leaderSpeed
+     * @return
+     */
+    pair<double, double> getStepDynamics(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+                                         Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed);
+    /**
      * \brief Move train forward
      *
      * @author	Ahmed Aredah
@@ -991,6 +1002,17 @@ public:
      */
     void resetTrainLookAhead();
 
+    /**
+         * @brief check if the train can provide the required energy to move forward
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+    bool canProvideEnergy(double &EC, double &timeStep);
+
+    bool reducePower();
+
+    void resetPowerRestriction();
 // ##################################################################
 // #                    end: statistics calculations                #
 // ##################################################################
@@ -1117,6 +1139,22 @@ public:
          * @returns	The gamma.
          */
         double get_gamma(double speedDiff);
+
+        /**
+         * @brief canProvideEnergyFromLocomotives
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+        Map<TrainTypes::CarType, double> canProvideEnergyFromLocomotivesOnly(double &EC, double &timeStep);
+
+        /**
+         * @brief canProvideEnergyFromTendersOnly
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+        bool canProvideEnergyFromTendersOnly(Map<TrainTypes::CarType, double> &EC, double &timeStep);
 
         /**
          * \brief Gets acceleration an 2
