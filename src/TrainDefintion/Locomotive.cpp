@@ -329,8 +329,9 @@ double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed,
 		return f1;
 	}
 	else {
-		f = min((1000 * this->transmissionEfficiency * this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel)
-            * (EC::getLocomotivePowerReductionFactor(this->powerType) * this->maxPower) / trainSpeed), f1);
+        f = min((this->locPowerReductionFactor * 1000.0 * this->transmissionEfficiency *
+                 this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel) *
+                 (EC::getLocomotivePowerReductionFactor(this->powerType) * this->maxPower) / trainSpeed), f1);
 		this->maxTractiveForce = f;
 		return f;
 	};
