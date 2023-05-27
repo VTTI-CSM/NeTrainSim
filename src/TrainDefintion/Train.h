@@ -705,7 +705,7 @@ public:
      * @param leaderSpeed
      * @return
      */
-    pair<double, double> getStepDynamics(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+    double getStepAcceleration(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
                                          Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed);
 
     /**

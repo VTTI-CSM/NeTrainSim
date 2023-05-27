@@ -561,8 +561,8 @@ void Train::checkSuddenAccChange(double previousAcceleration, double currentAcce
     }
 }
 
-void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
-    Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
+double Train::getStepAcceleration(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+                                            Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
 
     // decrease the given quota of the future number of steps covered for virtual simulation to update
     if (this->optimize) {
@@ -576,32 +576,32 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
 
     for (int i = 0; i < gapToNextCriticalPoint.size(); i++) {
         if (! (gapToNextCriticalPointType)[i]) {
-            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i], 
-                minGap, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
+            allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i],
+                                                        minGap, this->currentSpeed, this->currentAcceleration,
+                                                        (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
         }
         else {
             allAccelerations.push_back(this->accelerate((gapToNextCriticalPoint)[i],
-                GapFollowing, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
+                                                        GapFollowing, this->currentSpeed, this->currentAcceleration,
+                                                        (leaderSpeed)[i], freeFlowSpeed, timeStep, this->optimize));
         }
     }
     // get the minimum acceleration from all the accelerations
     double nonsmoothedAcceleration = allAccelerations.min();
 
-    //restore forces 
+    //restore forces
     if (allAccelerations.size() > 1) {
         int newIndx = allAccelerations.index(nonsmoothedAcceleration);
 
         if (!(gapToNextCriticalPointType)[newIndx]) {
             this->accelerate((gapToNextCriticalPoint)[newIndx],
-                minGap, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
+                             minGap, this->currentSpeed, this->currentAcceleration,
+                             (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
         }
         else {
             this->accelerate((gapToNextCriticalPoint)[newIndx],
-                GapFollowing, this->currentSpeed, this->currentAcceleration,
-                (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
+                             GapFollowing, this->currentSpeed, this->currentAcceleration,
+                             (leaderSpeed)[newIndx], freeFlowSpeed, timeStep, this->optimize);
         }
     }
 
@@ -610,19 +610,27 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
         if (this->NoPowerCountStep < 5) {
             stringstream message;
             message << "Train " << this->id
-                << " Slad is short or Resistance is larger than train tractive force at distance "
-                << travelledDistance << "!\n";
+                    << " Slad is short or Resistance is larger than train tractive force at distance "
+                    << travelledDistance << "!\n";
             Logger::Logger::logMessage(Logger::LogLevel::WARNING, message.str());
             NoPowerCountStep++;
         }
     }
     // smooth the acceleration and consider jerk
     double smoothedAcceleration = this->smoothAccelerate(nonsmoothedAcceleration, this->previousAcceleration, 1.0);
-    double jerkedAcceleration = this->accelerateConsideringJerk(smoothedAcceleration, this->previousAcceleration, 
-        this->maxJerk, timeStep);
+    double jerkedAcceleration = this->accelerateConsideringJerk(smoothedAcceleration, this->previousAcceleration,
+                                                                this->maxJerk, timeStep);
     if (round(this->currentSpeed*1000)/1000 == 0.0 && jerkedAcceleration < 0) {
         jerkedAcceleration = 0.0;
     }
+    return jerkedAcceleration;
+}
+
+void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+    Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
+
+    double jerkedAcceleration = this->getStepAcceleration(timeStep, freeFlowSpeed, gapToNextCriticalPoint,
+                                               gapToNextCriticalPointType, leaderSpeed);
     this->currentAcceleration = jerkedAcceleration;
     this->previousSpeed = this->currentSpeed;
     this->currentSpeed = this->speedUpDown(this->previousSpeed, this->currentAcceleration, timeStep, freeFlowSpeed);
