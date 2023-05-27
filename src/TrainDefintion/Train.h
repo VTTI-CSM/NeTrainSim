@@ -1003,6 +1003,13 @@ public:
     void resetTrainLookAhead();
 
     /**
+     * @brief getMaxProvidedEnergy
+     * @param timeStep
+     * @return
+     */
+    std::pair<double, Map<TrainTypes::PowerType, double>> getMaxProvidedEnergy(double &timeStep);
+
+    /**
          * @brief check if the train can provide the required energy to move forward
          * @param EC
          * @param timeStep
@@ -1010,8 +1017,15 @@ public:
          */
     bool canProvideEnergy(double &EC, double &timeStep);
 
-    bool reducePower();
+    /**
+     * @brief reducePower
+     * @param reductionFactor
+     */
+    void reducePower(double &reductionFactor);
 
+    /**
+     * @brief resetPowerRestriction
+     */
     void resetPowerRestriction();
 // ##################################################################
 // #                    end: statistics calculations                #
@@ -1140,6 +1154,10 @@ public:
          */
         double get_gamma(double speedDiff);
 
+        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep);
+
+        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromTendersOnly(Map<TrainTypes::PowerType, double> EC,
+                                                                               double &timeStep);
         /**
          * @brief canProvideEnergyFromLocomotives
          * @param EC

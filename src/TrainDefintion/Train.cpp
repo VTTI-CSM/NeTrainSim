@@ -621,9 +621,6 @@ pair<double, double> Train::getStepDynamics(double timeStep, double freeFlowSpee
     return std::make_pair(jerkedAcceleration,
                           this->speedUpDown(this->previousSpeed, jerkedAcceleration,
                                             timeStep, freeFlowSpeed));
-
-    // update the throttle level of the train
-    this->updateLocNotch();
 }
 
 void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
@@ -883,12 +880,10 @@ double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTr
     return energy;
 }
 
-bool Train::reducePower() {
-    bool result = true;
+void Train::reducePower(double &reductionFactor) {
     for (auto &loco: this->ActiveLocos) {
-        result *= loco->reducePower();
+        loco->reducePower(reductionFactor); //TODO: make this only for the affected locomotives
     }
-    return result;
 }
 
 void Train::resetPowerRestriction() {
@@ -1061,6 +1056,46 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     else {
         this->cumRegionalConsumedEnergyStat[currentRegion] = this->energyStat;
     }
+}
+Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep) {
+    Map<TrainTypes::PowerType, double> trainAllEC;
+    if (this->ActiveLocos.size() < 1) { return trainAllEC; }
+    for (auto& loco: this->ActiveLocos) {
+        double locoEC = loco->getMaxProvidedEnergy(timeStep);
+        // add value to locoRestEC
+        if (trainAllEC.is_key(loco->powerType)) { trainAllEC[loco->powerType] = locoEC; }
+        else { trainAllEC[loco->powerType] += locoEC; }
+    }
+    return trainAllEC;
+}
+
+
+Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromTendersOnly(Map<TrainTypes::PowerType, double> EC,
+                                                                              double &timeStep) {
+    for (auto& locoType: EC.get_keys()) {
+        TrainTypes::CarType tenderType = TrainTypes::powerToCarMap.at(locoType);
+        for (auto& tender: this->ActiveCarsTypes[tenderType]) {
+            EC[locoType] += tender->getMaxProvidedEnergy(timeStep);
+        }
+    }
+    return EC;
+}
+
+std::pair<double, Map<TrainTypes::PowerType, double>> Train::getMaxProvidedEnergy(double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::PowerType, double> locoMaxEC = this->getMaxProvidedEnergyFromLocomotivesOnly(timeStep);
+
+    if (locoMaxEC.get_keys().size() == 0) { return std::make_pair(0.0, Map<TrainTypes::PowerType, double>()); }
+
+    auto out = this->getMaxProvidedEnergyFromTendersOnly(locoMaxEC, timeStep);
+
+    // sum all values in the map
+    double res = std::accumulate(out.begin(), out.end(), 0.0,
+                    [](const double prev_sum, const std::pair<TrainTypes::PowerType, double> &entry) {
+                        return prev_sum + entry.second;
+                    });
+
+    return std::make_pair(res, out);
 }
 
 Map<TrainTypes::CarType, double> Train::canProvideEnergyFromLocomotivesOnly(double &EC, double &timeStep) {
