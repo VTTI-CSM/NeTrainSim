@@ -142,6 +142,38 @@ std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
     return std::pair(false, EC_kwh);  // cannot consume and return full requested energy
 }
 
+
+double Car::getMaxProvidedEnergy(double &timeStep) {
+    if (TrainTypes::carRechargableTechnologies.exist(this->carType)) {
+        if (this->hostLink->hasCatenary) {
+            return std::numeric_limits<double>::infinity();
+        }
+        return this->getBatteryMaxDischarge(timeStep);
+    }
+    else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType)) {
+        if (! this->tankHasFuel()) {
+            return 0.0;
+        }
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+bool Car::canProvideEnergy(double &EC, double &timeStep) {
+    if (EC < 0.0) {return true; }
+    if (TrainTypes::carRechargableTechnologies.exist(this->carType)) {
+        if (EC <= this->getBatteryMaxDischarge(timeStep) && this->isBatteryDrainable(EC)) {
+            return true; // the car type cannot provide energy
+        }
+    }
+    else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType)) {
+        if (this->isTankDrainable(EC)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 ostream& operator<<(ostream& ostr, Car& car) {
 	ostr << "Rail Car:: length: " << car.length << ", drag: " << car.dragCoef << ", frontal area: " << car.frontalArea;
 	ostr << ", car type: " << TrainTypes::carTypeToStr(car.carType) << ", current weight: " << car.currentWeight;

@@ -143,6 +143,22 @@ public:
                                         double biodieselDensity = EC::DefaultBioDieselDensity,
                                         double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
+    /**
+     * @brief getMaxProvidedEnergy
+     * @param timeStep
+     * @return
+     */
+    double getMaxProvidedEnergy(double &timeStep);
+
+    /**
+     * @brief check if the car can provide energy
+     * @param EC
+     * @param timeStep
+     * @return
+     */
+    bool canProvideEnergy(double &EC, double &timeStep);
+
+
 	/**
 	 * Stream insertion operator
 	 *
