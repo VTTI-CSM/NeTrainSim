@@ -333,6 +333,16 @@ public:
      */
     double getBatteryCumNetEnergyConsumption();
 
+    /**
+     * @brief batteryHasCharge
+     * @return
+     */
+    bool batteryHasCharge();
+
+    /**
+     * @brief IsBatteryExceedingThresholds
+     * @return
+     */
     bool IsBatteryExceedingThresholds();
 };
 
