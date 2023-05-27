@@ -410,6 +410,18 @@ public:
 	 */
 	void runSignalsforTrains();
 
+    /**
+     * @brief checkNoTrainIsOnNetwork
+     * @return
+     */
+    bool checkNoTrainIsOnNetwork();
+
+    /**
+     * @brief getNotLoadedTrainsMinStartTime
+     * @return
+     */
+    double getNotLoadedTrainsMinStartTime();
+
 	/**
 	 * Play train virtual steps a star optimization
 	 *

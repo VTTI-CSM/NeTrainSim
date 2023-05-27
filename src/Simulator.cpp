@@ -559,6 +559,34 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 
 		}
 	}
+
+    // minimize waiting when no trains are on network
+    if (this->checkNoTrainIsOnNetwork()) {
+        double shiftTime = this->getNotLoadedTrainsMinStartTime();
+        if (shiftTime > this->simulationTime) {
+            this->simulationTime = shiftTime;
+        }
+    }
+}
+
+bool Simulator::checkNoTrainIsOnNetwork() {
+    for (std::shared_ptr<Train>& t : (this->trains)) {
+        if (t->loaded && ! t->reachedDestination) {
+            return false;
+        }
+    }
+    return true;
+}
+
+double Simulator::getNotLoadedTrainsMinStartTime() {
+    Vector<double> st;
+    for (std::shared_ptr<Train>& t : (this->trains)) {
+        if (!t->loaded) {
+            st.push_back(t->trainStartTime);
+        }
+    }
+    if (st.empty()) { return -1.0; }
+    return st.min();
 }
 
 void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
