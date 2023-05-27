@@ -57,6 +57,10 @@ double Tank::getTankCumConsumedFuel() const {
     return tankCumConsumedFuel;
 }
 
+bool Tank::tankHasFuel(){
+    return tankStateOfCapacity > (1.0- tankDOD);
+}
+
 void Tank::SetTank(double maxCapacity, double initialCapacityPercentage, double depthOfDischarge){
     this->setTankMaxCapacity(maxCapacity);
     this->setTankInitialCapacity(initialCapacityPercentage);
