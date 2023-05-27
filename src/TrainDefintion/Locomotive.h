@@ -76,12 +76,12 @@ public:
 	int maxLocNotch = 0;
 	/** The current notch the locomotive is going by */
 	int currentLocNotch = 0;
-	/** The forced lower notch position to the locomotive in case lower energy consumption is required. */
-	int reducedPowerNotch = 0;
 	/** The discretized throttlelevels */
 	Vector<double> discritizedLamda;
 	/** The current throttle level based on the current notch */
 	double throttleLevel;
+    /** The reduction factor in case the locomotive does not receive the required energy/fuel. */
+    double locPowerReductionFactor = 1.0;
 	/** The throttle levels */
 	Vector<double> throttleLevels;
 	/** (Immutable) the gravitation acceleration */
@@ -385,15 +385,12 @@ public:
 	void updateLocNotch(double &trainSpeed);
 
 	/**
-	 * @brief reduce the power that the locomotive is producing by
-	 * reducing the notch position to a lower position.
-	 * if the locomotive could reduce the notch position to a lower position, reduce it.
-	 * O.W, turn the locomotive off in case the locomotive was already moving by the notch 1.
+     * @brief reduce the power that the locomotive is producing.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	3/12/2023
 	 */
-    bool reducePower();
+    void reducePower(double &reductionFactor);
 
 	/**
 	 * @brief reset lower power restriction on the locomotive.
@@ -403,6 +400,13 @@ public:
 	 */
 	void resetPowerRestriction();
 
+
+    /**
+     * @brief getMaxProvidedEnergy
+     * @param timeStep
+     * @return
+     */
+    double getMaxProvidedEnergy(double &timeStep);
 
     /**
      * @brief check if the locomotive can provide required energy

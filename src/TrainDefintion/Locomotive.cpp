@@ -240,9 +240,6 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 	if (this->maxLocNotch > this->Nmax) {
 		this->maxLocNotch = this->Nmax;
 	}
-	if (reducedPowerNotch == 0 ){
-		reducedPowerNotch = this->Nmax;
-	}
 	// get the lambda value from the continous equation
 	lmda = this->getHyperbolicThrottleCoef(trainSpeed);
 	// discritize the lambda value
@@ -258,9 +255,6 @@ double Locomotive::getDiscretizedThrottleCoef(double &trainSpeed) {
 	if (crntLocNotch > this->maxLocNotch) {
 		crntLocNotch = this->maxLocNotch;
 		lamdaDiscretized = this->discritizedLamda[crntLocNotch];
-	}
-	if (crntLocNotch > reducedPowerNotch) {
-		lamdaDiscretized = this->discritizedLamda[reducedPowerNotch];
 	}
 	return lamdaDiscretized;
 }
@@ -294,17 +288,19 @@ void Locomotive::updateLocNotch(double &trainSpeed) {
 
 }
 
-bool Locomotive::reducePower() {
-    if (this->reducedPowerNotch == 0) { this->reducedPowerNotch = this->currentLocNotch; }
-    if (this->reducedPowerNotch >= 2) {
-        this->reducedPowerNotch -= 1;
-        return true;
-	}
-    return false;
+void Locomotive::reducePower(double &reductionFactor) {
+    // get the reduction factor
+    this->locPowerReductionFactor = reductionFactor; // the max power supplied/ current demand power
+    //restrict the reduction to the lower notch only.
+    int lowerNotch = this->currentLocNotch - 1;
+    double lowerNotchLambda = this->discritizedLamda[lowerNotch];
+    if (lowerNotchLambda > this->locPowerReductionFactor) {
+        this->locPowerReductionFactor = lowerNotchLambda;
+    }
 }
 
 void Locomotive::resetPowerRestriction() {
-	this->reducedPowerNotch = 0;
+    this->locPowerReductionFactor = 1.0;
 }
 
 Vector<double> Locomotive::defineThrottleLevels() {
@@ -333,8 +329,9 @@ double Locomotive::getTractiveForce(double &frictionCoef, double &trainSpeed,
 		return f1;
 	}
 	else {
-		f = min((1000 * this->transmissionEfficiency * this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel)
-            * (EC::getLocomotivePowerReductionFactor(this->powerType) * this->maxPower) / trainSpeed), f1);
+        f = min((this->locPowerReductionFactor * 1000 * this->transmissionEfficiency *
+                 this->getThrottleLevel(trainSpeed, optimize, optimumThrottleLevel) *
+                 (EC::getLocomotivePowerReductionFactor(this->powerType) * this->maxPower) / trainSpeed), f1);
 		this->maxTractiveForce = f;
 		return f;
 	};
@@ -345,10 +342,6 @@ double Locomotive::getSharedVirtualTractivePower(double &trainSpeed, double& tra
 	if (! this->isLocOn) {
 		return 0.0;
 	}
-    if (trainAcceleration >= 0.0) {
-        return std::min(((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed,
-                   this->maxTractiveForce * trainSpeed);
-    }
 	return ((sharedWeight * trainAcceleration) + sharedResistance) * trainSpeed;
 }
 
@@ -626,6 +619,30 @@ double Locomotive::getResistance(double trainSpeed) {
 double Locomotive::getNetForce(double &frictionCoef,
 	double &trainSpeed, bool &optimize, double &optimumThrottleLevel) {
 	return (this->getTractiveForce(frictionCoef, trainSpeed, optimize, optimumThrottleLevel) - this->getResistance(trainSpeed));
+}
+
+double Locomotive::getMaxProvidedEnergy(double &timeStep) {
+    if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
+        if (this->hostLink->hasCatenary) {
+            return std::numeric_limits<double>::infinity();
+        }
+        if (this->batteryHasCharge()) {
+            return this->getBatteryMaxDischarge(timeStep);
+        }
+        return 0.0;
+
+    }
+    else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
+        if (!this->tankHasFuel()) {
+            return 0.0;
+        }
+    }
+    else if (TrainTypes::locomotiveHybrid.exist(this->powerType)) {
+        if (!this->tankHasFuel() && !this->batteryHasCharge()) {
+            return 0.0;
+        }
+    }
+    return std::numeric_limits<double>::infinity();
 }
 
 double Locomotive::canProvideEnergy(double &EC_kwh, double &timeStep) {
