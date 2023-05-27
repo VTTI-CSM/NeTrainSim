@@ -178,6 +178,12 @@ namespace EC {
                            TrainTypes::PowerType powerType,
                            TrainTypes::LocomotivePowerMethod hybridMethod);
 
+    double getWheelToDCBusEff(double &trainSpeed);
+
+    double getDCBusToTankEff(double powerAtWheelProportion,
+                             TrainTypes::PowerType powerType,
+                             TrainTypes::LocomotivePowerMethod hybridMethod);
+
 	/**
 	 * Gets generator effeciency by the power type
 	 *

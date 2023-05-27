@@ -9,19 +9,16 @@ namespace EC {
                            double powerAtWheelProportion,
                            TrainTypes::PowerType powerType,
                            TrainTypes::LocomotivePowerMethod hybridMethod) {
-        double wheelToDCBusEff = 0.0;     // initialize the variable
-        double speed = trainSpeed * 3.6;  // convert the m/s speed to km/h
-        // get the wheel to DC Bus effeciency
-        // check which range the speed is in
-        if (speed <= 58.2) {
-            wheelToDCBusEff = 0.2 + 0.0261*speed - 0.0003 *
-                    std::pow(speed, (double)2.0) +
-                    0.000001 * std::pow(speed, (double)3.0);
-        }
-        else {
-            wheelToDCBusEff = 0.9;  // constant efficiency
-        }
 
+        double wheelToDCBusEff = getWheelToDCBusEff(trainSpeed);
+        double DCBusToTank = getDCBusToTankEff(powerAtWheelProportion, powerType, hybridMethod);
+
+        return wheelToDCBusEff * DCBusToTank;
+    }
+
+    double getDCBusToTankEff(double powerAtWheelProportion,
+                             TrainTypes::PowerType powerType,
+                             TrainTypes::LocomotivePowerMethod hybridMethod) {
         double DCBusToTank = 0.0;
         switch (powerType) {
             // for all diesel similar motor, use the same eff
@@ -52,7 +49,24 @@ namespace EC {
         default:
             break;
         }
-        return wheelToDCBusEff * DCBusToTank;
+        return DCBusToTank;
+    }
+
+    double getWheelToDCBusEff(double &trainSpeed) {
+        double wheelToDCBusEff = 0.0;     // initialize the variable
+        double speed = trainSpeed * 3.6;  // convert the m/s speed to km/h
+
+        // get the wheel to DC Bus effeciency
+        // check which range the speed is in
+        if (speed <= 58.2) {
+            wheelToDCBusEff = 0.2 + 0.0261*speed - 0.0003 *
+                                                         std::pow(speed, (double)2.0) +
+                              0.000001 * std::pow(speed, (double)3.0);
+        }
+        else {
+            wheelToDCBusEff = 0.9;  // constant efficiency
+        }
+        return wheelToDCBusEff;
     }
 
     double getGeneratorEff(TrainTypes::PowerType powerType, double powerAtWheelProportion) {
