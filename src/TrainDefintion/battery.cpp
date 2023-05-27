@@ -184,6 +184,10 @@ double Battery::getBatteryCumNetEnergyConsumption() {
     return this->batteryCumNetEnergyConsumed;
 }
 
+bool Battery::batteryHasCharge() {
+    return batteryStateOfCharge > (1.0- batteryDOD);
+}
+
 void Battery::setBattery(double maxCharge,
                          double initialChargePercentage,
                          double depthOfDischarge,

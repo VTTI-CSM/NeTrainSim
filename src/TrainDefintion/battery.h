@@ -333,6 +333,9 @@ public:
      */
     double getBatteryCumNetEnergyConsumption();
 
+    bool batteryHasCharge();
+
+
     bool IsBatteryExceedingThresholds();
 };
 
