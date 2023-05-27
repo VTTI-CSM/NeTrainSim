@@ -144,6 +144,13 @@ public:
                                         double hydrogenDensity = EC::DefaultHydrogenDensity) override;
 
     /**
+     * @brief getMaxProvidedEnergy
+     * @param timeStep
+     * @return
+     */
+    double getMaxProvidedEnergy(double &timeStep);
+
+    /**
      * @brief check if the car can provide energy
      * @param EC
      * @param timeStep
