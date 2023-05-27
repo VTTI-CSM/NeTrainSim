@@ -504,7 +504,27 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		train->nextNodeID = train->trainPath.at(train->trainPath.index(train->previousNodeID) + 1);
 
 		if (!skipTrainMove) {
-			train->updateGradesCurvatures(grades, curvatures);
+            train->updateGradesCurvatures(grades, curvatures);
+            // calculate the reduction factor if the power source cannot supply the demand of energy
+            // reset the restrictions every time step
+            train->resetPowerRestriction();
+            // check if a notch reduction is required
+            // calculate the accelerations and speed
+            double stepAcc = train->getStepAcceleration(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
+                                             std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
+            double stepSpd = train->speedUpDown(train->previousSpeed, stepAcc, this->timeStep, currentFreeFlowSpeed);
+            // calculate approximate power required
+            pair<Vector<double>, double> out = train->getTractivePower(stepSpd, stepAcc, train->currentResistanceForces);
+            // calculate approximate energy required
+            double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
+            // calculate approximate max energy supplied at this time step
+            double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
+
+            if (stepEC > maxEC) {
+                double reductionFactor = maxEC / stepEC;
+                train->reducePower(reductionFactor);
+            }
+
 			train->moveTrain(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
 		}
