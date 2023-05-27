@@ -136,7 +136,16 @@ public:
      */
     void setTankDOD(double newTankDOD);
 
+    /**
+     * @brief tankHasFuel
+     * @return
+     */
+    bool tankHasFuel();
 
+    /**
+     * @brief getTankCumConsumedFuel
+     * @return
+     */
     double getTankCumConsumedFuel() const;
 };
 
