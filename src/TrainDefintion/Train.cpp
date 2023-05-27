@@ -869,6 +869,18 @@ double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTr
     return energy;
 }
 
+void Train::reducePower(double &reductionFactor) {
+    for (auto &loco: this->ActiveLocos) {
+        loco->reducePower(reductionFactor); //TODO: make this only for the affected locomotives
+    }
+}
+
+void Train::resetPowerRestriction() {
+    for (auto &loco: this->ActiveLocos) {
+        loco->resetPowerRestriction();
+    }
+}
+
 void Train::setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>> newLinks) {
     // clear the vector
     this->currentLinks = Vector<std::shared_ptr<NetLink>>();
@@ -903,8 +915,8 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
     //for (auto& loco : this->ActiveLocos) {
         // if the locomotive is on, compute the energy consumption
         if (this->ActiveLocos.at(i)->isLocOn) {
-            // reset the power reduction restriction
-            this->ActiveLocos.at(i)->resetPowerRestriction();
+//            // reset the power reduction restriction
+//            this->ActiveLocos.at(i)->resetPowerRestriction();
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
             double UsedTractiveP = usedTractivePower.at(i);
@@ -923,20 +935,20 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
                                                                          trainSpeed,
                                                                          restEC,
                                                                          this->ActiveLocos.at(i)->powerType);
-                // TODO: Take care of reducing notch number when there is no enough power >> later releases
-                // make sure all energy is consumed from active locomotives
-                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
-                                                                        trainSpeed,
-                                                                        fuelConsumedFromTender.second,
-                                                                        this->ActiveLocos.at(i)->powerType);
-                }
-                // When not all the energy is consumed by the tender
-                // reduce the current notch to a lower position,
-                // since there is no power source can provide all required energy
-                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-                    this->ActiveLocos.at(i)->reducePower();
-                }
+//                // TODO: Take care of reducing notch number when there is no enough power >> later releases
+//                // make sure all energy is consumed from active locomotives
+//                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
+//                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
+//                                                                        trainSpeed,
+//                                                                        fuelConsumedFromTender.second,
+//                                                                        this->ActiveLocos.at(i)->powerType);
+//                }
+//                // When not all the energy is consumed by the tender
+//                // reduce the current notch to a lower position,
+//                // since there is no power source can provide all required energy
+//                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
+//                    this->ActiveLocos.at(i)->reducePower();
+//                }
                 if (!fuelConsumedFromTender.first && restEC == EC_kwh) {
                     this->ActiveLocos.at(i)->isLocOn = false;
                 }
@@ -1033,6 +1045,92 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     else {
         this->cumRegionalConsumedEnergyStat[currentRegion] = this->energyStat;
     }
+}
+
+Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep) {
+    Map<TrainTypes::PowerType, double> trainAllEC;
+    if (this->ActiveLocos.size() < 1) { return trainAllEC; }
+    for (auto& loco: this->ActiveLocos) {
+        double locoEC = loco->getMaxProvidedEnergy(timeStep);
+        // add value to locoRestEC
+        if (trainAllEC.is_key(loco->powerType)) { trainAllEC[loco->powerType] = locoEC; }
+        else { trainAllEC[loco->powerType] += locoEC; }
+    }
+    return trainAllEC;
+}
+
+
+Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromTendersOnly(Map<TrainTypes::PowerType, double> EC,
+                                                                              double &timeStep) {
+    for (auto& locoType: EC.get_keys()) {
+        TrainTypes::CarType tenderType = TrainTypes::powerToCarMap.at(locoType);
+        for (auto& tender: this->ActiveCarsTypes[tenderType]) {
+            EC[locoType] += tender->getMaxProvidedEnergy(timeStep);
+        }
+    }
+    return EC;
+}
+
+std::pair<double, Map<TrainTypes::PowerType, double>> Train::getMaxProvidedEnergy(double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::PowerType, double> locoMaxEC = this->getMaxProvidedEnergyFromLocomotivesOnly(timeStep);
+
+    if (locoMaxEC.get_keys().size() == 0) { return std::make_pair(0.0, Map<TrainTypes::PowerType, double>()); }
+
+    auto out = this->getMaxProvidedEnergyFromTendersOnly(locoMaxEC, timeStep);
+
+    // sum all values in the map
+    double res = std::accumulate(out.begin(), out.end(), 0.0,
+                                 [](const double prev_sum, const std::pair<TrainTypes::PowerType, double> &entry) {
+                                     return prev_sum + entry.second;
+                                 });
+
+    return std::make_pair(res, out);
+}
+
+Map<TrainTypes::CarType, double> Train::canProvideEnergyFromLocomotivesOnly(double &EC, double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::CarType, double> locoRestEC;
+
+    if (this->ActiveLocos.size() < 1) { return locoRestEC; }
+    // get the required energy by each locomotive
+    double dividedEC = EC / ((double)this->ActiveLocos.size());
+    // check all active locomotives, if any cannot provide, return not the rest of the energy required to get later from tenders
+    for (auto& loco: this->ActiveLocos) {
+        double locoRest = loco->canProvideEnergy(dividedEC, timeStep);  // this is only checked for electric trains only
+        TrainTypes::CarType tenderType = TrainTypes::powerToCarMap.at(loco->powerType);
+
+        // add value to locoRestEC
+        if (locoRestEC.is_key(tenderType)) { locoRestEC[tenderType] = locoRest; }
+        else { locoRestEC[tenderType] += locoRest; }
+    }
+
+    return locoRestEC;
+}
+
+bool Train::canProvideEnergyFromTendersOnly(Map<TrainTypes::CarType, double> &EC, double &timeStep) {
+    bool result = true;
+
+    for (auto& tenderT: EC.get_keys()) {
+        double dividedEC_tenders = EC[tenderT] / this->ActiveCarsTypes[tenderT].size();
+        for (auto& tender: this->ActiveCarsTypes[tenderT]) {
+            result *= tender->canProvideEnergy(dividedEC_tenders, timeStep);
+        }
+    }
+
+    return result;
+}
+bool Train::canProvideEnergy(double &EC, double &timeStep) {
+    // define a var to hold the result
+    Map<TrainTypes::CarType, double> locoRestEC = this->canProvideEnergyFromLocomotivesOnly(EC, timeStep);
+
+    if (locoRestEC.get_keys().size() == 0) { return false; }
+
+    if ( locoRestEC.get_values().sum() == 0.0) { // if no tenders
+        return true; //return true if all energy can be provided and false o.w
+    }
+    return this->canProvideEnergyFromTendersOnly(locoRestEC, timeStep);
+
 }
 
 // ##################################################################

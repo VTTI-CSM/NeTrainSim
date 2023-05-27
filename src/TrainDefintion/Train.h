@@ -697,6 +697,18 @@ public:
     void checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT);
 
     /**
+     * @brief getStepDynamics
+     * @param timeStep
+     * @param freeFlowSpeed
+     * @param gapToNextCriticalPoint
+     * @param gapToNextCriticalPointType
+     * @param leaderSpeed
+     * @return
+     */
+    pair<double, double> getStepDynamics(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+                                         Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed);
+
+    /**
      * \brief Move train forward
      *
      * @author	Ahmed Aredah
@@ -991,6 +1003,32 @@ public:
      */
     void resetTrainLookAhead();
 
+    /**
+     * @brief getMaxProvidedEnergy
+     * @param timeStep
+     * @return
+     */
+    std::pair<double, Map<TrainTypes::PowerType, double>> getMaxProvidedEnergy(double &timeStep);
+
+    /**
+     * @brief check if the train can provide the required energy to move forward
+     * @param EC
+     * @param timeStep
+     * @return
+     */
+    bool canProvideEnergy(double &EC, double &timeStep);
+
+    /**
+     * @brief reducePower
+     * @param reductionFactor
+     */
+    void reducePower(double &reductionFactor);
+
+    /**
+     * @brief resetPowerRestriction
+     */
+    void resetPowerRestriction();
+
 // ##################################################################
 // #                    end: statistics calculations                #
 // ##################################################################
@@ -1117,6 +1155,37 @@ public:
          * @returns	The gamma.
          */
         double get_gamma(double speedDiff);
+
+        /**
+         * @brief getMaxProvidedEnergyFromLocomotivesOnly
+         * @param timeStep
+         * @return
+         */
+        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep);
+
+        /**
+         * @brief getMaxProvidedEnergyFromTendersOnly
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromTendersOnly(Map<TrainTypes::PowerType, double> EC,
+                                                                               double &timeStep);
+        /**
+         * @brief canProvideEnergyFromLocomotives
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+        Map<TrainTypes::CarType, double> canProvideEnergyFromLocomotivesOnly(double &EC, double &timeStep);
+
+        /**
+         * @brief canProvideEnergyFromTendersOnly
+         * @param EC
+         * @param timeStep
+         * @return
+         */
+        bool canProvideEnergyFromTendersOnly(Map<TrainTypes::CarType, double> &EC, double &timeStep);
 
         /**
          * \brief Gets acceleration an 2
