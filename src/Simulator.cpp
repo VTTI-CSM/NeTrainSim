@@ -517,11 +517,13 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             pair<Vector<double>, double> out = train->getTractivePower(as.second, as.first, res);
             // calculate approximate energy required
             double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
-            // check if the train can provide this required energy
-            if (! train->canProvideEnergy(stepEC, this->timeStep)) {
-                train->reducePower(); // reduce notch by 1 notch
-            }
 
+            double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
+
+            if (stepEC > maxEC) {
+                double reductionFactor = maxEC / stepEC;
+                //train->reducePower(reductionFactor);
+            }
 
 			train->moveTrain(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
