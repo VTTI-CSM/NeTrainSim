@@ -82,38 +82,49 @@ public:
 public:
 
 	/**
-	 * Gets the neighbors of the nodes.
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @returns	The neighbors.
-	 */
-	Vector<std::shared_ptr<NetNode>> getNeighbors();
-
-	/**
-	 * Clears the graph search parameters. This should be executed before running the graph search.
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 */
-	void clearGraphSearchParams();
-
-	/**
 	 * Constructor
 	 *
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 *
-	 * @param 	userID	Identifier for the user.
-	 * @param 	xCoord	The coordinate.
-	 * @param 	yCoord	The coordinate.
-	 * @param 	Desc  	The description.
-	 * @param 	xScale	The scale.
-	 * @param 	yScale	The scale.
+     * @param   simulatorID A unique identifier for the node, it should start by 0 and increment by 1
+     * @param 	userID      Identifier for the user.
+     * @param 	xCoord      The coordinate.
+     * @param 	yCoord      The coordinate.
+     * @param 	Desc        The description.
+     * @param 	xScale      The scale.
+     * @param 	yScale      The scale.
 	 */
-	NetNode(int userID, double xCoord, double yCoord, string Desc, double xScale, double yScale);
+    NetNode(int simulatorID, int userID, double xCoord, double yCoord, string Desc, double xScale, double yScale);
 
+    /**
+     *
+     */
+    ~NetNode();
+
+    /**
+     * @brief setNodeID
+     * @param newID
+     */
+    void setNodeSimulatorID(int newID);
+
+    /**
+     * Gets the neighbors of the nodes.
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     *
+     * @returns	The neighbors.
+     */
+    Vector<std::shared_ptr<NetNode>> getNeighbors();
+
+    /**
+     * Clears the graph search parameters. This should be executed before running the graph search.
+     *
+     * @author	Ahmed
+     * @date	2/14/2023
+     */
+    void clearGraphSearchParams();
 	/**
 	 * Gets number of nodes in simulator
 	 *

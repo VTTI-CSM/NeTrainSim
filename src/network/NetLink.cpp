@@ -11,13 +11,13 @@ using namespace std;
 
 unsigned int NetLink::NumberOfLinksInSimulator = 0;
 
-NetLink::NetLink(int linkID, std::shared_ptr<NetNode> fromNodeID,
+NetLink::NetLink(int simulatorID, int linkID, std::shared_ptr<NetNode> fromNodeID,
                  std::shared_ptr<NetNode> toNodeID, double linkLength,
                  double maxSpeed, int trafficSignalID, double linkGrade,
                  double linkCurvature, int linkNoOfDirections,
                  double speedVariationfactor, bool isCatenaryAvailable,
                  string linkInRegion, double lengthScale, double maxSpeedScale) {
-	this->id = NetLink::NumberOfLinksInSimulator;
+    this->id = simulatorID;
 	this->userID = linkID;
 	this->fromLoc = fromNodeID;
 	this->toLoc = toNodeID;
@@ -38,6 +38,14 @@ NetLink::NetLink(int linkID, std::shared_ptr<NetNode> fromNodeID,
     this->catenaryCumRegeneratedEnergy = 0.0;
     this->catenaryCumConsumedEnergy = 0.0;
 	NetLink::NumberOfLinksInSimulator++;
+}
+
+NetLink::~NetLink(){
+    NetLink::NumberOfLinksInSimulator--;
+}
+
+void NetLink::setLinkSimulatorID(int newID) {
+    this->id = newID;
 }
 
 

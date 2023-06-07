@@ -10,15 +10,14 @@ using namespace std;
 
 unsigned int NetNode::NumberOfNodesInSimulator = 0;
 
-NetNode::NetNode(int ID, double xCoord, double yCoord, string desc, double xDirScale, double yDirScale ) {
+NetNode::NetNode(int simulatorID, int ID, double xCoord, double yCoord, string desc, double xDirScale, double yDirScale ) {
     this->userID = ID;
-    this->id = NetNode::NumberOfNodesInSimulator;
+    this->id = simulatorID;
     this->alphaDesc = desc;
     this->xScale = static_cast<double>(xDirScale);
     this->yScale = static_cast<double>(yDirScale);
     this->x = static_cast<double>(xCoord) * this->xScale;
     this->y = static_cast<double>(yCoord) * this->yScale;
-    this->id = NumberOfNodesInSimulator;
     this->networkSignals = Vector<std::shared_ptr<NetSignal>>();
     this->isDepot = false;
     this->dwellTimeIfDepot = 0.0;
@@ -28,6 +27,14 @@ NetNode::NetNode(int ID, double xCoord, double yCoord, string desc, double xDirS
     this->graphSearchDistanceFromStart = INFINITY;
     this->graphSearchVisited = false;
     this->graphSearchPreviousNode = std::shared_ptr<NetNode>();
+}
+
+NetNode::~NetNode() {
+    NetNode::NumberOfNodesInSimulator--;
+}
+
+void NetNode::setNodeSimulatorID(int newID) {
+    this->id = newID;
 }
 
 Vector<std::shared_ptr<NetNode>> NetNode::getNeighbors() {

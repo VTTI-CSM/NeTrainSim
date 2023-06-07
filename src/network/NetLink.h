@@ -85,6 +85,7 @@ public:
 	 * @author	Ahmed
 	 * @date	2/14/2023
 	 *
+     * @param   simulatorID             simulatorID A unique identifier for the link, it should start by 0 and increment by 1
 	 * @param 	linkID					Identifier for the link.
 	 * @param 	fromNode				starting node.
 	 * @param 	toNode					ending node.
@@ -99,10 +100,17 @@ public:
 	 * @param 	lengthScale				The length scale.
 	 * @param 	maxSpeedScale			The maximum speed scale.
 	 */
-	NetLink(int linkID, std::shared_ptr<NetNode> fromNode, std::shared_ptr<NetNode> toNode,
+    NetLink(int simulatorID, int linkID, std::shared_ptr<NetNode> fromNode, std::shared_ptr<NetNode> toNode,
 		double linkLength, double maxSpeed, int trafficSignalID, double linkGrade, 
 		double linkCurvature, int linkNoOfDirections, double speedVariationfactor,
         bool isCatenaryAvailable, string linkInRegion, double lengthScale, double maxSpeedScale);
+
+    ~NetLink();
+    /**
+     * @brief setSimulatorID
+     * @param newID
+     */
+    void setLinkSimulatorID(int newID);
 
 	/**
 	 * Updates the links scale length described by newScale
