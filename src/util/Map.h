@@ -134,7 +134,7 @@ public:
                 static_cast<long double>(pair.second);
                 ss << Utils::thousandSeparator(pair.second);
             }
-            catch (std::exception& e) {
+            catch (const std::exception& e) {
                 ss << pair.second;
             }
             first = false;
