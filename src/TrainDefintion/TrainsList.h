@@ -10,7 +10,6 @@
 #include "../util/Vector.h"
 #include <regex>
 #include "Train.h"
-#include "TrainTypes.h"
 
 namespace TrainsList {
 
@@ -24,7 +23,20 @@ namespace TrainsList {
      *
      * @returns	The trains file.
      */
-    Vector<std::shared_ptr<Train>> readTrainsFile(const std::string& fileName);
+    Vector<std::tuple<string, Vector<int>, double, double,
+                      Vector<std::tuple<double, double, double, double, double, double, int, int> >,
+                      Vector<std::tuple<double, double, double, double, double, int, int> >,
+                      bool> > readTrainsFile(const std::string& fileName);
+
+    Vector<std::shared_ptr<Train>> generateTrains(Vector<std::tuple<string, Vector<int>, double, double, Vector<std::tuple<double, double, double, double, double, double, int, int> >, Vector<std::tuple<double, double, double, double, double, int, int> >, bool> > &trainRecords);
+
+    Vector<std::shared_ptr<Train>> ReadAndGenerateTrains(const std::string& fileName);
+
+    bool writeTrainsFile(Vector<std::tuple<string, Vector<int>, double, double,
+                                           Vector<std::tuple<double, double, double, double, double, double, int, int> >,
+                                           Vector<std::tuple<double, double, double, double, double, int, int> >,
+                                           bool>> trains, const std::string& fileName);
+
 
 };
 
