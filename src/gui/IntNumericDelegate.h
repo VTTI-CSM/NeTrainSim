@@ -5,7 +5,9 @@
 #include <QSpinBox>
 
 class IntNumericDelegate : public QItemDelegate {
+    Q_OBJECT
 public:
+
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         QSpinBox *editor = new QSpinBox(parent);
         editor->setMinimum(-1000000000);

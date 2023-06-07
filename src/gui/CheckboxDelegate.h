@@ -5,7 +5,14 @@
 #include <QCheckBox>
 
 class CheckboxDelegate : public QStyledItemDelegate {
+    Q_OBJECT
 public:
+    QString displayText(const QVariant &value, const QLocale &locale) const override {
+        Q_UNUSED(value);
+        Q_UNUSED(locale);
+        return QString();
+    }
+
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         QCheckBox *editor = new QCheckBox(parent);
         return editor;
@@ -26,6 +33,7 @@ public:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         editor->setGeometry(option.rect);
     }
+
 };
 
 #endif // CHECKBOXDELEGATE_H

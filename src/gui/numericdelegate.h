@@ -6,7 +6,9 @@
 #include <QDoubleSpinBox>
 
 class NumericDelegate : public QItemDelegate {
+    Q_OBJECT
 public:
+
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
         editor->setMinimum(-1000000000);
