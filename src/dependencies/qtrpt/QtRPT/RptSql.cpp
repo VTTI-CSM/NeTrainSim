@@ -55,10 +55,10 @@ bool RptSql::openQuery()
         if (db.driverName().contains("MYSQL"))
             query->exec("set names '"+dbCoding+"'");
 
-    if (!charsetCoding.isEmpty()) {
-        //auto codec = QTextCodec::codecForName( QString(charsetCoding).toLocal8Bit().constData() );
-        //QTextCodec::setCodecForLocale(codec);
-    }
+//    if (!charsetCoding.isEmpty()) {
+//        auto codec = QTextCodec::codecForName( QString(charsetCoding).toLocal8Bit().constData() );
+//        QTextCodec::setCodecForLocale(codec);
+//    }
 
     if (!query->exec(sql)) {
         qDebug() << query->lastError().text();

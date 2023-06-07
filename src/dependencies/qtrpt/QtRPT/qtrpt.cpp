@@ -910,14 +910,14 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw)
             if (m_printMode == QtRPT::Html)
                 m_HTML.append("<div "+fieldObject->getHTMLStyle()+">"+txt+"</div>\n");
 
-//            if (m_printMode == QtRPT::Xlsx) {
-//                RptTabElement element;
-//                element.fieldObject = fieldObject;
-//                element.top = top_ * currentPage;
-//                element.left = left_;
-//                element.value = txt;
-//                crossTab->addElement(element);
-//            }
+            if (m_printMode == QtRPT::Xlsx) {
+                RptTabElement element;
+                element.fieldObject = fieldObject;
+                element.top = top_ * currentPage;
+                element.left = left_;
+                element.value = txt;
+                crossTab->addElement(element);
+            }
         } else {
             QRect boundRect = painter->boundingRect(left_+10, top_, width_-15, height_, flags, txt);
             if (boundRect.height() > height_ && fieldObject->autoHeight == 1) {
@@ -1777,6 +1777,39 @@ void QtRPT::printXLSX(const QString &filePath, bool open)
     Q_UNUSED(open);
     Q_UNUSED(filePath);
 
+    #ifdef QXLSX_LIBRARY
+        if (crossTab != nullptr)
+            delete crossTab;
+        crossTab = new RptCrossTabObject();
+        crossTab->name = "XLSX_CrosTab";
+        m_printMode = QtRPT::Xlsx;
+
+        if (m_xlsx != nullptr)
+            delete m_xlsx;
+        m_xlsx = new QXlsx::Document(this);
+
+        QFile file(filePath);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+
+        if (printer == nullptr)
+            printer = new QPrinter(m_resolution);
+
+        printer->setOutputFormat(QPrinter::PdfFormat);
+        if (painter == nullptr)
+            painter = new QPainter();
+
+        printPreview(printer);
+
+        crossTab->buildXlsx(m_xlsx);
+
+        m_xlsx->saveAs(filePath);
+
+        file.close();
+        if (open)
+            QDesktopServices::openUrl(QUrl("file:"+filePath));
+
+    #endif
 #endif
 }
 

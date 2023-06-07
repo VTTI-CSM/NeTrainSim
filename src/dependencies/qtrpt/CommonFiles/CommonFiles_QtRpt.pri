@@ -2,7 +2,7 @@ INCLUDEPATH += $$PWD
 
 include($$PWD/../QtRPT/config.pri)
 
-greaterThan(QT_MAJOR_VERSION,5): QT += core
+#greaterThan(QT_MAJOR_VERSION,5): QT += core5compat
 
 !contains(DEFINES,NO_BARCODE) {
     INCLUDEPATH += $$PWD/../3rdparty/zint-2.4.4/backend_qt4

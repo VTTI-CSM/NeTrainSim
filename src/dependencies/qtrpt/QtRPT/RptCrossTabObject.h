@@ -109,6 +109,9 @@ public:
     QColor headerBackgroundColor;
 
     void addElement(RptTabElement element);
+    #ifdef QXLSX_LIBRARY
+        void buildXlsx(QXlsx::Document *xlsx);
+    #endif
 
 private:
     quint32 m_colCount;

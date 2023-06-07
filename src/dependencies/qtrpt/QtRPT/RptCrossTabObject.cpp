@@ -491,3 +491,45 @@ void RptCrossTabObject::addElement(RptTabElement element)
     m_elements.append(element);
 }
 
+/*!
+ \fn void RptCrossTabObject::resortMatrix()
+    This function resort Matrix which stores values of RptTabElement.
+    This function is only required when RptCrossTabObject is used when
+    carry out report export to Excel. In this case matrix hold on values
+    of all fields. m_colHeader and m_rowHeader lists hold a numbers of positions
+    of the each field, to right export to Excel grid, these numbers should be resorted
+    and transfer to row(col) number of Excel.
+
+    \sa RptTabElement element
+*/
+#ifdef QXLSX_LIBRARY
+void RptCrossTabObject::buildXlsx(QXlsx::Document *xlsx)
+{
+    std::sort(m_elements.begin(), m_elements.end(), [](RptTabElement e1, RptTabElement e2) {return e1.top < e2.top; });
+
+    int row = 0;
+    int prevTop = INT_MIN;
+    for (auto &element : m_elements) {
+        if ((int)(element.top - 40) > prevTop) {
+            row += 1;
+            prevTop = element.top;
+        }
+        element.row = row;
+    }
+
+    std::sort(m_elements.begin(), m_elements.end(), [](RptTabElement e1, RptTabElement e2) {return e1.left < e2.left; });
+
+    int col = 0;
+    int prevLeft = INT_MIN;
+    for (auto &element : m_elements) {
+        if ((int)(element.left - 200) > prevLeft) {
+            col += 1;
+            prevLeft = element.left;
+        }
+        element.col = col;
+    }
+
+    for (const auto &element : m_elements)
+        xlsx->write(element.row, element.col, element.value);
+}
+#endif
