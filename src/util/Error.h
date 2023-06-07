@@ -32,11 +32,20 @@ enum class Error {
     trainPathCannotBeNull           = 240,
     // trains processing starts with
     trainDoesNotHaveLocos           = 250,
-    trainInvalidGradesCurvature     = 260,
+    trainHasWrongLocos              = 260,
+    trainHasWrongCars               = 270,
+    trainInvalidGradesCurvature     = 280,
+    trainsFileEmpty                 = 290,
+
+    trainWrongCarType               = 300,
+    trainWrongLocoType              = 310,
 
     // output start with 4
     cannotOpenTrajectoryFile        = 410,
     cannotOpenSummaryFile           = 420,
+
+
+    CouldNotOpenFile                = 500
 
 
 
