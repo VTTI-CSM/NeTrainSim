@@ -17,6 +17,7 @@
 #include "src/trainDefintion/Train.h"
 #include "src/util/Utils.h"
 #include "src/Util/Error.h"
+#include "ReadWriteNetwork.h"
 //#include <qapplication.h>
 
 /**
@@ -38,6 +39,8 @@ public:
     /** The signals */
     Vector<std::shared_ptr<NetSignal>> networkSignals;
 
+    Network(){}
+
     /**
      * Constructor
      * @author	Ahmed
@@ -52,8 +55,10 @@ public:
         else {
             this->networkName = netName;
         }
-        this->theFileNodes = readNodesFile(nodesFile);
-        this->links = readLinksFile(linksFile);
+        auto nodesRecords = ReadWriteNetwork::readNodesFile(nodesFile);
+        this->theFileNodes = ReadWriteNetwork::generateNodes(nodesRecords);
+        auto linksRecords = ReadWriteNetwork::readLinksFile(linksFile);
+        this->links = ReadWriteNetwork::generateLinks(this->theFileNodes, linksRecords);
         updateLinksLength();
         defineNodesLinks();
         this->nodes = defineNodes();
@@ -62,6 +67,41 @@ public:
 
     }
 
+    Network(Vector<tuple<int, double, double, std::string, double, double>> nodesRecords,
+            Vector<tuple<int, int, int, double, double, int, double, double, int, double,
+                              bool, std::string, double, double>> linksRecords, std::string netName = "") {
+        if (netName == "") {
+            this->networkName = "Unnamed Network";
+        }
+        else {
+            this->networkName = netName;
+        }
+        this->theFileNodes = ReadWriteNetwork::generateNodes(nodesRecords);
+        this->links = ReadWriteNetwork::generateLinks(this->theFileNodes, linksRecords);
+        updateLinksLength();
+        defineNodesLinks();
+        this->nodes = defineNodes();
+        //this->AdjMatrix = defineAdjMatrix();
+        this->networkSignals = generateSignals();
+    }
+
+    Network(Vector<std::shared_ptr<NetNode>> theNodes,
+            Vector<std::shared_ptr<NetLink>> theLinks,
+            std::string netName = "") {
+        if (netName == "") {
+            this->networkName = "Unnamed Network";
+        }
+        else {
+            this->networkName = netName;
+        }
+        this->theFileNodes = theNodes;
+        this->links = theLinks;
+        updateLinksLength();
+        defineNodesLinks();
+        this->nodes = defineNodes();
+        //this->AdjMatrix = defineAdjMatrix();
+        this->networkSignals = generateSignals();
+    }
 
 
     /**
@@ -93,7 +133,7 @@ public:
         return simulatorTrainPath;
     }
 
-    std::tuple<double, double, double, double, double> getNetworkStats() {
+    tuple<double, double, double, double, double> getNetworkStats() {
         double catenaryCumConsumed = 0.0;
         double catenaryCumRegenerated = 0.0;
         int nuOfCatenaryLinks = 0;
@@ -434,8 +474,8 @@ public:
      */
     std::shared_ptr<NetLink> getFirstTrainLink(const std::shared_ptr <Train> train) {
         if (train->trainPath.size() == 0) {
-            cout << "Train path cannot be null!" << endl;
-            exit(static_cast<int>(Error::trainPathCannotBeNull));
+            throw std::runtime_error("Error: " + std::to_string(static_cast<int>(Error::trainPathCannotBeNull)) +
+                                     "\n Train" + std::to_string(train->id) + " path cannot be null!\n");
         }
         else {
             int strartID = train->trainPath.at(0);
@@ -522,25 +562,6 @@ public:
                                      "\nCould not find the node ID: " + std::to_string(oldID) + "\n");
     }
 
-    /**
-     * Gets simulator node by user identifier
-     * @author	Ahmed
-     * @date	2/14/2023
-     * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     * @param 	oldID	Identifier for the old.
-     * @returns	The simulator node by user identifier.
-     */
-    std::shared_ptr <NetNode> getSimulatorNodeByUserID(int oldID) {
-        for (std::shared_ptr<NetNode>& n : this->theFileNodes) {
-            if (n->userID == oldID) {
-                return n;
-            }
-        }
-        //return nullptr;
-        throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::cannotFindNode)) +
-                                     "\nCould not find the node ID: " + std::to_string(oldID) + "\n");
-    }
 
     /**
      * Gets distance to specific node by travelled distance
@@ -645,7 +666,7 @@ public:
     //************************************************************************
     // Private functions
     // ***********************************************************************
-private: 
+private:
 
     /**
      * Node with minimum distance
@@ -668,79 +689,6 @@ private:
 // #               start: read data and organize it                 #
 // ##################################################################
 
-    /**
-     * Reads nodes file
-     * @author	Ahmed
-     * @date	2/14/2023
-     * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     * @param 	fileName	Filename of the file.
-     * @returns	The nodes file.
-     */
-    Vector<std::shared_ptr<NetNode>> readNodesFile(const std::string& fileName) {
-        try {
-
-            // Open file to read
-            std::ifstream file(fileName);
-            if (!file.good()) {
-                std::cerr << "Nodes file does not exist" << std::endl;
-                throw std::runtime_error(std::string("Error: ") +
-                                             std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
-                                             "\nNodes file does not exist!\n");
-            }
-            Vector<std::string> lines;
-            std::string line;
-            while (std::getline(file, line))
-            {
-                lines.push_back(line);
-            }
-            file.close();
-
-            if (lines.size() == 0) {
-                std::cerr << "Nodes File is empty!" << std::endl;
-                throw std::runtime_error(std::string("Error: ") +
-                                             std::to_string(static_cast<int>(Error::emptyNodesFile)) +
-                                             "\nNodes File is empty!\n");
-            }
-            // Read scale values
-            std::istringstream ss(lines[1]);
-            int N;
-            float scaleX, scaleY;
-            ss >> N >> scaleX >> scaleY;
-
-            // Read nodes
-            Vector<std::shared_ptr<NetNode>> _Nodes;
-            for (int i = 2; i < lines.size(); i++)
-            {
-                std::istringstream ss(lines[i]);
-                int userID;
-                float x, y;
-                std::string desc;
-                ss >> userID >> x >> y >> desc;
-                if (ss.good())
-                {
-                    // If the line has only 6 values, no description is provided
-                    NetNode node = NetNode(userID, x, y, desc, scaleX, scaleY);
-                    _Nodes.push_back(std::make_shared<NetNode>(node));
-                }
-                else
-                {
-                    ss.clear();
-                    ss >> userID >> x >> y;
-                    NetNode node = NetNode(userID, x, y, " ", scaleX, scaleY);
-                    _Nodes.push_back(std::make_shared<NetNode>(node));
-                }
-            }
-
-            return _Nodes;
-
-        } catch (const exception &e) {
-            std::cerr << "Bad nodes file structure:" << e.what() << std::endl;
-            throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::wrongNodesFileStructure)) +
-                                         "\nBad nodes file structure!\n");
-
-        }
-    }
 
     /**
      * Generates the signals
@@ -801,85 +749,6 @@ private:
         }
     }
 
-    /**
-     * Reads links file
-     * @author	Ahmed
-     * @date	2/14/2023
-     * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-     * @param 	fileName	Filename of the file.
-     * @returns	The links file.
-     */
-    Vector<std::shared_ptr<NetLink>> readLinksFile(const std::string& fileName) {
-        try {
-        std::ifstream file(fileName);
-        if (!file.good()) {
-            std::cerr << "Links file does not exist" << std::endl;
-            throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::linksFileDoesNotExist)) +
-                                         "\Links File does not exist!");
-        }
-        std::string line;
-        Vector<std::string> lines;
-        while (std::getline(file, line)) {
-            lines.push_back(line);
-        }
-        file.close();
-
-        if (lines.size() == 0) {
-            std::cerr << "Links file is empty" << std::endl;
-            throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::emptyLinksFile)) +
-                                         "\Links File is empty!");
-            throw std::runtime_error("Links file is empty");
-        }
-
-        // Read Scale values
-        Vector<std::string> scaleValues;
-        std::istringstream iss(lines[1]);
-        for (std::string s; iss >> s; ) {
-            scaleValues.push_back(s);
-        }
-        scaleValues.erase(scaleValues.begin());
-
-        // Read links data
-        Vector<std::shared_ptr<NetLink>> links;
-        for (int i = 2; i < lines.size(); i++) {
-            Vector<std::string> linkValues;
-            std::istringstream iss(lines[i]);
-            for (std::string s; iss >> s; ) {
-                linkValues.push_back(s);
-            }
-            if (!linkValues.empty()) {
-                std::shared_ptr<NetNode> fromLoc = this->getSimulatorNodeByUserID(std::stoi(linkValues[1]));
-                std::shared_ptr<NetNode> toLoc = this->getSimulatorNodeByUserID(std::stoi(linkValues[2]));
-                bool hasCaten;
-                stringstream ss(linkValues[10]);
-                ss >> hasCaten;
-
-                if (linkValues.size() < 12) {
-                    NetLink link = NetLink(stoi(linkValues[0]), fromLoc, toLoc, stod(linkValues[3]),
-                        stod(linkValues[4]), stoi(linkValues[5]), stod(linkValues[6]), stod(linkValues[7]),
-                        stoi(linkValues[8]), stod(linkValues[9]), hasCaten, "ND Region", stod(scaleValues[0]),
-                        stod(scaleValues[1]));
-                    links.push_back(std::make_shared<NetLink>(link));
-                }
-                else {
-                    NetLink link = NetLink(stoi(linkValues[0]), fromLoc, toLoc, stod(linkValues[3]),
-                        stod(linkValues[4]), stoi(linkValues[5]), stod(linkValues[6]), stod(linkValues[7]),
-                        stoi(linkValues[8]), stod(linkValues[9]), hasCaten, linkValues[10], stod(scaleValues[0]),
-                        stod(scaleValues[1]));
-                    links.push_back(std::make_shared<NetLink>(link));
-                }
-            }
-        }
-        return links;
-        } catch (const exception &e) {
-            std::cerr << "Bad links file structure:" << e.what() << std::endl;
-            throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(static_cast<int>(Error::wrongLinksFileStructure)) +
-                                         "\nBad links file structure!\n");
-        }
-    }
 
     /**
      * Updates the links length
@@ -894,8 +763,9 @@ private:
             double dy = n2->y - n1->y;
             double lLength = sqrt(dx * dx + dy * dy);
             if (lLength <= 0) {
-                cout << "Horizontal distance between nodes should be greater than 0!\nReview the nodes file!... " << l->id << "'s length is equal to zero!" << endl;
-                exit(static_cast<int>(Error::wrongLinksLength));
+                throw std::runtime_error("Error: " + std::to_string(static_cast<int>(Error::wrongLinksLength)) +
+                                         "\nHorizontal distance between nodes should be greater than 0!\nReview the nodes file!... " +
+                                         std::to_string(l->id) + "'s length is equal to zero!\n");
             }
             l->length = lLength;
         }
