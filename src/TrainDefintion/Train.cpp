@@ -10,14 +10,16 @@
 #include <limits>
 #include "../util/Logger.h"
 #include "../util/Error.h"
+#include "src/util/errorhandler.h"
+
 #define stringify( name ) #name
 using namespace std;
 
 
 unsigned int Train::NumberOfTrainsInSimulator = 0;
 
-Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
-    Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize, 
+Train::Train(int simulatorID, string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
+    Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize,
     double desiredDecelerationRate_mPs, double operatorReactionTime_s, bool stopIfNoEnergy,
     double maxAllowedJerk_mPcs) {
 
@@ -25,7 +27,7 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     this->operatorReactionTime = operatorReactionTime_s;
     this->stopTrainIfNoEnergy = stopIfNoEnergy;
     this->maxJerk = maxAllowedJerk_mPcs;
-    this->id = Train::NumberOfTrainsInSimulator;
+    this->id = simulatorID;
     this->trainUserID = id;
     this->trainPath = trainPath;
     this->trainPathNodes = Vector<std::shared_ptr<NetNode>>();
@@ -71,6 +73,14 @@ Train::Train(string id, Vector<int> trainPath, double trainStartTime_sec, double
     }
 };
 
+Train::~Train(){
+    Train::NumberOfTrainsInSimulator--;
+}
+
+void Train::setTrainSimulatorID(int newID){
+    this->id = newID;
+}
+
 void Train::setTrainPath(Vector<int> path) {
     this->trainPath = path;
     int sizeOfPath = this->trainPath.size();
@@ -90,7 +100,7 @@ int Train::getActiveLocomotivesNumber() {
 
     if (this->ActiveLocos.size() == 0){
         this->outOfEnergy = true;
-        std::cerr << "All locomotives of train (" << this->id << ") are out of energy" << std::endl;
+        ErrorHandler::showNotification("All locomotives of train (" + std::to_string(this->id) + ") are out of energy");
     }
     return this->ActiveLocos.size();
 }
@@ -492,14 +502,13 @@ double Train::get_acceleration_an2(double gap, double minGap, double speed, doub
     
 double Train::accelerate(double gap, double mingap, double speed, double acceleration, double leaderSpeed, 
     double freeFlowSpeed, double deltaT, bool optimize, double throttleLevel) {
-    //cout<<"----------------" << "speed: " << speed << "leader speed: " << leaderSpeed << " gap: " << gap <<  endl;
-//    if (throttleLevel == -1) {
+
+    //    if (throttleLevel == -1) {
 //        throttleLevel = this->optimumThrottleLevel;
 //    };
 
     //get the maximum acceleration that the train can go by
     double amax = this->getAccelerationUpperBound(speed, acceleration, freeFlowSpeed, optimize, throttleLevel);
-    //std::cout << "amax: " << amax << endl;
     if ((gap > this->getSafeGap(mingap, speed, freeFlowSpeed, this->T_s, false)) && (amax > 0)) {
         if (speed < freeFlowSpeed) {
             return amax;
@@ -509,31 +518,18 @@ double Train::accelerate(double gap, double mingap, double speed, double acceler
         }
     }
     double u_hat = this->getNextTimeStepSpeed(gap, mingap, speed, freeFlowSpeed, amax, this->T_s, deltaT);
-    //std::cout << "u_hat: " << u_hat << endl;
     double TTC_s = this->getTimeToCollision(gap, mingap, speed, leaderSpeed);
-    //std::cout << "TTC_s: " <<TTC_s << endl;
     double an11 = this->get_acceleration_an11(u_hat, speed, TTC_s, this->coefficientOfFriction);
-    //std::cout << "an11: " <<an11 << endl;
     double an12 = this->get_acceleration_an12(u_hat, speed, this->T_s, amax);
-    //std::cout << "an12: " <<an12 << endl;
     double beta1 = this->get_beta1(an11);
-    //std::cout << "beta1: " <<beta1 << endl;
     double an13 = this->get_acceleration_an13(beta1, an11, an12);
-    //std::cout << "an13: " <<an13<< endl;
     double an14 = this->get_acceleration_an14(speed, leaderSpeed, this->T_s, amax, this->coefficientOfFriction);
-    //std::cout << "an14: " <<an14 << endl;
     double beta2 = this->get_beta2();
-    //std::cout << "beta2: " <<beta2 << endl;
     double an1 = this->get_acceleration_an1(beta2, an13, an14);
-    //std::cout << "an1: " <<an1 << endl;
     double du = speed - leaderSpeed;
-    //std::cout << "du: " << du << endl;
     double gamma = this->get_gamma(du);
-    //std::cout << "gamma: " <<gamma << endl;
     double an2 = this->get_acceleration_an2(gap, mingap, speed, leaderSpeed, this->T_s, this->coefficientOfFriction );
-    //std::cout << "an2: " <<an2 << endl;
     double a = an1 * (1.0 - gamma) - gamma * an2;
-    //std::cout << "a: " <<a << endl;
     return a;
 }
 
@@ -557,7 +553,7 @@ double Train::adjustAcceleration(double speed, double previousSpeed, double delt
 
 void Train::checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT) {
     if ((currentAcceleration - previousAcceleration) / deltaT > this->maxJerk) {
-        throw std::invalid_argument("sudden acceleration change!");
+        throw std::runtime_error("sudden acceleration change!\n Report to the developer!");
     }
 }
 
@@ -747,7 +743,7 @@ int Train::getRechargableLocsNumber() {
     return count;
 }
 
-std::tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,double prevThrottle,
+tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,double prevThrottle,
                                                     Vector<double> vector_grade, Vector<double> vector_curvature,
                                                     double freeSpeed_ms, double timeStep, Vector<double> u_leader,
                                                     Vector<double> gapToNextCriticalPoint) {

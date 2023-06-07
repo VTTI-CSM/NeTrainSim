@@ -16,7 +16,6 @@
 #include "../util/Map.h"
 #include <utility>
 #include <variant>
-#include <memory>
 
 /**
  * A net node.
@@ -240,6 +239,37 @@ public:
 
 
     /**
+     * \brief This constructor initializes a train with the passed parameters
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param   simulatorID                 simulatorID A unique identifier for the node, it should start by 0 and increment by 1
+     * @param 	id						   	The identifier.
+     * @param 	trainPath				   	Full pathname of the train file.
+     * @param 	trainStartTime_sec		   	The train start time security.
+     * @param 	frictionCoeff			   	The friction coeff.
+     * @param 	locomotives				   	The locomotives.
+     * @param 	cars					   	The cars.
+     * @param 	optimize				   	True to optimize.
+     * @param 	desiredDecelerationRate_mPs	(Optional) The desired deceleration rate m ps.
+     * @param 	operatorReactionTime_s	   	(Optional) The operator reaction time s.
+     * @param 	stopIfNoEnergy			   	(Optional) True to stop if no energy.
+     * @param 	isRunnigOffGrid			   	(Optional) True if is runnig off grid, false if not.
+     * @param 	maxAllowedJerk_mPcs		   	(Optional) The maximum allowed jerk m pcs.
+     */
+    Train(int simulatorID, string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
+          Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize,
+          double desiredDecelerationRate_mPs = DefaultDesiredDecelerationRate,
+          double operatorReactionTime_s = DefaultOperatorReactionTime,
+          bool stopIfNoEnergy = DefaultStopIfNoEnergy,
+          double maxAllowedJerk_mPcs = DefaultMaxAllowedJerk);
+
+    ~Train();
+
+    void setTrainSimulatorID(int newID);
+
+    /**
      * @brief recharge all train cars batteries.
      * @param EC_kwh
      * @return
@@ -267,31 +297,6 @@ public:
      */
     static unsigned int getNumberOfTrainsInSimulator();
 
-    /**
-     * \brief This constructor initializes a train with the passed parameters
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param 	id						   	The identifier.
-     * @param 	trainPath				   	Full pathname of the train file.
-     * @param 	trainStartTime_sec		   	The train start time security.
-     * @param 	frictionCoeff			   	The friction coeff.
-     * @param 	locomotives				   	The locomotives.
-     * @param 	cars					   	The cars.
-     * @param 	optimize				   	True to optimize.
-     * @param 	desiredDecelerationRate_mPs	(Optional) The desired deceleration rate m ps.
-     * @param 	operatorReactionTime_s	   	(Optional) The operator reaction time s.
-     * @param 	stopIfNoEnergy			   	(Optional) True to stop if no energy.
-     * @param 	isRunnigOffGrid			   	(Optional) True if is runnig off grid, false if not.
-     * @param 	maxAllowedJerk_mPcs		   	(Optional) The maximum allowed jerk m pcs.
-     */
-    Train(string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
-        Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize,
-        double desiredDecelerationRate_mPs = DefaultDesiredDecelerationRate,
-        double operatorReactionTime_s = DefaultOperatorReactionTime,
-        bool stopIfNoEnergy = DefaultStopIfNoEnergy,
-        double maxAllowedJerk_mPcs = DefaultMaxAllowedJerk);
 
     /**
      * \brief Gets minimum following train gap
@@ -890,9 +895,9 @@ public:
      * @param 	u_leader			  	The leader.
      * @param 	gapToNextCriticalPoint	The gap to next critical point.
      *
-     * @returns	A std::tuple&lt;double,double,double&gt;
+     * @returns	A tuple&lt;double,double,double&gt;
      */
-    std::tuple<double, double, double> AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,
+    tuple<double, double, double> AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,
                                                          double prevThrottle, Vector<double> vector_grade,
                                                          Vector<double> vector_curvature, double freeSpeed_ms,
                                                          double timeStep, Vector<double> u_leader,
