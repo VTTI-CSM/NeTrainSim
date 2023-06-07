@@ -14,6 +14,7 @@
     #include <QCommandLineParser>
     #include <stdio.h>
     #include <filesystem>
+    #include "src/util/ErrorHandler.h"
 #endif
 
 #ifndef AS_CMD
@@ -175,22 +176,29 @@ int main(int argc, char *argv[]) {
     if (checkParserValue(parser, timeStepOption, "", false)) { timeStep = parser.value(timeStepOption).toDouble(); }
     else { timeStep = 1.0; }
 
-    std::cout << "Reading Trains!                 \r";
-    Vector<std::shared_ptr<Train>> trains = TrainsList::readTrainsFile(trainsFile);
-    std::cout << "Reading Network!                \r";
-    Network net = Network(nodesFile, linksFile);
-    std::cout << "Define Simulator Space!         \r";
-    Simulator sim = Simulator(net, trains, timeStep);
+    try {
+        std::cout << "Reading Trains!                 \r";
+        Vector<std::shared_ptr<Train>> trains = TrainsList::ReadAndGenerateTrains(trainsFile);
+        std::cout << "Reading Network!                \r";
+        Network* net = new Network(nodesFile, linksFile);
+        std::cout << "Define Simulator Space!         \r";
+        Simulator sim = Simulator(net, trains, timeStep);
 
-    if (exportLocation != "" ) { sim.setOutputFolderLocation(exportLocation); }
-    if (summaryFilename != "" ) { sim.setSummaryFilename(summaryFilename); }
+        if (exportLocation != "" ) { sim.setOutputFolderLocation(exportLocation); }
+        if (summaryFilename != "" ) { sim.setSummaryFilename(summaryFilename); }
 
-    sim.setExportInstantaneousTrajectory(exportInstaTraj, instaTrajFilename);
+        sim.setExportInstantaneousTrajectory(exportInstaTraj, instaTrajFilename);
 
-    // run the actual simulation
-    std::cout <<"Starting the Simulator!          \n";
-    sim.runSimulation();
-    std::cout << "Output folder: " << sim.getOutputFolder() << std::endl;
+        // run the actual simulation
+        std::cout <<"Starting the Simulator!          \n";
+        sim.runSimulation();
+        std::cout << "Output folder: " << sim.getOutputFolder() << std::endl;
+    } catch (const std::exception& e) {
+        ErrorHandler::showError(e.what());
+        delete net;
+        return 1;
+    }
+    delete net;
     return 0;
 #endif
 
