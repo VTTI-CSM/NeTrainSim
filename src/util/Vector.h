@@ -216,6 +216,19 @@ public:
         ss << "]";
         return ss.str();
     }
+
+    std::string toNotFormattedString() const {
+        std::stringstream ss = std::stringstream("");
+        bool first = true;
+        for (const auto& elem : *this) {
+            if (!first) {
+                ss << ",";
+            }
+            ss << elem;
+            first = false;
+        }
+        return ss.str();
+    }
 };
 
 #endif  // VECTOR_H
