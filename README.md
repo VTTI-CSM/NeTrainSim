@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://docs.zettlr.com/" target="_blank">Documentation</a> |
+  <a href="" target="_blank">Documentation</a> |
   <a href="https://discord.gg/UgSmbJTu" target="_blank">Discord</a> |
   <a href="##Contributing">Contributing</a> |
 </p>
