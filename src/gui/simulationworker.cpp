@@ -44,8 +44,8 @@ void SimulationWorker::onTrainsCoordinatesUpdated(Vector<std::pair<std::string, 
     emit trainsCoordinatesUpdated(trainsStartEndPoints);
 }
 
-void SimulationWorker::onSimulationFinished(const Vector<std::pair<std::string, std::string>>& summaryData) {
-    emit simulationFinished(summaryData);
+void SimulationWorker::onSimulationFinished(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile) {
+    emit simulationFinished(summaryData, trajectoryFile);
 }
 
 void SimulationWorker::doWork() {

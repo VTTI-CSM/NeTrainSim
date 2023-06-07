@@ -611,7 +611,7 @@ private:
 public: signals:
     void progressUpdated(int progressPercentage);
     void plotTrainsUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
-    void finishedSimulation(const Vector<std::pair<std::string, std::string>>& summaryData);
+    void finishedSimulation(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile);
 
 public slots:
     /**

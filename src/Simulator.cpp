@@ -1344,7 +1344,13 @@ void Simulator::runSimulation() {
 	this->trajectoryFile.close();
 
     trainsSummaryData = Utils::splitStringStream(exportLine);
-    emit this->finishedSimulation(trainsSummaryData);
+
+    std::string trajectoryFilePath = "";
+    if (this->exportTrajectory) {
+        trajectoryFilePath = (this->outputLocation / this->trajectoryFilename).string();
+    }
+
+    emit this->finishedSimulation(trainsSummaryData, trajectoryFilePath);
 
 }
 

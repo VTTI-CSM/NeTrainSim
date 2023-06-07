@@ -22,7 +22,7 @@ public:
     ~SimulationWorker();
 
 signals:
-    void simulationFinished(const Vector<std::pair<std::string, std::string>>& summaryData);
+    void simulationFinished(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile);
     void trainsCoordinatesUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
     void simulaionProgressUpdated(int progressPercentage);
     void errorOccurred(std::string error);
@@ -30,7 +30,7 @@ signals:
 public slots:
     void onProgressUpdated(int progressPercentage);
     void onTrainsCoordinatesUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
-    void onSimulationFinished(const Vector<std::pair<std::string, std::string>> &summaryData);
+    void onSimulationFinished(const Vector<std::pair<std::string, std::string>> &summaryData, const string &trajectoryFile);
     void doWork();
 
 private:

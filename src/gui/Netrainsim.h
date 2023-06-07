@@ -43,7 +43,7 @@ private slots:
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
     void setDSInfo(DataSetInfo &dsInfo);
     void handleError(std::string error);
-    void handleSimulationFinished(Vector<std::pair<string, string> > summaryData);
+    void handleSimulationFinished(Vector<std::pair<string, string> > summaryData, std::string trajectoryFile);
 
 public:
 

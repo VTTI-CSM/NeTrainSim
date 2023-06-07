@@ -40,6 +40,11 @@ NeTrainSim::NeTrainSim(QWidget *parent)
 
 void NeTrainSim::setupGenerals(){
 
+    ui->progressBar->setTextVisible(true);
+    ui->progressBar->setAlignment(Qt::AlignCenter);
+    ui->progressBar->setRange(0, 100);
+    ui->progressBar->setFormat("%p%");
+
     // show about window
     connect(ui->actionAbout, &QAction::triggered, [this](){
         if (this->aboutWindow == nullptr) {
@@ -444,7 +449,7 @@ void NeTrainSim::setupPage2(){
             ui->verticalSpacer_train->changeSize(20,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
             ui->plot_trains->addGraph();
             ui->plot_trains->addGraph();
-            this->updateNodesPlot(*(ui->plot_trains), this->nodesXData, this->nodesYData, this->nodesLabelData);
+            this->updateNodesPlot(*(ui->plot_trains), this->nodesXData, this->nodesYData, this->nodesLabelData, true);
             this->updateLinksPlot(*(ui->plot_trains), this->linksStartNodeIDs, this->linksEndNodeIDs);
         } else {
             // show the layout if the checkbox is unchecked
@@ -669,9 +674,9 @@ void NeTrainSim::setupPage3(){
 
 void NeTrainSim::setupPage4(){
     // disable the results tab
-    //ui->tabWidget_project->setTabEnabled(4,false);
-    QString ss = "C:/Users/Ahmed/Documents/NeTrainSim/trainTrajectory_434158448_Cat.csv";
-    this->showDetailedReport(ss);
+    ui->tabWidget_project->setTabEnabled(4,false);
+//    QString ss = "C:/Users/Ahmed/Documents/NeTrainSim/trainTrajectory_434158448_Cat.csv";
+//    this->showDetailedReport(ss);
 }
 
 
@@ -756,7 +761,9 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
     graph->setData(xData, yData);
 
     // calculate point size as a fraction of minimum plot width or height
-    double pointSize = qMin(plot.width(), plot.height()) * 0.01;
+    double xRange = *std::max_element(xData.begin(), xData.end()) - *std::min_element(xData.begin(), xData.end());
+    double yRange = *std::max_element(yData.begin(), yData.end()) - *std::min_element(yData.begin(), yData.end());
+    double pointSize = qMin(xRange, yRange) * 0.05;
     // set the scatter style to show only points
     QCPScatterStyle scatterStyle = graph->scatterStyle();
     scatterStyle.setShape(QCPScatterStyle::ssCircle);
@@ -1250,7 +1257,7 @@ void NeTrainSim::simulate() {
 
 
 // Slot to handle the simulation finished signal
-void NeTrainSim::handleSimulationFinished(Vector<std::pair<std::string, std::string>> summaryData) {
+void NeTrainSim::handleSimulationFinished(Vector<std::pair<std::string, std::string>> summaryData, std::string trajectoryFile) {
         ui->tabWidget_project->setTabEnabled(4, true); // enable the results window
         ui->pushButton_projectNext->setEnabled(true);
         this->ui->progressBar->setVisible(false);
@@ -1260,7 +1267,9 @@ void NeTrainSim::handleSimulationFinished(Vector<std::pair<std::string, std::str
         this->thread = nullptr;
         delete this->worker;
         this->worker = nullptr;
-        QMetaObject::invokeMethod(this, "showReport", Qt::QueuedConnection); // Call showReport in the GUI thread
+        this->showReport();
+        this->showDetailedReport(QString::fromStdString(trajectoryFile));
+        //QMetaObject::invokeMethod(this, "showReport", Qt::QueuedConnection); // Call showReport in the GUI thread
         ui->tabWidget_project->setCurrentIndex(4);
 }
 
@@ -1387,6 +1396,8 @@ void NeTrainSim::showReport() {
 
     QObject::connect(ui->pushButton_popoutPreview, &QPushButton::clicked, popup);
 }
+
+
 void NeTrainSim::setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage)
 {
     if (paramName == "Description") {
@@ -1424,6 +1435,10 @@ void NeTrainSim::setDSInfo(DataSetInfo &dsInfo)
 
 
 void NeTrainSim::showDetailedReport(QString trajectoryFilename) {
+    if (trajectoryFilename.isEmpty()) {
+        ui->tabWidget_results->setTabVisible(1, false);
+        return;
+    }
     std::shared_ptr<CSVManager> CSV = std::make_shared<CSVManager>();
     auto df = CSV->readCSV(trajectoryFilename, "," , true);
     auto ids = CSV->getDistinctColumnValues(0);   // get all file train ID's
