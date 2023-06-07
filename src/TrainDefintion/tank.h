@@ -1,150 +1,126 @@
 #ifndef TANK_H
 #define TANK_H
 
+/**
+ * @file tank.h
+ * @brief This file declares the Tank class.
+ *        The Tank class represents a fuel tank used in a train or locomotive.
+ *        It stores information about the tank's capacity, current fuel level, state of capacity,
+ *        depth of discharge, and other properties.
+ *        The Tank class provides methods for setting and retrieving tank properties,
+ *        consuming fuel from the tank, and checking tank status.
+ *        The Tank class is intended to be used in a train simulation system.
+ *        Note: The implementation of the class is not provided in this declaration file.
+ *              It should be implemented separately in a corresponding source file.
+ * @author Ahmed Aredah
+ * @date 3/20/2023
+ */
 
 class Tank {
-    /***********************************************
-    *              variables declaration           *
-    ************************************************/
-
 private:
     /** Fuel cell variables if other fuel types and battery tender max capacity */
-    double tankMaxCapacity;
-    /** Tender initial capacity */
-    double tankInitialCapacity;
-    /** Tender current capacity */
-    double tankCurrentCapacity;
-    /** Tender fuel cell state */
-    double tankStateOfCapacity;
-    /** depth of discharge. */
-    double tankDOD;
-    /** consumed amount of fuel in liters.*/
-    double tankCumConsumedFuel = 0.0;
+    double tankMaxCapacity;                 // Maximum capacity of the tank in liters
+    double tankInitialCapacity;             // Initial capacity of the tank in liters
+    double tankCurrentCapacity;             // Current capacity of the tank in liters
+    double tankStateOfCapacity;             // State of capacity of the tank
+    double tankDOD;                         // Depth of discharge
+    double tankCumConsumedFuel = 0.0;       // Total consumed amount of fuel in liters
+
 public:
     /**
-     * @brief set the tank main properties (works as init)
+     * @brief Set the main properties of the tank (initialize the tank)
      *
-     * @param maxCapacity                   the max capacity the tank can hold in liters
-     * @param initialCapacityPercentage     the initial capacity percentage that the tank
-     *                                      hold once the train is loaded to the network.
-     * @param depthOfDischarge              the allowable depth of discharge, the tank
+     * @param maxCapacity                   The maximum capacity the tank can hold in liters
+     * @param initialCapacityPercentage     The initial capacity percentage that the tank
+     *                                      holds once the train is loaded onto the network.
+     * @param depthOfDischarge              The allowable depth of discharge, the tank
      *                                      can drain to.
      */
     void SetTank(double maxCapacity, double initialCapacityPercentage, double depthOfDischarge);
 
     /**
-     * Gets tank maximum capacity
+     * Gets the maximum capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @returns	The tank maximum capacity.
+     * @returns The tank's maximum capacity in liters.
      */
     double getTankMaxCapacity() const;
 
     /**
-     * Sets tank maximum capacity
+     * Sets the maximum capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @param 	newMaxCapacity	The new maximum capacity.
+     * @param newMaxCapacity The new maximum capacity of the tank in liters.
      */
     void setTankMaxCapacity(double newMaxCapacity);
 
     /**
-     * Gets tank initial capacity
+     * Gets the initial capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @returns	The tank initial capacity.
+     * @returns The tank's initial capacity in liters.
      */
     double getTankInitialCapacity() const;
 
     /**
-     * Sets tank initial capacity
+     * Sets the initial capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @param 	newInitialCapacityPercentage	The new initial capacity percentage.
+     * @param newInitialCapacityPercentage The new initial capacity percentage of the tank.
      */
     void setTankInitialCapacity(double newInitialCapacityPercentage);
 
     /**
-     * Gets tank current capacity
+     * Gets the current capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @returns	The tank current capacity.
+     * @returns The tank's current capacity in liters.
      */
     double getTankCurrentCapacity() const;
 
     /**
-     * Consume tank fuel
+     * Consumes fuel from the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @param 	consumedAmount	The consumed amount.
-     *
-     * @returns	A double.
+     * @param consumedAmount The amount of fuel to consume from the tank in liters.
+     * @returns The actual amount of fuel consumed from the tank in liters.
      */
     double consumeTank(double consumedAmount);
 
     /**
-     * Gets tank state of capacity
+     * Gets the state of capacity of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @returns	The tank state of capacity.
+     * @returns The tank's state of capacity.
      */
     double getTankStateOfCapacity() const;
 
     /**
-     * Query if 'consumedAmount' is tank drainable
+     * Checks if the specified amount of fuel is drainable from the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @param 	consumedAmount	The consumed amount.
-     *
-     * @returns	True if tank drainable, false if not.
+     * @param consumedAmount The amount of fuel to be drained from the tank in liters.
+     * @returns True if the tank is drainable (has enough fuel), false otherwise.
      */
     bool isTankDrainable(double consumedAmount);
 
     /**
-     * Gets tank dod
+     * Gets the depth of discharge of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @returns	The tank dod.
+     * @returns The tank's depth of discharge.
      */
     double getTankDOD() const;
 
     /**
-     * Sets tank depth of discharge
+     * Sets the depth of discharge of the tank
      *
-     * @author	Ahmed Aredah
-     * @date	3/20/2023
-     *
-     * @param 	newTankDOD	The new tank dod.
+     * @param newTankDOD The new depth of discharge of the tank.
      */
     void setTankDOD(double newTankDOD);
 
     /**
-     * @brief tankHasFuel
-     * @return
+     * Checks if the tank has fuel (current capacity > 0)
+     *
+     * @returns True if the tank has fuel, false otherwise.
      */
     bool tankHasFuel();
 
     /**
-     * @brief getTankCumConsumedFuel
-     * @return
+     * Gets the total amount of fuel consumed from the tank
+     *
+     * @returns The cumulative consumed fuel from the tank in liters.
      */
     double getTankCumConsumedFuel() const;
 };

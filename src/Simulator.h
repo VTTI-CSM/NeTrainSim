@@ -18,10 +18,17 @@
 #include <memory>
 
 /**
- * A simulator class.
+ * @class Simulator
+ * @brief The Simulator class represents a simulation engine for train simulations.
+ *        It manages the simulation process, including the trains, time step,
+ *        output files, network, and progress. The Simulator class handles the
+ *        execution of the simulation and provides functionality to export trajectory
+ *        and summary files. It also allows for customization of simulation parameters
+ *        such as the simulation end time and plot frequency. The Simulator class is
+ *        derived from QObject and can be used with the Qt framework.
  *
- * @author	Ahmed Aredah
- * @date	2/28/2023
+ * @author Ahmed Aredah
+ * @date 2/28/2023
  */
 class Simulator : public QObject {
     Q_OBJECT
@@ -32,8 +39,6 @@ private:
 	static constexpr double DefaultEndTime = 0.0;
 	/** (Immutable) true to default export instantaneous trajectory */
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
-//	/** (Immutable) the default output folder */
-//	inline static const std::string DefaultOutputFolder = "";
 	/** (Immutable) the default instantaneous trajectory empty filename */
 	inline static const std::string DefaultInstantaneousTrajectoryEmptyFilename = "";
 	/** (Immutable) the default summary empty filename */
@@ -609,8 +614,27 @@ private:
 	void calculateSignalsProximities();
 
 public: signals:
+    /**
+     * @brief Updates the progress of the simulation.
+     *
+     * @param progressPercentage The progress of the simulation as a percentage.
+     */
     void progressUpdated(int progressPercentage);
-    void plotTrainsUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
+
+    /**
+     * @brief Updates the plot of trains with their start and end points.
+     *
+     * @param trainsStartEndPoints A vector containing the names of the trains
+     *                            along with their start and end points.
+     */
+    void plotTrainsUpdated(Vector<std::pair<std::string, Vector<std::pair<double, double>>>> trainsStartEndPoints);
+
+    /**
+     * @brief Signals that the simulation has finished.
+     *
+     * @param summaryData   A vector containing the summary data of the simulation.
+     * @param trajectoryFile The file path of the generated trajectory file.
+     */
     void finishedSimulation(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile);
 
 public slots:

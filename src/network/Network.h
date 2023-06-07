@@ -16,9 +16,8 @@
 #include "NetSignal.h"
 #include "src/trainDefintion/Train.h"
 #include "src/util/Utils.h"
-#include "src/Util/Error.h"
+#include "src/util/Error.h"
 #include "ReadWriteNetwork.h"
-//#include <qapplication.h>
 
 /**
  * A network.

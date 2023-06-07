@@ -1,14 +1,17 @@
 #include "src/gui/customplot.h"
 #include "src/util/Vector.h"
 
+// Constructor
 CustomPlot::CustomPlot(QWidget *parent) : QCustomPlot(parent), m_isPanning(false), m_isScrollButtonClicked(false)
 {
     // Connect the zoomReset signal to the resetZoom slot
     QObject::connect(this, SIGNAL(zoomReset()), this, SLOT(resetZoom()));
 }
 
+// Mouse press event
 void CustomPlot::mousePressEvent(QMouseEvent *event)
 {
+    // Check if the middle button is pressed for panning
     if (event->button() == Qt::MiddleButton)
     {
         // get the position of the mouse for the panning
@@ -24,19 +27,29 @@ void CustomPlot::mousePressEvent(QMouseEvent *event)
             panningSensitivity = this->calculateSensitivity();
         }
     }
+    // Emit signals for left and right button press
+    else if (event->button() == Qt::LeftButton) {
+        emit this->pointLeftSelected(this->getClosestPoint(event));
+    }
+    else if (event->button() == Qt::RightButton) {
+        emit this->pointRightSelected(this->getClosestPoint(event));
+    }
 
     QCustomPlot::mousePressEvent(event);
 }
 
+// Mouse double click event
 void CustomPlot::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    // Reset zoom on double click
     if (event->button()== Qt::MiddleButton) {
         emit zoomReset();
     }
 
-     QCustomPlot::mouseDoubleClickEvent(event);
+    QCustomPlot::mouseDoubleClickEvent(event);
 }
 
+// Mouse move event
 void CustomPlot::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_isPanning)
@@ -60,7 +73,7 @@ void CustomPlot::mouseMoveEvent(QMouseEvent *event)
     QCustomPlot::mouseMoveEvent(event);
 }
 
-
+// Mouse release event
 void CustomPlot::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::MiddleButton && m_isPanning)
@@ -71,6 +84,7 @@ void CustomPlot::mouseReleaseEvent(QMouseEvent *event)
     QCustomPlot::mouseReleaseEvent(event);
 }
 
+// Wheel event
 void CustomPlot::wheelEvent(QWheelEvent *event)
 {
     if (event->buttons() == Qt::MiddleButton)
@@ -99,6 +113,7 @@ void CustomPlot::wheelEvent(QWheelEvent *event)
     QCustomPlot::wheelEvent(event);
 }
 
+// Center the drawing
 void CustomPlot::centerDrawing()
 {
     // Calculate the center coordinates of the graph
@@ -112,6 +127,7 @@ void CustomPlot::centerDrawing()
     replot();
 }
 
+// Reset zoom
 void CustomPlot::resetZoom()
 {
     if (graphCount() < 1) {
@@ -155,7 +171,7 @@ void CustomPlot::resetZoom()
     replot();
 }
 
-
+// Get all points positions of a graph
 std::pair<Vector<double>, Vector<double>> CustomPlot::getAllPointsPositions(QCPGraph &graph)
 {
     Vector<double> xdata;
@@ -175,6 +191,7 @@ std::pair<Vector<double>, Vector<double>> CustomPlot::getAllPointsPositions(QCPG
     return std::make_pair(xdata, ydata);
 }
 
+// Calculate the panning sensitivity
 double CustomPlot::calculateSensitivity()
 {
     const double sensitivityMin = 0.01;
@@ -194,4 +211,51 @@ double CustomPlot::calculateSensitivity()
     double mappedSensitivity = sensitivityMin + (sensitivityMax - sensitivityMin) * (averageRange - xRangeMin) / (xRangeMax - xRangeMin);
 
     return std::abs(mappedSensitivity);
+}
+
+// Get the closest point to a mouse event
+QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
+{
+    // Convert the click position to coordinates in the plot
+    double clickX = event->pos().x();
+    double clickY = event->pos().y();
+
+    // Iterate through each graph to find the closest point
+    double closestDistance = std::numeric_limits<double>::max();
+    QPointF closestPoint;
+
+    for (int i = 0; i < graphCount(); i++) {
+        auto currentGraph = graph(i);
+
+        if (currentGraph) {
+            QSharedPointer<QCPGraphDataContainer> dataContainer = currentGraph->data();
+
+            double maxRangeX = xAxis->range().size();
+            double maxRangeY = yAxis->range().size();
+            double maxDistance = std::hypot(maxRangeX, maxRangeY) * 0.1;
+
+            // Iterate through the data points of the graph
+            for (int j = 0; j < dataContainer->size(); j++) {
+                double x = dataContainer.data()->at(j)->key;
+                double y = dataContainer.data()->at(j)->value;
+
+                // Calculate the distance between the clicked position and the data point
+                double distance = std::hypot(x - clickX, y - clickY);
+
+                // if distance is less than max distance, skip
+                if (distance < maxDistance) {
+                    continue;
+                }
+
+                // Update the closest point if this distance is smaller
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPoint.setX(x);
+                    closestPoint.setY(y);
+                }
+            }
+        }
+    }
+
+    return closestPoint;
 }

@@ -775,10 +775,10 @@ class Ui_NeTrainSim(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(NeTrainSim)
-        self.tabWidget_project.setCurrentIndex(4)
+        self.tabWidget_project.setCurrentIndex(2)
         self.tabWidget_defineNetwork.setCurrentIndex(0)
-        self.tabWidget_newTrainOD.setCurrentIndex(0)
-        self.tabWidget_results.setCurrentIndex(1)
+        self.tabWidget_newTrainOD.setCurrentIndex(2)
+        self.tabWidget_results.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(NeTrainSim)
 

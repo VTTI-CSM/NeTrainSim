@@ -126,6 +126,7 @@ namespace EC {
         0.1005 (diesel conversion factor) / 0.93 = 67/620
      Bio Diesel (Litters) = Energy Consumption (KW.h) * 67/620 */
     static double DefaultBiodieselConversionFactor = 67.0/620.0;
+
 	/** The default hydrogen conversion factor.
 	 Under ambient conditions, 1 litter of hydrogen = 0.003 kWh
 	 Hydrogen (Litters) = EnergyConsumption (kW.h) * 0.002995*/
@@ -141,6 +142,7 @@ namespace EC {
     /** The gamma for regenerating energy */
 	static double gamma = 0.65;
 
+    /** Fuel conversion factors for different car types */
     static std::map<TrainTypes::CarType, double> fuelConversionFactor_carTypes = {
         {TrainTypes::CarType::dieselTender, DefaultDieselConversionFactor},
         {TrainTypes::CarType::biodieselTender, DefaultBiodieselConversionFactor},
@@ -148,6 +150,7 @@ namespace EC {
         {TrainTypes::CarType::batteryTender, 1.0}
     };
 
+    /** Fuel conversion factors for different power types */
     static std::map<TrainTypes::PowerType, double> fuelConversionFactor_powerTypes = {
         {TrainTypes::PowerType::diesel, DefaultDieselConversionFactor},
         {TrainTypes::PowerType::dieselHybrid, DefaultDieselConversionFactor},
@@ -160,78 +163,136 @@ namespace EC {
 // #          end: general energy consumption default values        #
 // ##################################################################
 
-	/**
-	 * Gets drive line eff
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @param 	trainSpeed              The train speed.
-	 * @param 	notchNumberIndex        Zero-based index of the notch number.
-	 * @param   powerAtWheelProportion  The Power required for the time step of the train at the wheel.
-	 * @param 	powerType               Type of the power.
-	 *
-	 * @returns	The drive line eff.
-	 */
+    /**
+     * Gets the drive line efficiency based on train speed, notch number index, power proportion at wheel, power type, and hybrid method.
+     *
+     * @param trainSpeed                 The train speed in m/s.
+     * @param notchNumberIndex           Zero-based index of the notch number.
+     * @param powerAtWheelProportion     The power required for the time step of the train at the wheel.
+     * @param powerType                  Type of the power.
+     * @param hybridMethod               The hybrid method used in the locomotive.
+     *
+     * @returns The drive line efficiency.
+     */
     double getDriveLineEff(double &trainSpeed, int notchNumberIndex, double powerAtWheelProportion,
                            TrainTypes::PowerType powerType,
                            TrainTypes::LocomotivePowerMethod hybridMethod);
 
+    /**
+     * Gets the wheel-to-DC bus efficiency based on train speed.
+     *
+     * @param trainSpeed    The train speed in m/s.
+     *
+     * @returns The wheel-to-DC bus efficiency.
+     */
     double getWheelToDCBusEff(double &trainSpeed);
 
+    /**
+     * Gets the DC bus-to-tank efficiency based on power proportion at wheel, power type, and hybrid method.
+     *
+     * @param powerAtWheelProportion    The power required for the time step of the train at the wheel.
+     * @param powerType                 Type of the power.
+     * @param hybridMethod              The hybrid method used in the locomotive.
+     *
+     * @returns The DC bus-to-tank efficiency.
+     */
     double getDCBusToTankEff(double powerAtWheelProportion,
                              TrainTypes::PowerType powerType,
                              TrainTypes::LocomotivePowerMethod hybridMethod);
 
-	/**
-	 * Gets generator effeciency by the power type
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	3/20/2023
-	 *
-	 * @param 	powerType	Type of the power.
-	 *
-     * @returns	The generator efficiency.
-	 */
+    /**
+     * Gets the generator efficiency based on power type and power at wheel proportion.
+     *
+     * @param powerType                 Type of the power.
+     * @param powerAtWheelProportion    The power required for the time step of the train at the wheel.
+     *
+     * @returns The generator efficiency.
+     */
     double getGeneratorEff(TrainTypes::PowerType powerType, double powerAtWheelProportion);
 
+
+    /**
+     * Gets the battery efficiency based on power type.
+     *
+     * @param powerType    Type of the power.
+     *
+     * @returns The battery efficiency.
+     */
     double getBatteryEff(TrainTypes::PowerType powerType);
 
+    /**
+     * Gets the maximum efficiency range for a given power type.
+     *
+     * @param powerType    Type of the power.
+     *
+     * @returns The maximum efficiency range (pair of values).
+     */
     std::pair<double,double> getMaxEffeciencyRange(TrainTypes::PowerType powerType);
 
-	/**
-     * Gets required generator power percentage for recharging the battery
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	3/20/2023
-	 *
-	 * @param 	batterySOC	The battery soc.
-	 *
-	 * @returns	The required generator power for recharge.
-	 */
+    /**
+     * Gets the required generator power percentage for recharging the battery based on battery state of charge.
+     *
+     * @param batterySOC    The battery state of charge.
+     *
+     * @returns The required generator power percentage.
+     */
 	double getRequiredGeneratorPowerForRecharge(double batterySOC);
 
-	/**
-     * Gets the CO2 emissions
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	3/20/2023
-	 *
-	 * @param 	fuelConsumption	The fuel consumption.
-	 *
-	 * @returns	The emissions.
-	 */
+
+    /**
+     * Gets the CO2 emissions based on fuel consumption.
+     *
+     * @param fuelConsumption    The fuel consumption.
+     *
+     * @returns The CO2 emissions.
+     */
     double getEmissions(double fuelConsumption);
 
+    /**
+     * Gets the power reduction factor for a given power type.
+     *
+     * @param powerType    Type of the power.
+     *
+     * @returns The power reduction factor.
+     */
     double getLocomotivePowerReductionFactor(TrainTypes::PowerType powerType);
 
-
+    /**
+     * Gets the fuel consumption in liters for a given energy consumption and power type.
+     *
+     * @param powerType    Type of the power.
+     * @param EC_KWh       The energy consumption in kWh.
+     *
+     * @returns The fuel consumption in liters.
+     */
     double getFuelFromEC(TrainTypes::PowerType powerType, double &EC_KWh);
 
+    /**
+     * Gets the fuel consumption in liters for a given energy consumption and car type.
+     *
+     * @param carType   Type of the car.
+     * @param EC_KWh    The energy consumption in kWh.
+     *
+     * @returns The fuel consumption in liters.
+     */
     double getFuelFromEC(TrainTypes::CarType carType, double &EC_KWh);
 
+    /**
+     * Gets the fuel conversion factor for a given power type.
+     *
+     * @param powerType    Type of the power.
+     *
+     * @returns The fuel conversion factor.
+     */
     double getFuelConversionFactor(TrainTypes::PowerType powerType);
 
+    /**
+     * Gets the fuel conversion factor for a given car type.
+     *
+     * @param carType    Type of the car.
+     *
+     * @returns The fuel conversion factor.
+     */
     double getFuelConversionFactor(TrainTypes::CarType carType);
 }
 

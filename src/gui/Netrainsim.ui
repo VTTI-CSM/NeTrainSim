@@ -92,7 +92,7 @@
          <enum>QTabWidget::West</enum>
         </property>
         <property name="currentIndex">
-         <number>4</number>
+         <number>2</number>
         </property>
         <property name="tabsClosable">
          <bool>false</bool>
@@ -828,7 +828,7 @@
                <item row="1" column="0">
                 <widget class="QTabWidget" name="tabWidget_newTrainOD">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="tab_6">
                   <attribute name="title">
@@ -1020,6 +1020,12 @@
                        <column>
                         <property name="text">
                          <string>Nodes Along Path</string>
+                        </property>
+                        <property name="toolTip">
+                         <string/>
+                        </property>
+                        <property name="whatsThis">
+                         <string/>
                         </property>
                        </column>
                        <column>
@@ -1471,7 +1477,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_results">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_9">
              <attribute name="title">

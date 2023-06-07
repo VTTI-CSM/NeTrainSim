@@ -1,7 +1,19 @@
-//
-// Created by Ahmed Aredah
-// Version 0.1
-//
+/**
+ * @file NetNode.h
+ * @brief This file contains the declaration of the NetNode class.
+ *        The NetNode class represents a network node in a simulation.
+ *        It stores information about the node, such as its ID, coordinates, description, scales, etc.
+ *        The NetNode class is used in conjunction with other classes, such as NetSignal and NetLink, to simulate network behavior.
+ *        It also includes static variables and methods to keep track of the number of nodes in the simulator.
+ *        The NetNode class is intended to be used as part of a network simulation system.
+ *        It is designed to work with other classes and data structures in the simulation.
+ *        The NetNode class can be used in a C++ application.
+ *        Note: The implementation of some methods is not provided in this declaration file.
+ *              They should be implemented separately in a corresponding source file.
+ * @author Ahmed Aredah
+ * @version 0.1
+ * @date 6/7/2023
+ */
 
 #ifndef NeTrainSim_NetNode_h
 #define NeTrainSim_NetNode_h
@@ -10,182 +22,113 @@
 #include <iostream>
 #include "../util/Vector.h"
 #include "../util/Map.h"
+
+class NetSignal; // Forward declaration of NetSignal class
+class NetLink; // Forward declaration of NetLink class
+
 using namespace std;
 
 /**
- * A network signal.
- *
- * @author	Ahmed
- * @date	2/14/2023
+ * @class NetNode
+ * @brief The NetNode class represents a network node in a simulation.
  */
-class NetSignal;
-
-/**
- * A net link.
- *
- * @author	Ahmed
- * @date	2/14/2023
- */
-class NetLink;
-
-/**
- * A net node.
- *
- * @author	Ahmed
- * @date	2/14/2023
- */
-class NetNode{
+class NetNode {
 private:
-	/** Number of nodes in simulators */
-	static unsigned int NumberOfNodesInSimulator;
+    static unsigned int NumberOfNodesInSimulator; /**< The number of nodes in the simulator. */
 
 public:
-	/** Initial value, this values gets updated in the network class */
-	int id = -1;
-	/** Read user node id */
-	int userID;
-	/** Read x coordinate */
-	double x;
-	/** Read y coordinate */
-	double y;
-	/** Read description */
-	string alphaDesc;
-	/** Read x - value scale */
-	double xScale;
-	/** Read y - value scale */
-	double yScale;
-	/** The signals */
-	Vector<std::shared_ptr<NetSignal>> networkSignals;
-	/** True if the node is a stopping station / depot for all trains */
-	bool isDepot;
-	/** Is the dwell time at the depot */
-	double dwellTimeIfDepot;
-    /** refill trains batteries and batteries if passed by this node. */
-    bool refillTanksAndBatteries;
-	/** The neighbour nodes with their link connection */
-	Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo;
+    int id = -1; /**< The identifier of the node. */
+    int userID; /**< The user identifier of the node. */
+    double x; /**< The x-coordinate of the node. */
+    double y; /**< The y-coordinate of the node. */
+    std::string alphaDesc; /**< The description of the node. */
+    double xScale; /**< The x-value scale of the node. */
+    double yScale; /**< The y-value scale of the node. */
+    Vector<std::shared_ptr<NetSignal>> networkSignals; /**< The network signals associated with the node. */
+    bool isDepot; /**< Indicates whether the node is a stopping station or depot for all trains. */
+    double dwellTimeIfDepot; /**< The dwell time at the depot. */
+    bool refillTanksAndBatteries; /**< Indicates whether trains refill tanks and batteries when passing through this node. */
+    Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo; /**< The neighbor nodes and their link connections. */
 
-// ##################################################################
-// #                 start: graph search variables                  #
-// ##################################################################
+    // Graph search variables
+    double graphSearchDistanceFromStart; /**< The graph search distance from the start node. */
+    bool graphSearchVisited; /**< Indicates whether the node has been visited in graph search. */
+    std::shared_ptr<NetNode> graphSearchPreviousNode; /**< The previous node in the path during graph search. */
 
-	/** The graph search distance from start */
-	double graphSearchDistanceFromStart;
-	/** The graph search isVisited: True if visited */
-	bool graphSearchVisited;
-	/** The path search previous node */
-	std::shared_ptr<NetNode> graphSearchPreviousNode;
-// ##################################################################
-// #                   end: graph search variables                  #
-// ##################################################################
-
-public:
-
-	/**
-	 * Constructor
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-     * @param   simulatorID A unique identifier for the node, it should start by 0 and increment by 1
-     * @param 	userID      Identifier for the user.
-     * @param 	xCoord      The coordinate.
-     * @param 	yCoord      The coordinate.
-     * @param 	Desc        The description.
-     * @param 	xScale      The scale.
-     * @param 	yScale      The scale.
-	 */
+    /**
+     * @brief Constructor
+     * @param simulatorID The simulator identifier of the node.
+     * @param userID The user identifier of the node.
+     * @param xCoord The x-coordinate of the node.
+     * @param yCoord The y-coordinate of the node.
+     * @param Desc The description of the node.
+     * @param xScale The x-value scale of the node.
+     * @param yScale The y-value scale of the node.
+     */
     NetNode(int simulatorID, int userID, double xCoord, double yCoord, string Desc, double xScale, double yScale);
 
     /**
-     *
+     * @brief Destructor
      */
     ~NetNode();
 
     /**
-     * @brief setNodeID
-     * @param newID
+     * @brief Sets the simulator identifier of the node.
+     * @param newID The new simulator identifier.
      */
     void setNodeSimulatorID(int newID);
 
     /**
-     * Gets the neighbors of the nodes.
-     *
-     * @author	Ahmed
-     * @date	2/14/2023
-     *
-     * @returns	The neighbors.
+     * @brief Gets the neighbors of the node.
+     * @return A vector of shared pointers to the neighbor nodes.
      */
     Vector<std::shared_ptr<NetNode>> getNeighbors();
 
     /**
-     * Clears the graph search parameters. This should be executed before running the graph search.
-     *
-     * @author	Ahmed
-     * @date	2/14/2023
+     * @brief Clears the graph search parameters.
+     *        This should be called before running the graph search.
      */
     void clearGraphSearchParams();
-	/**
-	 * Gets number of nodes in simulator
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @returns	The number of nodes in simulator.
-	 */
-	static unsigned int getNumberOfNodesInSimulator();
 
-	/**
-	 * Adds a network signal
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param 	networkSignal	The network signal.
-	 */
-	void addSignal(std::shared_ptr<NetSignal> networkSignal);
+    /**
+     * @brief Gets the number of nodes in the simulator.
+     * @return The number of nodes.
+     */
+    static unsigned int getNumberOfNodesInSimulator();
 
-	/**
-	 * Updates the x coordinate scale described by newScale
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param 	newScale	The new scale.
-	 */
-	void updateXScale(const double& newScale);
+    /**
+     * @brief Adds a network signal to the node.
+     * @param networkSignal The network signal to add.
+     */
+    void addSignal(std::shared_ptr<NetSignal> networkSignal);
 
-	/**
-	 * Updates the y coordinate scale described by newScale
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param 	newScale	The new scale.
-	 */
-	void updateYScale(const double& newScale);
+    /**
+     * @brief Updates the x-coordinate scale of the node.
+     * @param newScale The new scale value.
+     */
+    void updateXScale(const double& newScale);
 
-	/**
-	 * Gets the coordinates
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @returns	A pair&lt;double,double&gt;
-	 */
-	pair<double, double> coordinates();
+    /**
+     * @brief Updates the y-coordinate scale of the node.
+     * @param newScale The new scale value.
+     */
+    void updateYScale(const double& newScale);
 
-	/**
-	 * Stream insertion operator
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param [in,out]	ostr	The ostr.
-	 * @param 		  	stud	The stud.
-	 *
-	 * @returns	The shifted result.
-	 */
-	friend ostream& operator<<(ostream& ostr, const NetNode& stud);
+    /**
+     * @brief Gets the coordinates of the node.
+     * @return A pair containing the x and y coordinates.
+     */
+    pair<double, double> coordinates();
+
+    // Other methods and friend function declarations...
 };
-#endif // !NeTrainSim_NetNode_h
+
+/**
+ * @brief Overloaded ostream operator for printing the NetNode object.
+ * @param ostr The output stream object.
+ * @param node The NetNode object to be printed.
+ * @return The output stream object.
+ */
+ostream& operator<<(ostream& ostr, const NetNode& node);
+
+#endif // NeTrainSim_NetNode_h

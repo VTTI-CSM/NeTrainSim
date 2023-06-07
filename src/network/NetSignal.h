@@ -1,7 +1,19 @@
-//
-// Created by Ahmed Aredah
-// Version 0.1
-//
+/**
+ * @file NetSignal.h
+ * @brief This file contains the declaration of the NetSignal class.
+ *        The NetSignal class represents a network signal in a simulation.
+ *        It stores information about the signal, such as its ID, state, proximity, etc.
+ *        The NetSignal class is used in conjunction with other classes, such as NetLink and NetNode, to simulate network behavior.
+ *        It also includes static variables and methods to keep track of the number of signals in the simulator.
+ *        The NetSignal class is intended to be used as part of a network simulation system.
+ *        It is designed to work with other classes and data structures in the simulation.
+ *        The NetSignal class can be used in a C++ application.
+ *        Note: The implementation of some methods is not provided in this declaration file.
+ *              They should be implemented separately in a corresponding source file.
+ * @author Ahmed Aredah
+ * @version 0.1
+ * @date 2/14/2023
+ */
 
 #ifndef NeTrainSim_NetSignal_h
 #define NeTrainSim_NetSignal_h
@@ -9,110 +21,60 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "../util/Vector.h"
 
-/**
- * A net link.
- *
- * @author	Ahmed
- * @date	2/14/2023
- */
-class NetLink;
+class NetLink; // Forward declaration of NetLink class
+class NetNode; // Forward declaration of NetNode class
 
-/**
- * A net node.
- *
- * @author	Ahmed
- * @date	2/14/2023
- */
-class NetNode;
 using namespace std;
 
 /**
- * A network signal.
- *
- * @author	Ahmed
- * @date	2/14/2023
+ * @class NetSignal
+ * @brief The NetSignal class represents a network signal in a simulation.
  */
 class NetSignal : public std::enable_shared_from_this<NetSignal> {
 private:
-	/** Number of signals in simulators */
-	static unsigned int NumberOfSignalsInSimulator;
+    static unsigned int NumberOfSignalsInSimulator; /**< The number of signals in the simulator. */
 
 public:
-	/** Identifier for the user */
-	int userID;
-	/** The identifier */
-	int id;
-	/** True if is green, false if not */
-	bool isGreen;
-	/** The proximity to activate */
-	double proximityToActivate;
+    int userID; /**< The user identifier of the signal. */
+    int id; /**< The identifier of the signal. */
+    bool isGreen; /**< Indicates whether the signal is green. */
+    double proximityToActivate; /**< The proximity at which the signal activates. */
 
-	/**
-	 * Gets the link
-	 *
-	 * @returns	The link.
-	 */
-	std::weak_ptr <NetLink> link;
-	/** The previous node */
-	std::weak_ptr<NetNode> previousNode;
+    std::weak_ptr<NetLink> link; /**< The link associated with the signal. */
+    std::weak_ptr<NetNode> previousNode; /**< The previous node connected to the signal. */
+    std::weak_ptr<NetNode> currentNode; /**< The current node connected to the signal. */
 
-	/**
-	 * Gets the current node
-	 *
-	 * @returns	The current node.
-	 */
-	std::weak_ptr <NetNode> currentNode;
+    /**
+     * @brief Constructor
+     * @param signalID The identifier of the signal.
+     * @param hostingLink The link hosting the signal.
+     */
+    NetSignal(int signalID, std::shared_ptr<NetLink> hostingLink);
 
-	/**
-	 * Constructor
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param 	signalID   	Identifier for the network signal.
-	 * @param 	hostingLink	The hosting link.
-	 */
-	NetSignal(int signalID, std::shared_ptr <NetLink> hostingLink);
+    /**
+     * @brief Constructor
+     * @param signalID The identifier of the signal.
+     * @param hostingLink The link hosting the signal.
+     * @param previousLinkNode The previous node connected to the signal.
+     * @param currentLinkNode The current node connected to the signal.
+     */
+    NetSignal(int signalID, std::shared_ptr<NetLink> hostingLink,
+              std::shared_ptr<NetNode> previousLinkNode, std::shared_ptr<NetNode> currentLinkNode);
 
-	/**
-	 * Constructor
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param 	signalID			Identifier for the network signal.
-	 * @param 	hostingLink			The hosting link.
-	 * @param 	previousLinkNode	The previous link node.
-	 * @param 	currentLinkNode 	The current link node.
-	 */
-	NetSignal(int signalID, std::shared_ptr<NetLink> hostingLink, 
-		std::shared_ptr<NetNode> previousLinkNode, std::shared_ptr<NetNode> currentLinkNode);
+    /**
+     * @brief Gets the number of signals in the simulator.
+     * @return The number of signals.
+     */
+    static unsigned int getNumberOfSignalsInSimulator();
 
-	/**
-	 * Gets number of signals in simulator
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @returns	The number of signals in simulator.
-	 */
-	static unsigned int getNumberOfSignalsInSimulator();
-
-	/**
-	 * Stream insertion operator
-	 *
-	 * @author	Ahmed
-	 * @date	2/14/2023
-	 *
-	 * @param [in,out]	ostr	The ostr.
-	 * @param 		  	stud	The stud.
-	 *
-	 * @returns	The shifted result.
-	 */
-	friend ostream& operator<<(ostream& ostr, const NetSignal& stud);
-
-
+    /**
+     * @brief Overloaded ostream operator for printing the NetSignal object.
+     * @param ostr The output stream object.
+     * @param signal The NetSignal object to be printed.
+     * @return The output stream object.
+     */
+    friend ostream& operator<<(ostream& ostr, const NetSignal& signal);
 };
-#endif // !NeTrainSim_NetSignal_h
+
+#endif // NeTrainSim_NetSignal_h
