@@ -24,15 +24,19 @@ include($$PWD/src/dependencies/qtrpt/QtRPT/QtRPT.pri)
 
 SOURCES += \
     main.cpp \
-    netrainsim.cpp \
     src/Simulator.cpp \
     src/dependencies/qcustomplot/qcustomplot.cpp \
     src/gui/CustomTableWidget.cpp \
     src/gui/DisappearingLabel.cpp \
+    src/gui/Netrainsim.cpp \
+    src/gui/aboutwindow.cpp \
+    src/gui/customplot.cpp \
+    src/gui/simulationworker.cpp \
     src/network/NetLink.cpp \
     src/network/NetNode.cpp \
     src/network/NetSignal.cpp \
     src/network/NetSignalGroupController.cpp \
+    src/network/ReadWriteNetwork.cpp \
     src/trainDefintion/Car.cpp \
     src/trainDefintion/EnergyConsumption.cpp \
     src/trainDefintion/Locomotive.cpp \
@@ -41,10 +45,12 @@ SOURCES += \
     src/trainDefintion/TrainsList.cpp \
     src/trainDefintion/battery.cpp \
     src/trainDefintion/tank.cpp \
-    src/util/Logger.cpp
+    src/util/ErrorHandler.cpp \
+    src/util/Logger.cpp \
+    src/util/XMLManager.cpp \
+    src/util/csvmanager.cpp
 
 HEADERS += \
-    netrainsim.h \
     src/Simulator.h \
     src/dependencies/qcustomplot/qcustomplot.h \
     src/gui/CheckboxDelegate.h \
@@ -52,12 +58,18 @@ HEADERS += \
     src/gui/CustomTableWidget.h \
     src/gui/DisappearingLabel.h \
     src/gui/IntNumericDelegate.h \
+    src/gui/Netrainsim.h \
+    src/gui/NonEmptyDelegate.h \
+    src/gui/aboutwindow.h \
+    src/gui/customplot.h \
     src/gui/numericdelegate.h \
+    src/gui/simulationworker.h \
     src/network/NetLink.h \
     src/network/NetNode.h \
     src/network/NetSignal.h \
     src/network/NetSignalGroupController.h \
     src/network/Network.h \
+    src/network/ReadWriteNetwork.h \
     src/trainDefintion/Car.h \
     src/trainDefintion/EnergyConsumption.h \
     src/trainDefintion/Locomotive.h \
@@ -68,19 +80,27 @@ HEADERS += \
     src/trainDefintion/battery.h \
     src/trainDefintion/tank.h \
     src/util/Error.h \
+    src/util/ErrorHandler.h \
     src/util/List.h \
     src/util/Logger.h \
     src/util/Map.h \
     src/util/Utils.h \
-    src/util/Vector.h
+    src/util/Vector.h \
+    src/util/XMLManager.h \
+    src/util/csvmanager.h
 
 FORMS += \
-    netrainsim.ui
+    src/gui/Netrainsim.ui \
+    src/gui/aboutwindow.ui
 
 TRANSLATIONS += \
     NeTrainSim_en_US.ts
 CONFIG += lrelease
 CONFIG += embed_translations
+
+# file extension association
+HEADERS += *.NTS
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
