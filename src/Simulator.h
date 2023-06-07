@@ -6,7 +6,8 @@
 #ifndef NeTrainSim_Simulator_h
 #define NeTrainSim_Simulator_h
 
-#include "trainDefintion/Train.h"
+#include <QObject>
+#include "src/trainDefintion/Train.h"
 //#include "trainDefintion/TrainsList.h"
 #include "network/Network.h"
 #include "network/NetSignalGroupController.h"
@@ -22,7 +23,8 @@
  * @author	Ahmed Aredah
  * @date	2/28/2023
  */
-class Simulator {
+class Simulator : public QObject {
+    Q_OBJECT
 private:
 	/** (Immutable) the default time step */
 	static constexpr double DefaultTimeStep = 1.0;
@@ -52,6 +54,8 @@ private:
 	double simulationEndTime;
 	/** The time step */
 	double timeStep;
+    /** The frequency of plotting the trains */
+    int plotFrequency;
 	/** The output location */
 	std::filesystem::path outputLocation;
 	/** Filename of the summary file */
@@ -78,6 +82,7 @@ private:
 
 public:
 
+    Vector<std::pair<std::string, std::string>> trainsSummaryData;
 
 	/**
 	 * @brief Simulator constructor
@@ -89,8 +94,8 @@ public:
      * @param  [in] 	networkTrains     The network trains.
      * @param  [in] 	simulatorTimeStep The simulator time step. Default value is 1.0
 	 */
-    Simulator(Network& theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
-              double simulatorTimeStep = DefaultTimeStep);
+    explicit Simulator(Network *theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
+                       double simulatorTimeStep = DefaultTimeStep, QObject *parent = nullptr);
 
 	/**
 	 * @brief set simulator time step
@@ -121,6 +126,12 @@ public:
 	 *                      Zero means do not stop untill all trains reach destination.
 	 */
 	void setEndTime(double newEndTime);
+
+    /**
+     * @brief set the plot frequency of trains, this only works in the gui
+     * @param newPlotFrequency
+     */
+    void setPlotFrequency(int newPlotFrequency);
 
 	/**
 	 * @brief setOutputFolderLocation.
@@ -343,7 +354,7 @@ public:
 	 *
 	 * @returns	The train links data.
 	 */
-	std::tuple<Vector<double>, Vector<double>, Vector<double>,
+	tuple<Vector<double>, Vector<double>, Vector<double>,
 			Vector<std::shared_ptr<NetLink>>> loadTrainLinksData(std::shared_ptr <Train> train, bool isVirtual);
 
 	/**
@@ -369,14 +380,6 @@ public:
 	 * @returns	The train free speed.
 	 */
 	double loadTrainFreeSpeed(std::shared_ptr<Train> train);
-
-	/**
-	 * Executes the 'simulator' operation
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 */
-	void runSimulation();
 
 	/**
 	 * Sets train simulator path
@@ -604,5 +607,20 @@ private:
 	 * @date	2/28/2023
 	 */
 	void calculateSignalsProximities();
+
+public: signals:
+    void progressUpdated(int progressPercentage);
+    void plotTrainsUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
+    void finishedSimulation(const Vector<std::pair<std::string, std::string>>& summaryData);
+
+public slots:
+    /**
+     * Executes the 'simulator' operation
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     */
+    void runSimulation();
+
 };
 #endif // !NeTrainSim_Simulator_h
