@@ -16,6 +16,9 @@
 #include <regex>
 #include <chrono>
 #include <cmath>
+#include <tuple>
+#include <type_traits>
+#include <QVector>
 
 namespace Utils {
 
@@ -252,6 +255,134 @@ namespace Utils {
             }).base(), s.end());
         return s;
     }
+
+    inline bool writeToFile(std::stringstream &s, std::string filename) {
+        std::ofstream outputFile(filename);
+        if (outputFile.is_open()) {
+            outputFile << s.rdbuf();  // Write stringstream contents to file
+            outputFile.close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    template <typename... Args>
+    inline std::stringstream convertTupleToStringStream(const std::tuple<Args...>& t, int limit, std::string delim = "\t");
+
+    template <typename Tuple, size_t... Indices>
+    inline void addTupleValuesToStreamImpl(const Tuple& t, std::stringstream& ss,
+                                           std::index_sequence<Indices...>, int limit, std::string delim);
+
+    template <typename T>
+    inline void writeToStream(const T& value, std::stringstream& ss, std::string delim);
+
+
+
+    template <typename... Args>
+    inline std::stringstream convertTupleToStringStream(const std::tuple<Args...>& t, int limit, std::string delim) {
+        std::stringstream ss;
+        addTupleValuesToStreamImpl(t, ss, std::index_sequence_for<Args...>(),
+                                   limit > 0? limit: std::tuple_size<std::tuple<Args...>>::value - std::abs(limit), delim);
+        return ss;
+    }
+
+    template <typename Tuple, size_t... Indices>
+    inline void addTupleValuesToStreamImpl(const Tuple& t, std::stringstream& ss,
+                                           std::index_sequence<Indices...>, int limit, std::string delim) {
+        ((Indices <= limit ? Utils::writeToStream(std::get<Indices>(t), ss, delim) : void()), ...);
+    }
+
+    template <typename T>
+    inline void writeToStream(const T& value, std::stringstream& ss, std::string delim) {
+        if constexpr (std::is_same_v<T, bool>) {
+            ss << (value ? "1" : "0") << delim;
+        } else {
+            ss << value << delim;
+        }
+    }
+
+    inline std::string removeLastWord(const std::string& originalString) {
+
+        size_t lastSpaceIndex = originalString.find_last_of(' ');
+
+        if (lastSpaceIndex != std::string::npos) {
+            std::string updatedString = originalString.substr(0, lastSpaceIndex);
+            return updatedString;
+        } else {
+            // Return the original string if there is no space
+            return originalString;
+        }
+    }
+
+    inline QVector<double> convertQStringVectorToDouble(const QVector<QString>& stringVector) {
+        QVector<double> doubleVector;
+        doubleVector.reserve(stringVector.size());
+
+        for (const QString& str : stringVector) {
+            bool ok;
+            double value = str.toDouble(&ok);
+            if (ok) {
+                doubleVector.append(value);
+            } else {
+                // Handle conversion error if necessary
+            }
+        }
+
+        return doubleVector;
+    }
+
+    inline QVector<double> subtractQVector(const QVector<double> l1, const QVector<double> l2) {
+        QVector<double> result;
+        if (l1.size() != l2.size()) {return result; }
+
+        for (int i = 0; i < l1.size(); i++ ) {
+            result.push_back(l1[i] - l2[i]);
+        }
+        return result;
+    }
+
+    inline QVector<double> factorQVector(const QVector<double> l1, const double factor) {
+        QVector<double> result;
+        if (l1.size() < 1) {return result; }
+
+        for (int i = 0; i < l1.size(); i++ ) {
+            result.push_back(l1[i] * factor);
+        }
+        return result;
+    }
+
+    inline Vector<std::pair<std::string, std::string>> splitStringStream(std::stringstream& ss)
+    {
+        Vector<std::pair<std::string, std::string>> result; // Vector to store key-value pairs
+        std::string line; // Variable to hold each line
+
+        // Read each line from the stringstream
+        while (std::getline(ss, line, '\n'))
+        {
+            std::stringstream lineStream(line); // Create a stringstream for the current line
+            std::string segment; // Variable to hold each segment
+
+            if (std::getline(lineStream, segment, ':'))
+            {
+                std::string first = segment; // Get the first segment (key)
+
+                // Concatenate the remaining segments (value) using ':'
+                std::string second;
+                while (std::getline(lineStream, segment, ':'))
+                {
+                    if (!second.empty())
+                        second += ':';
+                    second += segment;
+                }
+
+                result.emplace_back(first, second); // Add the key-value pair to the result vector
+            }
+        }
+
+        return result; // Return the vector of key-value pairs
+    }
+
 }
 
 
