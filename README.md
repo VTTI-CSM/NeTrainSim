@@ -1,7 +1,33 @@
+<h1 align="center">
+  <a href="https://github.com/Ahmed/NeTrainSim">
+    <img src="https://raw.githubusercontent.com/Ahmed/NeTrainSim/master/resources/icons/png/256x256.png" alt="NeTrainSim"/>
+  </a>
+  <br/>
+  NeTrainSim [Network Trains Simulator]
+</h1>
+
+<p align="center">
+  <a href="http://dx.doi.org/10.2139/ssrn.4377164">
+    <img src="https://zenodo.org/badge/DOI/10.2139/ssrn.4377164.svg" alt="DOI">
+  </a>
+  <a href="https://www.gnu.org/licenses/gpl-3.0">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GNU GPL v3">
+  </a>
+  <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
+    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/tag-date/Ahmed/NeTrainSim.svg?label=latest">
+  </a>
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/Ahmed/NeTrainSim/total.svg">
+</p>
+
+<p align="center">
+  <a href="https://docs.zettlr.com/" target="_blank">Documentation</a> |
+  <a href="https://discord.gg/UgSmbJTu" target="_blank">Discord</a> |
+  <a href="##Contributing">Contributing</a> |
+</p>
+
 # Network Train Simulator (NeTrainSim)
 
-NeTrainSim is an open-source train simulation software that allows users to simulate and analyze train operations on a large rail network. It is designed to be flexible, modular, and easy to use. It is built using Qt6 under the [GNU General Public License (GPL) version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
-
+NeTrainSim is an open-source train simulation software that allows users to simulate and analyse train operations on a large rail network. It is designed to be flexible, modular, and easy to use. It is built using Qt6 under the [GNU General Public License (GPL) version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ## How to Cite
 
@@ -13,6 +39,25 @@ NeTrainSim is an open-source train simulation software that allows users to simu
   year={2023}
 }
 ```
+
+
+## Features
+
+- **Accessible and affordable**: NeTrainSim is freely accessible to anyone with internet and laptop access, without the need for costly commercial licenses.
+    
+- **Open-source development**: NeTrainSim is an open-source project, allowing researchers to modify the code and collaborate easily.
+    
+- **Advanced network modeling**: NeTrainSim can model entire rail networks, including country-scale simulations.
+    
+- **Versatile and adaptable**: NeTrainSim can be adapted to various rail network types and configurations, providing flexibility in simulations.
+    
+- **Energy-efficient**: NeTrainSim's Energy Consumption module supports a wide range of train technologies, accommodating future advancements.
+    
+- **Second-by-second data tracking**: NeTrainSim provides detailed data, including energy consumption, on a second-by-second basis for each train.
+    
+- **Advanced train dynamics**: NeTrainSim uses advanced train dynamics models, including operator aggressiveness, for accurate energy consumption representation.
+    
+- **Energy optimization**: NeTrainSim includes an energy optimization module for optimizing individual or grouped trains (under development).
 
 
 ## Getting Started
@@ -28,6 +73,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
 
 ### Running
 
+#### Shell interface 
 1. Open a shell/command line window,
 
 2. Navigate to the installation path using 
