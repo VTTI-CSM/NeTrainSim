@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include "../util/Vector.h"
+#include "src/util/Error.h"
 #include <map>
 
 /** . */
@@ -115,7 +116,8 @@ namespace TrainTypes {
     inline CarType strtoCarType(const std::string& cartype) {
         auto it = carTypeMap.find(cartype);
         if (it == carTypeMap.end()) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongCarType)) +
+                                        "\nInvalid car type");
         }
         return it->second;
     }
@@ -134,7 +136,8 @@ namespace TrainTypes {
      */
     inline CarType itoCarType(int cartype) {
         if (cartype < 0 || cartype >= carTypeN) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongCarType)) +
+                                        "\nInvalid car type");
         }
         return carTypeArray[cartype];
     }
@@ -282,7 +285,8 @@ namespace TrainTypes {
     inline PowerType strToPowerType(std::string powertype) {
         auto it = powerTypeMap.find(powertype);
         if (it == powerTypeMap.end()) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+                                        "\nInvalid locomotive type");
         }
         return it->second;
     }
@@ -301,7 +305,8 @@ namespace TrainTypes {
      */
     inline PowerType iToPowerType(int powertype) {
         if (powertype < 0 || powertype >= powerTypeN) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+                                        "\nInvalid locomotive type");
         }
         return powerTypeArray[powertype];
     }
@@ -373,7 +378,8 @@ namespace TrainTypes {
     inline LocomotivePowerMethod strToPowerMethod(std::string powertype) {
         auto it = powerMethodMap.find(powertype);
         if (it == powerMethodMap.end()) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+                                        "\nInvalid locomotive type");
         }
         return it->second;
     }
@@ -392,7 +398,8 @@ namespace TrainTypes {
      */
     inline LocomotivePowerMethod iToPowerMethod(int powertype) {
         if (powertype < 0 || powertype >= powerMethodN) {
-            throw std::invalid_argument("invalid car type");
+            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+                                        "\nInvalid locomotive type");
         }
         return powerMethodArray[powertype];
     }
