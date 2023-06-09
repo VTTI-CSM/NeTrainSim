@@ -2,7 +2,7 @@ var class_net_signal =
 [
     [ "NetSignal", "d7/d2c/class_net_signal.html#a9450081d22ce88ccbfe4ce6778c748fb", null ],
     [ "NetSignal", "d7/d2c/class_net_signal.html#a6eac16906f4456ea944b17b6cd8e3601", null ],
-    [ "operator<<", "d7/d2c/class_net_signal.html#a1b37fde2172b074c73ca7f747c4c7434", null ],
+    [ "operator<<", "d7/d2c/class_net_signal.html#aee5c66f586c43812219e29a8b581dfbb", null ],
     [ "currentNode", "d7/d2c/class_net_signal.html#a7f8918380f041e3dd962f6be897fda39", null ],
     [ "id", "d7/d2c/class_net_signal.html#acb3e96098cd505c930bc96d7b19445cb", null ],
     [ "isGreen", "d7/d2c/class_net_signal.html#ad8d4f69fd8375e3c2bdb075aaef87995", null ],

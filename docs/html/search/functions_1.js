@@ -1,25 +1,4 @@
 var searchData=
 [
-  ['calctrainstats_0',['calcTrainStats',['../d4/d01/class_train.html#a44ac44b1f7a3464daf94a13bc7a0f4d0',1,'Train']]],
-  ['calculateaverage_1',['calculateAverage',['../d4/d01/class_train.html#ad3fd7464e44e1ced21b6b767df02c72b',1,'Train']]],
-  ['calculateenergyconsumption_2',['calculateEnergyConsumption',['../d4/d01/class_train.html#a0777b1c3127270b1e8df39bdd4dc38ff',1,'Train']]],
-  ['car_3',['Car',['../d6/d44/class_car.html#a384e96129f943430922ad16b4f05e764',1,'Car']]],
-  ['cartypetostr_4',['carTypeToStr',['../da/d9c/namespace_train_types.html#a3576a6e14fbdc035d531d917bc60eb0f',1,'TrainTypes']]],
-  ['ccw_5',['ccw',['../de/de1/class_network.html#a359dacf535a15b1ae449534d0c6e7b4a',1,'Network']]],
-  ['checkalltrainsreacheddestination_6',['checkAllTrainsReachedDestination',['../dd/dd1/class_simulator.html#a26dfbff832ccc30bc50c6750393e1305',1,'Simulator']]],
-  ['checksuddenaccchange_7',['checkSuddenAccChange',['../d4/d01/class_train.html#a327a734ee01e2b9ef2c274ba9c68e9c9',1,'Train']]],
-  ['checktrainscollision_8',['checkTrainsCollision',['../dd/dd1/class_simulator.html#a4eadb85a272766e7badc4bbc09895ebe',1,'Simulator']]],
-  ['clear_9',['clear',['../d2/d8c/class_net_signal_group_controller.html#a00588c0879564358522c37f192e3420b',1,'NetSignalGroupController']]],
-  ['cleargraphsearchparams_10',['clearGraphSearchParams',['../da/d7a/class_net_node.html#ae2c3f2419c887896b325eeeb31e198fa',1,'NetNode']]],
-  ['consumebattery_11',['consumeBattery',['../dc/df2/class_battery.html#ad7ab120d717e1df86f8f11898400a4c9',1,'Battery']]],
-  ['consumeelectricity_12',['consumeElectricity',['../da/de2/class_train_component.html#a10b5831847d95d9232b14826dc7ca577',1,'TrainComponent']]],
-  ['consumeenergy_13',['consumeEnergy',['../d4/d01/class_train.html#a76594f46d2159910ebc7bcb6b19ae67f',1,'Train']]],
-  ['consumefuel_14',['consumeFuel',['../d6/d44/class_car.html#a074aec2c79a47a17c5c83e4253beea06',1,'Car::consumeFuel()'],['../d1/d76/class_locomotive.html#a7cfd77ad820bc7c0e499ae238a7d71c0',1,'Locomotive::consumeFuel()'],['../da/de2/class_train_component.html#ab0c3c3e86e1b9855cb9486d4514ec188',1,'TrainComponent::consumeFuel(double timeStep, double trainSpeed, double EC_kwh, double dieselConversionFactor=EC::DefaultDieselConversionFactor, double biodieselConversionFactor=EC::DefaultBiodieselConversionFactor, double hydrogenConversionFactor=EC::DefaultHydrogenConversionFactor, double dieselDensity=EC::DefaultDieselDensity, double biodieselDensity=EC::DefaultBioDieselDensity, double hydrogenDensity=EC::DefaultHydrogenDensity)']]],
-  ['consumefuelbiodiesel_15',['consumeFuelBioDiesel',['../da/de2/class_train_component.html#a2ed934b47519daec235a74165f4be8be',1,'TrainComponent']]],
-  ['consumefueldiesel_16',['consumeFuelDiesel',['../da/de2/class_train_component.html#afd78126dad3b19911f8a092a196ee301',1,'TrainComponent']]],
-  ['consumefuelhydrogen_17',['consumeFuelHydrogen',['../da/de2/class_train_component.html#a0440713f7c6839b00080fd3d13b51b3f',1,'TrainComponent']]],
-  ['consumetank_18',['consumeTank',['../d1/da1/class_tank.html#a4a8cd02d304aff500da796177ea9a5e6',1,'Tank']]],
-  ['consumetendersenergy_19',['consumeTendersEnergy',['../d4/d01/class_train.html#af15ba68d7da7920b428d6dcd061e15e5',1,'Train']]],
-  ['coordinates_20',['coordinates',['../da/d7a/class_net_node.html#afb6bad6a1c2990f9b130999c122be8c3',1,'NetNode']]],
-  ['cross_21',['cross',['../de/de1/class_network.html#a31dd59334b05822080d1cbc24caf2901',1,'Network']]]
+  ['batteryhascharge_0',['batteryHasCharge',['../dc/df2/class_battery.html#ada0f9474ba7dc6c4668b5821657898af',1,'Battery::batteryHasCharge()'],['../dc/df2/class_battery.html#ada0f9474ba7dc6c4668b5821657898af',1,'Battery::batteryHasCharge()']]]
 ];

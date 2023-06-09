@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['battery_0',['Battery',['../dc/df2/class_battery.html',1,'']]]
+  ['aboutwindow_0',['AboutWindow',['../d3/dab/class_about_window.html',1,'']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['battery_2eh_0',['battery.h',['../d6/d69/battery_8h.html',1,'']]]
+  ['aboutwindow_2ecpp_0',['aboutwindow.cpp',['../db/d5f/aboutwindow_8cpp.html',1,'']]],
+  ['aboutwindow_2eh_1',['aboutwindow.h',['../d4/d68/aboutwindow_8h.html',1,'']]]
 ];

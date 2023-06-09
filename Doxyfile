@@ -1936,7 +1936,7 @@ SEARCHENGINE_URL       =
 # The default file is: searchdata.xml.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-SEARCHDATA_FILE        = searchdata.xml
+SEARCHDATA_FILE        = README.md
 
 # When SERVER_BASED_SEARCH and EXTERNAL_SEARCH are both enabled the
 # EXTERNAL_SEARCH_ID tag can be used as an identifier for the project. This is

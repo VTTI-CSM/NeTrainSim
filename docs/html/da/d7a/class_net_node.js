@@ -1,14 +1,15 @@
 var class_net_node =
 [
-    [ "NetNode", "da/d7a/class_net_node.html#a47eaf1d93ca8db08e30a3c7a035fed4c", null ],
+    [ "NetNode", "da/d7a/class_net_node.html#a9a073a4825593ae0ec0a180a3337da99", null ],
+    [ "~NetNode", "da/d7a/class_net_node.html#ae78db00cfd1c5f9b369c58ca5977aea0", null ],
     [ "addSignal", "da/d7a/class_net_node.html#a5bef8c4fffb05eaec3fb569b76b7281a", null ],
     [ "clearGraphSearchParams", "da/d7a/class_net_node.html#ae2c3f2419c887896b325eeeb31e198fa", null ],
     [ "coordinates", "da/d7a/class_net_node.html#afb6bad6a1c2990f9b130999c122be8c3", null ],
     [ "getNeighbors", "da/d7a/class_net_node.html#a021ffeeef3a7b9879afe376558255634", null ],
+    [ "setNodeSimulatorID", "da/d7a/class_net_node.html#a0514eb94ace9b3da2449fdb25de310a7", null ],
     [ "updateXScale", "da/d7a/class_net_node.html#ac3abe9fc64ae0ba58686311f2329feba", null ],
     [ "updateYScale", "da/d7a/class_net_node.html#a29010bea159e61d7ea4f77dce5770145", null ],
-    [ "operator<<", "da/d7a/class_net_node.html#a3fd9ae5aef2b90dda95c03c9da45b972", null ],
-    [ "alphaDesc", "da/d7a/class_net_node.html#acdd2c0bd954d93d282ca88c1409e6b62", null ],
+    [ "alphaDesc", "da/d7a/class_net_node.html#a633d49fe64fc8e652f0bbea550c77b4d", null ],
     [ "dwellTimeIfDepot", "da/d7a/class_net_node.html#a321e924709f33f46c7e6df80ac067ba2", null ],
     [ "graphSearchDistanceFromStart", "da/d7a/class_net_node.html#a661e52a8e0b4524f1171649e622905fb", null ],
     [ "graphSearchPreviousNode", "da/d7a/class_net_node.html#af4f33ea24b09c9707e89ffdcd822b4cf", null ],

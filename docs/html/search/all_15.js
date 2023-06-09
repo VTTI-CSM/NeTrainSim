@@ -1,5 +1,21 @@
 var searchData=
 [
   ['waitedtimeatnode_0',['waitedTimeAtNode',['../d4/d01/class_train.html#ade7063a022d290bf62d96538bd5f56ed',1,'Train']]],
-  ['weightcentroids_1',['WeightCentroids',['../d4/d01/class_train.html#adb939449e5a7543e65cf301f2e4566b1',1,'Train']]]
+  ['warning_1',['WARNING',['../d6/dff/namespace_logger.html#ac744681e23720966b5f430ec2060da36a059e9861e0400dfbe05c98a841f3f96b',1,'Logger']]],
+  ['weightcentroids_2',['WeightCentroids',['../d4/d01/class_train.html#afe56cba459401af73425612ef293484e',1,'Train']]],
+  ['wheelevent_3',['wheelEvent',['../d3/dc5/class_custom_plot.html#a665801543b17190f94864e9f354dd9c0',1,'CustomPlot']]],
+  ['widget_5fnewnetwork_4',['widget_newNetwork',['../d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#aa9db70793c88149d2288a157952545cd',1,'Netrainsim_ui::Ui_NeTrainSim']]],
+  ['widget_5fnewtrainod_5',['widget_newTrainOD',['../d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#acaf5d111815fe28b4ea2a2acfd915bdc',1,'Netrainsim_ui::Ui_NeTrainSim']]],
+  ['widget_5foldnetwork_6',['widget_oldNetwork',['../d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#a23f99a30cb38762b07a7a0b922c1b4b8',1,'Netrainsim_ui::Ui_NeTrainSim']]],
+  ['widget_5foldtrainod_7',['widget_oldTrainOD',['../d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#a72914c6895fe33eaf241a8ac5edf1403',1,'Netrainsim_ui::Ui_NeTrainSim']]],
+  ['widget_5fsummaryreport_8',['widget_SummaryReport',['../d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#ae7cc87b144b1dd2c41a0fba561e73e7e',1,'Netrainsim_ui::Ui_NeTrainSim']]],
+  ['writelinksfile_9',['writeLinksFile',['../d5/df7/namespace_read_write_network.html#ab9b20e94a61f6e946d576373f9fcd207',1,'ReadWriteNetwork']]],
+  ['writenodesfile_10',['writeNodesFile',['../d5/df7/namespace_read_write_network.html#a3a688a06ac6c2b1ccd6a41a52700b3c9',1,'ReadWriteNetwork']]],
+  ['writetofile_11',['writeToFile',['../d1/d7c/namespace_utils.html#a8be71332463dc2193236c4f0f73f3af8',1,'Utils']]],
+  ['writetostream_12',['writeToStream',['../d1/d7c/namespace_utils.html#a4e7b75f66e1cead3ddabd800e3f5c7ca',1,'Utils']]],
+  ['writetrainsfile_13',['writeTrainsFile',['../de/da2/namespace_trains_list.html#abe86999b45c191e89320529d12724b7c',1,'TrainsList']]],
+  ['wronglinksfilestructure_14',['wrongLinksFileStructure',['../df/d73/_error_8h.html#a2c3e4bb40f36b262a5214e2da2bca9c5af42cd8f4b3e03a08f4c52161c1196500',1,'Error.h']]],
+  ['wronglinkslength_15',['wrongLinksLength',['../df/d73/_error_8h.html#a2c3e4bb40f36b262a5214e2da2bca9c5acbf92271b4d8cfc13ab677bb86ab99fa',1,'Error.h']]],
+  ['wrongnodesfilestructure_16',['wrongNodesFileStructure',['../df/d73/_error_8h.html#a2c3e4bb40f36b262a5214e2da2bca9c5a7bdb95e4b535f63604b4d99a44055f26',1,'Error.h']]],
+  ['wrongtrainsfilestructure_17',['wrongTrainsFileStructure',['../df/d73/_error_8h.html#a2c3e4bb40f36b262a5214e2da2bca9c5a99f43b34e2943cb98f64d9c62f73b2e8',1,'Error.h']]]
 ];

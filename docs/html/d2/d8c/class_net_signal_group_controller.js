@@ -8,11 +8,11 @@ var class_net_signal_group_controller =
     [ "setSignalsInSameDirection", "d2/d8c/class_net_signal_group_controller.html#acbd935f8d614e290306bc76924d13a17", null ],
     [ "updateTimeStep", "d2/d8c/class_net_signal_group_controller.html#a1720af52fb41f075c05a1eeeb49573b7", null ],
     [ "operator<<", "d2/d8c/class_net_signal_group_controller.html#aa008156af1cbdf3df37b91a868303418", null ],
-    [ "atNodes", "d2/d8c/class_net_signal_group_controller.html#ae5f5c981e3c087aa9b21c3f07d770a80", null ],
-    [ "confinedLinks", "d2/d8c/class_net_signal_group_controller.html#a75faadb714e3ac9f9dc54b3b26316a93", null ],
+    [ "atNodes", "d2/d8c/class_net_signal_group_controller.html#a0f1839760575b4812c2d57a041d88178", null ],
+    [ "confinedLinks", "d2/d8c/class_net_signal_group_controller.html#a3e0845e365b126bef6313eb920366626", null ],
     [ "lockedOnSignal", "d2/d8c/class_net_signal_group_controller.html#a1efaecc91baf193a3ad1bf898f5832f2", null ],
-    [ "movements", "d2/d8c/class_net_signal_group_controller.html#a19254af3472a2b891885dea01b1642bd", null ],
-    [ "networkSignalsGroup", "d2/d8c/class_net_signal_group_controller.html#a2eb7d6fe48b9908d5934e3685380a993", null ],
+    [ "movements", "d2/d8c/class_net_signal_group_controller.html#addd6f36a78cb6b37471a6416a7de7eb0", null ],
+    [ "networkSignalsGroup", "d2/d8c/class_net_signal_group_controller.html#a83c44463916eb71b5cd3e062f22a616d", null ],
     [ "otherDirectionSignals", "d2/d8c/class_net_signal_group_controller.html#a8d00b975c7b913ec98d77cca35c6ab88", null ],
     [ "timeStamp", "d2/d8c/class_net_signal_group_controller.html#a2f1947739dcbc6d48ffc83d0515c26d3", null ]
 ];

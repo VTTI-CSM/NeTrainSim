@@ -14,6 +14,7 @@ var hierarchy =
     ] ],
     [ "Logger::Logger", "d0/d16/class_logger_1_1_logger.html", null ],
     [ "std::map", null, [
+      [ "Map< QString, std::pair< double, double > >", "dd/d11/class_map.html", null ],
       [ "Map< std::shared_ptr< NetNode >, Vector< std::shared_ptr< NetLink > > >", "dd/d11/class_map.html", null ],
       [ "Map< std::shared_ptr< NetSignal >, bool >", "dd/d11/class_map.html", null ],
       [ "Map< std::shared_ptr< NetNode >, std::shared_ptr< NetSignalGroupController > >", "dd/d11/class_map.html", null ],
@@ -27,6 +28,12 @@ var hierarchy =
     [ "NetNode", "da/d7a/class_net_node.html", null ],
     [ "NetSignalGroupController", "d2/d8c/class_net_signal_group_controller.html", null ],
     [ "Network", "de/de1/class_network.html", null ],
+    [ "object", null, [
+      [ "Netrainsim_ui.Ui_NeTrainSim", "d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html", null ]
+    ] ],
+    [ "QCustomPlot", null, [
+      [ "CustomPlot", "d3/dc5/class_custom_plot.html", null ]
+    ] ],
     [ "QItemDelegate", null, [
       [ "IntNumericDelegate", "de/dc2/class_int_numeric_delegate.html", null ],
       [ "NumericDelegate", "de/d35/class_numeric_delegate.html", null ]
@@ -34,22 +41,32 @@ var hierarchy =
     [ "QLabel", null, [
       [ "DisappearingLabel", "d7/d84/class_disappearing_label.html", null ]
     ] ],
+    [ "QMainWindow", null, [
+      [ "AboutWindow", "d3/dab/class_about_window.html", null ],
+      [ "NeTrainSim", "da/df1/class_ne_train_sim.html", null ]
+    ] ],
+    [ "QObject", null, [
+      [ "CSVManager", "d2/d62/class_c_s_v_manager.html", null ],
+      [ "SimulationWorker", "dd/dc9/class_simulation_worker.html", null ],
+      [ "Simulator", "dd/dd1/class_simulator.html", null ]
+    ] ],
     [ "QProgressBar", null, [
       [ "CustomProgressBar", "d6/d8c/class_custom_progress_bar.html", null ]
     ] ],
     [ "QStyledItemDelegate", null, [
-      [ "CheckboxDelegate", "df/daf/class_checkbox_delegate.html", null ]
+      [ "CheckboxDelegate", "df/daf/class_checkbox_delegate.html", null ],
+      [ "NonEmptyDelegate", "d1/d4e/class_non_empty_delegate.html", null ]
     ] ],
     [ "QTableWidget", null, [
       [ "CustomTableWidget", "dd/da1/class_custom_table_widget.html", null ]
     ] ],
-    [ "Simulator", "dd/dd1/class_simulator.html", null ],
     [ "Tank", "d1/da1/class_tank.html", [
       [ "TrainComponent", "da/de2/class_train_component.html", null ]
     ] ],
     [ "Train", "d4/d01/class_train.html", null ],
     [ "std::vector", null, [
       [ "Vector< double >", "d5/db2/class_vector.html", null ],
+      [ "Vector< std::pair< std::string, std::string > >", "d5/db2/class_vector.html", null ],
       [ "Vector< std::shared_ptr< Train > >", "d5/db2/class_vector.html", null ],
       [ "Vector< std::shared_ptr< NetSignal > >", "d5/db2/class_vector.html", null ],
       [ "Vector< std::shared_ptr< NetNode > >", "d5/db2/class_vector.html", null ],

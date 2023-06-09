@@ -1,10 +1,11 @@
 var searchData=
 [
-  ['updategradescurvatures_0',['updateGradesCurvatures',['../d4/d01/class_train.html#aab5e13b1e16618c0388bfc3f59131f2d',1,'Train::updateGradesCurvatures(Vector&lt; double &gt; &amp;LocsCurvature, Vector&lt; double &gt; &amp;LocsGrade, Vector&lt; double &gt; &amp;CarsCurvature, Vector&lt; double &gt; &amp;CarsGrade)'],['../d4/d01/class_train.html#a68f95be3f61f0296647762b036990ae9',1,'Train::updateGradesCurvatures(const Vector&lt; double &gt; &amp;trainGrade, const Vector&lt; double &gt; &amp;trainCurvature)']]],
-  ['updatelinksscalefreespeed_1',['updateLinksScaleFreeSpeed',['../d8/d2d/class_net_link.html#a48a90919209d5bde62eaa1080a6f163c',1,'NetLink']]],
-  ['updatelinksscalelength_2',['updateLinksScaleLength',['../d8/d2d/class_net_link.html#aae6309a90838b6130bdb104a5dd2b366',1,'NetLink']]],
-  ['updatelocnotch_3',['updateLocNotch',['../d1/d76/class_locomotive.html#ae52d27fbae2a223c14ea8b50e5e7effc',1,'Locomotive::updateLocNotch()'],['../d4/d01/class_train.html#a8593fa17478c8e7e66c9476ebc5c03f2',1,'Train::updateLocNotch()']]],
-  ['updatetimestep_4',['updateTimeStep',['../d2/d8c/class_net_signal_group_controller.html#a1720af52fb41f075c05a1eeeb49573b7',1,'NetSignalGroupController']]],
-  ['updatexscale_5',['updateXScale',['../da/d7a/class_net_node.html#ac3abe9fc64ae0ba58686311f2329feba',1,'NetNode']]],
-  ['updateyscale_6',['updateYScale',['../da/d7a/class_net_node.html#a29010bea159e61d7ea4f77dce5770145',1,'NetNode']]]
+  ['tankhasfuel_0',['tankHasFuel',['../d1/da1/class_tank.html#a601826afc9ef1aebd4623ddf59225118',1,'Tank::tankHasFuel()'],['../d1/da1/class_tank.html#a601826afc9ef1aebd4623ddf59225118',1,'Tank::tankHasFuel()']]],
+  ['thousandseparator_1',['thousandSeparator',['../d1/d7c/namespace_utils.html#adc56db65ca01eb9d50bba6b1c6509cbe',1,'Utils']]],
+  ['tonotformattedstring_2',['toNotFormattedString',['../d5/db2/class_vector.html#a38b3ba8a2d0717f89d5a1e02e089cb28',1,'Vector']]],
+  ['tostring_3',['toString',['../dd/d11/class_map.html#a7c618e7ae32f358948233d495fc3cac6',1,'Map::toString()'],['../d5/db2/class_vector.html#a4bf0efcbe80e25544082016fe603c962',1,'Vector::toString()']]],
+  ['train_4',['Train',['../d4/d01/class_train.html#a030e30ceec7754ead6db74eb5fee527a',1,'Train::Train(int simulatorID, string id, Vector&lt; int &gt; trainPath, double trainStartTime_sec, double frictionCoeff, Vector&lt; std::shared_ptr&lt; Locomotive &gt; &gt; locomotives, Vector&lt; std::shared_ptr&lt; Car &gt; &gt; cars, bool optimize, double desiredDecelerationRate_mPs=DefaultDesiredDecelerationRate, double operatorReactionTime_s=DefaultOperatorReactionTime, bool stopIfNoEnergy=DefaultStopIfNoEnergy, double maxAllowedJerk_mPcs=DefaultMaxAllowedJerk)'],['../d4/d01/class_train.html#a030e30ceec7754ead6db74eb5fee527a',1,'Train::Train(int simulatorID, string id, Vector&lt; int &gt; trainPath, double trainStartTime_sec, double frictionCoeff, Vector&lt; std::shared_ptr&lt; Locomotive &gt; &gt; locomotives, Vector&lt; std::shared_ptr&lt; Car &gt; &gt; cars, bool optimize, double desiredDecelerationRate_mPs=DefaultDesiredDecelerationRate, double operatorReactionTime_s=DefaultOperatorReactionTime, bool stopIfNoEnergy=DefaultStopIfNoEnergy, double maxAllowedJerk_mPcs=DefaultMaxAllowedJerk)']]],
+  ['trainscoordinatesupdated_5',['trainsCoordinatesUpdated',['../dd/dc9/class_simulation_worker.html#ab45c690763a49ac2bf9b966fb037d96a',1,'SimulationWorker']]],
+  ['trim_6',['trim',['../d1/d7c/namespace_utils.html#a709fc9d3286a8b90de822055fed9ca88',1,'Utils']]],
+  ['twolinesintersect_7',['twoLinesIntersect',['../de/de1/class_network.html#aecdcaa4daf10e033e1e2618104bb5eb9',1,'Network']]]
 ];

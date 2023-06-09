@@ -1,18 +1,17 @@
 var searchData=
 [
-  ['rearrangetrain_0',['rearrangeTrain',['../d4/d01/class_train.html#ad796ea4b0e295874017cd743c7ed40ca',1,'Train']]],
-  ['rechargebattery_1',['rechargeBattery',['../dc/df2/class_battery.html#aae8e79ed74906acb9d3a4d9263417510',1,'Battery']]],
-  ['rechargecarsbatteries_2',['rechargeCarsBatteries',['../d4/d01/class_train.html#aa5e067b01b3e4bd97b8442328fda0e71',1,'Train']]],
-  ['rechargecatenary_3',['rechargeCatenary',['../da/de2/class_train_component.html#abfbea1df9f6e616eebebed88eec7d5b9',1,'TrainComponent']]],
-  ['reducepower_4',['reducePower',['../d1/d76/class_locomotive.html#a79104f8d8043835fd6b45256c43d3a65',1,'Locomotive']]],
-  ['refillbattery_5',['refillBattery',['../da/de2/class_train_component.html#adb67ebb601fd56f5fa37fce872f1a5bd',1,'TrainComponent']]],
-  ['removevalue_6',['removeValue',['../d5/db2/class_vector.html#a1717ec805732dac45a1522905670852e',1,'Vector']]],
-  ['resetpowerrestriction_7',['resetPowerRestriction',['../d1/d76/class_locomotive.html#a1b0f747cf6bf7ae13ae683d6bd2decea',1,'Locomotive']]],
-  ['resettimestepconsumptions_8',['resetTimeStepConsumptions',['../da/de2/class_train_component.html#a8e68a2e1b749e109b6698b33014d7b31',1,'TrainComponent']]],
-  ['resettrain_9',['resetTrain',['../d4/d01/class_train.html#a18a67db19b0b29d897a97bb2afce2956',1,'Train']]],
-  ['resettrainenergyconsumption_10',['resetTrainEnergyConsumption',['../d4/d01/class_train.html#a183de567040fea761d139c852f0e903a',1,'Train']]],
-  ['resettrainlookahead_11',['resetTrainLookAhead',['../d4/d01/class_train.html#aeee03711c268a168ecfc7184b71f2e98',1,'Train']]],
-  ['runsignalsfortrains_12',['runSignalsforTrains',['../dd/dd1/class_simulator.html#a43c6db767ed05c6c0902563d21425f9f',1,'Simulator']]],
-  ['runsimulation_13',['runSimulation',['../dd/dd1/class_simulator.html#adfe488254b0356fa6e1bd3965519b73e',1,'Simulator']]],
-  ['runthreadedonetimestep_14',['runThreadedOneTimeStep',['../dd/dd1/class_simulator.html#a5c0ada04a486d8a72d4bc3128af7c435',1,'Simulator']]]
+  ['pickoptimalthrottlelevelastar_0',['pickOptimalThrottleLevelAStar',['../d4/d01/class_train.html#ad9ece7b908ccb81fefc12629efca86d9',1,'Train::pickOptimalThrottleLevelAStar(Vector&lt; double &gt; throttleLevels, int lookAheadCounterToUpdate)'],['../d4/d01/class_train.html#ad9ece7b908ccb81fefc12629efca86d9',1,'Train::pickOptimalThrottleLevelAStar(Vector&lt; double &gt; throttleLevels, int lookAheadCounterToUpdate)']]],
+  ['playtrainonetimestep_1',['playTrainOneTimeStep',['../dd/dd1/class_simulator.html#a3a4f983cd80db559f3c13e9509c7f176',1,'Simulator']]],
+  ['playtrainvirtualstepsastaroptimization_2',['PlayTrainVirtualStepsAStarOptimization',['../dd/dd1/class_simulator.html#a4a472e7d985fcbe84bb2c81f47911afe',1,'Simulator']]],
+  ['plottrainsupdated_3',['plotTrainsUpdated',['../dd/dd1/class_simulator.html#aec3818e22d85650995d09ce07d3b3c36',1,'Simulator']]],
+  ['pointleftselected_4',['pointLeftSelected',['../d3/dc5/class_custom_plot.html#a8322a8cc1a386f5a5a3d2e7fb29a3870',1,'CustomPlot']]],
+  ['pointrightselected_5',['pointRightSelected',['../d3/dc5/class_custom_plot.html#a5be68713bcb890804c9c87874f557966',1,'CustomPlot']]],
+  ['power_6',['power',['../d1/d7c/namespace_utils.html#a5fbe69c9c9227b0c0037b012cfb33182',1,'Utils']]],
+  ['powertypetostr_7',['PowerTypeToStr',['../da/d9c/namespace_train_types.html#a345e332f98913eb81256761aedea075c',1,'TrainTypes']]],
+  ['print_8',['print',['../dd/d11/class_map.html#a326891138f4efe9f0c4e4c381af33eb9',1,'Map']]],
+  ['progressbar_9',['ProgressBar',['../dd/dd1/class_simulator.html#ab08b7c6326c8860d55087f4c505c5304',1,'Simulator']]],
+  ['progressstarted_10',['progressStarted',['../d6/d8c/class_custom_progress_bar.html#a68ded853b574330c0d3095343d2ca1a2',1,'CustomProgressBar']]],
+  ['progressstopped_11',['progressStopped',['../d6/d8c/class_custom_progress_bar.html#aec49f80cbcdaa9198d5c95aaa4b2800b',1,'CustomProgressBar']]],
+  ['progressupdated_12',['progressUpdated',['../dd/dd1/class_simulator.html#aedb1fbeff4d958ef8ce0967b1f316c3a',1,'Simulator']]],
+  ['projectlengthonpathvector_13',['projectLengthonPathVector',['../de/de1/class_network.html#ade2584ed417c82030212baacc282c17c',1,'Network']]]
 ];

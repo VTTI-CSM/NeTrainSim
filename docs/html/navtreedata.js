@@ -25,6 +25,15 @@
 var NAVTREE =
 [
   [ "NeTrainSim", "index.html", [
+    [ "Introduction", "index.html#intro_sec", null ],
+    [ "Overview", "index.html#overview_sec", [
+      [ "Key Features", "index.html#features_subsec", null ],
+      [ "Getting Started", "index.html#getting_started_subsec", null ],
+      [ "Collaborators", "index.html#collaborators_subsec", null ],
+      [ "Additional Resources", "index.html#resources_subsec", null ]
+    ] ],
+    [ "Citing NeTrainSim", "index.html#citation_sec", null ],
+    [ "Conclusion", "index.html#conclusion_sec", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -41,16 +50,18 @@ var NAVTREE =
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
-        [ "Variables", "functions_vars.html", null ],
+        [ "Variables", "functions_vars.html", "functions_vars" ],
         [ "Typedefs", "functions_type.html", null ],
-        [ "Related Functions", "functions_rela.html", null ]
+        [ "Related Symbols", "functions_rela.html", null ]
       ] ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
-        [ "Enumerations", "globals_enum.html", null ]
+        [ "Functions", "globals_func.html", null ],
+        [ "Enumerations", "globals_enum.html", null ],
+        [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ]
   ] ]
@@ -59,8 +70,12 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d7/d2c/class_net_signal.html#a9450081d22ce88ccbfe4ce6778c748fb",
-"de/de1/class_network.html#aa5c766e8f9e2b579fbdcfeddba97222f"
+"d4/d01/class_train.html#a3b692904302dc31f62664ef4486f4aa6",
+"d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#a28065da228f8e00d762a230e5110983f",
+"d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#acd833f40ca2f52367092c304dbf0c9eb",
+"d8/d2e/train_defintion_2_trains_list_8h.html#ad9a8a115d32bc8cfe9d9590201b49e31",
+"da/d9c/namespace_train_types.html#ae15dc8bae87f4a97ebc9ed15fdb89d19a74b4356cda64f57e76d7954307b44ecd",
+"de/de1/class_network.html#a2e18feaca0442068c0516ca3bae7db69"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

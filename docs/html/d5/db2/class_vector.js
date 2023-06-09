@@ -11,5 +11,7 @@ var class_vector =
     [ "min", "d5/db2/class_vector.html#a6ffc1c5f25531b6904a1e2696cad8c11", null ],
     [ "removeValue", "d5/db2/class_vector.html#a1717ec805732dac45a1522905670852e", null ],
     [ "sort", "d5/db2/class_vector.html#aeaec0d9f441116a1ac20ca5d0962c2af", null ],
-    [ "sum", "d5/db2/class_vector.html#a653229d9e2afd7d42aefd76732f86f26", null ]
+    [ "sum", "d5/db2/class_vector.html#a653229d9e2afd7d42aefd76732f86f26", null ],
+    [ "toNotFormattedString", "d5/db2/class_vector.html#a38b3ba8a2d0717f89d5a1e02e089cb28", null ],
+    [ "toString", "d5/db2/class_vector.html#a4bf0efcbe80e25544082016fe603c962", null ]
 ];

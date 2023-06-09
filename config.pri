@@ -1,4 +1,4 @@
-#DEFINES += AS_CMD       #Un-remark this line, if you want to build NeTrainSim as GUI
+DEFINES += AS_CMD       #Un-remark this line, if you want to build NeTrainSim as GUI
 
 EXECUTABLE_FILENAME = NeTrainSim
 VERSION = 0.0.9
