@@ -552,10 +552,11 @@ double Train::adjustAcceleration(double speed, double previousSpeed, double delt
 }
 
 void Train::checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT) {
-    if ((currentAcceleration - previousAcceleration) / deltaT > this->maxJerk) {
-        throw std::runtime_error("sudden acceleration change!\n Report to the developer!");
-    }
+//    if (std::abs((currentAcceleration - previousAcceleration) / deltaT) > this->maxJerk) {
+//        throw std::runtime_error("sudden acceleration change!\n Report to the developer!");
+//    }
 }
+
 
 double Train::getStepAcceleration(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
                                             Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
@@ -1118,7 +1119,8 @@ bool Train::canProvideEnergyFromTendersOnly(Map<TrainTypes::CarType, double> &EC
     for (auto& tenderT: EC.get_keys()) {
         double dividedEC_tenders = EC[tenderT] / this->ActiveCarsTypes[tenderT].size();
         for (auto& tender: this->ActiveCarsTypes[tenderT]) {
-            result *= tender->canProvideEnergy(dividedEC_tenders, timeStep);
+            result = result && tender->canProvideEnergy(dividedEC_tenders, timeStep);
+//            result *= tender->canProvideEnergy(dividedEC_tenders, timeStep);
         }
     }
 
