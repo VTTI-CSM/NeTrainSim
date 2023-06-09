@@ -544,7 +544,7 @@ std::pair<bool, double> Locomotive::consumeFuel(double timeStep, double trainSpe
         double powerPortion = this->getUsedPowerPortion(trainSpeed, LocomotiveVirtualTractivePower);
         this->usedPowerPortion = powerPortion;
 		// if hybrid locomotive, convert energy to battery first before consuming it
-        double EC_kwh_hybrid = EC_kwh/EC::getGeneratorEff(this->powerType, powerPortion);
+        //double EC_kwh_hybrid = EC_kwh/EC::getGeneratorEff(this->powerType, powerPortion);
 
 		if (this->powerType == TrainTypes::PowerType::diesel ) {
 			return this->consumeFuelDiesel(EC_kwh, dieselConversionFactor, dieselDensity);
