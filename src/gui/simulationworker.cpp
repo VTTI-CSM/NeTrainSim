@@ -15,10 +15,16 @@ SimulationWorker::SimulationWorker(Vector<std::tuple<int, double, double, std::s
                                    double endTime, double timeStep, double plotFrequency, std::string exportDir,
                                    std::string summaryFilename, bool exportInsta, std::string instaFilename, bool exportAllTrainsSummary) {
 
+    // check if the nodeRecords and linkRecords are empty
+    if (nodeRecords.size() < 1) { emit errorOccurred("No nodes are added!"); return;}
+    if (linkRecords.size() < 1) { emit errorOccurred("No links are added!"); return;}
     auto nodes = ReadWriteNetwork::generateNodes(nodeRecords);
     auto links = ReadWriteNetwork::generateLinks(nodes, linkRecords);
     this->net = new Network(nodes, links, networkName);
     auto trains = TrainsList::generateTrains(trainRecords);
+
+    // check if the trainrecords is empty
+    if (trains.size() < 1) { emit errorOccurred("No trains are added!"); return; }
 
     this->sim = new Simulator(net, trains, timeStep);
     this->sim->setEndTime(endTime);
