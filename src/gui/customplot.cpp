@@ -213,16 +213,19 @@ double CustomPlot::calculateSensitivity()
     return std::abs(mappedSensitivity);
 }
 
+
 // Get the closest point to a mouse event
 QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
 {
     // Convert the click position to coordinates in the plot
-    double clickX = event->pos().x();
-    double clickY = event->pos().y();
+    double clickX = xAxis->pixelToCoord(event->pos().x());
+    double clickY = yAxis->pixelToCoord(event->pos().y());
 
     // Iterate through each graph to find the closest point
     double closestDistance = std::numeric_limits<double>::max();
     QPointF closestPoint;
+
+    bool pointFound = false; // Flag to check if a valid point is found
 
     for (int i = 0; i < graphCount(); i++) {
         auto currentGraph = graph(i);
@@ -242,8 +245,8 @@ QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
                 // Calculate the distance between the clicked position and the data point
                 double distance = std::hypot(x - clickX, y - clickY);
 
-                // if distance is less than max distance, skip
-                if (distance < maxDistance) {
+                // if distance is more than max distance, skip
+                if (distance > maxDistance) {
                     continue;
                 }
 
@@ -252,10 +255,18 @@ QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
                     closestDistance = distance;
                     closestPoint.setX(x);
                     closestPoint.setY(y);
+                    pointFound = true; // Set flag to true indicating a point is found
                 }
             }
         }
     }
 
+    if (!pointFound) {
+        // Return a special point to indicate that no point was found
+        closestPoint.setX(std::numeric_limits<double>::quiet_NaN());
+        closestPoint.setY(std::numeric_limits<double>::quiet_NaN());
+    }
+
     return closestPoint;
 }
+
