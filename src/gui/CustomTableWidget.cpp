@@ -47,6 +47,9 @@ bool CustomTableWidget::hasEmptyCell(const QList<int> &exceptionColumns) {
             continue;
         }
         for (int column = 0; column < columnCount(); ++column) {
+            if (exceptionColumns.contains(column)) {
+                continue; // Skip the exception column
+            }
             QTableWidgetItem* item = this->item(row, column);
             if (item == nullptr || item->text().isEmpty()) {
                 return true; // Found an empty cell
@@ -69,6 +72,35 @@ bool CustomTableWidget::isRowEmpty(int row, const QList<int>& exceptionColumns) 
     }
     return false;  // All cells in the row are empty
 }
+
+bool CustomTableWidget::isTableIncomplete(const QList<int>& exceptionColumns) {
+    for (int row = 0; row < rowCount(); ++row) {
+        bool isRowComplete = true;
+
+        for (int column = 0; column < columnCount(); ++column) {
+            if (exceptionColumns.contains(column)) {
+                continue;   // Skip the exception columns
+            }
+            QTableWidgetItem* item = this->item(row, column);
+
+            if (item == nullptr || item->text().isEmpty()) {
+                // Found an empty cell or cell with no data in the row
+                isRowComplete = false;
+                break;
+            }
+        }
+
+        if (isRowComplete) {
+            // At least one complete row is found
+            return false;
+        }
+    }
+
+    // No complete row found
+    return true;
+}
+
+
 
 void CustomTableWidget::setCheckboxDelegateForColumns(int row, const QList<int> &columns) {
     for (auto& column: columns) {

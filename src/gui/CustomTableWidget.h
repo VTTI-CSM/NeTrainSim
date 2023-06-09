@@ -48,6 +48,19 @@ public:
     bool isRowEmpty(int row, const QList<int>& exceptionColumns = QList<int>());
 
     /**
+     * Checks if the table is incomplete, i.e., if it does not have at least one complete row of data.
+     * A row is considered complete if all cells in the row have non-empty data.
+     *
+     * @param exceptionColumns (optional) A list of column indices to exclude from the completeness check.
+     *                          Any rows that only have empty cells in the specified columns will still be considered incomplete.
+     *                          Defaults to an empty list, which means all columns will be considered for completeness.
+     *
+     * @return true if the table is incomplete, i.e., it does not have at least one complete row of data.
+     *         false if the table has at least one complete row.
+     */
+    bool isTableIncomplete(const QList<int>& exceptionColumns = QList<int>());
+
+    /**
      * @brief Sets a checkbox delegate for the specified columns in a row.
      * @param row The row index.
      * @param columns The columns to set the checkbox delegate for.
