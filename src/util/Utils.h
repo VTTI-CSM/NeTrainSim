@@ -352,36 +352,33 @@ namespace Utils {
         return result;
     }
 
-    inline Vector<std::pair<std::string, std::string>> splitStringStream(std::stringstream& ss)
-    {
-        Vector<std::pair<std::string, std::string>> result; // Vector to store key-value pairs
-        std::string line; // Variable to hold each line
+    inline Vector<std::pair<std::string, std::string>> splitStringStream(std::stringstream& ss, const std::string& delimiter = ":") {
+        Vector<std::pair<std::string, std::string>> result;
+        std::string line;
 
-        // Read each line from the stringstream
-        while (std::getline(ss, line, '\n'))
-        {
-            std::stringstream lineStream(line); // Create a stringstream for the current line
-            std::string segment; // Variable to hold each segment
-
-            if (std::getline(lineStream, segment, ':'))
-            {
-                std::string first = segment; // Get the first segment (key)
-
-                // Concatenate the remaining segments (value) using ':'
-                std::string second;
-                while (std::getline(lineStream, segment, ':'))
-                {
-                    if (!second.empty())
-                        second += ':';
-                    second += segment;
-                }
-
-                result.emplace_back(first, second); // Add the key-value pair to the result vector
+        while (std::getline(ss, line)) {
+            std::size_t delimiterPos = line.find(delimiter);
+            if (delimiterPos != std::string::npos) {
+                std::string first = line.substr(0, delimiterPos);
+                std::string second = line.substr(delimiterPos + delimiter.size());
+                result.emplace_back(first, second);
+            } else {
+                result.emplace_back(line, "");  // If delimiter is not found, add the entire line with an empty second part
             }
         }
 
-        return result; // Return the vector of key-value pairs
+        return result;
     }
+
+    inline std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
+        size_t start_pos = 0;
+        while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+        }
+        return str;
+    }
+
 
 }
 
