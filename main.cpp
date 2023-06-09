@@ -176,11 +176,12 @@ int main(int argc, char *argv[]) {
     if (checkParserValue(parser, timeStepOption, "", false)) { timeStep = parser.value(timeStepOption).toDouble(); }
     else { timeStep = 1.0; }
 
+    Network* net;
     try {
         std::cout << "Reading Trains!                 \r";
         Vector<std::shared_ptr<Train>> trains = TrainsList::ReadAndGenerateTrains(trainsFile);
         std::cout << "Reading Network!                \r";
-        Network* net = new Network(nodesFile, linksFile);
+        net = new Network(nodesFile, linksFile);
         std::cout << "Define Simulator Space!         \r";
         Simulator sim = Simulator(net, trains, timeStep);
 
@@ -195,10 +196,15 @@ int main(int argc, char *argv[]) {
         std::cout << "Output folder: " << sim.getOutputFolder() << std::endl;
     } catch (const std::exception& e) {
         ErrorHandler::showError(e.what());
-        delete net;
+        if (net) {
+            delete net;
+        }
+
         return 1;
     }
-    delete net;
+    if (net) {
+        delete net;
+    }
     return 0;
 #endif
 
@@ -209,6 +215,31 @@ int main(int argc, char *argv[]) {
 #ifndef AS_CMD
     QApplication a(argc, argv);
 
+    // Parse the command-line arguments
+    QCommandLineParser parser;
+    parser.addPositionalArgument("file", "NTS file to open");
+
+    parser.process(a);
+
+    const QStringList args = parser.positionalArguments();
+
+    NeTrainSim w;
+
+    // Check if an NTS file path was provided as a command-line argument
+    if (!args.isEmpty()) {
+        const QString filePath = args.first();
+
+        // Open and process the NTS file
+        QFile ntsFile(filePath);
+        if (ntsFile.open(QIODevice::ReadOnly)) {
+            // Process the NTS file as needed
+            w.loadProjectFiles(ntsFile.fileName());
+            ntsFile.close();
+        } else {
+            qDebug() << "Failed to open NTS file:" << filePath;
+        }
+    }
+
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -218,7 +249,7 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-    NeTrainSim w;
+
     w.show();
     return a.exec();
 #endif
