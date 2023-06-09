@@ -28,7 +28,23 @@
 class IntNumericDelegate : public QItemDelegate {
     Q_OBJECT
 
+private:
+    int maxValue;
+    int minValue;
+    int stepSize;
+    int value;
+
 public:
+    /**
+     * @brief Constructor for the IntNumericDelegate class.
+     * @param parent The parent widget.
+     * @param maxValue The maximum value for the spin box.
+     * @param minValue The minimum value for the spin box.
+     * @param stepSize The step size for the spin box.
+     */
+    IntNumericDelegate(QWidget *parent = nullptr, int maxValue = 1000000000, int minValue = -1000000000, int stepSize = 1, int value = 0)
+        : QItemDelegate(parent), maxValue(maxValue), minValue(minValue), stepSize(stepSize), value(value) {}
+
     /**
      * @brief Creates an editor widget for the given parent, style option, and model index.
      * @param parent The parent widget.
@@ -38,8 +54,10 @@ public:
      */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         QSpinBox *editor = new QSpinBox(parent);
-        editor->setMinimum(-1000000000);
-        editor->setMaximum(1000000000);
+        editor->setMaximum(maxValue);
+        editor->setMinimum(minValue);
+        editor->setSingleStep(stepSize);
+        editor->setValue(value);
         return editor;
     }
 
