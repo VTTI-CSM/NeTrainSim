@@ -961,6 +961,7 @@ void Simulator::runSimulation() {
         if (plotFrequency > 0.0 && ((int(this->simulationTime) * 10) % (plotFrequency * 10)) == 0) {
             Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints;
             for (std::shared_ptr <Train>& t : (this->trains)) {
+                if (! t->loaded) { continue; }
                 trainsStartEndPoints.push_back(std::make_pair(t->trainUserID, t->startEndPoints));
             }
             emit this->plotTrainsUpdated(trainsStartEndPoints);
@@ -1000,27 +1001,27 @@ void Simulator::runSimulation() {
         << "Simulation Time: " << Utils::formatDuration(difTime) << " (dd:hh:mm:ss)\n"
         << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"
         << "+ NETWORK STATISTICS:\n"
-        << "  |_ Network Name                                                               : " << this->network->networkName << "\n"
-        << "  |_ Nodes Count                                                                : " << Utils::thousandSeparator(this->network->nodes.size()) << "\n"
-        << "  |_ Links Count                                                                : " << Utils::thousandSeparator(this->network->links.size()) << "\n"
-        << "    |_ Total Lengths of All Links (meters)                                      : " << Utils::thousandSeparator(std::get<3>(networkStats)) << "\n"
-        << "    |_ Total Lengths of All Links with Catenary (meters)                        : " << Utils::thousandSeparator(std::get<4>(networkStats)) << "\n"
-        << "  |_ Total Signals                                                              : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
-        << "  |_ Total Number of Trains on Network                                          : " << Utils::thousandSeparator(this->trains.size()) << "\n"
-        << "  |_ Percentage of Links with Catenaries to All Links (%)                       : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
-        << "  |_ Catenary Total Energy Consumed (KW.h)                                      : " << Utils::thousandSeparator(std::get<1>(networkStats) - std::get<2>(networkStats)) << "\n"
-        << "        |_ Average Catenary Energy Consumption per Net Weight (KW.h/ton)        : " << Utils::thousandSeparator( (std::get<1>(networkStats) - std::get<2>(networkStats)) /
+        << "  |_ Network Name                                                               \x1D : " << this->network->networkName << "\n"
+        << "  |_ Nodes Count                                                                \x1D : " << Utils::thousandSeparator(this->network->nodes.size()) << "\n"
+        << "  |_ Links Count                                                                \x1D : " << Utils::thousandSeparator(this->network->links.size()) << "\n"
+        << "    |_ Total Lengths of All Links (meters)                                      \x1D : " << Utils::thousandSeparator(std::get<3>(networkStats)) << "\n"
+        << "    |_ Total Lengths of All Links with Catenary (meters)                        \x1D : " << Utils::thousandSeparator(std::get<4>(networkStats)) << "\n"
+        << "  |_ Total Signals                                                              \x1D : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
+        << "  |_ Total Number of Trains on Network                                          \x1D : " << Utils::thousandSeparator(this->trains.size()) << "\n"
+        << "  |_ Percentage of Links with Catenaries to All Links (%)                       \x1D : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
+        << "  |_ Catenary Total Energy Consumed (KW.h)                                      \x1D : " << Utils::thousandSeparator(std::get<1>(networkStats) - std::get<2>(networkStats)) << "\n"
+        << "        |_ Average Catenary Energy Consumption per Net Weight (KW.h/ton)        \x1D : " << Utils::thousandSeparator( (std::get<1>(networkStats) - std::get<2>(networkStats)) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                             [](double total, const auto& t) {
                                                                                                                                                                 return total + (t->getCargoNetWeight());
                                                                                                                                                             })) << "\n"
-        << "        |_ Average Catenary Energy Consumption per Net ton.km (KW.hx10^3/ton.km): " << Utils::thousandSeparator(((std::get<1>(networkStats) - std::get<2>(networkStats)) * (double) 1000.0) /
+        << "        |_ Average Catenary Energy Consumption per Net ton.km (KW.hx10^3/ton.km)\x1D : " << Utils::thousandSeparator(((std::get<1>(networkStats) - std::get<2>(networkStats)) * (double) 1000.0) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& t) {
                                                                                                                                                 return total + t->getTrainTotalTorque();
                                                                                                                                             })) << "\n"
-        << "    |_ Catenary Energy Consumed (KW.h)                                          : " << Utils::thousandSeparator(std::get<1>(networkStats)) << "\n"
-        << "    |_ Catenary Energy Regenerated (KW.h)                                       : " << Utils::thousandSeparator(std::get<2>(networkStats)) << "\n"
+        << "    |_ Catenary Energy Consumed (KW.h)                                          \x1D : " << Utils::thousandSeparator(std::get<1>(networkStats)) << "\n"
+        << "    |_ Catenary Energy Regenerated (KW.h)                                       \x1D : " << Utils::thousandSeparator(std::get<2>(networkStats)) << "\n"
 
         << "....................................................\n\n"
         << "\n";
@@ -1029,7 +1030,7 @@ void Simulator::runSimulation() {
         << "+ AGGREGATED/ACCUMULATED TRAINS STATISTICS:\n"
         << "  |-> Train Information:\n"
         << "    |-> Locomotives Summary:\n"
-        << "        |_ Number of Locomotives/Cars                                           : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Number of Locomotives/Cars                                           \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                            [](int total, const auto& train) {
                                                                                                                return total + train->nlocs;
                                                                                                            }) << "/"
@@ -1037,7 +1038,7 @@ void Simulator::runSimulation() {
                                                                                                                 [](int total, const auto& train) {
                                                                                                                     return total + train->nCars;
                                                                                                                 }) << "\n"
-        << "        |_ Locomotives (Technology, count)                                      : " << std::accumulate(
+        << "        |_ Locomotives (Technology, count)                                      \x1D : " << std::accumulate(
                                                                                                         this->trains.begin(), this->trains.end(), Map<TrainTypes::PowerType, int>(),
                                                                                                             [](Map<TrainTypes::PowerType, int> a, const auto& train) {
                                                                                                                       auto c = train->LocTypeCount();
@@ -1048,16 +1049,16 @@ void Simulator::runSimulation() {
                                                                                                                       return a;
                                                                                                                     }
                                                                                                                     ).toString() << "\n"
-        << "        |_ Operating Locomotives to End of Trains Trip                          : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Operating Locomotives to End of Trains Trip                          \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                        [](int total, const auto& train) {
                                                                                                            return total + train->getActiveLocomotivesNumber();
                                                                                                        }) << "\n"
         << "    |-> Cars Summary:\n"
-        << "        |_ Cars Count                                                           : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Cars Count                                                           \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                    [](int total, const auto& train) {
                                                                                                                        return total + train->cars.size();
                                                                                                                    }) << "\n"
-        << "        |_ Cars (Types, count)                                                  : " << std::accumulate(
+        << "        |_ Cars (Types, count)                                                  \x1D : " << std::accumulate(
                                                                                                        this->trains.begin(), this->trains.end(), Map<TrainTypes::CarType, int>(),
                                                                                                            [](Map<TrainTypes::CarType, int> a, const auto& train) {
                                                                                                                      auto c = train->carTypeCount();
@@ -1069,55 +1070,55 @@ void Simulator::runSimulation() {
                                                                                                                    }
                                                                                                                    ).toString() << "\n"
         << "    |-> Moved Commodity:\n"
-        << "        |_ Total Moved Cargo (ton)                                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Total Moved Cargo (ton)                                              \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                             [](double total, const auto& t) {
                                                                                                                                 return total + (t->getCargoNetWeight());
                                                                                                                             })) << "\n"
-        << "        |_ Total ton.km (ton.Km)                                                : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Total ton.km (ton.Km)                                                \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                             [](double total, const auto& t) {
                                                                                                                                 return total + (t->getTrainTotalTorque());
                                                                                                                             })) << "\n\n"
 
         << "  |-> Route Information:\n"
-        << "    |_ Trains Reached Destination                                               : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Trains Reached Destination                                               \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                         [](int total, const auto& train) {
                                                                                                             return total + train->reachedDestination;
                                                                                                         }) << "\n"
-        << "    |_ Trains Total Path Length (km)                                            : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Trains Total Path Length (km)                                            \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                             [](double total, const auto& train) {
                                                                                                                                 return total + (train->trainTotalPathLength / (double)1000.0);
                                                                                                                             })) << "\n\n"
         << "  |-> Train Performance:\n"
-        << "    |_ Operating Time                                                           : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Operating Time                                                           \x1D : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                          [](double total, const auto& train) {
                                                                                                                              return total + train->tripTime;
                                                                                                                          })) << "\n"
-        << "    |_ Average Speed (meter/second)                                             : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Speed (meter/second)                                             \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                    [](double total, const auto& train) {
                                                                                                                        return total + train->averageSpeed;
                                                                                                                    })/this->trains.size() << "\n"
-        << "    |_ Average Acceleration (meter/square second)                               : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Acceleration (meter/square second)                               \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                    [](double total, const auto& train) {
                                                                                                                        return total + train->averageAcceleration;
                                                                                                                    })/this->trains.size(), 4) << "\n"
-        << "    |_ Average Travelled Distance (km)                                          : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Travelled Distance (km)                                          \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + (train->travelledDistance / (double)1000.0);
                                                                                                                                             })/this->trains.size()) << "\n"
         << "    |_ Consumed and Regenerated Energy:\n"
-        << "        |_ Total Net Energy Consumed (KW.h)                                     : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Total Net Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
 																																				[](double total, const auto& train) {
 																																					return total + train->cumEnergyStat;
 																																				})) << "\n"
-        << "            |_ Total Energy Consumed (KW.h)                                     : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->totalEConsumed;
                                                                                                                                             })) << "\n"
-        << "            |_ Total Energy Regenerated (KW.h)                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Energy Regenerated (KW.h)                                  \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->totalERegenerated;
                                                                                                                                             })) << "\n"
-        << "            |_ Average Net Energy Consumption per Net Weight (KW.h/ton)         : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Net Energy Consumption per Net Weight (KW.h/ton)         \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                [](double total, const auto& t) {
                                                                                                                                                    return total + (t->cumEnergyStat);
                                                                                                                                                }) /
@@ -1125,7 +1126,7 @@ void Simulator::runSimulation() {
                                                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                                                     return total + (t->getCargoNetWeight());
                                                                                                                                                                 })) << "\n"
-        << "            |_ Average Net Energy Consumption per Net ton.km (KW.hx10^3/ton.km) : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Net Energy Consumption per Net ton.km (KW.hx10^3/ton.km) \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                     return total +
                                                                                                                                             (t->cumEnergyStat * (double) 1000.0);
@@ -1135,11 +1136,11 @@ void Simulator::runSimulation() {
                                                                                                                                                     return total + t->getTrainTotalTorque();
                                                                                                                                                 })) << "\n"
         << "        |_ Tank Consumption:\n"
-        << "            |_ Total Fuel Consumed (litters)                                    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->getTrainConsumedTank();
                                                                                                                                             })) << "\n"
-        << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + (train->getTrainConsumedTank() * (double)1000.0);
                                                                                                                                             }) /
@@ -1147,7 +1148,7 @@ void Simulator::runSimulation() {
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->getCargoNetWeight();
                                                                                                                                             })) << "\n"
-        << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total +
                                                                                                                                                         (train->getTrainConsumedTank() * (double)1000.0);
@@ -1157,19 +1158,19 @@ void Simulator::runSimulation() {
                                                                                                                                                 return total + train->getTrainTotalTorque();
                                                                                                                                             })) << "\n"
         << "        |_ Battery Consumption:\n"
-        << "            |_ Total Energy Consumed (kW.h)                                     : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Energy Consumed (kW.h)                                     \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                       [](double total, const auto& train) {
                                                                                                                                                           return total + train->getBatteryEnergyConsumed();
                                                                                                                                                       })) << "\n"
-        << "            |_ Total Energy Regenerated (kW.h)                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Energy Regenerated (kW.h)                                  \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                 [](double total, const auto& train) {
                                                                                                                                                     return total + train->getBatteryEnergyRegenerated();
                                                                                                                                                 })) << "\n"
-        << "            |_ Total Net Energy Consumed (kW.h)                                 : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Total Net Energy Consumed (kW.h)                                 \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                 [](double total, const auto& train) {
                                                                                                                                                     return total + train->getBatteryNetEnergyConsumed();
                                                                                                                                                 })) << "\n"
-        << "            |_ Average Net Energy Consumed per Net Weight (kW.h/ton)            : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Net Energy Consumed per Net Weight (kW.h/ton)            \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                 [](double total, const auto& train) {
                                                                                                                                                     return total + (train->getBatteryNetEnergyConsumed());
                                                                                                                                                 }) /
@@ -1177,7 +1178,7 @@ void Simulator::runSimulation() {
                                                                                                                                                 [](double total, const auto& train) {
                                                                                                                                                     return total + train->getCargoNetWeight();
                                                                                                                                                 })) << "\n"
-        << "            |_ Average Net Energy Consumed per Net ton.km (kW.hx10^3/ton.km)    : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Net Energy Consumed per Net ton.km (kW.hx10^3/ton.km)    \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                 [](double total, const auto& train) {
                                                                                                                                                     return total +
                                                                                                                                                             (train->getBatteryNetEnergyConsumed() * (double)1000.0);
@@ -1187,32 +1188,32 @@ void Simulator::runSimulation() {
                                                                                                                                                     return total + train->getTrainTotalTorque();
                                                                                                                                                 })) << "\n"
         << "        |_ Tank/Battery Status:\n"
-        << "            |_ Average Locomotives Tank Status (%)                              : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Locomotives Tank Status (%)                              \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                     return total + (t->getAverageLocomotiveTankStatus() * (double)100.0);
                                                                                                                                 })/ (double)this->trains.size()) << "\n"
-        << "            |_ Average Locomotives Battery Status (%)                           : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Locomotives Battery Status (%)                           \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                     return total + (t->getAverageLocomotivesBatteryStatus() * (double)100.0);
                                                                                                                                 }) / (double)this->trains.size()) << "\n"
-        << "            |_ Average Tenders Tank Status (%)                                  : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Tenders Tank Status (%)                                  \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                     return total + (t->getAverageTendersTankStatus() * (double)100.0);
                                                                                                                                 }) / (double)this->trains.size()) << "\n"
-        << "            |_ Average Tenders Battery Status (%)                               : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "            |_ Average Tenders Battery Status (%)                               \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                             [](double total, const auto& t) {
                                                                                                                                 return total + (t->getAverageTendersBatteryStatus() * (double)100.0);
                                                                                                                             }) / (double)this->trains.size()) << "\n"
         << "  |-> Statistics:\n"
-        << "    |_ Average Delay Time To Each Link Speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Delay Time To Each Link Speed                                    \x1D : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                          [](double total, const auto& t) {
                                                                                                                              return total + (t->cumDelayTimeStat);
                                                                                                                          }) / (double)this->trains.size()) << "\n"
-        << "    |_ Average Delay Time To Max Links speed                                    : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Delay Time To Max Links speed                                    \x1D : " << Utils::formatDuration(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                          [](double total, const auto& t) {
                                                                                                                              return total + (t->cumMaxDelayTimeStat);
                                                                                                                          }) / (double)this->trains.size()) << "\n"
-        << "    |_ Average Stoppings                                                        : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "    |_ Average Stoppings                                                        \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                             [](double total, const auto& t) {
                                                                                                                                 return total + (t->cumStoppedStat);
                                                                                                                             }) / (double)this->trains.size()) << "\n"
@@ -1224,84 +1225,84 @@ void Simulator::runSimulation() {
             trainStat
             << "+ TRAIN STATISTICS:\n"
         << "  |-> Train Information:\n"
-            << "    |-> Train ID                                                                : " << t->trainUserID << "\n"
+            << "    |-> Train ID                                                                \x1D : " << t->trainUserID << "\n"
             << "    |-> Locomotives Summary:\n"
-            << "        |_ Number of Locomotives/Cars                                           : " << t->nlocs << "/" << t->nCars << "\n"
-            << "        |_ Locomotives (Technology, count)                                      : " << t->LocTypeCount().toString() << "\n"
-            << "        |_ Operating Locomotives to End of Trains Trip                          : " << t->getActiveLocomotivesNumber() << "\n"
+            << "        |_ Number of Locomotives/Cars                                           \x1D : " << t->nlocs << "/" << t->nCars << "\n"
+            << "        |_ Locomotives (Technology, count)                                      \x1D : " << t->LocTypeCount().toString() << "\n"
+            << "        |_ Operating Locomotives to End of Trains Trip                          \x1D : " << t->getActiveLocomotivesNumber() << "\n"
             << "    |-> Cars Summary:\n"
-            << "        |_ Cars Count                                                           : " << t->cars.size() << "\n"
-            << "        |_ Cars (Types, count)                                                  : " << t->carTypeCount().toString() << "\n\n"
+            << "        |_ Cars Count                                                           \x1D : " << t->cars.size() << "\n"
+            << "        |_ Cars (Types, count)                                                  \x1D : " << t->carTypeCount().toString() << "\n\n"
             << "    |-> Moved Commodity:\n"
-            << "        |_ Total Moved Cargo (ton)                                              : " << Utils::thousandSeparator(t->getCargoNetWeight()) << "\n"
-            << "        |_ Total ton.km (ton.Km)                                                : " << Utils::thousandSeparator(t->getTrainTotalTorque()) << "\n\n"
+            << "        |_ Total Moved Cargo (ton)                                              \x1D : " << Utils::thousandSeparator(t->getCargoNetWeight()) << "\n"
+            << "        |_ Total ton.km (ton.Km)                                                \x1D : " << Utils::thousandSeparator(t->getTrainTotalTorque()) << "\n\n"
 
             << "  |-> Route Information:\n"
-            << "    |_ Train Reached Destination                                                : " << (t->reachedDestination ? "true" : "false") << "\n"
-			<< "    |_ Start Node                                                               : " << t->trainPathNodes.at(0)->userID << "\n"
-			<< "    |_ Destination Node                                                         : " << t->trainPathNodes.back()->userID << "\n"
-            << "    |_ Train Total Path Length (km)                                             : " << Utils::thousandSeparator(t->trainTotalPathLength/(double)1000.0) << "\n\n"
+            << "    |_ Train Reached Destination                                                \x1D : " << (t->reachedDestination ? "true" : "false") << "\n"
+            << "    |_ Start Node                                                               \x1D : " << t->trainPathNodes.at(0)->userID << "\n"
+            << "    |_ Destination Node                                                         \x1D : " << t->trainPathNodes.back()->userID << "\n"
+            << "    |_ Train Total Path Length (km)                                             \x1D : " << Utils::thousandSeparator(t->trainTotalPathLength/(double)1000.0) << "\n\n"
 
             << "  |-> Train Performance:\n"
-			<< "    |_ Operating Time                                                           : " << Utils::formatDuration(t->tripTime) << "\n"
-			<< "    |_ Average Speed (meter/second)                                             : " << t->averageSpeed << "\n"
-			<< "    |_ Average Acceleration (meter/square second)                               : " << t->averageAcceleration << "\n"
-            << "    |_ Travelled Distance (km)                                                  : " << Utils::thousandSeparator(t->travelledDistance/ (double)1000.0) << "\n"
+            << "    |_ Operating Time                                                           \x1D : " << Utils::formatDuration(t->tripTime) << "\n"
+            << "    |_ Average Speed (meter/second)                                             \x1D : " << t->averageSpeed << "\n"
+            << "    |_ Average Acceleration (meter/square second)                               \x1D : " << t->averageAcceleration << "\n"
+            << "    |_ Travelled Distance (km)                                                  \x1D : " << Utils::thousandSeparator(t->travelledDistance/ (double)1000.0) << "\n"
             << "    |_ Consumed and Regenerated Energy:\n"
-            << "        |_ Single-Train Trajectory Optimization Enabled                         : " << (t->optimize? "true": "false") << "\n"
-            << "        |_ Total Net Energy Consumed (KW.h)                                     : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
-            << "            |_ Total Energy Consumed (KW.h)                                     : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
-            << "            |_ Total Energy Regenerated (KW.h)                                  : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
-            << "            |_ Average Net Energy Consumption per Net Weight (KW.h/ton)         : " << Utils::thousandSeparator((t->cumEnergyStat) / (t->getCargoNetWeight())) << "\n"
-            << "            |_ Average Net Energy Consumption per Net ton.km (KW.hx10^3/ton.km) : " << Utils::thousandSeparator((t->cumEnergyStat * (double) 1000.0) / (t->getTrainTotalTorque())) << "\n"
+            << "        |_ Single-Train Trajectory Optimization Enabled                         \x1D : " << (t->optimize? "true": "false") << "\n"
+            << "        |_ Total Net Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
+            << "            |_ Total Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
+            << "            |_ Total Energy Regenerated (KW.h)                                  \x1D : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
+            << "            |_ Average Net Energy Consumption per Net Weight (KW.h/ton)         \x1D : " << Utils::thousandSeparator((t->cumEnergyStat) / (t->getCargoNetWeight())) << "\n"
+            << "            |_ Average Net Energy Consumption per Net ton.km (KW.hx10^3/ton.km) \x1D : " << Utils::thousandSeparator((t->cumEnergyStat * (double) 1000.0) / (t->getTrainTotalTorque())) << "\n"
             << "        |_ Tank Consumption:\n"
-            << "            |_ Total Fuel Consumed (litters)                                    : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
-            << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getCargoNetWeight()) << "\n"
-            << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getTrainTotalTorque()) << "\n"
+            << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
+            << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getCargoNetWeight()) << "\n"
+            << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getTrainTotalTorque()) << "\n"
             << "        |_ Battery Consumption:\n"
-            << "            |_ Total Energy Consumed (kW.h)                                     : " << Utils::thousandSeparator(t->getBatteryEnergyConsumed()) << "\n"
-            << "            |_ Total Energy Regenerated (kW.h)                                  : " << Utils::thousandSeparator(t->getBatteryEnergyRegenerated()) << "\n"
-            << "            |_ Total Net Energy Consumed (kW.h)                                 : " << Utils::thousandSeparator(t->getBatteryNetEnergyConsumed()) << "\n"
-            << "            |_ Average Net Energy Consumed per Net Weight (kW.h/ton)            : " << Utils::thousandSeparator(t->getBatteryNetEnergyConsumed() / t->getCargoNetWeight()) << "\n"
-            << "            |_ Average Net Energy Consumed per Net ton.km (kW.hx10^3/ton.km)    : " << Utils::thousandSeparator((t->getBatteryNetEnergyConsumed() * (double)1000.0) /t->getTrainTotalTorque()) << "\n"
+            << "            |_ Total Energy Consumed (kW.h)                                     \x1D : " << Utils::thousandSeparator(t->getBatteryEnergyConsumed()) << "\n"
+            << "            |_ Total Energy Regenerated (kW.h)                                  \x1D : " << Utils::thousandSeparator(t->getBatteryEnergyRegenerated()) << "\n"
+            << "            |_ Total Net Energy Consumed (kW.h)                                 \x1D : " << Utils::thousandSeparator(t->getBatteryNetEnergyConsumed()) << "\n"
+            << "            |_ Average Net Energy Consumed per Net Weight (kW.h/ton)            \x1D : " << Utils::thousandSeparator(t->getBatteryNetEnergyConsumed() / t->getCargoNetWeight()) << "\n"
+            << "            |_ Average Net Energy Consumed per Net ton.km (kW.hx10^3/ton.km)    \x1D : " << Utils::thousandSeparator((t->getBatteryNetEnergyConsumed() * (double)1000.0) /t->getTrainTotalTorque()) << "\n"
 
-			<< "    |_ Total Energy Consumed (KW.h)                                             : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
-			<< "        |_ Total Consumed (KW.h)                                                : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
-			<< "        |_ Total Regenerated (KW.h)                                             : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
-			<< "        |_ Total Fuel Consumed (litters)                                        : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
-			<< "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      : " << Utils::thousandSeparator(t->getTrainConsumedTank()/t->getCargoNetWeight()) << "\n"
-            << "        |_ Total Energy Consumption per ton.km (KW.h/ton.km)                    : " << Utils::thousandSeparator(t->cumEnergyStat / (t->getTrainTotalTorque())) << "\n"
-			<< "        |_ Total Energy Consumed by Region (Region:KW.h)                        : " << t->cumRegionalConsumedEnergyStat.toString() << "\n"
-            << "        |_ Average Locomotives Battery Status (%)                               : " << Utils::thousandSeparator(t->getAverageLocomotivesBatteryStatus() * 100.0) << "\n\n"
+            << "    |_ Total Energy Consumed (KW.h)                                             \x1D : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
+            << "        |_ Total Consumed (KW.h)                                                \x1D : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
+            << "        |_ Total Regenerated (KW.h)                                             \x1D : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
+            << "        |_ Total Fuel Consumed (litters)                                        \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
+            << "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()/t->getCargoNetWeight()) << "\n"
+            << "        |_ Total Energy Consumption per ton.km (KW.h/ton.km)                    \x1D : " << Utils::thousandSeparator(t->cumEnergyStat / (t->getTrainTotalTorque())) << "\n"
+            << "        |_ Total Energy Consumed by Region (Region:KW.h)                        \x1D : " << t->cumRegionalConsumedEnergyStat.toString() << "\n"
+            << "        |_ Average Locomotives Battery Status (%)                               \x1D : " << Utils::thousandSeparator(t->getAverageLocomotivesBatteryStatus() * 100.0) << "\n\n"
 
             << "  |-> Statistics:\n"
-            << "        |_ Total Delay Time To Each Link Speed                                  : " << Utils::formatDuration(t->cumDelayTimeStat) << "\n"
-            << "        |_ Total Delay Time To Max Links speed                                  : " << Utils::formatDuration(t->cumMaxDelayTimeStat) << "\n"
-            << "        |_ Total Stoppings                                                      : " << Utils::thousandSeparator(t->cumStoppedStat) << "\n"
+            << "        |_ Total Delay Time To Each Link Speed                                  \x1D : " << Utils::formatDuration(t->cumDelayTimeStat) << "\n"
+            << "        |_ Total Delay Time To Max Links speed                                  \x1D : " << Utils::formatDuration(t->cumMaxDelayTimeStat) << "\n"
+            << "        |_ Total Stoppings                                                      \x1D : " << Utils::thousandSeparator(t->cumStoppedStat) << "\n"
             << "  |-> Locomotives Details:\n";
 				// print the locomotives summary
 				int locI = 1;
 				for (auto &loc: t->locomotives){
-                    trainStat << "        |_ Locomotive Number                                                     : " << locI << "\n"
-                               << "        |_ Is Locomotive On                                                      : " << ((loc->isLocOn)? "true": "false") << "\n"
-							   << "        |_ Power Type                                                            : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
+                    trainStat << "        |_ Locomotive Number                                                     \x1D : " << locI << "\n"
+                               << "        |_ Is Locomotive On                                                      \x1D : " << ((loc->isLocOn)? "true": "false") << "\n"
+                               << "        |_ Power Type                                                            \x1D : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
 					if (TrainTypes::locomotiveBatteryOnly.exist(loc->powerType) ||
 							TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        trainStat << "        |_ Battery Initial Charge (KW.h)                                         : " << Utils::thousandSeparator(loc->getBatteryInitialCharge()) << "\n"
-                                   << "        |_ Battery Current Charge  at End of Trip (KW.h)                         : " << Utils::thousandSeparator(loc->getBatteryCurrentCharge()) << "\n"
-								   << "        |_ Battery Initial State of Charge (%)                                   : " << Utils::thousandSeparator(loc->getBatteryInitialCharge() / loc->getBatteryMaxCharge() * 100.0) << "\n"
-                                   << "        |_ Battery Current State of Charge  at End of Trip (%)                   : " << Utils::thousandSeparator(loc->getBatteryStateOfCharge() * 100.0) << "\n"
-                                   << "        |_ Battery Cumulative Consumed Energy (kW.h)                             : " << Utils::thousandSeparator(loc->getBatteryCumEnergyConsumption()) << "\n"
-                                   << "        |_ Battery Cumulative Regenerated Energy (kW.h)                          : " << Utils::thousandSeparator(loc->getBatteryCumEnergyRegenerated()) << "\n"
-                                   << "        |_ Battery Cumulative Net Consumed Energy (kW.h)                         : " << Utils::thousandSeparator(loc->getBatteryCumNetEnergyConsumption()) << "\n";
+                        trainStat << "        |_ Battery Initial Charge (KW.h)                                         \x1D : " << Utils::thousandSeparator(loc->getBatteryInitialCharge()) << "\n"
+                                   << "        |_ Battery Current Charge  at End of Trip (KW.h)                         \x1D : " << Utils::thousandSeparator(loc->getBatteryCurrentCharge()) << "\n"
+                                   << "        |_ Battery Initial State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(loc->getBatteryInitialCharge() / loc->getBatteryMaxCharge() * 100.0) << "\n"
+                                   << "        |_ Battery Current State of Charge  at End of Trip (%)                   \x1D : " << Utils::thousandSeparator(loc->getBatteryStateOfCharge() * 100.0) << "\n"
+                                   << "        |_ Battery Cumulative Consumed Energy (kW.h)                             \x1D : " << Utils::thousandSeparator(loc->getBatteryCumEnergyConsumption()) << "\n"
+                                   << "        |_ Battery Cumulative Regenerated Energy (kW.h)                          \x1D : " << Utils::thousandSeparator(loc->getBatteryCumEnergyRegenerated()) << "\n"
+                                   << "        |_ Battery Cumulative Net Consumed Energy (kW.h)                         \x1D : " << Utils::thousandSeparator(loc->getBatteryCumNetEnergyConsumption()) << "\n";
 					}
 					else if (TrainTypes::locomotiveTankOnly.exist(loc->powerType) ||
 							 TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        trainStat << "        |_ Tank Initial Capacity (liters)                                        : " << Utils::thousandSeparator(loc->getTankInitialCapacity()) << "\n"
-                                   << "        |_ Tank Current Capacity at End of Trip (liters)                         : " << Utils::thousandSeparator(loc->getTankCurrentCapacity()) << "\n"
-								   << "        |_ Tank Initial State of Capacity (%)                                    : " << Utils::thousandSeparator(loc->getTankInitialCapacity() / loc->getTankMaxCapacity() * 100.0) << "\n"
-                                   << "        |_ Tank Current State of Capacity at End of Trip (%)                     : " << Utils::thousandSeparator(loc->getTankStateOfCapacity() * 100.0) << "\n"
-                                   << "        |_ Tank Cumulative Consumed Fuel (liters)                                : " << Utils::thousandSeparator(loc->getTankCumConsumedFuel()) << "\n";
+                        trainStat << "        |_ Tank Initial Capacity (liters)                                        \x1D : " << Utils::thousandSeparator(loc->getTankInitialCapacity()) << "\n"
+                                   << "        |_ Tank Current Capacity at End of Trip (liters)                         \x1D : " << Utils::thousandSeparator(loc->getTankCurrentCapacity()) << "\n"
+                                   << "        |_ Tank Initial State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(loc->getTankInitialCapacity() / loc->getTankMaxCapacity() * 100.0) << "\n"
+                                   << "        |_ Tank Current State of Capacity at End of Trip (%)                     \x1D : " << Utils::thousandSeparator(loc->getTankStateOfCapacity() * 100.0) << "\n"
+                                   << "        |_ Tank Cumulative Consumed Fuel (liters)                                \x1D : " << Utils::thousandSeparator(loc->getTankCumConsumedFuel()) << "\n";
 					}
 					locI ++;
 				}
@@ -1311,17 +1312,17 @@ void Simulator::runSimulation() {
 					int tenderI = 1;
 					for (auto &car: t->cars){
 						if (car->carType != TrainTypes::CarType::cargo) {
-                            trainStat << "      |_ Tender Number                                                           : " << tenderI << "\n"
-									   << "        |_ Tender Type                                                           : " << TrainTypes::carTypeToStr(car->carType) << "\n";
+                            trainStat << "      |_ Tender Number                                                           \x1D : " << tenderI << "\n"
+                                       << "        |_ Tender Type                                                           \x1D : " << TrainTypes::carTypeToStr(car->carType) << "\n";
 							if (car->carType == TrainTypes::CarType::batteryTender){
-                                trainStat << "        |_ Battery Initial Charge                                                : " << Utils::thousandSeparator(car->getBatteryInitialCharge()) << "\n"
-										   << "        |_ Battery Current Charge                                                : " << Utils::thousandSeparator(car->getBatteryCurrentCharge()) << "\n"
-										   << "        |_ Battery Current State of Charge (%)                                   : " << Utils::thousandSeparator(car->getBatteryStateOfCharge()) << "\n";
+                                trainStat << "        |_ Battery Initial Charge                                                \x1D : " << Utils::thousandSeparator(car->getBatteryInitialCharge()) << "\n"
+                                           << "        |_ Battery Current Charge                                                \x1D : " << Utils::thousandSeparator(car->getBatteryCurrentCharge()) << "\n"
+                                           << "        |_ Battery Current State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(car->getBatteryStateOfCharge()) << "\n";
 							}
 							else {
-                                trainStat << "        |_ Tank Initial Capacity                                                 : " << Utils::thousandSeparator(car->getTankInitialCapacity()) << "\n"
-										   << "        |_ Tank Current Capacity                                                 : " << Utils::thousandSeparator(car->getTankCurrentCapacity()) << "\n"
-										   << "        |_ Tank Current State of Capacity (%)                                    : " << Utils::thousandSeparator(car->getTankStateOfCapacity()) << "\n";
+                                trainStat << "        |_ Tank Initial Capacity                                                 \x1D : " << Utils::thousandSeparator(car->getTankInitialCapacity()) << "\n"
+                                           << "        |_ Tank Current Capacity                                                 \x1D : " << Utils::thousandSeparator(car->getTankCurrentCapacity()) << "\n"
+                                           << "        |_ Tank Current State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(car->getTankStateOfCapacity()) << "\n";
 							}
 							tenderI ++;
 						}
@@ -1335,15 +1336,15 @@ void Simulator::runSimulation() {
 
 	exportLine.imbue(locale());
 	// setup the summary file
-	this->openSummaryFile();
-	this->summaryFile << exportLine.str();
+    this->openSummaryFile();
+    this->summaryFile << Utils::replaceAll(exportLine.str(), "\x1D", " ");
 // ##################################################################
 // #                       end: summary file                      #
 // ##################################################################
 	this->summaryFile.close();
 	this->trajectoryFile.close();
 
-    trainsSummaryData = Utils::splitStringStream(exportLine);
+    trainsSummaryData = Utils::splitStringStream(exportLine, "\x1D :");
 
     std::string trajectoryFilePath = "";
     if (this->exportTrajectory) {
