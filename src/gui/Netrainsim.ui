@@ -92,7 +92,7 @@
          <enum>QTabWidget::West</enum>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <property name="tabsClosable">
          <bool>false</bool>
@@ -306,8 +306,17 @@
                        </item>
                        <item>
                         <widget class="QDoubleSpinBox" name="doubleSpinBox_xCoordinate">
+                         <property name="decimals">
+                          <number>6</number>
+                         </property>
+                         <property name="minimum">
+                          <double>0.000001000000000</double>
+                         </property>
                          <property name="maximum">
                           <double>100000000000000000.000000000000000</double>
+                         </property>
+                         <property name="singleStep">
+                          <double>1.000000000000000</double>
                          </property>
                          <property name="value">
                           <double>1.000000000000000</double>
@@ -345,6 +354,12 @@
                        </item>
                        <item>
                         <widget class="QDoubleSpinBox" name="doubleSpinBox_yCoordinate">
+                         <property name="decimals">
+                          <number>6</number>
+                         </property>
+                         <property name="minimum">
+                          <double>0.000001000000000</double>
+                         </property>
                          <property name="maximum">
                           <double>100000000000000000.000000000000000</double>
                          </property>
@@ -448,7 +463,13 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+                        <widget class="QDoubleSpinBox" name="doubleSpinBox_SpeedScale">
+                         <property name="decimals">
+                          <number>6</number>
+                         </property>
+                         <property name="minimum">
+                          <double>0.000001000000000</double>
+                         </property>
                          <property name="maximum">
                           <double>100000000000000000.000000000000000</double>
                          </property>
@@ -828,7 +849,7 @@
                <item row="1" column="0">
                 <widget class="QTabWidget" name="tabWidget_newTrainOD">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_6">
                   <attribute name="title">
@@ -1256,7 +1277,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QWidget" name="horizontalWidget_6" native="true">
+                       <widget class="QWidget" name="horizontalWidget_TrajFile" native="true">
                         <layout class="QHBoxLayout" name="horizontalLayout_13">
                          <item>
                           <widget class="QLabel" name="label_13">
@@ -1287,7 +1308,7 @@
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_8">
                      <item>
-                      <widget class="QGroupBox" name="verticalGroupBox_6">
+                      <widget class="QGroupBox" name="verticalGroupBox_61">
                        <property name="title">
                         <string>General</string>
                        </property>
@@ -1489,6 +1510,13 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <item>
+                   <widget class="QLabel" name="label_19">
+                    <property name="text">
+                     <string>This file is not saved automatically! To save it, pop it out and click save as pdf!</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer_14">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -1549,6 +1577,9 @@
                     </item>
                     <item>
                      <widget class="CustomPlot" name="plot_trajectory_acceleration" native="true"/>
+                    </item>
+                    <item>
+                     <widget class="CustomPlot" name="plot_trajectory_EC" native="true"/>
                     </item>
                    </layout>
                   </item>
@@ -1665,6 +1696,8 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionOpen_Manual"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_Sample_Project"/>
    </widget>
    <addaction name="menuNeTrainSim"/>
    <addaction name="menuHelp"/>
@@ -1703,6 +1736,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLoad_Sample_Project">
+   <property name="text">
+    <string>Load Sample Project</string>
    </property>
   </action>
  </widget>

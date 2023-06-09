@@ -110,6 +110,14 @@ public slots:
      */
     void clearForm();
 
+    /**
+     * @brief Slot for handling loading the sample project files
+     *
+     * @author	Ahmed Aredah
+     * @date	6/7/2023
+     */
+    void handleSampleProject();
+
 private slots:
     /**
      * Slot for showing the report.
@@ -212,9 +220,6 @@ public:
      */
     ~NeTrainSim();
 
-
-public:
-
     /**
     * Displays a notification with the given text for 3000 millisecond.
     * @param text The text of the notification to be displayed.
@@ -230,8 +235,17 @@ public:
     *
     * @author Ahmed Aredah
     * @date 6/7/2023
-*/
+    */
     void showWarning(QString text);
+
+    /**
+     * @brief load the Project Files to the simulator GUI
+     * @param projectFilename the file NTS that has the files address
+     *
+     * @author Ahmed Aredah
+     * @date 6/7/2023
+     */
+    void loadProjectFiles(QString projectFilename);
 
 
 private:
@@ -295,6 +309,11 @@ private:
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
     Vector<std::pair<std::string, std::string>> trainsSummaryData;
 
+    // holds the summary report
+    QtRPT * report = nullptr;
+
+    // holds the summary report printer
+    QPrinter *printer = nullptr;
 
     void showDetailedReport(QString trajectoryFilename);
 
