@@ -28,7 +28,26 @@
 class NumericDelegate : public QItemDelegate {
     Q_OBJECT
 
+private:
+    double maxValue;
+    double minValue;
+    int decimals;
+    double stepSize;
+    double value;
+
 public:
+    /**
+     * @brief Constructor for the NumericDelegate class.
+     * @param parent The parent widget.
+     * @param maxValue The maximum value for the double spin box.
+     * @param minValue The minimum value for the double spin box.
+     * @param decimals The number of decimal places for the double spin box.
+     * @param stepSize The step size for the double spin box.
+     */
+    NumericDelegate(QWidget *parent = nullptr, double maxValue = 1000000000.0, double minValue = -1000000000.0,
+                    int decimals = 3, double stepSize = 0.1, double value = 0)
+        : QItemDelegate(parent), maxValue(maxValue), minValue(minValue), decimals(decimals), stepSize(stepSize), value(value) {}
+
     /**
      * @brief Creates an editor widget for the given parent, style option, and model index.
      * @param parent The parent widget.
@@ -38,9 +57,11 @@ public:
      */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
         QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
-        editor->setMinimum(-1000000000);
-        editor->setMaximum(1000000000);
-        editor->setDecimals(3);
+        editor->setMaximum(maxValue);
+        editor->setMinimum(minValue);
+        editor->setDecimals(decimals);
+        editor->setSingleStep(stepSize);
+        editor->setValue(value);
         return editor;
     }
 
