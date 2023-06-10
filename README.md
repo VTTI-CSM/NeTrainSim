@@ -129,6 +129,7 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
                                                                                           
 ## Collaborators
 The development of NeTrainSim has been a collaborative effort. The following individuals have contributed to the development and maintenance of the simulator:
+                                                                                          
 - **Ahmed Aredah, M.Sc.**: 
      - Ph.D. student, Dept. of Civil and Environmental Engineering, Virginia Tech  
      - M.Sc. Student, Dept. of Computer Science | Engineering, Virginia Tech  
