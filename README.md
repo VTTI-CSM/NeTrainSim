@@ -20,9 +20,9 @@
 </p>
 
 <p align="center">
-  <a href="" target="_blank">Documentation</a> |
-  <a href="https://discord.gg/UgSmbJTu" target="_blank">Discord</a> |
-  <a href="##Contributing">Contributing</a> |
+  <a href="https://ahmedaredah.github.io/NeTrainSim/" target="_blank">Documentation</a> |
+  <a href="https://discord.gg/8yeT9vFdx8" target="_blank">Discord</a> |
+  <a href="##Contributing">Contributing</a>
 </p>
 
 # Network Train Simulator (NeTrainSim)
