@@ -6,7 +6,7 @@ Thank you for your interest in contributing to NeTrainSim! We welcome contributi
 
 Before you start contributing to NeTrainSim, please follow these steps:
 
-1. Familiarize yourself with our Contributor Licensing Agreement (CLA), which is a prerequisite for contributing to our project. 
+1. Familiarize yourself with our Contributor Licensing Agreement (CLA), which is a prerequisite for contributing to our project. Please read and sign the CLA [here](https://cla-assistant.io/AhmedAredah/NeTrainSim).
 2. Check the [issue tracker](https://github.com/AhmedAredah/NeTrainSim/issues) for open issues that you could work on. If you have an idea for a new feature or improvement, please create a new issue to discuss it first.
 3. Fork the NeTrainSim repository to your GitHub account.
 4. Clone the forked repository to your local machine.
