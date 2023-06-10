@@ -17,9 +17,9 @@
     <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
   </a>
   <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
-    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/tag-date/Ahmed/NeTrainSim.svg?label=latest">
+    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/AhmedAredah/NeTrainSim.svg?label=latest">
   </a>
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/Ahmed/NeTrainSim/total.svg">
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/AhmedAredah/NeTrainSim/total.svg">
 </p>
 
 <p align="center">
