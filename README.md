@@ -16,7 +16,6 @@
     <a href="">
     <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
   </a>
-  https://img.shields.io/badge/CLA-CLA%20Required-red
   <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/tag-date/Ahmed/NeTrainSim.svg?label=latest">
   </a>
