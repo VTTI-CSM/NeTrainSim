@@ -13,13 +13,14 @@
   <a href="https://www.gnu.org/licenses/gpl-3.0">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GNU GPL v3">
   </a>
-    <a href="">
-    <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
-  </a>
   <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/AhmedAredah/NeTrainSim.svg?label=latest">
   </a>
   <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/AhmedAredah/NeTrainSim/total.svg">
+  <a href="">
+    <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
+    <a href="https://cla-assistant.io/AhmedAredah/NeTrainSim"><img src="https://cla-assistant.io/readme/badge/AhmedAredah/NeTrainSim" alt="CLA assistant" /></a>
+  </a>
 </p>
 
 <p align="center">
