@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/Ahmed/NeTrainSim">
-    <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/84c162d7-ffd9-4ca8-a74d-06cc5ff29c8d" alt="NeTrainSim"/>
+    <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/d38d4ebe-3eb6-4877-b168-032373a54b11" alt="NeTrainSim"/>
   </a>
   <br/>
   NeTrainSim [Network Trains Simulator]
@@ -13,6 +13,10 @@
   <a href="https://www.gnu.org/licenses/gpl-3.0">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GNU GPL v3">
   </a>
+    <a href="">
+    <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
+  </a>
+  https://img.shields.io/badge/CLA-CLA%20Required-red
   <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/tag-date/Ahmed/NeTrainSim.svg?label=latest">
   </a>
