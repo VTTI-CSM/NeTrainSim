@@ -23,9 +23,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/AhmedAredah/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
   <a href="https://ahmedaredah.github.io/NeTrainSim/" target="_blank">Documentation</a> |
-  <a href=https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a> |
-  <a href="##Contributing">Contributing</a>
+  <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a>
 </p>
 
 # Network Train Simulator (NeTrainSim)
