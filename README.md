@@ -21,7 +21,7 @@
 
 <p align="center">
   <a href="https://ahmedaredah.github.io/NeTrainSim/" target="_blank">Documentation</a> |
-  <a href="https://discord.gg/8yeT9vFdx8" target="_blank">Discord</a> |
+  <a href=https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a> |
   <a href="##Contributing">Contributing</a>
 </p>
 
@@ -126,6 +126,25 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
    ```
 
    In this case, the default output Location is `C:\Users\<USERNAME>\Documents\NeTrainSim`  where `<USERNAME>` should be replaced with the current session user name.
+                                                                                          
+## Collaborators
+The development of NeTrainSim has been a collaborative effort. The following individuals have contributed to the development and maintenance of the simulator:
+- **Ahmed Aredah, M.Sc.**: 
+     - Ph.D. student, Dept. of Civil and Environmental Engineering, Virginia Tech  
+     - M.Sc. Student, Dept. of Computer Science | Engineering, Virginia Tech  
+     - Graduate Research Assistant at Virginia Tech Transportation Institute
+
+- **Karim Fadhloun, Ph.D.**:
+     - Research Associate at Virginia Tech Transportation Institute
+
+- **Hesham A. Rakha, Ph.D. P.Eng., F.IEEE**: 
+     - Samuel Reynolds Pritchard Professor of Engineering, Charles E. Via, Jr. Dept. of Civil and Environmental Engineering
+     - Courtesy Professor, Bradley Department of Electrical and Computer Engineering
+     - Director, Center for Sustainable Mobility at the Virginia Tech Transportation Institute
+     - Fellow of Asia Pacific Artificial Intelligence Association
+     - Fellow of the American Society of Civil Engineers
+     - Fellow of the Canadian Academy of Engineering
+     - Fellow of IEEE
 
 ## Contributing
 
