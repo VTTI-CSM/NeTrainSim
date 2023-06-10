@@ -64,7 +64,7 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 
 
 ## Getting Started
-To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the releases page.
+To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/AhmedAredah/NeTrainSim/releases).
 
 ### Prerequisites
 There is no prerequisite required to run NeTrainSim as the installer has all the required 3rd party packages. 
@@ -74,7 +74,12 @@ Once the file is downloaded on your hard drive. Double click the downloaded file
 
 ### Running
 
-#### Shell interface 
+#### Using GUI interface
+1. Run the 'NeTrainSimGUI' which you may find in windows start menu or on your desktop.
+2. The following is the main NeTrainSim window. 
+ ![main NeTrainSim window](https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3)
+                          
+#### Using shell interface 
 1. Open a shell/command line window,
 
 2. Navigate to the installation path using 
