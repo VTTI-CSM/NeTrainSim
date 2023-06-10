@@ -75,9 +75,15 @@ Once the file is downloaded on your hard drive. Double click the downloaded file
 ### Running
 
 #### Using GUI interface
-1. Run the 'NeTrainSimGUI' which you may find in windows start menu or on your desktop.
-2. The following is the main NeTrainSim window. 
- ![main NeTrainSim window](https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3)
+1. Please initiate the 'NeTrainSimGUI' application, which can be located either in the Windows Start menu or on your desktop.
+2. Presented below is the primary user interface for the NeTrainSim application.
+
+<p align = 'center'>
+<img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3" width="500" alt ="main NeTrainSim window">
+</p>
+                                                                                                                                                   
+3. For a comprehensive understanding of the application and its functionalities, please refer to the relevant documentation available within the 'Help' section of the menu.
+                          
                           
 #### Using shell interface 
 1. Open a shell/command line window,
