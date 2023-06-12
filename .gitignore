@@ -74,3 +74,4 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+.vscode/settings.json
