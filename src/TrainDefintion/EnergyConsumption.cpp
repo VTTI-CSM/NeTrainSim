@@ -1,5 +1,5 @@
-#include "TrainTypes.h"
-#include "EnergyConsumption.h"
+#include "traintypes.h"
+#include "energyconsumption.h"
 #include <cmath>
 
 

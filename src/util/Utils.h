@@ -10,7 +10,7 @@
 #include <iomanip> // Required for setprecision and fixed
 #include <locale> // Required for using thousands_separator
 #include <sstream> // Required for stringstream
-#include "Vector.h"
+#include "vector.h"
 #include <fstream>
 #include <string>
 #include <regex>

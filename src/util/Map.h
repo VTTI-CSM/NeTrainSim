@@ -7,11 +7,11 @@
 #define Map_H
 
 #include <map>
-#include "Vector.h"
+#include "vector.h"
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include "Utils.h"
+#include "utils.h"
 
 /**
  * A map.

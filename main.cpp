@@ -3,18 +3,20 @@
  * Implements the main class
  */
 
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #ifdef AS_CMD
-    #include "src/trainDefintion/Train.h"
-    #include "src/trainDefintion/TrainsList.h"
-    #include "src/network/Network.h"
-    #include "src/Simulator.h"
-    #include "src/util/Vector.h"
+    #include "src/traindefintion/train.h"
+    #include "src/traindefintion/trainslist.h"
+    #include "src/network/network.h"
+    #include "src/simulator.h"
+    #include "src/util/vector.h"
     #include <sstream>
     #include <QCoreApplication>
     #include <QCommandLineParser>
     #include <stdio.h>
     #include <filesystem>
-    #include "src/util/ErrorHandler.h"
+    #include "src/util/errorhandler.h"
 #endif
 
 #ifndef AS_CMD

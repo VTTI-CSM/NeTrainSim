@@ -8,16 +8,16 @@
 #include <sstream>
 #include <regex>
 #include <cstdlib>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include <unordered_set>
 #include <set>
-#include "NetNode.h"
-#include "NetLink.h"
-#include "NetSignal.h"
-#include "src/trainDefintion/Train.h"
-#include "src/util/Utils.h"
-#include "src/util/Error.h"
-#include "ReadWriteNetwork.h"
+#include "netnode.h"
+#include "netlink.h"
+#include "netsignal.h"
+#include "src/traindefintion/train.h"
+#include "src/util/utils.h"
+#include "src/util/error.h"
+#include "readwritenetwork.h"
 
 /**
  * A network.

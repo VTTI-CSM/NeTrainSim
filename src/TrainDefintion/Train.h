@@ -12,8 +12,7 @@
 #include "Car.h"
 #include "Locomotive.h"
 //#include "../network/NetLink.h"
-#include "EnergyConsumption.h"
-#include "../util/Map.h"
+#include "../util/map.h"
 #include <utility>
 #include <variant>
 

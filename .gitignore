@@ -74,4 +74,20 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+# VS CODE 
+#---------
 .vscode/settings.json
+.vscode
+
+#Python Files
+#------------
+# Ignore all Python files
+*.py
+
+# Ignore Python files in subdirectories
+**/*.py
+
+
+#Personal pro file
+#------------------
+NeTrainSim.pro.user

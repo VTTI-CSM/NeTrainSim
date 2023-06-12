@@ -9,11 +9,10 @@
 #include <functional>
 #include <string>
 #include <iostream>
-//#include "../util/List.h"
 #include "../util/Vector.h"
-#include "TrainTypes.h"
-#include "EnergyConsumption.h"
-#include "TrainComponent.h"
+#include "traintypes.h"
+#include "energyconsumption.h"
+#include "traincomponent.h"
 
 using namespace std;
 

@@ -5,9 +5,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include <regex>
-#include "Train.h"
+#include "train.h"
 
 namespace TrainsList {
 

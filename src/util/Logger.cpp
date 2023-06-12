@@ -3,7 +3,7 @@
  *
  * Implements the logger class
  */
-#include "Logger.h"
+#include "logger.h"
 
 
 /** The logger log file */

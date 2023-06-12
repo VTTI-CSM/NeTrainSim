@@ -20,8 +20,8 @@
 
 #include <string>
 #include <iostream>
-#include "../util/Vector.h"
-#include "../util/Map.h"
+#include "../util/vector.h"
+#include "../util/map.h"
 
 class NetSignal; // Forward declaration of NetSignal class
 class NetLink; // Forward declaration of NetLink class

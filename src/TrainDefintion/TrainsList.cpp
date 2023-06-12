@@ -1,16 +1,16 @@
-#include "TrainsList.h"
+#include "trainslist.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <regex>
-#include "Locomotive.h"
-#include "Car.h"
-#include "Train.h"
-#include "TrainTypes.h"
-#include "../util/Error.h"
-#include "../util/Utils.h"
+#include "locomotive.h"
+#include "car.h"
+#include "train.h"
+#include "traintypes.h"
+#include "../util/error.h"
+#include "../util/utils.h"
 
 // This function readTrainsFile takes a string fileName as the file to read trains from.
 // The function returns the trains as objects

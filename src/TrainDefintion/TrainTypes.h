@@ -8,8 +8,8 @@
 
 #include <string>
 #include <stdexcept>
-#include "../util/Vector.h"
-#include "../util/Error.h"
+#include "../util/vector.h"
+#include "../util/error.h"
 #include <map>
 
 /** . */

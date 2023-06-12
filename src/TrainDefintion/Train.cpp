@@ -1,15 +1,15 @@
 #include <iostream>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include "train.h"
-#include "../network//NetNode.h"
-#include "../network/NetLink.h"
+#include "../network//netnode.h"
+#include "../network/netlink.h"
 #include <variant>
-#include "TrainTypes.h"
+#include "traintypes.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include "../util/Logger.h"
-#include "../util/Error.h"
+#include "../util/logger.h"
+#include "../util/error.h"
 #include "src/util/errorhandler.h"
 
 #define stringify( name ) #name

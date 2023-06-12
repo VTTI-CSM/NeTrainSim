@@ -17,7 +17,7 @@
 #ifndef NONEMPTYDELEGATE_H
 #define NONEMPTYDELEGATE_H
 
-#include "Netrainsim.h"
+#include "netrainsim.h"
 #include <QLineEdit>
 #include <QStyledItemDelegate>
 

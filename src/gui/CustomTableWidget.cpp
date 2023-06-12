@@ -1,5 +1,5 @@
-#include "CustomTableWidget.h"
-#include "CheckboxDelegate.h"
+#include "customtablewidget.h"
+#include "checkboxdelegate.h"
 #include "qstyleditemdelegate.h"
 
 CustomTableWidget::CustomTableWidget(QWidget *parent)

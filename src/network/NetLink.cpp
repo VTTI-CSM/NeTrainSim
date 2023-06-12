@@ -1,11 +1,8 @@
 #include <iostream>
 #include <math.h>
-#include <algorithm> 
-//#include "../util/List.h"
-//#include "../util/Vector.h"
-#include "NetLink.h"
-#include "NetNode.h"
-//#include "../trainDefintion/Train.h"
+#include <algorithm>
+#include "netlink.h"
+#include "netnode.h"
 
 using namespace std;
 

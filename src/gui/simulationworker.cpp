@@ -1,5 +1,5 @@
-#include "SimulationWorker.h"
-#include "src/TrainDefintion/TrainsList.h"
+#include "simulationworker.h"
+#include "src/traindefintion/trainslist.h"
 
 
 SimulationWorker::SimulationWorker(Vector<std::tuple<int, double, double, std::string,

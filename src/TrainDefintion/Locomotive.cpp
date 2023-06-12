@@ -5,14 +5,14 @@
 
 #include <functional>
 #include <iostream>
-#include "Locomotive.h"
+#include "locomotive.h"
 #include <math.h>
 #include <algorithm> 
-#include "../util/Vector.h"
-#include "EnergyConsumption.h"
-#include "TrainTypes.h"
+#include "../util/vector.h"
+#include "energyconsumption.h"
+#include "traintypes.h"
 #include <cstdlib>
-#include "../util/Utils.h"
+#include "../util/utils.h"
 #define stringify( name ) #name
 using namespace std;
 

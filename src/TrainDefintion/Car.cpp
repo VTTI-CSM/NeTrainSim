@@ -6,8 +6,8 @@
 #include <cmath>
 #include <iostream>
 #include "car.h"
-#include "TrainTypes.h"
-#include "EnergyConsumption.h"
+#include "traintypes.h"
+#include "energyconsumption.h"
 #define stringify( name ) #name
 
 using namespace std;

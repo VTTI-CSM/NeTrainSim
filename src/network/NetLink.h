@@ -21,7 +21,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include <memory>
 
 class NetNode; // Forward declaration of NetNode class

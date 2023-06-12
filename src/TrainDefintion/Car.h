@@ -9,9 +9,9 @@
 
 #include <string>
 #include <iostream>
-#include "TrainTypes.h"
-#include "EnergyConsumption.h"
-#include "TrainComponent.h"
+#include "traintypes.h"
+#include "energyconsumption.h"
+#include "traincomponent.h"
 #include <memory>
 
 /**

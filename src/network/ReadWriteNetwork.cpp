@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
-#include "src/network/NetLink.h"
-#include "src/network/NetNode.h"
-#include "src/util/Error.h"
-#include "src/util/Vector.h"
+#include "src/network/netlink.h"
+#include "src/network/netnode.h"
+#include "src/util/error.h"
+#include "src/util/vector.h"
 #include <exception>
-#include "src/network/ReadWriteNetwork.h"
-#include "src/util/Utils.h"
+#include "src/network/readwritenetwork.h"
+#include "src/util/utils.h"
 
 /**
          * Reads nodes file

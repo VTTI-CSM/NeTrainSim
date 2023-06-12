@@ -7,11 +7,10 @@
 #define NeTrainSim_Simulator_h
 
 #include <QObject>
-#include "src/trainDefintion/Train.h"
-//#include "trainDefintion/TrainsList.h"
-#include "network/Network.h"
-#include "network/NetSignalGroupController.h"
-#include "./util/Vector.h"
+#include "src/traindefintion/train.h"
+#include "src/network/network.h"
+#include "network/netsignalgroupcontroller.h"
+#include "./util/vector.h"
 #include <string>
 #include <iostream>
 #include <filesystem>

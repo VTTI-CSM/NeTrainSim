@@ -22,8 +22,8 @@
 #include <iostream>
 #include <map>
 #include <set>
-#include "../util/Vector.h"
-#include "../util/Map.h"
+#include "../util/vector.h"
+#include "../util/map.h"
 
 class NetLink; // Forward declaration of NetLink class
 class NetNode; // Forward declaration of NetNode class

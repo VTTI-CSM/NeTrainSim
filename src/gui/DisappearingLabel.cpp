@@ -1,4 +1,4 @@
-#include "DisappearingLabel.h"
+#include "disappearinglabel.h"
 
 
 DisappearingLabel::DisappearingLabel(QWidget *parent) :

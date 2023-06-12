@@ -1,11 +1,10 @@
-#include "NetNode.h"
+#include "netnode.h"
 #include <iostream>
-// #include "../util/List.h"
-#include "../util/Vector.h"
-#include "NetLink.h"
+#include "../util/vector.h"
+#include "netlink.h"
 #include <math.h>
 #include <algorithm> 
-#include<cmath>
+#include <cmath>
 using namespace std;
 
 unsigned int NetNode::NumberOfNodesInSimulator = 0;

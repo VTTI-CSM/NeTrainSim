@@ -2,7 +2,7 @@
 #define CUSTOMPLOT_H
 
 #include "src/dependencies/qcustomplot/qcustomplot.h"
-#include "src/util/Vector.h"
+#include "src/util/vector.h"
 
 /**
  * @brief The CustomPlot class is a subclass of QCustomPlot, providing additional functionality and customization.

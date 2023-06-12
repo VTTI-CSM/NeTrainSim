@@ -1,8 +1,7 @@
-#include "NetSignalGroupController.h"
-#include "NetNode.h"
-#include "NetSignal.h"
-//#include "NetLink.h"
-#include "../util/Vector.h"
+#include "netsignalgroupcontroller.h"
+#include "netnode.h"
+#include "netsignal.h"
+#include "../util/vector.h"
 
 NetSignalGroupController::NetSignalGroupController(std::set<std::shared_ptr<NetNode>> nodes) {
 	

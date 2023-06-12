@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-#include "TrainTypes.h"
+#include "traintypes.h"
 
 
 using namespace std;

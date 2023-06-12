@@ -4,18 +4,18 @@
  * Implements the netrainsim class
  */
 #include "netrainsim.h"
-#include "NonEmptyDelegate.h"
+#include "nonemptydelegate.h"
 #include "simulationworker.h"
-#include "src/util/CSVManager.h"
-#include "ui_Netrainsim.h"
+#include "src/util/csvmanager.h"
+#include "ui_netrainsim.h"
 #include <iostream>
 #include <QtAlgorithms>
 #include "numericdelegate.h"
-#include "IntNumericDelegate.h"
-#include "CheckboxDelegate.h"
+#include "intnumericdelegate.h"
+#include "checkboxdelegate.h"
 #include <qtrpt.h>
 #include <fstream>
-#include "src/trainDefintion/TrainsList.h"
+#include "src/traindefintion/trainslist.h"
 #include "aboutwindow.h"
 #include "src/util/xmlmanager.h"
 #include "src/util/errorhandler.h"

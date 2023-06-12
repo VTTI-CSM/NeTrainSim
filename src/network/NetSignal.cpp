@@ -1,10 +1,10 @@
 #include <iostream>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include <math.h>
 #include <algorithm> 
-#include "NetLink.h"
-#include "NetSignal.h"
-#include "NetNode.h"
+#include "netlink.h"
+#include "netsignal.h"
+#include "netnode.h"
 using namespace std;
 
 

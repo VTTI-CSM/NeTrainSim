@@ -9,9 +9,8 @@
 #include "qtrpt.h"
 #include "src/gui/aboutwindow.h"
 #include "src/gui/customplot.h"
-//#include "src/dependencies/qcustomplot/qcustomplot.h"
 #include <QMainWindow>
-#include "src/util/Map.h"
+#include "src/util/map.h"
 #include <iostream>
 #include "simulationworker.h"
 

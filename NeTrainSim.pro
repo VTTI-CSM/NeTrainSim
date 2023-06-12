@@ -32,80 +32,81 @@ include($$PWD/src/dependencies/qtrpt/QtRPT/QtRPT.pri)
 # Add the source files to the project.
 SOURCES += \
     main.cpp \
-    src/Simulator.cpp \
+    src/simulator.cpp \
     src/dependencies/qcustomplot/qcustomplot.cpp \
-    src/gui/CustomTableWidget.cpp \
-    src/gui/DisappearingLabel.cpp \
-    src/gui/Netrainsim.cpp \
+    src/gui/customtablewidget.cpp \
+    src/gui/disappearingLabel.cpp \
+    src/gui/netrainsim.cpp \
     src/gui/aboutwindow.cpp \
     src/gui/customplot.cpp \
     src/gui/simulationworker.cpp \
-    src/network/NetLink.cpp \
-    src/network/NetNode.cpp \
-    src/network/NetSignal.cpp \
-    src/network/NetSignalGroupController.cpp \
-    src/network/ReadWriteNetwork.cpp \
-    src/trainDefintion/Car.cpp \
-    src/trainDefintion/EnergyConsumption.cpp \
-    src/trainDefintion/Locomotive.cpp \
-    src/trainDefintion/Train.cpp \
-    src/trainDefintion/TrainComponent.cpp \
-    src/trainDefintion/TrainsList.cpp \
-    src/trainDefintion/battery.cpp \
-    src/trainDefintion/tank.cpp \
-    src/util/ErrorHandler.cpp \
-    src/util/Logger.cpp \
-    src/util/XMLManager.cpp \
+    src/network/netlink.cpp \
+    src/network/netnode.cpp \
+    src/network/netsignal.cpp \
+    src/network/netsignalgroupcontroller.cpp \
+    src/network/readwritenetwork.cpp \
+    src/traindefintion/car.cpp \
+    src/traindefintion/energyconsumption.cpp \
+    src/traindefintion/locomotive.cpp \
+    src/traindefintion/train.cpp \
+    src/traindefintion/traincomponent.cpp \
+    src/traindefintion/trainslist.cpp \
+    src/traindefintion/battery.cpp \
+    src/traindefintion/tank.cpp \
+    src/util/errorhandler.cpp \
+    src/util/logger.cpp \
+    src/util/xmlmanager.cpp \
     src/util/csvmanager.cpp
 
 # Add the header files to the project.
 HEADERS += \
-    src/Simulator.h \
+    src/simulator.h \
     src/dependencies/qcustomplot/qcustomplot.h \
-    src/gui/CheckboxDelegate.h \
-    src/gui/CustomProgressBar.h \
-    src/gui/CustomTableWidget.h \
-    src/gui/DisappearingLabel.h \
-    src/gui/IntNumericDelegate.h \
-    src/gui/Netrainsim.h \
-    src/gui/NonEmptyDelegate.h \
+    src/gui/checkboxdelegate.h \
+    src/gui/customprogressbar.h \
+    src/gui/customtablewidget.h \
+    src/gui/disappearinglabel.h \
+    src/gui/intnumericdelegate.h \
+    src/gui/netrainsim.h \
+    src/gui/nonemptydelegate.h \
     src/gui/aboutwindow.h \
     src/gui/customplot.h \
     src/gui/numericdelegate.h \
     src/gui/simulationworker.h \
-    src/network/NetLink.h \
-    src/network/NetNode.h \
-    src/network/NetSignal.h \
-    src/network/NetSignalGroupController.h \
-    src/network/Network.h \
-    src/network/ReadWriteNetwork.h \
-    src/trainDefintion/Car.h \
-    src/trainDefintion/EnergyConsumption.h \
-    src/trainDefintion/Locomotive.h \
-    src/trainDefintion/Train.h \
-    src/trainDefintion/TrainComponent.h \
-    src/trainDefintion/TrainTypes.h \
-    src/trainDefintion/TrainsList.h \
-    src/trainDefintion/battery.h \
-    src/trainDefintion/tank.h \
-    src/util/Error.h \
-    src/util/ErrorHandler.h \
-    src/util/List.h \
-    src/util/Logger.h \
-    src/util/Map.h \
-    src/util/Utils.h \
-    src/util/Vector.h \
-    src/util/XMLManager.h \
+    src/network/netlink.h \
+    src/network/netnode.h \
+    src/network/netsignal.h \
+    src/network/netsignalgroupcontroller.h \
+    src/network/network.h \
+    src/network/readwritenetwork.h \
+    src/traindefintion/car.h \
+    src/traindefintion/energyconsumption.h \
+    src/traindefintion/locomotive.h \
+    src/traindefintion/train.h \
+    src/traindefintion/traincomponent.h \
+    src/traindefintion/traintypes.h \
+    src/traindefintion/trainslist.h \
+    src/traindefintion/battery.h \
+    src/traindefintion/tank.h \
+    src/util/error.h \
+    src/util/errorHandler.h \
+    src/util/list.h \
+    src/util/logger.h \
+    src/util/map.h \
+    src/util/utils.h \
+    src/util/vector.h \
+    src/util/xmlmanager.h \
     src/util/csvmanager.h
 
 # Add the form files to the project.
 FORMS += \
-    src/gui/Netrainsim.ui \
+    src/gui/netrainsim.ui \
     src/gui/aboutwindow.ui
 
 # Add the translation files to the project.
 TRANSLATIONS += \
-    NeTrainSim_en_US.ts
+    neTrainSim_en_US.ts
+
 # Configure lrelease for translation processing.
 CONFIG += lrelease
 CONFIG += embed_translations
@@ -125,7 +126,7 @@ DISTFILES += \
     nts_extension.xml \
     src/dependencies/qcustomplot/GPL.txt \
     src/resources/ECEDB.xml \
-    src/resources/icon.ico
+    #src/resources/icon.ico
 
 # Specify the resource file for the project.
 RESOURCES += \

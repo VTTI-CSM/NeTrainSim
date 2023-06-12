@@ -1,5 +1,5 @@
 #include "src/gui/customplot.h"
-#include "src/util/Vector.h"
+#include "src/util/vector.h"
 
 // Constructor
 CustomPlot::CustomPlot(QWidget *parent) : QCustomPlot(parent), m_isPanning(false), m_isScrollButtonClicked(false)

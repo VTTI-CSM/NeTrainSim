@@ -3,20 +3,20 @@
  *
  * Implements the simulator class
  */
-#include "Simulator.h"
+#include "simulator.h"
 #include "QtCore/qstandardpaths.h"    // Include for standard path access
-#include "network/NetSignalGroupController.h" // Include for controlling network signal groups
+#include "network/netsignalgroupcontroller.h" // Include for controlling network signal groups
 #include <filesystem> // Include for filesystem operations
 #include <cstdio>
 #include <thread>    // Include for multi-threading functionality
 #include <chrono>    // Include for time-related operations
 #include <ctime>
 #include <locale>
-#include "util/Utils.h"
+#include "util/utils.h"
 #include <filesystem>
 #include <cmath>
 #include <memory>    // Include for smart pointers
-#include "src/util/Error.h" // Include for error handling utilities
+#include "src/util/error.h" // Include for error handling utilities
 
 // Function to get the path to the home directory.
 // If the path is not empty, it is returned, otherwise a runtime exception is thrown with an error message.

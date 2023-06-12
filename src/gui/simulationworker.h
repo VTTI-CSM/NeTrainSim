@@ -17,7 +17,7 @@
 #define SIMULATIONWORKER_H
 
 #include <QObject>
-#include "src/Simulator.h"
+#include "src/simulator.h"
 
 /**
  * @class SimulationWorker

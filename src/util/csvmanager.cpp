@@ -1,10 +1,10 @@
-#include "CSVManager.h"
+#include "csvmanager.h"
 #include <QFile>
 #include <QTextStream>
 #include <iostream>
 #include <stdexcept>
 #include <QSet>
-#include "src/util/Error.h"
+#include "src/util/error.h"
 
 CSVManager::CSVManager(QObject* parent)
     : QObject(parent) {}

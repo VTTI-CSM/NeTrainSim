@@ -9,10 +9,10 @@
 #include <string>
 #include <iostream>
 // #include "TrainTypes.h"
-#include "../network/NetLink.h"
+#include "../network/netlink.h"
 #include "battery.h"
 #include "tank.h"
-#include "EnergyConsumption.h"
+#include "energyconsumption.h"
 #include <memory>
 using namespace std;
 

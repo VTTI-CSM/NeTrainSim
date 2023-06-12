@@ -1,4 +1,4 @@
-#include "TrainComponent.h"
+#include "traincomponent.h"
 using namespace std;
 
 // if the get getResistance is not implemented in the derived class, return 0.0

@@ -2,7 +2,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QDebug>
-#include "src/util/Error.h"
+#include "src/util/error.h"
 
 namespace XMLManager {
     void createProjectFile(const QString& projectName, const QString& networkName, const QString& authorName,
