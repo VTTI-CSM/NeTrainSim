@@ -1476,7 +1476,7 @@ void NeTrainSim::showWarning(QString text) {
 }
 
 void NeTrainSim::simulate() {
-//    try {
+    try {
     Vector<std::tuple<int, double, double, std::string, double, double>> nodeRecords;
     Vector<tuple<int, int, int, double, double, int, double, double, int, double, bool,
                  std::string, double, double>> linkRecords;
@@ -1485,7 +1485,7 @@ void NeTrainSim::simulate() {
                  Vector<tuple<double, double, double, double, double, int, int>>,
                  bool>> trainRecords;
 
-        if (ui->lineEdit_nodes->text().trimmed().isEmpty() && ui->lineEdit_links->text().trimmed().isEmpty()) {
+        if (ui->checkBox_defineNewNetwork->checkState() == Qt::Checked) {
             if (ui->table_newNodes->hasEmptyCell({0,3})) {
                 this->showWarning("Missing values in nodes table!");
                 return;
@@ -1497,9 +1497,26 @@ void NeTrainSim::simulate() {
             nodeRecords = this->getNodesDataFromNodesTable();
             linkRecords = this->getLinkesDataFromLinksTable();
         }
-        else if (!ui->lineEdit_nodes->text().trimmed().isEmpty() && !ui->lineEdit_links->text().trimmed().isEmpty()) {
-            nodeRecords = ReadWriteNetwork::readNodesFile(ui->lineEdit_nodes->text().trimmed().toStdString());
-            linkRecords = ReadWriteNetwork::readLinksFile(ui->lineEdit_links->text().trimmed().toStdString());
+        else {
+
+            // if no files are added to nodes, show error
+            if (ui->lineEdit_nodes->text().trimmed().isEmpty()) {
+                ErrorHandler::showError("No nodes file is set!");
+                return;
+            }
+            // if no files are added to links, show error
+            if (ui->lineEdit_links->text().trimmed().isEmpty()) {
+                ErrorHandler::showError("No links file is set!");
+                return;
+            }
+            // try to read the files
+            try {
+                nodeRecords = ReadWriteNetwork::readNodesFile(ui->lineEdit_nodes->text().trimmed().toStdString());
+                linkRecords = ReadWriteNetwork::readLinksFile(ui->lineEdit_links->text().trimmed().toStdString());
+            } catch (const std::exception& e) {
+                ErrorHandler::showError(e.what());
+                return;
+            }
         }
 
 
@@ -1598,18 +1615,13 @@ void NeTrainSim::simulate() {
         // connect the do work to thread start
         connect(thread, &QThread::started, worker, &SimulationWorker::doWork);
 
-
-//        // delete all the workers
-//        connect(thread, &QThread::finished, worker, [this](){
-//            this->ui->pushButton_projectNext->setEnabled(true);});
-
         // start the simulation
         thread->start();
 
 
-//    } catch (const std::exception& e) {
-//        ErrorHandler::showError(e.what());
-//    }
+    } catch (const std::exception& e) {
+        ErrorHandler::showError(e.what());
+    }
 
 }
 

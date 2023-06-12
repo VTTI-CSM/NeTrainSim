@@ -4,78 +4,75 @@
  * Implements the simulator class
  */
 #include "Simulator.h"
-#include "network/NetSignalGroupController.h"
-#include <filesystem>
+#include "QtCore/qstandardpaths.h"    // Include for standard path access
+#include "network/NetSignalGroupController.h" // Include for controlling network signal groups
+#include <filesystem> // Include for filesystem operations
 #include <cstdio>
-#include <thread>
-#include <chrono>
+#include <thread>    // Include for multi-threading functionality
+#include <chrono>    // Include for time-related operations
 #include <ctime>
 #include <locale>
-#include "Util/Utils.h"
+#include "util/Utils.h"
 #include <filesystem>
 #include <cmath>
-#include <memory>
-#include "src/util/Error.h"
+#include <memory>    // Include for smart pointers
+#include "src/util/Error.h" // Include for error handling utilities
 
-// get the path to the home directory. 
+// Function to get the path to the home directory.
 // If the path is not empty, it is returned, otherwise a runtime exception is thrown with an error message.
-std::filesystem::path getHomeDirectory() {
-#ifdef _WIN32
-	const char* home = std::getenv("USERPROFILE");
-#elif linux or __APPLE__
-	const char* home = std::getenv("HOME");
-#endif // linux
+QString getHomeDirectory()
+{
+	QString homeDir;
 
-	if (home)
+// OS-dependent home directory retrieval
+#if defined(Q_OS_WIN)
+	homeDir = QDir::homePath();
+#elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+	homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+#endif
+
+	if (!homeDir.isEmpty())
 	{
-		const std::filesystem::path documents = std::filesystem::path(home) / "Documents";
-		const std::filesystem::path folder = documents / "NeTrainSim";
+		// Creating a path to NeTrainSim folder in the Documents directory
+		const QString documentsDir = QDir(homeDir).filePath("Documents");
+		const QString folder = QDir(documentsDir).filePath("NeTrainSim");
 
-		if (!std::filesystem::exists(folder))
-		{
-			try
-			{
-				std::filesystem::create_directory(folder);
-				return folder;
-			}
-			catch (const std::filesystem::filesystem_error& ex)
-			{
-				throw std::runtime_error(std::string("Error: ") +
-										 std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
-										 "\nHome directory cannot be retreived!" +
-                                         folder.string() + ex.what() + "\n");
-			}
-		}
+		QDir().mkpath(folder); // Create the directory if it doesn't exist
+
 		return folder;
-    }
-	throw std::runtime_error(std::string("Error: ") +
-								 std::to_string(static_cast<int>(Error::cannotRetrieveHomeDir)) +
-								 "\nHome directory cannot be retreived!");
+	}
+
+	throw std::runtime_error("Error: Cannot retrieve home directory!");
 }
 
 
+// Getter for exportIndividualizedTrainsSummary flag
 bool Simulator::getExportIndividualizedTrainsSummary() const {
 	return exportIndividualizedTrainsSummary;
 }
 
+// Setter for exportIndividualizedTrainsSummary flag
 void Simulator::setExportIndividualizedTrainsSummary(bool newExportIndividualizedTrainsSummary) {
 	exportIndividualizedTrainsSummary = newExportIndividualizedTrainsSummary;
 }
 
+// Constructor for the Simulator class
 Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
                      double simulatorTimeStep, QObject *parent) : QObject(parent) {
 
-	// variables initialization
+	// Initialization of member variables
     this->network = theNetwork;
 	this->trains = networkTrains;
-	// define train path as per simulator
+	// Definition of train paths for the simulator
 	this->setTrainSimulatorPath();
 	this->setTrainsPathNodes();
 	this->setTrainPathLength();
+	// Setting simulation parameters
 	this->simulationEndTime = DefaultEndTime;
     this->timeStep = simulatorTimeStep;
 	this->simulationTime = 0.0;
 	this->progress = 0.0;
+	// Handling endless simulation setting
 	if (this->simulationEndTime == 0.0) {
 		this->runSimulationEndlessly = true;
 	}
@@ -83,6 +80,7 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 		this->runSimulationEndlessly = false;
 	}
 
+	// Set output location to home directory
 	this->outputLocation = getHomeDirectory();
 
 	// Get a high-resolution time point
@@ -91,12 +89,13 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 	// Convert the time point to a numerical value
 	auto serial_number = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 
+	// Define default names for trajectory and summary files with current time
 	this->trajectoryFilename = DefaultInstantaneousTrajectoryFilename + std::to_string(serial_number) + ".csv";
 	this->summaryFileName = DefaultSummaryFilename + std::to_string(serial_number) + ".txt";
 
 	this->exportTrajectory = false;
 
-	// Define signals groups
+	// Define signals groups based on the length of the longest train
 	auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
 										  [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
 											  return t1->totalLength < t2->totalLength;
@@ -105,27 +104,33 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 	defineSignalsGroups((*max_train)->totalLength);
 }
 
+// Setter for the time step of the simulation
 void Simulator::setTimeStep(double newTimeStep) {
 	this->timeStep = newTimeStep;
 }
 
-
+// Setter for the end time of the simulation
 void Simulator::setEndTime(double newEndTime) {
 	this->simulationEndTime = newEndTime;
 }
 
+// Setter for the plot frequency
 void Simulator::setPlotFrequency(int newPlotFrequency) {
     this->plotFrequency = newPlotFrequency;
 }
 
-
+// Setter for the output folder location
 void Simulator::setOutputFolderLocation(string newOutputFolderLocation) {
-	this->outputLocation = newOutputFolderLocation;
+	this->outputLocation = QString::fromStdString(newOutputFolderLocation);
 }
 
+// Setter for the summary file name
 void Simulator::setSummaryFilename(string newfilename) {
-	if (newfilename != ""){
-		if (std::filesystem::path(newfilename).has_extension()){
+	QString filename = QString::fromStdString(newfilename);
+	if (!filename.isEmpty()){
+		QFileInfo fileInfo(filename);
+		// Check if the file name has an extension
+		if (!fileInfo.completeSuffix().isEmpty()){
 			this->summaryFileName = newfilename;
 		}
 		else{
@@ -137,10 +142,17 @@ void Simulator::setSummaryFilename(string newfilename) {
 	}
 }
 
+// Setter for the instantaneous trajectory export flag and filename
 void Simulator::setExportInstantaneousTrajectory(bool exportInstaTraject, string newInstaTrajectFilename) {
 	this->exportTrajectory = exportInstaTraject;
 	if (newInstaTrajectFilename != ""){
-		if (std::filesystem::path(newInstaTrajectFilename).has_extension()){
+		QString filename = QString::fromStdString(newInstaTrajectFilename);
+
+		QFileInfo fileInfo(filename);
+		// Check if the file name has an extension
+		if (!fileInfo.completeSuffix().isEmpty())
+		{
+			// The new filename has an extension
 			this->trajectoryFilename = newInstaTrajectFilename;
 		}
 		else{
@@ -160,9 +172,17 @@ void Simulator::setExportInstantaneousTrajectory(bool exportInstaTraject, string
 
 
 
+// The openTrajectoryFile function tries to open a file to store the trajectory of trains.
+// If it fails to open the file, it throws an exception.
 void Simulator::openTrajectoryFile() {
 	try {
-		this->trajectoryFile.open(this->outputLocation / this->trajectoryFilename, std::ios::out | std::ios::trunc);
+		// Open the trajectory file to write the step trajectory data
+		this->trajectoryFile.open(QDir(this->outputLocation).
+								  filePath(QString::fromStdString(this->trajectoryFilename)).
+								  toStdString(),
+								  std::ios::out | std::ios::trunc);
+
+		// if couldnt open, throw error
 		if (!this->trajectoryFile.is_open()) {
 			throw std::ios_base::failure(std::string("Error: ") +
 										 std::to_string(static_cast<int>(Error::cannotOpenTrajectoryFile)) +
@@ -176,13 +196,21 @@ void Simulator::openTrajectoryFile() {
 	}
 }
 
+// The getOutputFolder function returns the path to the directory where the output files are stored.
 std::string Simulator::getOutputFolder() {
-	return this->outputLocation.string();
+	return this->outputLocation.toStdString();
 }
 
+// The openSummaryFile function attempts to open a file to store the summary of the simulation.
+// If it fails to open the file, it throws an exception.
 void Simulator::openSummaryFile() {
 	try {
-		this->summaryFile.open(this->outputLocation / this->summaryFileName, std::ios::out | std::ios::trunc);
+		// open the summary file to write the summary data
+		this->summaryFile.open(QDir(this->outputLocation).
+							   filePath(QString::fromStdString(this->summaryFileName)).toStdString(),
+							   std::ios::out | std::ios::trunc);
+
+		// throw error if couldnt open
         if (!this->summaryFile.is_open()) {
 			throw std::ios_base::failure(std::string("Error: ") +
 										 std::to_string(static_cast<int>(Error::cannotOpenSummaryFile)) +
@@ -196,6 +224,8 @@ void Simulator::openSummaryFile() {
 	}
 }
 
+// The checkAllTrainsReachedDestination function checks if all trains have reached their destinations.
+// If a train has not reached its destination, it returns false; otherwise, it returns true.
 bool Simulator::checkAllTrainsReachedDestination() {
 	for (std::shared_ptr<Train>& t : (this->trains)) {
 		if (t->outOfEnergy) {
@@ -208,6 +238,8 @@ bool Simulator::checkAllTrainsReachedDestination() {
 	return true;
 }
 
+// The loadTrain function sets up a train for simulation by setting its starting point,
+// and connecting it to the network.
 void Simulator::loadTrain(std::shared_ptr <Train> train) {
 	train->loaded = true;
 	train->currentCoordinates = train->trainPathNodes.at(0)->coordinates();
@@ -217,8 +249,12 @@ void Simulator::loadTrain(std::shared_ptr <Train> train) {
 	train->LastTrainPointpreviousNodeID = train->trainPath.at(0);
 }
 
+// The loadTrainLinksData function loads data about the links that a train will pass through during the simulation.
+// This data includes information about curvature, grade, free-flow speed, and link pointers.
 tuple<Vector<double>, Vector<double>, Vector<double>,
-			Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(std::shared_ptr<Train> train, bool isVirtual) {
+			Vector<std::shared_ptr<NetLink>>> Simulator::loadTrainLinksData(
+					std::shared_ptr<Train> train, bool isVirtual)
+{
 
 	Vector<double> curvatures;
 	Vector<double> grades;
@@ -262,45 +298,66 @@ tuple<Vector<double>, Vector<double>, Vector<double>,
 	return myreturn;
 }
 
+// This function returns the free-flow speed of a given train by getting the network link
+// from its current position and the previous node it was at.
 double Simulator::loadTrainFreeSpeed(std::shared_ptr<Train> train) {
+	// Fetch the network link that the train is currently on
 	std::shared_ptr<NetLink> link = this->network->getLinkFromDistance(train, train->travelledDistance, train->previousNodeID);
+	// Return the free-flow speed of the network link
 	return link->freeFlowSpeed;
 }
 
+// This function returns the index of the network signal associated with a given network link.
+// It returns -1 if no such signal is found.
 int Simulator::getSignalFromLink(Vector<std::shared_ptr<NetSignal>> networkSignals, std::shared_ptr<NetLink> link) {
+	// Iterate over the list of network signals
 	for (int i = 0; i < networkSignals.size(); i++) {
 		std::shared_ptr<NetSignal> networkSignal = networkSignals.at(i);
+		// If a network signal is found for the given link, return its index
 		if (auto &sharedSignal = networkSignal) {
 			if (sharedSignal->link.lock() == link) { return i; }
 		}
 	}
+	// Return -1 if no signal was found for the link
 	return -1;
 }
 
+
+// This function returns the ID of the next node where the given train will stop and a boolean value
+// indicating whether the train will have to stop due to a red signal.
 pair<int, bool> Simulator::getNextStoppingNodeID(std::shared_ptr<Train> train, int &previousNodeID) {
+	// Fetch the index of the previous node in the train's path
 	int previousNodeIndex = train->trainPath.index(previousNodeID);
+	// Iterate over the train's path
 	for (int i = previousNodeIndex + 1; i < train->trainPath.size(); i++) {
+		// If index exceeds the path size, return last node ID and false
 		if (i >= train->trainPath.size()) { return std::make_pair(train->trainPath.back(), false); }
+		// If current node is a depot and not the first node in path, return current node ID and false
 		if (train->trainPathNodes[i]->isDepot && i > 0) {
 			return std::make_pair(train->trainPath[i], false);
 		}
+		// If current node has network signals
 		else if (!train->trainPathNodes[i]->networkSignals.empty()) {
 			int prevI = i - 1;
+			// Iterate over network signals at current node
 			for (auto &s: train->trainPathNodes[i]->networkSignals) {
+				// If the signal matches the path from the previous node to the current node
 				if (s->currentNode.lock()->id == train->trainPathNodes[i]->id &&
-						s->previousNode.lock()->id == train->trainPathNodes[prevI]->id) {
+					s->previousNode.lock()->id == train->trainPathNodes[prevI]->id) {
+					// If signal is not green, return current node ID and true
 					if (! s->isGreen) {
 						return std::make_pair(train->trainPath[i], true);
 					}
+					// If signal is green, break from loop and continue
 					else {
 						break;
 					}
 				}
-
 			}
 			// this->getNextStoppingNodeID(train, train->trainPath[i]);
 		}
 	}
+	// If no stopping node is found in remaining path, return last node ID and false
 	return std::make_pair(train->trainPath.back(), false);
 }
 
@@ -378,9 +435,10 @@ void Simulator::setOccupiedLinksByTrains(std::shared_ptr <Train> train) {
 
 }
 
-
+// This function simulates one time step for a given train in the simulation environment
 void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 {
+	// Indicator to skip loading the train
 	bool skipTrainMove = false;
 
 	// Check if the train start time is passed
@@ -406,6 +464,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		}
 	}
 
+	// Continue if the train is loaded and its start time is past the current simulation time
 	if ((train->trainStartTime <= this->simulationTime) && train->loaded) {
 
 		// holds track data and speed
@@ -523,20 +582,23 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
             // calculate approximate max energy supplied at this time step
             double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
-
+			// If the stepEC is larger than what the train can consume in a time step,
+			// reduce the locomotives power
             if (stepEC > maxEC) {
                 double reductionFactor = maxEC / stepEC;
                 train->reducePower(reductionFactor);
             }
-
+			// move the train forward
 			train->moveTrain(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
 		}
+		// handle when the train reaches its destinations
 		if ((std::round(train->trainTotalPathLength * 1000.0) / 1000.0) <= (std::round(train->travelledDistance * 1000.0) / 1000.0)) {
 			train->travelledDistance = train->trainTotalPathLength;
 			train->reachedDestination = true;
 			train->calcTrainStats(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
 		}
+		// handles when the train still has distance to travel
 		else {
 			train->currentCoordinates = this->network->getPositionbyTravelledDistance(train, train->travelledDistance);
 			train->startEndPoints = this->getStartEndPoints(train, train->currentCoordinates);
@@ -557,8 +619,11 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 					train->previousLinks.push_back(link);
 				}
 			}
+
+			// Update the links that the train is spanning
 			this->setOccupiedLinksByTrains(train);
 		}
+		// write the trajectory step data
 		if (this->exportTrajectory) {
 			std::stringstream exportLine;
 			exportLine << train->trainUserID << ","
@@ -579,12 +644,13 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
                 << train->locomotives[0]->currentLocNotch
 				<< std::endl;
 
+			// write the step trajectory data to the file
 			this->trajectoryFile << exportLine.str();
 
 		}
 	}
 
-    // minimize waiting when no trains are on network
+    // Minimize waiting when no trains are on network
     if (this->checkNoTrainIsOnNetwork()) {
         double shiftTime = this->getNotLoadedTrainsMinStartTime();
         if (shiftTime > this->simulationTime) {
@@ -1348,7 +1414,7 @@ void Simulator::runSimulation() {
 
     std::string trajectoryFilePath = "";
     if (this->exportTrajectory) {
-        trajectoryFilePath = (this->outputLocation / this->trajectoryFilename).string();
+        trajectoryFilePath = QDir(this->outputLocation).filePath(QString::fromStdString(this->trajectoryFilename)).toStdString();
     }
 
     emit this->finishedSimulation(trainsSummaryData, trajectoryFilePath);
@@ -1487,7 +1553,7 @@ Vector<std::shared_ptr<NetSignal>> Simulator::getSignalsInSameDirection(std::sha
 	return signalsList;
 }
 
-
+// Check if there is a train on the given link
 bool Simulator::checkTrainOnLinks(std::shared_ptr<Train> &train, Vector<std::shared_ptr<NetLink>>& links) {
 	if (links.empty()) { return false; }
 	std::set<std::shared_ptr<NetLink>> currenttrainLinks = getAccurateTrainCurrentLink(train);
@@ -1496,9 +1562,9 @@ bool Simulator::checkTrainOnLinks(std::shared_ptr<Train> &train, Vector<std::sha
 		if (links.exist(link)) { return true; }
 	}
 	return false;
-
-
 }
+
+// get the current links the train is spanning on
 std::set<std::shared_ptr<NetLink>> Simulator::getAccurateTrainCurrentLink(std::shared_ptr<Train>& train) {
 	std::set<std::shared_ptr<NetLink>> links = std::set<std::shared_ptr<NetLink>>();
 	links.insert(this->network->getLinkFromDistance(train, train->travelledDistance, train->previousNodeID));
@@ -1509,6 +1575,7 @@ std::set<std::shared_ptr<NetLink>> Simulator::getAccurateTrainCurrentLink(std::s
 	return links;
 }
 
+// check if the given links have no trains on them
 bool Simulator::checkLinksAreFree(Vector<std::shared_ptr<NetLink>> &links) {
 	if (links.empty()) { return true; }
 	for (auto& link : links) {

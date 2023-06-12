@@ -152,9 +152,9 @@ int main(int argc, char *argv[]) {
     // read optional values
     if (checkParserValue(parser, outputLocationOption, "" ,false)){
         exportLocation = parser.value(outputLocationOption).toStdString();
+        QDir directory(QString::fromStdString(exportLocation));
         // check if directory is valid
-        if (!(std::filesystem::exists(exportLocation) &&
-              std::filesystem::is_directory(exportLocation))) {
+        if (!directory.exists()) {
             fputs(qPrintable("export directory is not valid!"), stdout);
             return 1;
         }

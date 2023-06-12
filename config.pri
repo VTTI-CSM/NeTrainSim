@@ -1,7 +1,8 @@
-DEFINES += AS_CMD       #Un-remark this line, if you want to build NeTrainSim as GUI
+#DEFINES += AS_CMD       #Un-remark this line, if you want to build NeTrainSim as GUI
 
 EXECUTABLE_FILENAME = NeTrainSim
-VERSION = 0.0.9
+GUI_EXECUTABLE_FILENAME = $${EXECUTABLE_FILENAME}GUI
+VERSION = 0.1.0
 
 
 
@@ -10,7 +11,7 @@ contains(DEFINES, AS_CMD) {
     TARGET = $${EXECUTABLE_FILENAME}
 }
 else {
-    TARGET = $${EXECUTABLE_FILENAME}GUI
+    TARGET = $${GUI_EXECUTABLE_FILENAME}
 }
 
 

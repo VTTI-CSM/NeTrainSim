@@ -214,7 +214,7 @@ double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed) {
 };
 
 double Locomotive::getlamdaDiscretized(double &lamda) {
-	__int64 minI;
+    int minI;
 	double lamdaD;
 	int index;
 	//preinitialize the variables

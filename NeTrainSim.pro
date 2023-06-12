@@ -138,4 +138,15 @@ nts_extension_plugin.path = $$[QT_INSTALL_DATA]/mimetypes
 nts_extension_plugin.extra = update-mime-database $$[QT_INSTALL_DATA]/mimetypes
 
 # Add the "icon.ico" file as an icon resource for the application.
-RC_ICONS += src/resources/icon.ico
+win32:RC_ICONS += src/resources/icon.ico
+macx:{
+    ICON = src/resources/icon.icns
+    QMAKE_INFO_PLIST = src/resources/Info.plist
+}
+unix:!macx {
+    target.path = /usr/share/applications
+    desktopfile.files = NeTrainSimGUI.desktop
+    desktopfile.path = $$target.path
+    INSTALLS += desktopfile
+}
+

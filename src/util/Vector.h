@@ -109,7 +109,7 @@ public:
      *
      * @param 	element	The element.
      */
-    [[nodiscard]] __int64 index(const T& element) const
+    [[nodiscard]] int index(const T& element) const
     {
         auto it = std::find(std::cbegin(*this), std::cend(*this), element);
         return it != std::cend(*this) ? std::distance(std::cbegin(*this), it) : -1;

@@ -16,6 +16,8 @@
 #include <iostream>
 #include <filesystem>
 #include <memory>
+#include <QDir>
+
 
 /**
  * @class Simulator
@@ -62,7 +64,7 @@ private:
     /** The frequency of plotting the trains */
     int plotFrequency;
 	/** The output location */
-	std::filesystem::path outputLocation;
+    QString outputLocation;
 	/** Filename of the summary file */
 	std::string summaryFileName;
 	/** Filename of the trajectory file */

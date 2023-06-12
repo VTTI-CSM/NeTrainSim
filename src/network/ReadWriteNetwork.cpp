@@ -19,10 +19,10 @@
          */
 Vector<std::tuple<int, double, double, std::string,
                   double, double>> ReadWriteNetwork::readNodesFile(const std::string& fileName) {
-    try {
         if (fileName.empty()) {
-            return Vector<std::tuple<int, double, double, std::string,
-                                     double, double>>();
+            throw std::runtime_error(std::string("Error: ") +
+                                     std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
+                                     "\nNodes file does not exist!\n");
         }
         // Open file to read
         std::ifstream file(fileName);
@@ -31,6 +31,7 @@ Vector<std::tuple<int, double, double, std::string,
                                      std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
                                      "\nNodes file does not exist!\n");
         }
+
         Vector<std::string> lines;
         std::string line;
         while (std::getline(file, line))
@@ -44,6 +45,8 @@ Vector<std::tuple<int, double, double, std::string,
                                      std::to_string(static_cast<int>(Error::emptyNodesFile)) +
                                      "\nNodes File is empty!\n");
         }
+
+    try {
         // Read scale values
         std::istringstream ss(lines[1]);
         int N;
@@ -100,11 +103,10 @@ Vector<std::tuple<int, double, double, std::string,
 Vector<std::tuple<int, int, int, double, double, int,
                   double, double, int, double, bool,
                   std::string, double, double>> ReadWriteNetwork::readLinksFile(const std::string& fileName) {
-    try {
         if (fileName.empty()) {
-            return Vector<std::tuple<int, int, int, double, double, int,
-                                     double, double, int, double, bool,
-                                     std::string, double, double>>();
+            throw std::runtime_error(std::string("Error: ") +
+                                     std::to_string(static_cast<int>(Error::linksFileDoesNotExist)) +
+                                     "\nLinks File does not exist!");
         }
         std::ifstream file(fileName);
         if (!file.good()) {
@@ -125,6 +127,7 @@ Vector<std::tuple<int, int, int, double, double, int,
                                      "\nLinks File is empty!");
         }
 
+    try {
         // Read Scale values
         Vector<std::string> scaleValues;
         std::istringstream iss(lines[1]);
