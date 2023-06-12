@@ -9,7 +9,7 @@
 #include <functional>
 #include <string>
 #include <iostream>
-#include "../util/Vector.h"
+#include "../util/vector.h"
 #include "traintypes.h"
 #include "energyconsumption.h"
 #include "traincomponent.h"

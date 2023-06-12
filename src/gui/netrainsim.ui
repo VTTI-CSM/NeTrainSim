@@ -1748,17 +1748,17 @@
   <customwidget>
    <class>CustomTableWidget</class>
    <extends>QTableWidget</extends>
-   <header>src/gui/CustomTableWidget.h</header>
+   <header>src/gui/customtablewidget.h</header>
   </customwidget>
   <customwidget>
    <class>DisappearingLabel</class>
    <extends>QLabel</extends>
-   <header>src/gui/DisappearingLabel.h</header>
+   <header>src/gui/disappearinglabel.h</header>
   </customwidget>
   <customwidget>
    <class>CustomProgressBar</class>
    <extends>QProgressBar</extends>
-   <header>src/gui/CustomProgressBar.h</header>
+   <header>src/gui/customprogressbar.h</header>
   </customwidget>
   <customwidget>
    <class>QPrintPreviewWidget</class>

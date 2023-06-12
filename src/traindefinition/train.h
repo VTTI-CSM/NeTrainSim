@@ -8,9 +8,9 @@
 
 
 #include <iostream>
-#include "../util/Vector.h"
-#include "Car.h"
-#include "Locomotive.h"
+#include "../util/vector.h"
+#include "car.h"
+#include "locomotive.h"
 //#include "../network/NetLink.h"
 #include "../util/map.h"
 #include <utility>

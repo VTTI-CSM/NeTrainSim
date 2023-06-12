@@ -35,7 +35,7 @@ SOURCES += \
     src/simulator.cpp \
     src/dependencies/qcustomplot/qcustomplot.cpp \
     src/gui/customtablewidget.cpp \
-    src/gui/disappearingLabel.cpp \
+    src/gui/disappearinglabel.cpp \
     src/gui/netrainsim.cpp \
     src/gui/aboutwindow.cpp \
     src/gui/customplot.cpp \
