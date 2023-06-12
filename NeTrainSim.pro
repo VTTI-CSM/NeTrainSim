@@ -105,7 +105,7 @@ FORMS += \
 
 # Add the translation files to the project.
 TRANSLATIONS += \
-    neTrainSim_en_US.ts
+    NeTrainSim_en_US.ts
 
 # Configure lrelease for translation processing.
 CONFIG += lrelease
