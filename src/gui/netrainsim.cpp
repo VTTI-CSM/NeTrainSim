@@ -15,7 +15,7 @@
 #include "checkboxdelegate.h"
 #include <qtrpt.h>
 #include <fstream>
-#include "src/traindefintion/trainslist.h"
+#include "src/traindefinition/trainslist.h"
 #include "aboutwindow.h"
 #include "src/util/xmlmanager.h"
 #include "src/util/errorhandler.h"

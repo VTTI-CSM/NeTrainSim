@@ -6,8 +6,8 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #ifdef AS_CMD
-    #include "src/traindefintion/train.h"
-    #include "src/traindefintion/trainslist.h"
+    #include "src/traindefinition/train.h"
+    #include "src/traindefinition/trainslist.h"
     #include "src/network/network.h"
     #include "src/simulator.h"
     #include "src/util/vector.h"

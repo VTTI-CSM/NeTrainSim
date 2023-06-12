@@ -45,14 +45,14 @@ SOURCES += \
     src/network/netsignal.cpp \
     src/network/netsignalgroupcontroller.cpp \
     src/network/readwritenetwork.cpp \
-    src/traindefintion/car.cpp \
-    src/traindefintion/energyconsumption.cpp \
-    src/traindefintion/locomotive.cpp \
-    src/traindefintion/train.cpp \
-    src/traindefintion/traincomponent.cpp \
-    src/traindefintion/trainslist.cpp \
-    src/traindefintion/battery.cpp \
-    src/traindefintion/tank.cpp \
+    src/traindefinition/car.cpp \
+    src/traindefinition/energyconsumption.cpp \
+    src/traindefinition/locomotive.cpp \
+    src/traindefinition/train.cpp \
+    src/traindefinition/traincomponent.cpp \
+    src/traindefinition/trainslist.cpp \
+    src/traindefinition/battery.cpp \
+    src/traindefinition/tank.cpp \
     src/util/errorhandler.cpp \
     src/util/logger.cpp \
     src/util/xmlmanager.cpp \
@@ -79,15 +79,15 @@ HEADERS += \
     src/network/netsignalgroupcontroller.h \
     src/network/network.h \
     src/network/readwritenetwork.h \
-    src/traindefintion/car.h \
-    src/traindefintion/energyconsumption.h \
-    src/traindefintion/locomotive.h \
-    src/traindefintion/train.h \
-    src/traindefintion/traincomponent.h \
-    src/traindefintion/traintypes.h \
-    src/traindefintion/trainslist.h \
-    src/traindefintion/battery.h \
-    src/traindefintion/tank.h \
+    src/traindefinition/car.h \
+    src/traindefinition/energyconsumption.h \
+    src/traindefinition/locomotive.h \
+    src/traindefinition/train.h \
+    src/traindefinition/traincomponent.h \
+    src/traindefinition/traintypes.h \
+    src/traindefinition/trainslist.h \
+    src/traindefinition/battery.h \
+    src/traindefinition/tank.h \
     src/util/error.h \
     src/util/errorHandler.h \
     src/util/list.h \

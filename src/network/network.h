@@ -14,7 +14,7 @@
 #include "netnode.h"
 #include "netlink.h"
 #include "netsignal.h"
-#include "src/traindefintion/train.h"
+#include "src/traindefinition/train.h"
 #include "src/util/utils.h"
 #include "src/util/error.h"
 #include "readwritenetwork.h"
