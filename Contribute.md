@@ -6,16 +6,17 @@ Thank you for your interest in contributing to NeTrainSim! We welcome contributi
 
 Before you start contributing to NeTrainSim, please follow these steps:
 
-1. Check the [issue tracker](https://github.com/AhmedAredah/NeTrainSim/issues) for open issues that you could work on. If you have an idea for a new feature or improvement, please create a new issue to discuss it first.
-2. Fork the NeTrainSim repository to your GitHub account.
-3. Clone the forked repository to your local machine.
-4. Install the required software dependencies. See the README file for more information.
-5. Create a new branch for your changes. Please use a descriptive branch name that reflects the changes you are making.
-6. Make your changes to the code, documentation, or other project files.
-7. Test your changes thoroughly to ensure they work as intended.
-8. Commit your changes with clear and concise commit messages.
-9. Push your changes to your forked repository.
-10. Submit a pull request to the NeTrainSim repository with a clear description of your changes.
+1. Familiarize yourself with our Contributor Licensing Agreement (CLA), which is a prerequisite for contributing to our project. Please read and sign the CLA [here](https://cla-assistant.io/AhmedAredah/NeTrainSim).
+2. Check the [issue tracker](https://github.com/AhmedAredah/NeTrainSim/issues) for open issues that you could work on. If you have an idea for a new feature or improvement, please create a new issue to discuss it first.
+3. Fork the NeTrainSim repository to your GitHub account.
+4. Clone the forked repository to your local machine.
+5. Install the required software dependencies. See the README file for more information.
+6. Create a new branch for your changes. Please use a descriptive branch name that reflects the changes you are making.
+7. Make your changes to the code, documentation, or other project files.
+8. Test your changes thoroughly to ensure they work as intended.
+9. Commit your changes with clear and concise commit messages.
+10. Push your changes to your forked repository.
+11. Submit a pull request to the NeTrainSim repository with a clear description of your changes.
 
 ## Guidelines
 

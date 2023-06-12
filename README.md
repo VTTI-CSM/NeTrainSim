@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/Ahmed/NeTrainSim">
-    <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/84c162d7-ffd9-4ca8-a74d-06cc5ff29c8d" alt="NeTrainSim"/>
+    <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/d38d4ebe-3eb6-4877-b168-032373a54b11" alt="NeTrainSim"/>
   </a>
   <br/>
   NeTrainSim [Network Trains Simulator]
@@ -14,15 +14,19 @@
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GNU GPL v3">
   </a>
   <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
-    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/tag-date/Ahmed/NeTrainSim.svg?label=latest">
+    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/AhmedAredah/NeTrainSim.svg?label=latest">
   </a>
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/Ahmed/NeTrainSim/total.svg">
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/AhmedAredah/NeTrainSim/total.svg">
+  <a href="">
+    <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
+    <a href="https://cla-assistant.io/AhmedAredah/NeTrainSim"><img src="https://cla-assistant.io/readme/badge/AhmedAredah/NeTrainSim" alt="CLA assistant" /></a>
+  </a>
 </p>
 
 <p align="center">
+  <a href="https://github.com/AhmedAredah/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
   <a href="https://ahmedaredah.github.io/NeTrainSim/" target="_blank">Documentation</a> |
-  <a href="https://discord.gg/8yeT9vFdx8" target="_blank">Discord</a> |
-  <a href="##Contributing">Contributing</a>
+  <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a>
 </p>
 
 # Network Train Simulator (NeTrainSim)
@@ -61,7 +65,7 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 
 
 ## Getting Started
-To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the releases page.
+To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/AhmedAredah/NeTrainSim/releases).
 
 ### Prerequisites
 There is no prerequisite required to run NeTrainSim as the installer has all the required 3rd party packages. 
@@ -69,11 +73,20 @@ There is no prerequisite required to run NeTrainSim as the installer has all the
 ### Installing
 Once the file is downloaded on your hard drive. Double click the downloaded file and follow the instruction to install the application. The default installation folder is `C:\Program Files\NeTrainSim`; however, you can alter this installation path as you wish during the installation process. 
 
-Note that this version of NeTrainSim does not have a GUI and it only allows access through the command line interface.
-
 ### Running
 
-#### Shell interface 
+#### Using GUI interface
+1. Please initiate the 'NeTrainSimGUI' application, which can be located either in the Windows Start menu or on your desktop.
+2. Presented below is the primary user interface for the NeTrainSim application.
+
+<p align = 'center'>
+<img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3" width="500" alt ="main NeTrainSim window">
+</p>
+                                                                                                                                                   
+3. For a comprehensive understanding of the application and its functionalities, please refer to the relevant documentation available within the 'Help' section of the menu.
+                          
+                          
+#### Using shell interface 
 1. Open a shell/command line window,
 
 2. Navigate to the installation path using 
@@ -126,6 +139,26 @@ Note that this version of NeTrainSim does not have a GUI and it only allows acce
    ```
 
    In this case, the default output Location is `C:\Users\<USERNAME>\Documents\NeTrainSim`  where `<USERNAME>` should be replaced with the current session user name.
+                                                                                          
+## Collaborators
+The development of NeTrainSim has been a collaborative effort. The following individuals have contributed to the development and maintenance of the simulator:
+                                                                                          
+- **Ahmed Aredah, M.Sc.**: 
+     - Ph.D. student, Dept. of Civil and Environmental Engineering, Virginia Tech  
+     - M.Sc. Student, Dept. of Computer Science | Engineering, Virginia Tech  
+     - Graduate Research Assistant at Virginia Tech Transportation Institute
+
+- **Karim Fadhloun, Ph.D.**:
+     - Research Associate at Virginia Tech Transportation Institute
+
+- **Hesham A. Rakha, Ph.D. P.Eng., F.IEEE**: 
+     - Samuel Reynolds Pritchard Professor of Engineering, Charles E. Via, Jr. Dept. of Civil and Environmental Engineering
+     - Courtesy Professor, Bradley Department of Electrical and Computer Engineering
+     - Director, Center for Sustainable Mobility at the Virginia Tech Transportation Institute
+     - Fellow of Asia Pacific Artificial Intelligence Association
+     - Fellow of the American Society of Civil Engineers
+     - Fellow of the Canadian Academy of Engineering
+     - Fellow of IEEE
 
 ## Contributing
 
