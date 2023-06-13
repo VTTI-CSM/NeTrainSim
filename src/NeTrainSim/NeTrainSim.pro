@@ -18,6 +18,7 @@ CONFIG -= windows
 
 SOURCES += \
         main.cpp \
+        util/errorhandler.cpp \
         simulator.cpp \
         network/netlink.cpp \
         network/netnode.cpp \
@@ -32,38 +33,39 @@ SOURCES += \
         traindefinition/trainslist.cpp \
         traindefinition/battery.cpp \
         traindefinition/tank.cpp \
-        util/errorhandler.cpp \
         util/logger.cpp \
         util/xmlmanager.cpp \
-        util/csvmanager.cpp
+        util/csvmanager.cpp \
+
 
 # Add the header files to the project.
 HEADERS += \
-    simulator.h \
-    network/netlink.h \
-    network/netnode.h \
-    network/netsignal.h \
-    network/netsignalgroupcontroller.h \
-    network/network.h \
-    network/readwritenetwork.h \
-    traindefinition/car.h \
-    traindefinition/energyconsumption.h \
-    traindefinition/locomotive.h \
-    traindefinition/train.h \
-    traindefinition/traincomponent.h \
-    traindefinition/traintypes.h \
-    traindefinition/trainslist.h \
-    traindefinition/battery.h \
-    traindefinition/tank.h \
-    util/error.h \
-    util/errorHandler.h \
-    util/list.h \
-    util/logger.h \
-    util/map.h \
-    util/utils.h \
-    util/vector.h \
-    util/xmlmanager.h \
-    util/csvmanager.h
+        util/errorHandler.h \
+        simulator.h \
+        dependencies/qcustomplot/qcustomplot.h \
+        network/netlink.h \
+        network/netnode.h \
+        network/netsignal.h \
+        network/netsignalgroupcontroller.h \
+        network/network.h \
+        network/readwritenetwork.h \
+        traindefinition/car.h \
+        traindefinition/energyconsumption.h \
+        traindefinition/locomotive.h \
+        traindefinition/train.h \
+        traindefinition/traincomponent.h \
+        traindefinition/traintypes.h \
+        traindefinition/trainslist.h \
+        traindefinition/battery.h \
+        traindefinition/tank.h \
+        util/error.h \
+        util/list.h \
+        util/logger.h \
+        util/map.h \
+        util/utils.h \
+        util/vector.h \
+        util/xmlmanager.h \
+        util/csvmanager.h
 
 
 TRANSLATIONS += \

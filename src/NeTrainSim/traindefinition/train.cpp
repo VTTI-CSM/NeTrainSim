@@ -10,7 +10,6 @@
 #include <limits>
 #include "../util/logger.h"
 #include "../util/error.h"
-#include "../util/errorhandler.h"
 
 #define stringify( name ) #name
 using namespace std;
@@ -100,7 +99,7 @@ int Train::getActiveLocomotivesNumber() {
 
     if (this->ActiveLocos.size() == 0){
         this->outOfEnergy = true;
-        ErrorHandler::showNotification("All locomotives of train (" + std::to_string(this->id) + ") are out of energy");
+        //ErrorHandler::showNotification("All locomotives of train (" + std::to_string(this->id) + ") are out of energy");
     }
     return this->ActiveLocos.size();
 }

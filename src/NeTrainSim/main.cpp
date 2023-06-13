@@ -8,11 +8,13 @@
 #include "network/network.h"
 #include "simulator.h"
 #include "util/vector.h"
+#include <iostream>
 #include <sstream>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <stdio.h>
 #include <filesystem>
+#include "qdir.h"
 #include "util/errorhandler.h"
 
 /**
@@ -122,7 +124,7 @@ int main(int argc, char *argv[])
     }
 
     // show app details
-    stringstream hellos;
+    std::stringstream hellos;
     hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << "]" << endl;
     hellos << Institution << endl;
     hellos << GithubLink << endl;

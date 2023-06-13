@@ -1062,7 +1062,7 @@ void Simulator::runSimulation() {
     tuple<double, double, double, double, double> networkStats = this->network->getNetworkStats();
 
 	exportLine << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
-        << MYAPP_TARGET << " SIMULATION SUMMARY\n"
+        << "NeTrainSim SIMULATION SUMMARY\n"
         << "Version: " << MYAPP_VERSION << "\n"
         << "Simulation Time: " << Utils::formatDuration(difTime) << " (dd:hh:mm:ss)\n"
         << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"

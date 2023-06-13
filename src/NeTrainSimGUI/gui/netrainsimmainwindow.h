@@ -7,11 +7,13 @@
 #define NETRAINSIMMAINWINDOW_H
 
 #include "qtrpt.h"
+#include "qlineedit.h"
 #include "gui/aboutwindow.h"
 #include "gui/customplot.h"
 #include <QMainWindow>
 #include "../NeTrainSim/util/map.h"
 #include <iostream>
+//#include "qtrpt/QtRPT/qtrpt.h"
 #include "simulationworker.h"
 
 QT_BEGIN_NAMESPACE
@@ -528,7 +530,7 @@ private:
     * @param targetPosition The target position of the label.
     * @return A pointer to the QCPItemText object representing the label if found, nullptr otherwise.
     */
-    QCPItemText* findLabelByPosition(QCustomPlot* plot, const QPointF& targetPosition);
+    QCPItemText* findLabelByPosition(CustomPlot* plot, const QPointF& targetPosition);
 
 
 

@@ -1953,7 +1953,8 @@ void NeTrainSim::clearForm() {
     this->setupTrainsTable();
 }
 
-QCPItemText* NeTrainSim::findLabelByPosition(QCustomPlot* plot, const QPointF& targetPosition)
+
+QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot, const QPointF &targetPosition)
 {
     // Iterate over the items in the plot
     for (int i = 0; i < plot->itemCount(); ++i) {

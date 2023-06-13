@@ -91,3 +91,9 @@ CMakeLists.txt.user*
 #Personal pro file
 #------------------
 NeTrainSim.pro.user
+
+
+**/Debug/
+**/Release/
+**/.qtc_clangd/
+/.qtc_clangd/

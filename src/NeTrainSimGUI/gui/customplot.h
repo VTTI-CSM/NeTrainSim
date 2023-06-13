@@ -1,8 +1,9 @@
 #ifndef CUSTOMPLOT_H
 #define CUSTOMPLOT_H
 
-#include "dependencies/qcustomplot/qcustomplot.h"
+#include "../dependencies/qcustomplot/qcustomplot.h"
 #include "../NeTrainSim/util/vector.h"
+
 
 /**
  * @brief The CustomPlot class is a subclass of QCustomPlot, providing additional functionality and customization.
