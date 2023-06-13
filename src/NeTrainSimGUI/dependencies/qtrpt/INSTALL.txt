@@ -1,0 +1,30 @@
+Thank you Manuel Soriano for this instruction
+
+Compile Zint:
+
+cd 3rdparty/zint-2.4.4/backend_qt4
+
+qmake -o Makefile Zint.pro
+make
+
+Compile designer and library:
+
+cd ../../../QtRptDesigner
+
+qmake
+make clean
+make
+
+Compile the demo program:
+
+cd ../QtRptDemo
+qmake
+make clean
+make
+
+Execute the demo program:
+
+cd ../bin/release
+export 
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/PATH_TO_WHERE_IT_IS/QtRptProject/bin/release/lib
+./QtRptDemo &

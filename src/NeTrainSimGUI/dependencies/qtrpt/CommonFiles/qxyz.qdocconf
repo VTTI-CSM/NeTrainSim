@@ -1,0 +1,8 @@
+project = QXYZ
+description = "QXYZ documentation"
+sourcedirs = ./
+headerdirs = ./
+sources.fileextensions = "*.cpp"
+headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
+outputdir  =    ./doc
+outputformats = HTML
