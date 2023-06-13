@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-    <mime-type type="application/nts">
-        <comment>NeTrainSim Project</comment>
-        <icon name="application-nts"/>
-        <glob pattern="*.nts"/>
-    </mime-type>
-</mime-info>
