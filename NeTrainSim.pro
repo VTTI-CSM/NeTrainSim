@@ -1,20 +1,17 @@
 TEMPLATE = subdirs
 
-#SUBDIRS += \
-#    src/NeTrainSim \
-#    src/NeTrainSimGUI \
-#    src/dependencies/QtRptProject
 
 # Assign alias to your subdir projects
 NeTrainSim.subdir = src/NeTrainSim
 NeTrainSimGUI.subdir = src/NeTrainSimGUI
-#QtRpt.subdir = src/dependencies/QtRptProject
+NeTrainSimInstaller.subdir = src/NeTrainSimInstaller
 
 # Add them to the build order
-SUBDIRS = NeTrainSim NeTrainSimGUI
+SUBDIRS = NeTrainSimInstaller NeTrainSim NeTrainSimGUI
 
 # Set up the dependencies
 NeTrainSimGUI.depends = NeTrainSim
+NeTrainSimInstaller.depends = NeTrainSim NeTrainSimGUI
 
 # Enable parallel building
 CONFIG += ordered

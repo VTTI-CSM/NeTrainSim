@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>NeTrainSim</Name>
+    <Version>0.1.0</Version>
+    <Title>NeTrainSim Installer</Title>
+    <Publisher>Virginia Tech Transportation Institute - Center for Sustainable Mobility</Publisher>
+    <InstallerWindowIcon>../../NeTrainSimGUI/resources/icon.png</InstallerWindowIcon>
+    <InstallerApplicationIcon>../../NeTrainSimGUI/resources/icon</InstallerApplicationIcon>
+    <Logo>icon.png</Logo>
+    <StartMenuDir>NeTrainSim</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@/NeTrainSim</TargetDir>
+</Installer>

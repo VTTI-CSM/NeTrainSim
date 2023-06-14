@@ -12,9 +12,6 @@ CONFIG += c++20 console
 CONFIG -= app_bundle
 CONFIG -= windows
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
         main.cpp \
@@ -83,3 +80,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     ../mainconfig.pri \
     config.pri
+
+
+DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSim/data
+

@@ -14,13 +14,6 @@ CONFIG += windows
 
 
 ## Include the "QtRpt.pri" file located in the "dependencies/qtrpt/QtRPT" directory.
-#include($$PWD/../dependencies/QtRptProject/QtRPT/QtRPT.pri)
-# Add the include path for QtRpt
-#INCLUDEPATH += $$PWD/../dependencies/qtrpt
-
-## Add the lib
-#LIBS += -L$$PWD/../dependencies/QtRptProject/QtRPT -lQtRpt
-
 include($$PWD/../dependencies/QtRptProject/QtRPT/QtRPT.pri)
 
 
@@ -127,3 +120,6 @@ unix:!macx {
     desktopfile.path = $$target.path
     INSTALLS += desktopfile
 }
+
+
+DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data

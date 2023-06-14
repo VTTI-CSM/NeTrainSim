@@ -93,7 +93,14 @@ CMakeLists.txt.user*
 NeTrainSim.pro.user
 
 
+#Build files
+#-----------
 **/Debug/
 **/Release/
 **/.qtc_clangd/
 /.qtc_clangd/
+
+#NeTrainSimInstaller
+#-------------------
+/src/NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSim/data/*
+/src/NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data/*
