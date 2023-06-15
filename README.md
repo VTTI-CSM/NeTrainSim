@@ -160,6 +160,18 @@ The development of NeTrainSim has been a collaborative effort. The following ind
      - Fellow of the Canadian Academy of Engineering
      - Fellow of IEEE
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+
 ## Contributing
 
 If you are interested in contributing to NeTrainSim, please read the CONTRIBUTING.md file for more information on how to get started.
