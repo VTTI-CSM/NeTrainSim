@@ -171,7 +171,6 @@ The development of NeTrainSim has been a collaborative effort. The following ind
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-
 ## Contributing
 
 If you are interested in contributing to NeTrainSim, please read the CONTRIBUTING.md file for more information on how to get started.
