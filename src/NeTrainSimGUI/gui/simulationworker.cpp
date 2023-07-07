@@ -4,7 +4,7 @@
 
 SimulationWorker::SimulationWorker(Vector<std::tuple<int, double, double, std::string,
                                                      double, double>> nodeRecords,
-                                   Vector<tuple<int, int, int, double, double, int,
+                                   Vector<tuple<int, int, int, double, double, int, std::string,
                                                 double, double, int, double, bool,
                                                 std::string, double, double>> linkRecords,
                                    Vector<tuple<std::string, Vector<int>, double, double,
@@ -67,3 +67,4 @@ SimulationWorker::~SimulationWorker() {
     delete this->net;
     delete this->sim;
 }
+

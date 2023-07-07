@@ -44,7 +44,7 @@ public:
      */
     SimulationWorker(Vector<std::tuple<int, double, double, std::string,
                                        double, double>> nodeRecords,
-                     Vector<tuple<int, int, int, double, double, int,
+                     Vector<tuple<int, int, int, double, double, int, std::string,
                                   double, double, int, double, bool,
                                   std::string, double, double>> linkRecords,
                      Vector<tuple<std::string, Vector<int>, double, double,
@@ -111,7 +111,7 @@ public slots:
      */
     void doWork();
 
-private:
+public:
     Simulator* sim; /**< Pointer to the Simulator object for performing the simulation. */
     Network* net; /**< Pointer to the Network object used in the simulation. */
 };
