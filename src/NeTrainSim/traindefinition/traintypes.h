@@ -46,10 +46,10 @@ namespace TrainTypes {
     /** The car type strings[] */
     static const std::string carTypeStrings[] = {
     "Cargo Car",
-    "Diesel Tender",
+    "Diesel Tank",
     "Battery Tender",
     "Hydrogen Tender",
-    "Biodiesel Tender"
+    "Biodiesel Tank"
     };
 
     /** The car type array[] */
@@ -219,9 +219,9 @@ namespace TrainTypes {
     "Electric Locomotive",
     "Biodiesel Locomotive",
     "Diesel-Electric Locomotive",
-    "Diesel-Hyprid Locomotive",
-    "Hydrogen-Hyprid Locomotive",
-    "Biodiesel-Hyprid Locomotive"
+    "Diesel-Hybrid Locomotive",
+    "Hydrogen-Hybrid Locomotive",
+    "Biodiesel-Hybrid Locomotive"
     };
 
     /** The power type array[] */
@@ -418,6 +418,80 @@ namespace TrainTypes {
     inline std::ostream& operator<<(std::ostream& ss, const LocomotivePowerMethod& obj) {
         ss << powerMethodsStrings[static_cast<int>(obj)];
         return ss;
+    }
+
+
+    /**
+     * *************************************************************************************
+     * Fuel Types
+     * ************************************************************************************
+     */
+    static const int fuelN = 4;
+    /** Values that represent fuel types */
+    enum class _fuelTypes {
+        diesel,
+        biodiesel,
+        hydrogen,
+        noFuel
+    };
+
+    /** Type of the fuel */
+    using FuelType = _fuelTypes;
+
+    /** The fuel type strings[] */
+    static const std::string fuelStrings[] = {
+        "Diesel Fuel",
+        "Biodiesel Fuel",
+        "Hydrogen-Hyprid Fuel",
+        "No Fuel"
+    };
+
+    /** The fuel type array[] */
+    static const FuelType fuelArray[] = {
+        FuelType::diesel,     //0
+        FuelType::biodiesel,  //1
+        FuelType::hydrogen,   //2
+        FuelType::noFuel      //3
+    };
+
+    /** The fuel type map */
+    static const std::map<std::string, FuelType> fuelMap = {
+        {"Diesel Fuel", FuelType::diesel},
+        {"Biodiesel Fuel", FuelType::biodiesel},
+        {"Hydrogen Fuel", FuelType::hydrogen},
+        {"No Fuel", FuelType::noFuel}
+    };
+
+    /** The fuel to car map */
+    static const std::map<PowerType, FuelType> powerToFuelMap = {
+        {PowerType::diesel, FuelType::diesel},
+        {PowerType::electric, FuelType::noFuel},
+        {PowerType::biodiesel, FuelType::biodiesel},
+        {PowerType::dieselHybrid, FuelType::diesel},
+        {PowerType::hydrogenHybrid, FuelType::hydrogen},
+        {PowerType::biodieselHybrid, FuelType::biodiesel}
+    };
+
+    /** The fuel to car map */
+    static const std::map<CarType, FuelType> carToFuelMap = {
+        {CarType::cargo, FuelType::noFuel},
+        {CarType::batteryTender, FuelType::noFuel},
+        {CarType::biodieselTender, FuelType::biodiesel},
+        {CarType::dieselTender, FuelType::diesel},
+        {CarType::hydrogenTender, FuelType::hydrogen}
+    };
+
+    inline std::string fuelTypeToStr(FuelType type) {
+        return fuelStrings[static_cast<int>(type)];
+    }
+
+    inline FuelType getFuelTypeFromPowerType(PowerType theType) {
+        auto it = powerToFuelMap.find(theType);
+        if (it != powerToFuelMap.end()) {
+            return it->second;
+        } else {
+            throw std::invalid_argument("Invalid PowerType");
+        }
     }
 
 }

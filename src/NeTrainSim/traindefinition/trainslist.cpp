@@ -18,9 +18,8 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                   Vector<std::tuple<double, double, double, double, double, double, int, int>>,
                   Vector<std::tuple<double, double, double, double, double, int, int>>,
                   bool>> TrainsList::readTrainsFile(const std::string& fileName) {
+
     // define the trains vector
-    Vector<std::tuple<double, double, double, double, double, double, int, int>> locomotivesRecords;
-    Vector<std::tuple<double, double, double, double, double, int, int>> carsRecords;
     Vector<std::tuple<std::string, Vector<int>, double, double,
                       Vector<std::tuple<double, double, double, double, double, double, int, int>>,
                       Vector<std::tuple<double, double, double, double, double, int, int>>, bool>> trainsRecords;
@@ -53,6 +52,8 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
     // loop over the lines/trains that we have
     try {
         for (int i = 2; i < lines.size(); ++i) {
+            Vector<std::tuple<double, double, double, double, double, double, int, int>> locomotivesRecords;
+            Vector<std::tuple<double, double, double, double, double, int, int>> carsRecords;
             // declare the locomotives, cars vectors for each train
             std::vector<std::vector<std::string>> trainsCharacteristics;
             std::vector<std::string> lv;
