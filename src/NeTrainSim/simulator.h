@@ -7,9 +7,12 @@
 #define NeTrainSim_Simulator_h
 
 #include <QObject>
+#include "qmutex.h"
+#include "qwaitcondition.h"
 #include "traindefinition/train.h"
 #include "network/network.h"
 #include "network/netsignalgroupcontroller.h"
+#include "network/netsignalgroupcontrollerwithqueuing.h"
 #include "util/vector.h"
 #include <string>
 #include <iostream>
@@ -82,7 +85,7 @@ private:
 	std::ofstream summaryFile;
 	//Vector<Vector<Vector < std::shared_ptr<NetNode>>>> conflictTrainsIntersections;
 	/** Groups the signals belongs to */
-	Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupController>> signalsGroups;
+    Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupControllerWithQueuing>> signalsGroups;
 	/** export individualized trains summary in the summary file*/
 	bool exportIndividualizedTrainsSummary = false;
 
@@ -199,9 +202,16 @@ public:
 	 *
 	 * @param [in,out]	train	The train.
 	 *
-	 * @returns	The closest signal.
+     * @returns	The closest signal if found, nullptr if not found.
 	 */
 	std::shared_ptr<NetSignal> getClosestSignal(std::shared_ptr<Train>& train);
+
+    /**
+     * @brief Gets the Closest Signal from the train end side along the train path
+     * @param train
+     * @return the closest signal if found, nullptr if not found.
+     */
+    std::shared_ptr<NetSignal> getClosestSignalToTrainEnd(std::shared_ptr<Train>& train);
 
 	/**
 	 * Opens trajectory file
@@ -474,16 +484,6 @@ private:
 	void turnOnAllSignals();
 
 	/**
-	 * Turn off signal
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @param 	networkSignals	The network signals.
-	 */
-	void turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals);
-
-	/**
 	 * Check links are free
 	 *
 	 * @author	Ahmed Aredah
@@ -646,6 +646,14 @@ public slots:
      * @date	2/28/2023
      */
     void runSimulation();
+
+    void pauseSimulation();
+    void resumeSimulation();
+
+private:
+    QMutex mutex;
+    QWaitCondition pauseCond;
+    bool pauseFlag;
 
 };
 #endif // !NeTrainSim_Simulator_h

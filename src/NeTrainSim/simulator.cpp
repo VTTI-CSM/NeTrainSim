@@ -6,6 +6,7 @@
 #include "simulator.h"
 #include "QtCore/qstandardpaths.h"    // Include for standard path access
 #include "network/netsignalgroupcontroller.h" // Include for controlling network signal groups
+#include "network/netsignalgroupcontrollerwithqueuing.h"
 #include <filesystem> // Include for filesystem operations
 #include <cstdio>
 #include <thread>    // Include for multi-threading functionality
@@ -58,7 +59,7 @@ void Simulator::setExportIndividualizedTrainsSummary(bool newExportIndividualize
 
 // Constructor for the Simulator class
 Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
-                     double simulatorTimeStep, QObject *parent) : QObject(parent) {
+                     double simulatorTimeStep, QObject *parent) : QObject(parent), pauseFlag(false) {
 
 	// Initialization of member variables
     this->network = theNetwork;
@@ -402,9 +403,9 @@ std::pair<std::shared_ptr<Train>, double> Simulator::getAheadTrainAndGap(std::sh
 	std::pair<std::shared_ptr<Train>, double> toTrainsDistance = { nullptr, 0.0 };
 	for (std::shared_ptr<Train>& otherTrain : this->trains) {
 		// check if the train is loaded and not reached destination
-		if (otherTrain.get() == train.get() || !otherTrain->loaded || otherTrain->reachedDestination) { continue; }
-		double d1 = this->network->getDistanceByTwoCoordinates(train->currentCoordinates, otherTrain->startEndPoints[0]);
-		double d2 = this->network->getDistanceByTwoCoordinates(train->currentCoordinates, otherTrain->startEndPoints[1]);
+        if (otherTrain.get() == train.get() || !otherTrain->loaded || otherTrain->reachedDestination) { continue; }
+        double d1 = Utils::getDistanceByTwoCoordinates(train->currentCoordinates, otherTrain->startEndPoints[0]);
+        double d2 = Utils::getDistanceByTwoCoordinates(train->currentCoordinates, otherTrain->startEndPoints[1]);
 		double d = (d1 < d2) ? d1 : d2;
 
 		if (toTrainsDistance.first == nullptr) {
@@ -793,9 +794,9 @@ void Simulator::defineSignalsGroups(double& minSafeDistance) {
 	Vector<std::set<std::shared_ptr<NetNode>>> nodesGroup = this->getNodesIntersectionsForSignals(minSafeDistance);
 	for (int i = 0; i < nodesGroup.size(); i++) {
 		std::set<std::shared_ptr<NetNode>> group = nodesGroup.at(i);
-		std::shared_ptr<NetSignalGroupController> s = 
-			std::make_shared< NetSignalGroupController>(NetSignalGroupController(group));
-		s->confinedLinks = this->getLinksByNodes(nodesGroup.at(i));
+        std::shared_ptr<NetSignalGroupControllerWithQueuing> s =
+            std::make_shared< NetSignalGroupControllerWithQueuing>(NetSignalGroupControllerWithQueuing(group, this->timeStep));
+        //s->confinedLinks = this->getLinksByNodes(nodesGroup.at(i));
 
 		for (std::shared_ptr<NetNode> n : group) {
 			this->signalsGroups[n] = s;
@@ -1008,6 +1009,10 @@ void Simulator::runSimulation() {
 	time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 	while (this->simulationTime <= this->simulationEndTime || this->runSimulationEndlessly) {
+        mutex.lock();
+        if (pauseFlag) pauseCond.wait(&mutex); // This will block the thread if pauseFlag is true
+        mutex.unlock();
+
 		if (this->checkAllTrainsReachedDestination()) {
 			break;
 		}
@@ -1096,11 +1101,11 @@ void Simulator::runSimulation() {
         << "+ AGGREGATED/ACCUMULATED TRAINS STATISTICS:\n"
         << "  |-> Train Information:\n"
         << "    |-> Locomotives Summary:\n"
-        << "        |_ Number of Locomotives/Cars                                           \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+        << "        |_ Number of Locomotives/Cars                                           \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0,
                                                                                                            [](int total, const auto& train) {
                                                                                                                return total + train->nlocs;
                                                                                                            }) << "/"
-                                                                                                                << std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
+                                                                                                                << std::accumulate(this->trains.begin(), this->trains.end(), 0,
                                                                                                                 [](int total, const auto& train) {
                                                                                                                     return total + train->nCars;
                                                                                                                 }) << "\n"
@@ -1201,28 +1206,37 @@ void Simulator::runSimulation() {
                                                                                                                                                 [](double total, const auto& t) {
                                                                                                                                                     return total + t->getTrainTotalTorque();
                                                                                                                                                 })) << "\n"
-        << "        |_ Tank Consumption:\n"
-        << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                            [](double total, const auto& train) {
-                                                                                                                                                return total + train->getTrainConsumedTank();
-                                                                                                                                            })) << "\n"
-        << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                            [](double total, const auto& train) {
-                                                                                                                                                return total + (train->getTrainConsumedTank() * (double)1000.0);
-                                                                                                                                            }) /
+        << "        |_ Tank Consumption:\n";
+    auto tankComp = std::accumulate(
+        this->trains.begin(),
+        this->trains.end(),
+        Map<std::string, double>{},
+        [](Map<std::string, double> acc, const auto& train) {
+            const auto& consumedTank = train->getTrainConsumedTank();
+            for (const auto& kvp : consumedTank) {
+                acc[kvp.first] += kvp.second;
+            }
+            return acc;
+        }
+        );
+
+    exportLine
+        << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << (tankComp).toString() << "\n";
+    if (tankComp.get_keys().size() == 1) {
+
+        exportLine
+        << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator((tankComp.sumValues() * (double)1000.0) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->getCargoNetWeight();
-                                                                                                                                            })) << "\n"
-        << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
-                                                                                                                                            [](double total, const auto& train) {
-                                                                                                                                                return total +
-                                                                                                                                                        (train->getTrainConsumedTank() * (double)1000.0);
-                                                                                                                                            }) /
+                                                                                                                                     })) << "\n"
+        << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator((tankComp.sumValues()* (double)1000.0) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
                                                                                                                                                 return total + train->getTrainTotalTorque();
-                                                                                                                                            })) << "\n"
+                                                                                                                                     })) << "\n";
+    }
+    exportLine
         << "        |_ Battery Consumption:\n"
         << "            |_ Total Energy Consumed (kW.h)                                     \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                       [](double total, const auto& train) {
@@ -1322,9 +1336,13 @@ void Simulator::runSimulation() {
             << "            |_ Average Net Energy Consumption per Net Weight (KW.h/ton)         \x1D : " << Utils::thousandSeparator((t->cumEnergyStat) / (t->getCargoNetWeight())) << "\n"
             << "            |_ Average Net Energy Consumption per Net ton.km (KW.hx10^3/ton.km) \x1D : " << Utils::thousandSeparator((t->cumEnergyStat * (double) 1000.0) / (t->getTrainTotalTorque())) << "\n"
             << "        |_ Tank Consumption:\n"
-            << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
-            << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getCargoNetWeight()) << "\n"
-            << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank() * (double)1000.0) / t->getTrainTotalTorque()) << "\n"
+            << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << t->getTrainConsumedTank().toString() << "\n";
+            if (t->getTrainConsumedTank().get_keys().size() == 1) {
+                trainStat
+                << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank().sumValues() * (double)1000.0) / t->getCargoNetWeight()) << "\n"
+                << "            |_ Average Fuel Consumed per Net ton.km (littersx10^3/ton.km)       \x1D : " << Utils::thousandSeparator((t->getTrainConsumedTank().sumValues() * (double)1000.0) / t->getTrainTotalTorque()) << "\n";
+            }
+            trainStat
             << "        |_ Battery Consumption:\n"
             << "            |_ Total Energy Consumed (kW.h)                                     \x1D : " << Utils::thousandSeparator(t->getBatteryEnergyConsumed()) << "\n"
             << "            |_ Total Energy Regenerated (kW.h)                                  \x1D : " << Utils::thousandSeparator(t->getBatteryEnergyRegenerated()) << "\n"
@@ -1335,8 +1353,12 @@ void Simulator::runSimulation() {
             << "    |_ Total Energy Consumed (KW.h)                                             \x1D : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
             << "        |_ Total Consumed (KW.h)                                                \x1D : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
             << "        |_ Total Regenerated (KW.h)                                             \x1D : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
-            << "        |_ Total Fuel Consumed (litters)                                        \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()) << "\n"
-            << "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank()/t->getCargoNetWeight()) << "\n"
+            << "        |_ Total Fuel Consumed (litters)                                        \x1D : " << t->getTrainConsumedTank().toString() << "\n";
+            if (t->getTrainConsumedTank().get_keys().size() == 1) {
+                trainStat
+                << "        |_ Total Fuel Consumed per Net Weight (litter/ton)                      \x1D : " << Utils::thousandSeparator(t->getTrainConsumedTank().sumValues()/t->getCargoNetWeight()) << "\n";
+            }
+            trainStat
             << "        |_ Total Energy Consumption per ton.km (KW.h/ton.km)                    \x1D : " << Utils::thousandSeparator(t->cumEnergyStat / (t->getTrainTotalTorque())) << "\n"
             << "        |_ Total Energy Consumed by Region (Region:KW.h)                        \x1D : " << t->cumRegionalConsumedEnergyStat.toString() << "\n"
             << "        |_ Average Locomotives Battery Status (%)                               \x1D : " << Utils::thousandSeparator(t->getAverageLocomotivesBatteryStatus() * 100.0) << "\n\n"
@@ -1492,48 +1514,108 @@ void Simulator::turnOnAllSignals() {
 	}
 }
 
-void Simulator::turnOffSignal(Vector<std::shared_ptr<NetSignal>> networkSignals) {
-	if (networkSignals.empty()) { return; }
-	for (auto& networkSignal : networkSignals) {
-		networkSignal->isGreen = false;
-	}
-}
 
 void Simulator::runSignalsforTrains() {
+    // turn on temporarly all signals in the network
+    // the signals that should be turned off will be processed based on
+    // the trains locations
 	this->turnOnAllSignals();
 
+    // loop over all train in the simulator
 	for (auto& train : this->trains) {
+        // if the train is not yet loaded or reached destination already,
+        // skip this train
 		if (!train->loaded || train->reachedDestination) { continue; }
 
+        // try to retreive the next signal for that train
+        // the next from both ends of the train
 		std::shared_ptr<NetSignal> nextSignal = this->getClosestSignal(train);
-		if (nextSignal == nullptr) { continue; }
+        std::shared_ptr<NetSignal> nextBackSignal = this->getClosestSignalToTrainEnd(train);
+        if (nextSignal == nullptr && nextBackSignal == nullptr) {
+            continue; // if no signal is found, the train is not approaching any signal
+        }
 
-		double d = this->network->getDistanceToSpecificNodeByTravelledDistance(train,
-			train->travelledDistance, nextSignal->currentNode.lock()->id);
 
-		std::shared_ptr<NetSignalGroupController> sg = nullptr;
-		if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextSignal->currentNode))) {
-			sg = this->signalsGroups.at(std::shared_ptr<NetNode>(nextSignal->currentNode));
-		}
-		if (sg == nullptr) { continue; }
+        // define a holder for the signal groups
+        std::shared_ptr<NetSignalGroupControllerWithQueuing> sgfront = nullptr;
+        std::shared_ptr<NetSignalGroupControllerWithQueuing> sgback = nullptr;
 
-		Vector<std::shared_ptr<NetLink>> lockedLinks = sg->confinedLinks;
-		if (lockedLinks.size() == 0 || ! this->checkLinksAreFree(lockedLinks)) {
-			sg->updateTimeStep(this->simulationTime);
-		}
+        // process the train's front side next signal
+        if (nextSignal != nullptr) {
+            // if a signal is found, calculate the distance to the signal
+            double dFront = this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+                                                                                        train->travelledDistance,
+                                                                                        nextSignal->currentNode.lock()->id);
 
-		if ((d <= nextSignal->proximityToActivate) || (this->checkTrainOnLinks(train, lockedLinks))) {
+            // get the signal group controller at the current node
+            if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextSignal->currentNode))) {
+                sgfront = this->signalsGroups.at(std::shared_ptr<NetNode>(nextSignal->currentNode));
+            }
 
-			Vector<std::shared_ptr<NetSignal>> sameDirSignals =
-					this->getSignalsInSameDirection(train, sg->networkSignalsGroup);
+            // if no group controller was found, skip it
+            if (sgfront != nullptr) {
+                // if the train is within the critical zone of the signal,
+                // add the train to the controller queue to process its request
+                if (dFront <= nextSignal->proximityToActivate) {
+                    sgfront->addTrain(train, this->simulationTime);
+                }
 
-			sg->sendPassRequestToControlTo(nextSignal, this->simulationTime, sameDirSignals);
+                // get the signals in the path of the train (signals of this group controller only)
+                Vector<std::shared_ptr<NetSignal>> sameDirSignals =
+                    this->getSignalsInSameDirection(train, sgfront->getControllerSignals());
 
-			Vector<std::shared_ptr<NetSignal>> otherDirSignals =
-					sg->getFeedback().second;
-			this->turnOffSignal(otherDirSignals);
+                // send signal to let the train pass
+                sgfront->sendPassRequestToControlTo(train, nextSignal, this->simulationTime, sameDirSignals);
 
-		}
+                // get feedback from the controller
+                Vector<std::shared_ptr<NetSignal>> otherDirSignals = sgfront->getFeedback().second;
+
+                // turn off the signals that should be off
+                sgfront->turnOffSignals(otherDirSignals);
+            }
+
+        }
+
+        // process the train's end side next signal
+        if (nextBackSignal != nullptr) {
+            double endTravelledDistance = train->travelledDistance - train->totalLength;
+            if (endTravelledDistance < 0) {
+                continue;
+            }
+            // if a signal is found, calculate the distance to the signal
+            double dBack = this->network->getDistanceToSpecificNodeByTravelledDistance(train,
+                                                                                       endTravelledDistance,
+                                                                                       nextBackSignal->currentNode.lock()->id);
+
+            // get the signal group controller at the current node
+            if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextBackSignal->currentNode))) {
+                sgback = this->signalsGroups.at(std::shared_ptr<NetNode>(nextBackSignal->currentNode));
+            }
+            // skip if the same signal group
+            // the train's call was already processed once
+            if (sgback == sgfront) {
+                continue;
+            }
+            // if the train is within the critical zone of the signal,
+            // add the train to the controller queue to process its request
+            if (dBack <= nextBackSignal->proximityToActivate) {
+                sgback->addTrain(train, this->simulationTime);
+            }
+
+            // get the signals in the path of the train (signals of this group controller only)
+            Vector<std::shared_ptr<NetSignal>> sameDirSignals =
+                this->getSignalsInSameDirection(train, sgback->getControllerSignals());
+
+            // send signal to let the train pass
+            sgback->sendPassRequestToControlTo(train, nextBackSignal, this->simulationTime, sameDirSignals);
+
+            // get feedback from the controller
+            Vector<std::shared_ptr<NetSignal>> otherDirSignals = sgback->getFeedback().second;
+
+            // turn off the signals that should be off
+            sgback->turnOffSignals(otherDirSignals);
+        }
+
 	}
 }
 
@@ -1606,13 +1688,44 @@ std::shared_ptr<NetSignal> Simulator::getClosestSignal(std::shared_ptr<Train>& t
 	return nullptr;
 }
 
+std::shared_ptr<NetSignal> Simulator::getClosestSignalToTrainEnd(std::shared_ptr<Train>& train) {
+    // get the index of the next node from the train end side
+    double backD = train->travelledDistance - train->totalLength;
+    if (backD <= 0) {
+        return nullptr;
+    }
+
+    int indx = train->trainPath.index(
+                   this->network->getPreviousNodeByDistance(train,
+                                                            backD,
+                                                            train->previousNodeID)->id) + 1;
+
+    // loop over all nodes to check next signal availability
+    for (int i = indx; i < train->trainPath.size(); i++) {
+        auto & networkSignals = train->trainPathNodes.at(i)->networkSignals;
+        if (networkSignals.size() > 0) {
+            for (int j = 0; j < networkSignals.size(); j++) {
+                if (train->trainPathNodes.exist(std::shared_ptr<NetNode>(networkSignals.at(j)->previousNode))) {
+
+                    if (train->trainPath.index(networkSignals.at(j)->currentNode.lock()->id) >
+                        (train->trainPath.index(networkSignals.at(j)->previousNode.lock()->id))) {
+                        return networkSignals.at(j);
+                    }
+                }
+            }
+
+        }
+    }
+    return nullptr;
+}
+
 void Simulator::ProgressBar(double current, double total, int bar_length) {
 	double fraction = current / total;
     int progressValue = fraction * bar_length - 1;
     int progressPercent = (int)(fraction * 100);
 
 
-#ifdef AS_CMD
+//#ifdef AS_CMD
     std::stringstream bar;
     for (int i = 0; i < progressValue; i++) { bar << '-'; }
     bar << '>';
@@ -1621,10 +1734,23 @@ void Simulator::ProgressBar(double current, double total, int bar_length) {
     char ending = (current == total) ? '\n' : '\r';
 
     std::cout << "Progress: [" << bar.str() << "] " << progressPercent << "%" << ending;
-#endif
+//#endif
 
     if (progressPercent != this->progress) {
         this->progress = progressPercent;
         emit this->progressUpdated(this->progress);
     }
+}
+
+void Simulator::pauseSimulation() {
+    mutex.lock();
+    pauseFlag = true;
+    mutex.unlock();
+}
+
+void Simulator::resumeSimulation() {
+    mutex.lock();
+    pauseFlag = false;
+    mutex.unlock();
+    pauseCond.wakeAll(); // This will wake up the thread
 }
