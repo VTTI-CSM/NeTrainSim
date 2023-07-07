@@ -103,16 +103,16 @@ bool CustomTableWidget::isTableIncomplete(const QList<int>& exceptionColumns) {
 
 
 void CustomTableWidget::setCheckboxDelegateForColumns(int row, const QList<int> &columns) {
-    for (auto& column: columns) {
-        QCheckBox* checkbox = new QCheckBox(this);
+//    for (auto& column: columns) {
+//        QCheckBox* checkbox = new QCheckBox(this);
 
-        int cellWidth = this->columnWidth(column);
-        int approxCheckboxWidth = 20; // an approximate width of the checkbox, this value might need adjusting
-        int margin = (cellWidth - approxCheckboxWidth) / 2;
+//        int cellWidth = this->columnWidth(column);
+//        int approxCheckboxWidth = 20; // an approximate width of the checkbox, this value might need adjusting
+//        int margin = (cellWidth - approxCheckboxWidth) / 2;
 
-        checkbox->setStyleSheet(QString("margin-left: %1px; margin-right: %1px;").arg(margin));
-        setCellWidget(row, column, checkbox);
-    }
+//        checkbox->setStyleSheet(QString("margin-left: %1px; margin-right: %1px;").arg(margin));
+//        setCellWidget(row, column, checkbox);
+//    }
 }
 
 void CustomTableWidget::setNumericDelegateForColumns(int row, const QList<int> &columns) {
@@ -121,21 +121,21 @@ void CustomTableWidget::setNumericDelegateForColumns(int row, const QList<int> &
 
 
 void CustomTableWidget::setupTable() {
-    for (int column = 0; column < columnCount(); column++) {
-        if (itemDelegateForColumn(column) != nullptr) {
-            QStyledItemDelegate* delegate = qobject_cast<QStyledItemDelegate*>(itemDelegateForColumn(column));
-            if (delegate != nullptr) {
-                if (qobject_cast<CheckboxDelegate*>(delegate)) {
-                    for (int row = 0; row < rowCount(); row++) {
-                        QTableWidgetItem* item = QTableWidget::item(row, column);
-                        if (item == nullptr) {
-                            setCheckboxDelegateForColumns(row, {column});
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    for (int column = 0; column < columnCount(); column++) {
+//        if (itemDelegateForColumn(column) != nullptr) {
+//            QStyledItemDelegate* delegate = qobject_cast<QStyledItemDelegate*>(itemDelegateForColumn(column));
+//            if (delegate != nullptr) {
+//                if (qobject_cast<CheckboxDelegate*>(delegate)) {
+//                    for (int row = 0; row < rowCount(); row++) {
+//                        QTableWidgetItem* item = QTableWidget::item(row, column);
+//                        if (item == nullptr) {
+//                            setCheckboxDelegateForColumns(row, {column});
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 int CustomTableWidget::generateUniqueID() {
