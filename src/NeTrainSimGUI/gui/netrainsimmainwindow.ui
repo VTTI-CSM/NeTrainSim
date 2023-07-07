@@ -76,6 +76,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="ToggleButton" name="pushButton_pauseResume">
+        <property name="text">
+         <string>Pause</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButton_projectNext">
         <property name="text">
          <string>Next</string>
@@ -92,7 +99,7 @@
          <enum>QTabWidget::West</enum>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <property name="tabsClosable">
          <bool>false</bool>
@@ -528,6 +535,11 @@
                        </column>
                        <column>
                         <property name="text">
+                         <string>Signal Placed At Node IDs</string>
+                        </property>
+                       </column>
+                       <column>
+                        <property name="text">
                          <string>Grade (Percentage)</string>
                         </property>
                        </column>
@@ -849,7 +861,7 @@
                <item row="1" column="0">
                 <widget class="QTabWidget" name="tabWidget_newTrainOD">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab_6">
                   <attribute name="title">
@@ -907,7 +919,7 @@
                        </column>
                        <column>
                         <property name="text">
-                         <string>Number of Axiles</string>
+                         <string>Number of Axles</string>
                         </property>
                        </column>
                        <column>
@@ -961,7 +973,7 @@
                        </column>
                        <column>
                         <property name="text">
-                         <string>Number of Axiles</string>
+                         <string>Number of Axles</string>
                         </property>
                        </column>
                        <column>
@@ -1676,7 +1688,7 @@
      <x>0</x>
      <y>0</y>
      <width>1318</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuNeTrainSim">
@@ -1699,7 +1711,14 @@
     <addaction name="separator"/>
     <addaction name="actionLoad_Sample_Project"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
    <addaction name="menuNeTrainSim"/>
+   <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1743,6 +1762,11 @@
     <string>Load Sample Project</string>
    </property>
   </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1771,6 +1795,11 @@
    <extends>QWidget</extends>
    <header>gui/customplot.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToggleButton</class>
+   <extends>QPushButton</extends>
+   <header>togglebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

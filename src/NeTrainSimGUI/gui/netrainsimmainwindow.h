@@ -15,6 +15,8 @@
 #include <iostream>
 //#include "qtrpt/QtRPT/qtrpt.h"
 #include "simulationworker.h"
+#include "util/configurationmanager.h"
+#include "settingswindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class NeTrainSim; }
@@ -119,6 +121,9 @@ public slots:
      */
     void handleSampleProject();
 
+    void pauseSimulation();
+    void resumeSimulation();
+
 private slots:
     /**
      * Slot for showing the report.
@@ -204,6 +209,28 @@ private slots:
 public:
 
     /**
+     * @brief default Browse Path
+     */
+    QString defaultBrowsePath;
+
+    QString userBrowsePath;
+
+    /**
+     * @brief load default settings
+     *
+     * @author	Ahmed Aredah
+     * @date	7/1/2023
+     */
+    void loadDefaults();
+
+    /**
+     * @brief NeTrainSim::save Default values
+     * @param defaults
+     * @return
+     */
+    bool saveDefaults(QStringList defaults);
+
+    /**
      * Constructor
      *
      * @param [in,out]	parent	(Optional) If non-null, the parent.
@@ -264,7 +291,8 @@ private:
     QVector<QCPItemText*> labelsVector;
 
     // Map to hold the coordinates of the network nodes.
-    // The keys are node IDs (QString), and the values are pairs of x and y coordinates (std::pair<double, double>).
+    // The keys are node IDs (QString), and the values are pairs of x
+    // and y coordinates (std::pair<double, double>).
     Map<QString, std::pair<double, double>> networkNodes;
 
     // QVector to store the x-coordinates of the nodes.
@@ -284,6 +312,8 @@ private:
 
     // Pointer to the AboutWindow object used to display information about the application.
     std::shared_ptr<AboutWindow> aboutWindow = nullptr;
+
+    std::shared_ptr<settingsWindow> theSettingsWindow = nullptr;
 
     // String to store the project name.
     QString projectName;
@@ -316,9 +346,13 @@ private:
     // holds the summary report printer
     QPrinter *printer = nullptr;
 
+    ConfigurationManager* configManager;
+
     void showDetailedReport(QString trajectoryFilename);
 
-    void drawLineGraph(CustomPlot &plot, const QVector<double> &xData, const QVector<double> &yData, QString xLabel, QString yLabel, QString graphName, int plotIndex);
+    void drawLineGraph(CustomPlot &plot, const QVector<double> &xData,
+                       const QVector<double> &yData, QString xLabel,
+                       QString yLabel, QString graphName, int plotIndex);
 
 
 
@@ -331,6 +365,7 @@ private:
      * @date	2/28/2023
      */
     void setupGenerals();
+
 
     /**
      * Sets up the page 0
@@ -415,7 +450,8 @@ private:
     * @return A vector of tuples representing the nodes' data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<std::tuple<int, double, double, std::string, double, double>> getNodesDataFromNodesTable();
+    Vector<std::tuple<int, double, double, std::string,
+                      double, double>> getNodesDataFromNodesTable();
 
     /**
     * Converts nodes data to plottable format.
@@ -425,7 +461,9 @@ private:
     * @param nodeRecords The vector of node records to convert.
     * @return A tuple of QVector objects representing the x-coordinates, y-coordinates, and labels of the nodes.
     */
-    std::tuple<QVector<double>, QVector<double>, QVector<QString>> getNodesPlottableData(Vector<std::tuple<int, double, double, std::string, double, double>>& nodeRecords);
+    std::tuple<QVector<double>, QVector<double>, QVector<QString>>
+                    getNodesPlottableData(Vector<std::tuple<int, double,
+                                            double, std::string, double, double>>& nodeRecords);
 
     /**
     * Updates the nodes plot with new data.
@@ -438,7 +476,9 @@ private:
     * @param labels The labels of the nodes.
     * @param showLabels Flag indicating whether to show labels on the plot. Default is false.
     */
-    void updateNodesPlot(CustomPlot& plot, QVector<double> xData, QVector<double> yData, QVector<QString> labels, bool showLabels = false);
+    void updateNodesPlot(CustomPlot& plot, QVector<double> xData,
+                         QVector<double> yData, QVector<QString> labels,
+                         bool showLabels = false);
 
     /**
     * Retrieves links data from a links file.
@@ -448,7 +488,9 @@ private:
     * @return A vector of tuples representing the links data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, double, int, double, double, int, double, bool, std::string, double, double>> getLinkesDataFromLinksFile(QString fileName);
+    Vector<std::tuple<int, int, int, double, double, int, std::string,
+                      double, double, int, double, bool, std::string,
+                      double, double>> getLinkesDataFromLinksFile(QString fileName);
 
     /**
     * Retrieves links data from the links table in the UI.
@@ -457,7 +499,8 @@ private:
     * @return A vector of tuples representing the links' data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, double, int, double, double, int, double, bool, std::string, double, double>> getLinkesDataFromLinksTable();
+    Vector<std::tuple<int, int, int, double, double, int, std::string, double, double,
+                      int, double, bool, std::string, double, double>> getLinkesDataFromLinksTable();
 
     /**
     * Converts links data to plottable format.
@@ -467,7 +510,10 @@ private:
     * @param linksRecords The vector of link records to convert.
     * @return A tuple of QVector objects representing the start node IDs and end node IDs of the links.
     */
-    std::tuple<QVector<QString>, QVector<QString>> getLinksPlottableData(Vector<std::tuple<int, int, int, double, double, int, double, double, int, double, bool, std::string, double, double>> linksRecords);
+    std::tuple<QVector<QString>, QVector<QString>>
+                    getLinksPlottableData(Vector<std::tuple<int, int, int, double,
+                                            double, int, std::string, double, double, int,
+                                            double, bool, std::string, double, double>> linksRecords);
 
     /**
     * Updates the links plot with new data.
@@ -497,7 +543,8 @@ private:
     * @return A vector of tuples representing the nodes data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<std::tuple<int, double, double, std::string, double, double>> getNodesDataFromNodesFile(QString fileName);
+    Vector<std::tuple<int, double, double, std::string, double,
+                      double>> getNodesDataFromNodesFile(QString fileName);
 
     /**
     * Opens a folder browser dialog and updates the specified QLineEdit widget with the selected folder path.
@@ -514,8 +561,13 @@ private:
     * @return A vector of tuples representing the trains data. Each tuple contains the train ID, route nodes, start time,
     *         end time, speed profile, acceleration profile, and whether the train is enabled.
     */
-    Vector<std::tuple<std::string, Vector<int>, double, double, Vector<std::tuple<double, double, double, double, double, double, int, int>>,
-                      Vector<std::tuple<double, double, double, double, double, int, int>>, bool>> getTrainsDataFromTables();
+    Vector<std::tuple<std::string, Vector<int>, double, double,
+                      Vector<std::tuple<double, double, double,
+                                        double, double, double,
+                                        int, int>>,
+                      Vector<std::tuple<double, double, double,
+                                        double, double, int, int>>,
+                      bool>> getTrainsDataFromTables();
 
     /**
     * Initiates the simulation process.

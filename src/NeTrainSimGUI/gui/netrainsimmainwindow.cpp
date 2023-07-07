@@ -4,6 +4,7 @@
  * Implements the netrainsim class
  */
 #include "netrainsimmainwindow.h"
+#include "gui/settingswindow.h"
 #include "nonemptydelegate.h"
 #include "simulationworker.h"
 #include "../NeTrainSim/util/csvmanager.h"
@@ -18,6 +19,7 @@
 #include "../NeTrainSim/traindefinition/trainslist.h"
 #include "aboutwindow.h"
 #include "../NeTrainSim/util/xmlmanager.h"
+#include "util/configurationmanager.h"
 #include "util/errorhandler.h"
 #include "../NeTrainSim/network/readwritenetwork.h"
 
@@ -28,6 +30,9 @@ NeTrainSim::NeTrainSim(QWidget *parent)
 {
     // set up the layout
     ui->setupUi(this);
+
+    // load the defaut settings
+    loadDefaults();
 
     setupGenerals();
 
@@ -45,6 +50,10 @@ void NeTrainSim::setupGenerals(){
     ui->progressBar->setAlignment(Qt::AlignCenter);
     ui->progressBar->setRange(0, 100);
     ui->progressBar->setFormat("%p%");
+    ui->pushButton_pauseResume->setVisible(false);
+    ui->pushButton_pauseResume->setOnOffText("Continue", "Pause");
+
+    this->userBrowsePath = QString();
 
     // show about window
     connect(ui->actionAbout, &QAction::triggered, [this](){
@@ -69,6 +78,16 @@ void NeTrainSim::setupGenerals(){
         QUrl fileUrl = QUrl::fromLocalFile(fileName);
         if (! QDesktopServices::openUrl(fileUrl)) {
             this->showWarning("Failed to open the PDF file!");
+        }
+    });
+
+    //show the settings window
+    connect(ui->actionSettings, &QAction::triggered, [this]() {
+        if (this->theSettingsWindow == nullptr) {
+            this->theSettingsWindow = std::make_shared<settingsWindow>(this);
+        }
+        if (this->theSettingsWindow != nullptr) {
+            this->theSettingsWindow->show();
         }
     });
 
@@ -111,6 +130,16 @@ void NeTrainSim::setupGenerals(){
         if (nextIndex == ui->tabWidget_project->count() - 1) {
             this->simulate();
         }
+    });
+
+    QObject::connect(ui->pushButton_pauseResume, &QPushButton::clicked, [=]() {
+        if (ui->pushButton_pauseResume->isToggled()) {
+            this->pauseSimulation();
+        }
+        else {
+            this->resumeSimulation();
+        }
+
     });
 
     // change next page button text
@@ -167,6 +196,65 @@ void NeTrainSim::setupGenerals(){
 
 void NeTrainSim::setupPage0(){
 
+}
+
+void NeTrainSim::loadDefaults() {
+    QString executablePath = QCoreApplication::applicationDirPath();
+    QString iniFilePath = QDir(executablePath).filePath("config.ini");
+
+    QFile pfn(iniFilePath);
+    if (!pfn.exists()) {
+        this->showWarning("Config file does not exist!");
+        return;
+    }
+
+    this->configManager = new ConfigurationManager(iniFilePath);
+
+    // Read all configurations in the INI file
+    QStringList allKeys = configManager->getConfigKeys("");
+
+    // set all the default settings
+    foreach (const QString& fullKey, allKeys) {
+        QStringList keyParts = fullKey.split("/");
+        QString section = keyParts.first();
+        QString key = keyParts.last();
+
+        if (key == "browseLocation") {
+            QString value = configManager->getConfigValue(section, key);
+            this->defaultBrowsePath = value;
+        }
+    }
+}
+
+
+bool NeTrainSim::saveDefaults(QStringList defaults) {
+    // Loop through the list of default configurations
+    foreach (const QString& config, defaults) {
+        // Split the configuration string into section, key, and value
+        QStringList parts = config.split('.');
+        if (parts.size() != 2) {
+            // Invalid configuration format, return false
+            return false;
+        }
+
+        QString section = parts[0].trimmed();
+        QString keyValue = parts[1].trimmed();
+
+        // Split the key-value pair
+        QStringList keyValueParts = keyValue.split('=');
+        if (keyValueParts.size() != 2) {
+            // Invalid configuration format, return false
+            return false;
+        }
+
+        QString key = keyValueParts[0].trimmed();
+        QString value = keyValueParts[1].trimmed();
+
+        // Save the default configuration
+        configManager->setConfigValue(section, key, value);
+    }
+
+    return true;
 }
 
 
@@ -792,11 +880,11 @@ void NeTrainSim::setupLinksTable() {
     ui->table_newLinks->setItemDelegateForColumn(2, new IntNumericDelegate(this, 100000000000, 0, 1, 0));
     ui->table_newLinks->setItemDelegateForColumn(3, new NumericDelegate(this, 150, 5, 2, 5, 55));
     ui->table_newLinks->setItemDelegateForColumn(4, new IntNumericDelegate(this, 10000000000, 0, 1, 0));
-    ui->table_newLinks->setItemDelegateForColumn(5, new NumericDelegate(this, 5, -5, 3, 0.05, 0));
     ui->table_newLinks->setItemDelegateForColumn(6, new NumericDelegate(this, 5, -5, 3, 0.05, 0));
-    ui->table_newLinks->setItemDelegateForColumn(7, new CheckboxDelegate());
-    ui->table_newLinks->setItemDelegateForColumn(8, new NumericDelegate(this, 1, 0, 2, 0.05, 0.2));
-    ui->table_newLinks->setItemDelegateForColumn(9, new CheckboxDelegate());
+    ui->table_newLinks->setItemDelegateForColumn(7, new NumericDelegate(this, 5, -5, 3, 0.05, 0));
+    ui->table_newLinks->setItemDelegateForColumn(8, new CheckboxDelegate(this));
+    ui->table_newLinks->setItemDelegateForColumn(9, new NumericDelegate(this, 1, 0, 2, 0.05, 0.2));
+    ui->table_newLinks->setItemDelegateForColumn(10, new CheckboxDelegate(this));
 
     // ---------- insert a new row to nodes ----------
     ui->table_newLinks->insertRow(0);
@@ -1036,7 +1124,7 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
  * @param fileName The name of the file to read the link data from.
  * @return A vector of link records containing the link data.
  */
-Vector<tuple<int, int, int, double, double, int,
+Vector<tuple<int, int, int, double, double, int, std::string,
                   double, double, int, double, bool,
                   std::string, double, double>>  NeTrainSim::getLinkesDataFromLinksFile(QString fileName) {
     auto records = ReadWriteNetwork::readLinksFile(fileName.toStdString());
@@ -1049,11 +1137,11 @@ Vector<tuple<int, int, int, double, double, int,
  *
  * @return A vector of link records containing the link data from the table.
  */
-Vector<tuple<int, int, int, double, double, int,
+Vector<tuple<int, int, int, double, double, int, std::string,
                   double, double, int, double, bool,
                   std::string, double, double>>  NeTrainSim::getLinkesDataFromLinksTable() {
 
-    Vector<tuple<int, int, int, double, double, int,
+    Vector<tuple<int, int, int, double, double, int, std::string,
                       double, double, int, double, bool,
                       std::string, double, double>> linksRecords;
 
@@ -1063,14 +1151,23 @@ Vector<tuple<int, int, int, double, double, int,
         QTableWidgetItem* fromItem = ui->table_newLinks->item(i, 1);
         QTableWidgetItem* toItem = ui->table_newLinks->item(i, 2);
 
+        int direction = 1;
+        int catenary = 0;
         // Check if the required cells are not empty
         if (fromItem && toItem && !fromItem->text().isEmpty() &&
             !toItem->text().isEmpty() ){
 
             // Check if the row is not empty in specific columns
-            if (ui->table_newLinks->isRowEmpty(i, {0,7,9,10})) {
+            if (ui->table_newLinks->isRowEmpty(i, {0,8,10,11})) {
                 continue;
             }
+
+            QAbstractItemModel *model = ui->table_newLinks->model();  // Substitute 'view' with your actual view object
+            QModelIndex directionIndex = model->index(i, 8);  // Substitute 'row' and 'column' with the actual coordinates
+            QModelIndex catenaryIndex = model->index(i,10);
+            direction = (directionIndex.data().toBool())? 2: 1;
+            catenary = (catenaryIndex.data().toBool()) ? 1 : 0;
+
 
             // Add the link record to the vector
             linksRecords.push_back(std::make_tuple(
@@ -1080,12 +1177,13 @@ Vector<tuple<int, int, int, double, double, int,
                 1.0,
                 ui->table_newLinks->item(i, 3) ? ui->table_newLinks->item(i, 3)->text().trimmed().toDouble() : 0.0,
                 ui->table_newLinks->item(i, 4) ? ui->table_newLinks->item(i, 4)->text().trimmed().toInt() : 0,
-                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0,
-                (ui->table_newLinks->item(i, 7) && ui->table_newLinks->item(i, 7)->checkState() == Qt::Checked) ? 2 : 1,
-                ui->table_newLinks->item(i, 8) ? ui->table_newLinks->item(i, 8)->text().trimmed().toDouble() : 0.0,
-                (ui->table_newLinks->item(i, 9) && ui->table_newLinks->item(i, 9)->checkState() == Qt::Checked),
-                ui->table_newLinks->item(i, 10) ? ui->table_newLinks->item(i, 10)->text().trimmed().toStdString() : "",
+                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "",
+                ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 5)->text().trimmed().toDouble() : 0.0,
+                ui->table_newLinks->item(i, 7) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0,
+                direction,
+                ui->table_newLinks->item(i, 9) ? ui->table_newLinks->item(i, 8)->text().trimmed().toDouble() : 0.0,
+                catenary,
+                ui->table_newLinks->item(i, 11) ? ui->table_newLinks->item(i, 10)->text().trimmed().toStdString() : "",
                 1.0,
                 ui->doubleSpinBox_SpeedScale->value()
                 ));
@@ -1103,7 +1201,7 @@ Vector<tuple<int, int, int, double, double, int,
  */
 tuple<QVector<QString>,
            QVector<QString>> NeTrainSim::getLinksPlottableData(Vector<tuple<int, int, int,
-                                                                     double, double, int,
+                                                                     double, double, int, std::string,
                                                                      double, double, int,
                                                                      double, bool, std::string,
                                                                      double, double>> linksRecords) {
@@ -1416,17 +1514,34 @@ Vector<tuple<std::string, Vector<int>, double, double,
 }
 
 QString NeTrainSim::browseFiles(QLineEdit* theLineEdit, const QString& theFileName) {
-    QString fname = QFileDialog::getOpenFileName(nullptr, theFileName, "", "DAT Files (*.DAT)");
+    QString browsLoc = QString();
+    if ( this->userBrowsePath.isEmpty()) {
+        browsLoc = this->defaultBrowsePath;
+    }
+    else {
+        browsLoc = this->userBrowsePath;
+    }
+    QString fname = QFileDialog::getOpenFileName(nullptr, theFileName,
+                                                 browsLoc, "DAT Files (*.DAT)");
     if (!fname.isEmpty()) {
         theLineEdit->setText(fname);
+        QFileInfo fileInfo(fname);
+        this->userBrowsePath = fileInfo.dir().path();
     }
     return fname;
 }
 
 void NeTrainSim::browseFolder(QLineEdit* theLineEdit, const QString& theHelpMessage) {
+    QString browsLoc = QString();
+    if ( this->userBrowsePath.isEmpty()) {
+        browsLoc = this->defaultBrowsePath;
+    }
+    else {
+        browsLoc = this->userBrowsePath;
+    }
     QString folderPath = QFileDialog::getExistingDirectory(this,
                                                            theHelpMessage,
-                                                           QDir::homePath(),
+                                                           browsLoc,
                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     // Check if a folder was selected
     if (!folderPath.isEmpty()) {
@@ -1478,13 +1593,14 @@ void NeTrainSim::showWarning(QString text) {
 
 void NeTrainSim::simulate() {
     try {
-    Vector<std::tuple<int, double, double, std::string, double, double>> nodeRecords;
-    Vector<tuple<int, int, int, double, double, int, double, double, int, double, bool,
-                 std::string, double, double>> linkRecords;
-    Vector<tuple<std::string, Vector<int>, double, double,
-                 Vector<tuple<double, double, double, double, double, double, int, int>>,
-                 Vector<tuple<double, double, double, double, double, int, int>>,
-                 bool>> trainRecords;
+
+        Vector<std::tuple<int, double, double, std::string, double, double>> nodeRecords;
+        Vector<tuple<int, int, int, double, double, int, std::string, double, double, int, double, bool,
+                     std::string, double, double>> linkRecords;
+        Vector<tuple<std::string, Vector<int>, double, double,
+                     Vector<tuple<double, double, double, double, double, double, int, int>>,
+                     Vector<tuple<double, double, double, double, double, int, int>>,
+                     bool>> trainRecords;
 
         if (ui->checkBox_defineNewNetwork->checkState() == Qt::Checked) {
             if (ui->table_newNodes->hasEmptyCell({0,3})) {
@@ -1606,6 +1722,9 @@ void NeTrainSim::simulate() {
                     updateTrainsPlot(trainsStartEndPoints);
                 });
 
+        // hide the pause button
+        ui->pushButton_pauseResume->setVisible(true);
+
         // move the worker to the new thread
         worker->moveToThread(thread);
 
@@ -1622,8 +1741,9 @@ void NeTrainSim::simulate() {
 
     } catch (const std::exception& e) {
         ErrorHandler::showError(e.what());
+        // hide the pause button
+        ui->pushButton_pauseResume->setVisible(false);
     }
-
 }
 
 
@@ -1642,6 +1762,7 @@ void NeTrainSim::handleSimulationFinished(Vector<std::pair<std::string, std::str
         this->showDetailedReport(QString::fromStdString(trajectoryFile));
         //QMetaObject::invokeMethod(this, "showReport", Qt::QueuedConnection); // Call showReport in the GUI thread
         ui->tabWidget_project->setCurrentIndex(4);
+        ui->pushButton_pauseResume->setVisible(false);
 }
 
 void NeTrainSim::saveProjectFile(bool saveAs) {
@@ -2093,3 +2214,11 @@ NeTrainSim::~NeTrainSim()
 
 }
 
+
+void NeTrainSim::pauseSimulation() {
+    QMetaObject::invokeMethod(worker->sim, "pauseSimulation", Qt::QueuedConnection);
+}
+
+void NeTrainSim::resumeSimulation() {
+    QMetaObject::invokeMethod(worker->sim, "resumeSimulation", Qt::QueuedConnection);
+}
