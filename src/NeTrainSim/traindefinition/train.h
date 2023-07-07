@@ -118,6 +118,8 @@ public:
     double currentResistanceForces;
     /** The current used tractive power that the locomotives provides in kw*/
     double currentUsedTractivePower;
+    /** The cummulative used tractive power (work) that the locomotives provide in kw*/
+    double cumUsedTractivePower;
     /** The optimum throttle level that the train should go by to minimize its energy use */
     double optimumThrottleLevel;
     /** Total energy consumption (consumed + regenerated) at time step t */
@@ -278,7 +280,7 @@ public:
      * @brief getTrainConsumedTank
      * @return number of litters consumed from the tank.
      */
-    double getTrainConsumedTank();
+    Map<string, double> getTrainConsumedTank();
 
     /**
      * @brief set the train path.
