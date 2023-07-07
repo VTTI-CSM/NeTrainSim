@@ -19,6 +19,8 @@ include($$PWD/../dependencies/QtRptProject/QtRPT/QtRPT.pri)
 
 SOURCES += \
     gui/netrainsimmainwindow.cpp \
+    gui/settingswindow.cpp \
+    gui/togglebutton.cpp \
     main.cpp \
     ../dependencies/qcustomplot/qcustomplot.cpp \
     ../NeTrainSim/network/readwritenetwork.cpp \
@@ -38,11 +40,13 @@ SOURCES += \
     ../NeTrainSim/util/logger.cpp \
     ../NeTrainSim/simulator.cpp \
     ../NeTrainSim/network/netsignalgroupcontroller.cpp \
+    ../NeTrainSim/network/netsignalgroupcontrollerwithqueuing.cpp \
     gui/customtablewidget.cpp \
     gui/disappearinglabel.cpp \
     gui/aboutwindow.cpp \
     gui/customplot.cpp \
     gui/simulationworker.cpp \
+    util/configurationmanager.cpp \
     util/errorhandler.cpp \
 
 
@@ -67,6 +71,7 @@ HEADERS += \
     ../NeTrainSim/util/logger.h \
     ../NeTrainSim/simulator.h \
     ../NeTrainSim/network/netsignalgroupcontroller.h \
+    ../NeTrainSim/network/netsignalgroupcontrollerwithqueuing.h \
     gui/checkboxdelegate.h \
     gui/customprogressbar.h \
     gui/customtablewidget.h \
@@ -77,13 +82,17 @@ HEADERS += \
     gui/aboutwindow.h \
     gui/customplot.h \
     gui/numericdelegate.h \
+    gui/settingswindow.h \
     gui/simulationworker.h \
+    gui/togglebutton.h \
+    util/configurationmanager.h \
     util/errorhandler.h \
 
 
 FORMS += \
     gui/aboutwindow.ui \
-    gui/netrainsimmainwindow.ui
+    gui/netrainsimmainwindow.ui \
+    gui/settingswindow.ui
 
 TRANSLATIONS += \
     NeTrainSimGUI_en_US.ts
@@ -123,3 +132,10 @@ unix:!macx {
 
 
 DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data
+
+
+## Copy default INI file to the build directory
+#copy_cmd = $$QMAKE_COPY_DIR
+#copy_cmd += $$_PRO_FILE_PWD_/config.ini
+#copy_cmd += $$OUT_PWD
+#QMAKE_POST_LINK += $$copy_cmd
