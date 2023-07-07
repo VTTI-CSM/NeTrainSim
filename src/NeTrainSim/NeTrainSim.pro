@@ -20,6 +20,7 @@ SOURCES += \
         network/netlink.cpp \
         network/netnode.cpp \
         network/netsignal.cpp \
+        network/netsignalgroupcontrollerwithqueuing.cpp \
         network/netsignalgroupcontroller.cpp \
         network/readwritenetwork.cpp \
         traindefinition/car.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
         traindefinition/trainslist.cpp \
         traindefinition/battery.cpp \
         traindefinition/tank.cpp \
+    util/jsonmanager.cpp \
         util/logger.cpp \
         util/xmlmanager.cpp \
         util/csvmanager.cpp \
@@ -43,6 +45,7 @@ HEADERS += \
         network/netlink.h \
         network/netnode.h \
         network/netsignal.h \
+        network/netsignalgroupcontrollerwithqueuing.h \
         network/netsignalgroupcontroller.h \
         network/network.h \
         network/readwritenetwork.h \
@@ -56,6 +59,7 @@ HEADERS += \
         traindefinition/battery.h \
         traindefinition/tank.h \
         util/error.h \
+        util/jsonmanager.h \
         util/list.h \
         util/logger.h \
         util/map.h \
