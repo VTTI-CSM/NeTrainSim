@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    // take care f the translations
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
