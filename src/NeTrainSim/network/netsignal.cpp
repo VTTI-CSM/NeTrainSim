@@ -26,8 +26,9 @@ NetSignal::NetSignal(int signalID, std::shared_ptr <NetLink> hostingLink) {
 	NetSignal::NumberOfSignalsInSimulator++;
 }
 
-NetSignal::NetSignal(int signalID, std::shared_ptr<NetLink> hostingLink, 
-	std::shared_ptr<NetNode> previousLinkNode, std::shared_ptr<NetNode> currentLinkNode) {
+NetSignal::NetSignal(int signalID, std::shared_ptr<NetLink> hostingLink,
+                     std::shared_ptr<NetNode> previousLinkNode,
+                     std::shared_ptr<NetNode> currentLinkNode) {
 	this->userID = signalID;
 	this->id = NumberOfSignalsInSimulator;
 	this->proximityToActivate = 0.0;
@@ -45,8 +46,10 @@ unsigned int NetSignal::getNumberOfSignalsInSimulator()
 
 
 ostream& operator<<(ostream& ostr, const NetSignal& networkSignal) {
-    ostr << "Network signal:: id: " << networkSignal.userID << ", green: " << ((networkSignal.isGreen)? "true": "false");
+    ostr << "Network signal:: id: " << networkSignal.userID <<
+        ", green: " << ((networkSignal.isGreen)? "true": "false");
 	ostr << ", previous node id: " << networkSignal.previousNode.lock()->id;
-	ostr << ", current node id: " << networkSignal.currentNode.lock()->id << endl;
+    ostr << ", current node id: " <<
+        networkSignal.currentNode.lock()->id << endl;
 	return ostr;
 }

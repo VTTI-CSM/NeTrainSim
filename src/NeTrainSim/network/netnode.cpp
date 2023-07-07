@@ -9,7 +9,8 @@ using namespace std;
 
 unsigned int NetNode::NumberOfNodesInSimulator = 0;
 
-NetNode::NetNode(int simulatorID, int ID, double xCoord, double yCoord, string desc, double xDirScale, double yDirScale ) {
+NetNode::NetNode(int simulatorID, int ID, double xCoord, double yCoord,
+                 string desc, double xDirScale, double yDirScale ) {
     this->userID = ID;
     this->id = simulatorID;
     this->alphaDesc = desc;
@@ -73,8 +74,8 @@ pair<double, double> NetNode::coordinates() {
 
 ostream& operator<<(ostream& ostr, const NetNode& node) {
     ostr << "Network node :: ID: " << node.id << ", user ID: " << node.userID
-        <<", x coord : " << node.x << ", y coord : " << node.y << ", is a depot/stop: "
-        << ((node.isDepot) ? "true" : "false");
+        <<", x coord : " << node.x << ", y coord : " << node.y <<
+        ", is a depot/stop: " << ((node.isDepot) ? "true" : "false");
     ostr << endl;
     return ostr;
 }
