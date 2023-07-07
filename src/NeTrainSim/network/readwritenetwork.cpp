@@ -9,14 +9,14 @@
 #include "../util/utils.h"
 
 /**
-         * Reads nodes file
-         * @author	Ahmed
-         * @date	2/14/2023
-         * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-         * @param 	fileName	Filename of the file.
-         * @returns	The tuple of IDs as a vector, x coordinates as a vector, y coordinates as a vector,
-         *                       description as a vector, x scale, and y scale as doubles.
-         */
+ * Reads nodes file
+ * @author	Ahmed
+ * @date	2/14/2023
+ * @exception	std::runtime_error	Raised when a runtime error condition occurs.
+ * @param 	fileName	Filename of the file.
+ * @returns	The tuple of IDs as a vector, x coordinates as a vector, y coordinates as a vector,
+ *                       description as a vector, x scale, and y scale as doubles.
+ */
 Vector<std::tuple<int, double, double, std::string,
                   double, double>> ReadWriteNetwork::readNodesFile(const std::string& fileName) {
         if (fileName.empty()) {
@@ -93,14 +93,27 @@ Vector<std::tuple<int, double, double, std::string,
 
 
 /**
-         * Reads links file
-         * @author	Ahmed
-         * @date	2/14/2023
-         * @exception	std::runtime_error	Raised when a runtime error condition occurs.
-         * @param 	fileName	Filename of the file.
-         * @returns	The links file.
-         */
-Vector<std::tuple<int, int, int, double, double, int,
+ * Reads links file
+ * @author	Ahmed
+ * @date	2/14/2023
+ * @exception	std::runtime_error	Raised when a runtime error condition occurs.
+ * @param 	fileName	Filename of the file.
+ * @returns	The links data. A vector record has the following:
+ *                          1. Link User ID
+ *                          2. Start Node User ID
+ *                          3. End Node User ID
+ *                          4. Link Length
+ *                          5. Link Max Speed (m/s)
+ *                          6. Signal User ID
+ *                          7. Signal Placed At Which End Node ID
+ *                          7. Link Grade
+ *                          8. Link Curvature
+ *                          9. Link Number of Directions
+ *                          10. Speed Variation Factor
+ *                          11. Is Catenary Available for this link
+ *                          12. The Region the link is in
+ */
+Vector<std::tuple<int, int, int, double, double, int, std::string,
                   double, double, int, double, bool,
                   std::string, double, double>> ReadWriteNetwork::readLinksFile(const std::string& fileName) {
         if (fileName.empty()) {
@@ -137,7 +150,7 @@ Vector<std::tuple<int, int, int, double, double, int,
         scaleValues.erase(scaleValues.begin());
 
         // Read links data
-        Vector<std::tuple<int, int, int, double, double, int,
+        Vector<std::tuple<int, int, int, double, double, int, std::string,
                           double, double, int, double, bool, std::string, double, double>> records;
 
         for (int i = 2; i < lines.size(); i++) {
@@ -148,25 +161,45 @@ Vector<std::tuple<int, int, int, double, double, int,
             }
             if (!linkValues.empty()) {
                 bool hasCaten;
-                std::stringstream ss(linkValues[10]);
+                std::stringstream ss(linkValues[11]);
                 ss >> hasCaten;
 
-                if (linkValues.size() < 12) {
-                    records.push_back(std::make_tuple(stoi(linkValues[0]), std::stoi(linkValues[1]),
-                                                      std::stoi(linkValues[2]), stod(linkValues[3]),
-                                                      stod(linkValues[4]), stoi(linkValues[5]),
-                                                      stod(linkValues[6]), stod(linkValues[7]),
-                                                      stoi(linkValues[8]), stod(linkValues[9]),
-                                                      hasCaten, "ND Region", stod(scaleValues[0]),
+                if (linkValues.size() < 13) {
+                    records.push_back(std::make_tuple(stoi(linkValues[0]),
+                                                      std::stoi(linkValues[1]),
+                                                      std::stoi(linkValues[2]),
+                                                      stod(linkValues[3]),
+                                                      stod(linkValues[4]),
+                                                      stoi(linkValues[5]),
+                                                      linkValues[6],
+                                                      stod(linkValues[7]),
+                                                      stod(linkValues[8]),
+                                                      stoi(linkValues[9]),
+                                                      stod(linkValues[10]),
+                                                      hasCaten,
+                                                      "ND Region",
+                                                      stod(scaleValues[0]),
                                                       stod(scaleValues[1])));
                 }
                 else {
-                    records.push_back(std::tuple<int, int, int, double, double, int, double, double, int,
-                                            double, bool, std::string, double, double>(
-                        std::stoi(linkValues[0]), std::stoi(linkValues[1]), std::stoi(linkValues[2]), stod(linkValues[3]),
-                        stod(linkValues[4]), std::stoi(linkValues[5]), stod(linkValues[6]), stod(linkValues[7]),
-                        std::stoi(linkValues[8]), stod(linkValues[9]), hasCaten, linkValues[11],
-                        stod(scaleValues[0]), stod(scaleValues[1])));
+                    records.push_back(std::tuple<int, int, int, double, double, int, std::string,
+                                                 double, double, int, double, bool, std::string,
+                                                 double, double>(
+                        std::stoi(linkValues[0]),
+                        std::stoi(linkValues[1]),
+                        std::stoi(linkValues[2]),
+                        stod(linkValues[3]),
+                        stod(linkValues[4]),
+                        std::stoi(linkValues[5]),
+                        linkValues[6],
+                        stod(linkValues[7]),
+                        stod(linkValues[8]),
+                        std::stoi(linkValues[9]),
+                        stod(linkValues[10]),
+                        hasCaten,
+                        linkValues[12],
+                        stod(scaleValues[0]),
+                        stod(scaleValues[1])));
                 }
             }
         }
@@ -204,9 +237,10 @@ Vector<std::shared_ptr<NetNode>> ReadWriteNetwork::generateNodes(Vector<std::tup
 
 Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
                                                                  Vector<std::tuple<int, int, int, double,
-                                                                             double, int, double, double,
-                                                                             int, double, bool, std::string,
-                                                                             double, double>> linksRecords) {
+                                                                                   double, int, std::string,
+                                                                                   double, double, int,
+                                                                                   double, bool, std::string,
+                                                                                   double, double> > linksRecords) {
     Vector<std::shared_ptr<NetLink>> links;
     int simulatorlinkID = 0;
     for (auto &record : linksRecords) {
@@ -214,17 +248,17 @@ Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(Vector<std::sha
         double linkLength, maxSpeed, linkGrade, linkCurvature, speedVariationfactor;
         double lengthScale, maxSpeedScale;
         bool isCatenaryAvailable;
-        std::string linkInRegion;
+        std::string linkInRegion, signalsEnds;
 
-        std::tie(linkID, fromNode, toNode, linkLength, maxSpeed, trafficSignalID, linkGrade,
-                 linkCurvature, linkNoOfDirections, speedVariationfactor,
+        std::tie(linkID, fromNode, toNode, linkLength, maxSpeed, trafficSignalID, signalsEnds,
+                 linkGrade, linkCurvature, linkNoOfDirections, speedVariationfactor,
                  isCatenaryAvailable, linkInRegion, lengthScale, maxSpeedScale) = record;
 
         std::shared_ptr<NetNode> fromNodeNode = getSimulatorNodeByUserID(theFileNodes, fromNode);
         std::shared_ptr<NetNode> toNodeNode   = getSimulatorNodeByUserID(theFileNodes, toNode);
 
         NetLink link = NetLink(simulatorlinkID, linkID, fromNodeNode, toNodeNode, linkLength,
-                               maxSpeed, trafficSignalID, linkGrade,
+                               maxSpeed, trafficSignalID, signalsEnds, linkGrade,
                                linkCurvature, linkNoOfDirections, speedVariationfactor,
                                isCatenaryAvailable, linkInRegion, lengthScale, maxSpeedScale);
         links.push_back(std::make_shared<NetLink>(link));
@@ -257,7 +291,7 @@ std::shared_ptr<NetNode> ReadWriteNetwork::getSimulatorNodeByUserID(Vector<std::
 
 
 bool ReadWriteNetwork::writeLinksFile(Vector<std::tuple<int, int, int, double, double,
-                                                        int, double, double, int,
+                                                        int, std::string, double, double, int,
                                                         double, bool, string,
                                                         double, double> > linksRecords, string &filename) {
     if (filename.empty()) {

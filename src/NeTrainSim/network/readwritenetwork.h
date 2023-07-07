@@ -51,7 +51,8 @@ bool writeNodesFile(Vector<std::tuple<int, double, double, std::string, double, 
      *         Each tuple contains the link attributes including the IDs of the connected nodes, length, speed, etc.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, int, int, double, double, int, double, double, int, double, bool, std::string,
+Vector<std::tuple<int, int, int, double, double, int, std::string,
+                  double, double, int, double, bool, std::string,
                   double, double>> readLinksFile(const std::string& fileName);
 
 /**
@@ -60,7 +61,8 @@ Vector<std::tuple<int, int, int, double, double, int, double, double, int, doubl
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeLinksFile(Vector<std::tuple<int, int, int, double, double, int, double, double, int, double, bool,
+bool writeLinksFile(Vector<std::tuple<int, int, int, double, double, int, std::string,
+                                      double, double, int, double, bool,
                                       std::string, double, double>> linksRecords, std::string& filename);
 
 /**
@@ -78,8 +80,10 @@ Vector<std::shared_ptr<NetNode>> generateNodes(Vector<std::tuple<int, double, do
      * @return The generated NetLink objects as a vector.
      */
 Vector<std::shared_ptr<NetLink>> generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
-                                               Vector<std::tuple<int, int, int, double, double, int, double, double,
-                                                                 int, double, bool, std::string, double, double>> linksRecords);
+                                               Vector<std::tuple<int, int, int, double, double,
+                                                                 int, std::string,double, double,
+                                                                 int, double, bool, std::string,
+                                                                 double, double>> linksRecords);
 
 /**
      * @brief Gets the NetNode object with the given user identifier.
