@@ -19,10 +19,76 @@
 #include <tuple>
 #include <type_traits>
 #include <QVector>
+#include <type_traits>
 
 namespace Utils {
 
     using namespace std;
+
+
+    /**
+     * Compute the dot product of a 2x2 matrix and a 2D vector.
+     * @param matrix A 2D vector representing a 2x2 matrix.
+     * @param v A pair of doubles representing a 2D vector.
+     * @return A pair of doubles representing the resulting vector after the dot product operation.
+     *
+     * @author Ahmed Aredah
+     * @date 2/14/2023
+     */
+    inline std::pair<double, double> dot(Vector<Vector<double>> matrix, std::pair<double, double>& v) {
+        // The dot product of a matrix and a vector is calculated as follows:
+        // The first element is the sum of the products of the corresponding elements of the first row of the matrix and the vector
+        // The second element is the sum of the products of the corresponding elements of the second row of the matrix and the vector
+        return std::make_pair(matrix.at(0).at(0) * v.first + matrix.at(0).at(1) * v.second,
+                              matrix.at(1).at(0) * v.first + matrix.at(1).at(1) * v.second);
+    }
+
+    /**
+     * Compute the dot product of two 2D vectors.
+     * @param u A pair of doubles representing the first vector.
+     * @param v A pair of doubles representing the second vector.
+     * @return A double representing the dot product of the two vectors.
+     *
+     * @author Ahmed Aredah
+     * @date 2/14/2023
+     */
+    inline double dot(std::pair<double, double> &u, std::pair<double, double> &v) {
+        // The dot product of two vectors is calculated as (u1*v1 + u2*v2)
+        return u.first * v.first + u.second * v.second;
+    }
+
+    /**
+     * Compute the cross product of two 2D vectors.
+     * @param u A pair of doubles representing the first vector.
+     * @param v A pair of doubles representing the second vector.
+     * @return A double representing the pseudo cross product of the two vectors.
+     *
+     * @author Ahmed Aredah
+     * @date 2/14/2023
+     */
+    inline double cross(std::pair<double, double> &u, std::pair<double, double> &v) {
+        // The cross product of two vectors in 2D (also known as the determinant, or pseudo cross product)
+        // is calculated as (u1*v2 - u2*v1)
+        return u.first * v.second - u.second * v.first;
+    }
+
+    /**
+     * Computes the Euclidean distance between two coordinates.
+     * @param position1 A pair of doubles representing the first coordinate.
+     * @param position2 A pair of doubles representing the second coordinate.
+     * @return The Euclidean distance between position1 and position2.
+     * @author Ahmed
+     * @date 2/14/2023
+     */
+    inline double getDistanceByTwoCoordinates(const std::pair<double, double>& position1,
+                                       const std::pair<double, double>& position2) {
+        // Calculate differences in x and y coordinates
+        double xDiff = position1.first - position2.first;
+        double yDiff = position1.second - position2.second;
+
+        // Compute and return Euclidean distance
+        return std::sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
 
     /**
      * Powers
@@ -53,6 +119,7 @@ namespace Utils {
 
 
     template<typename T>
+        requires std::is_arithmetic<T>::value
     /**
      * Convert a plain numeric value to thousand separated value
      *
@@ -231,6 +298,20 @@ namespace Utils {
             tokens.push_back(token);
         }
         return tokens;
+    }
+
+    inline Vector<int> convertStringVectorToIntVector(const std::vector<std::string>& stringVector) {
+        Vector<int> intVector;
+
+        for(const auto& str : stringVector) {
+            try {
+                intVector.push_back(std::stoi(str));
+            } catch(const std::exception& e) {
+                throw std::runtime_error("Error: unable to convert string " + str + " to integer.");
+            }
+        }
+
+        return intVector;
     }
 
     /**
