@@ -102,6 +102,20 @@ public:
     }
 
     /**
+     * Calculates the sum of all values in the map.
+     *
+     * @return The sum of all values.
+     */
+    mapped_type sumValues() const {
+        mapped_type total = 0;
+        for (const auto& pair : *this) {
+            total += pair.second;
+        }
+        return total;
+    }
+
+
+    /**
      * Prints this object
      *
      * @author	Ahmed Aredah
