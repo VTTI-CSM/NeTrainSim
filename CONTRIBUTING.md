@@ -17,6 +17,7 @@ Before you start contributing to NeTrainSim, please follow these steps:
 9. Commit your changes with clear and concise commit messages.
 10. Push your changes to your forked repository.
 11. Submit a pull request to the NeTrainSim repository with a clear description of your changes.
+12. If you want your name to be added to the contributing list, kindly refer to the following [allcontributors docmentation.](https://allcontributors.org/docs/en/bot/usage)
 
 ## Guidelines
 
