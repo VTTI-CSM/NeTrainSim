@@ -93,9 +93,10 @@ public:
      */
     Network(Vector<tuple<int, double, double,
                          std::string, double, double>> nodesRecords,
-            Vector<tuple<int, int, int, double, double, int, std::string,
-                         double, double, int, double,
-                         bool, std::string, double, double>> linksRecords,
+            Vector<tuple<int, int, int, double, double,
+                         int, double, double, int, double,
+                         bool, std::string, std::string,
+                         double, double>> linksRecords,
             std::string netName = "") {
 
         if (netName == "") {
@@ -280,9 +281,11 @@ public:
             // Get links between consecutive nodes
             int nextI = i + 1;
             Vector<std::shared_ptr<NetLink>> l1 =
-                train->trainPathNodes.at(i)->linkTo[train->trainPathNodes.at(nextI)];
+                train->trainPathNodes.at(
+                       i)->linkTo[train->trainPathNodes.at(nextI)];
             Vector<std::shared_ptr<NetLink>> l2 =
-                train->trainPathNodes.at(nextI)->linkTo[train->trainPathNodes.at(i)];
+                train->trainPathNodes.at(
+                       nextI)->linkTo[train->trainPathNodes.at(i)];
 
             // Add links to a set
             std::set<std::shared_ptr<NetLink>> temp;
@@ -310,8 +313,9 @@ public:
      * @author Ahmed
      * @date 2/14/2023
      */
-    bool DistanceToEndOfAllLinkTrainsIsLarge(const std::shared_ptr <NetLink> link,
-                                             const std::shared_ptr <Train> train)
+    bool DistanceToEndOfAllLinkTrainsIsLarge(
+        const std::shared_ptr <NetLink> link,
+        const std::shared_ptr <Train> train)
     {
         // Store distances to other trains on the same link
         std::set<double> distanceToOtherTrains;
@@ -320,14 +324,17 @@ public:
         for (std::shared_ptr <Train>& t : link->currentTrains) {
             if (t != train) {
                 distanceToOtherTrains.insert(
-                    Utils::getDistanceByTwoCoordinates(t->startEndPoints[1],
-                                                       train->currentCoordinates));
+                    Utils::getDistanceByTwoCoordinates(
+                        t->startEndPoints[1],
+                        train->currentCoordinates));
             }
         }
         // Check if any distance is less than 2
         return std::find_if(distanceToOtherTrains.begin(),
                             distanceToOtherTrains.end(),
-                            [](int v) { return v < 2; }) == distanceToOtherTrains.end();
+                            [](int v) {
+                                return v < 2;
+                            }) == distanceToOtherTrains.end();
     }
 
 
@@ -501,8 +508,9 @@ public:
 
         // If the train is not on any of the links, sort the links by cost and
         // potentially return the one with the lowest cost
-        Vector<std::shared_ptr<NetLink>> betweenNLinks(betweenNodesLinks.begin(),
-                                                       betweenNodesLinks.end());
+        Vector<std::shared_ptr<NetLink>> betweenNLinks(
+            betweenNodesLinks.begin(),
+            betweenNodesLinks.end());
         std::sort(betweenNLinks.begin(), betweenNLinks.end(),
                   [](std::shared_ptr<NetLink> a, std::shared_ptr<NetLink> b) {
                         return a->cost < b->cost; });
@@ -596,7 +604,8 @@ public:
      * the link from that node to the next node in the path.
      *
      * @param 	train	The train whose first link is to be retrieved.
-     * @returns	A shared pointer to the first NetLink object in the train's path.
+     * @returns	A shared pointer to the first NetLink object in the train's
+     *          path.
      * @throws std::runtime_error If the train's path is empty.
      */
     std::shared_ptr<NetLink> getFirstTrainLink(
