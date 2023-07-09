@@ -30,10 +30,12 @@ namespace ReadWriteNetwork {
      * @brief Reads the nodes file.
      * @param fileName The filename of the file.
      * @return The records of nodes as a vector of tuples.
-     *         Each tuple contains the ID, x-coordinate, y-coordinate, description, x-scale, and y-scale of a node.
+     *         Each tuple contains the ID, x-coordinate, y-coordinate,
+     *         description, x-scale, and y-scale of a node.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, double, double, std::string, double, double>> readNodesFile(const std::string& fileName);
+Vector<std::tuple<int, double, double, std::string,
+                  double, double>> readNodesFile(const std::string& fileName);
 
 /**
      * @brief Writes the nodes file.
@@ -41,19 +43,23 @@ Vector<std::tuple<int, double, double, std::string, double, double>> readNodesFi
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeNodesFile(Vector<std::tuple<int, double, double, std::string, double, double>> nodesRecords,
+bool writeNodesFile(Vector<std::tuple<int, double, double,
+                                      std::string, double,
+                                      double>> nodesRecords,
                     std::string& filename);
 
 /**
      * @brief Reads the links file.
      * @param fileName The filename of the file.
      * @return The records of links as a vector of tuples.
-     *         Each tuple contains the link attributes including the IDs of the connected nodes, length, speed, etc.
+     *         Each tuple contains the link attributes including the IDs
+     *         of the connected nodes, length, speed, etc.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, int, int, double, double, int, std::string,
-                  double, double, int, double, bool, std::string,
-                  double, double>> readLinksFile(const std::string& fileName);
+Vector<std::tuple<int, int, int, double, double, int,
+                  double, double, int, double, bool,
+                  std::string, std::string, double,
+                  double>> readLinksFile(const std::string& fileName);
 
 /**
      * @brief Writes the links file.
@@ -61,17 +67,20 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeLinksFile(Vector<std::tuple<int, int, int, double, double, int, std::string,
+bool writeLinksFile(Vector<std::tuple<int, int, int, double, double, int,
                                       double, double, int, double, bool,
-                                      std::string, double, double>> linksRecords, std::string& filename);
+                                      std::string, std::string, double,
+                                      double>> linksRecords,
+                    std::string& filename);
 
 /**
      * @brief Generates NetNode objects from the nodes records.
      * @param nodesRecords The records of nodes as a vector of tuples.
      * @return The generated NetNode objects as a vector.
      */
-Vector<std::shared_ptr<NetNode>> generateNodes(Vector<std::tuple<int, double, double,
-                                                                 std::string, double, double>> nodesRecords);
+Vector<std::shared_ptr<NetNode>> generateNodes(
+    Vector<std::tuple<int, double, double,
+                      std::string, double, double>> nodesRecords);
 
 /**
      * @brief Generates NetLink objects from the nodes and links records.
@@ -79,20 +88,23 @@ Vector<std::shared_ptr<NetNode>> generateNodes(Vector<std::tuple<int, double, do
      * @param linksRecords The records of links as a vector of tuples.
      * @return The generated NetLink objects as a vector.
      */
-Vector<std::shared_ptr<NetLink>> generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
-                                               Vector<std::tuple<int, int, int, double, double,
-                                                                 int, std::string,double, double,
-                                                                 int, double, bool, std::string,
-                                                                 double, double>> linksRecords);
+Vector<std::shared_ptr<NetLink>> generateLinks(
+    Vector<std::shared_ptr<NetNode>> theFileNodes,
+    Vector<std::tuple<int, int, int, double, double,
+                      int,double, double,
+                      int, double, bool, std::string,
+                      std::string, double, double>> linksRecords);
 
 /**
      * @brief Gets the NetNode object with the given user identifier.
      * @param theFileNodes The NetNode objects generated from the nodes records.
      * @param oldID The user identifier of the NetNode to retrieve.
-     * @return The NetNode object with the specified user identifier, or nullptr if not found.
+     * @return The NetNode object with the specified user identifier, or
+     *         nullptr if not found.
      * @throw std::runtime_error if a runtime error occurs.
      */
-std::shared_ptr<NetNode> getSimulatorNodeByUserID(Vector<std::shared_ptr<NetNode>> theFileNodes, int oldID);
+std::shared_ptr<NetNode> getSimulatorNodeByUserID(
+    Vector<std::shared_ptr<NetNode>> theFileNodes, int oldID);
 
 } // namespace ReadWriteNetwork
 
