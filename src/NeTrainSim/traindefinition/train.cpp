@@ -182,10 +182,21 @@ double Train::getTrainTotalTorque() {
     return this->getCargoNetWeight() * (this->travelledDistance /(double)1000.0);
 }
 
-double Train::getTrainConsumedTank() {
-    double consumption = 0.0;
+Map<std::string, double> Train::getTrainConsumedTank() {
+    Map<std::string, double> consumption;
+    //double consumption = 0.0;
     for (auto &loco: this->locomotives) {
-        consumption += loco->getTankCumConsumedFuel();
+        // check if the locomotive of type no fuel
+        if (TrainTypes::getFuelTypeFromPowerType(loco->powerType) == TrainTypes::FuelType::noFuel) {
+                continue;
+        }
+        // add the consumed fuel amount
+        if (consumption.is_key(TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType)))) {
+            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] += loco->getTankCumConsumedFuel();
+        }
+        else {
+            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] = loco->getTankCumConsumedFuel();
+        }
     }
     return consumption;
 }
@@ -669,6 +680,7 @@ void Train::calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinF
                                                                     this->currentResistanceForces);
     this->currentUsedTractivePowerList = pwr.first;
     this->currentUsedTractivePower = pwr.second;
+    this->cumUsedTractivePower += this->currentUsedTractivePower;
 
     this->isOn = this->consumeEnergy(timeStep, this->currentSpeed, currentUsedTractivePowerList);
     this->calculateEnergyConsumption(timeStep, currentRegion);
@@ -919,8 +931,6 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
     //for (auto& loco : this->ActiveLocos) {
         // if the locomotive is on, compute the energy consumption
         if (this->ActiveLocos.at(i)->isLocOn) {
-//            // reset the power reduction restriction
-//            this->ActiveLocos.at(i)->resetPowerRestriction();
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
             double UsedTractiveP = usedTractivePower.at(i);
@@ -939,20 +949,6 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
                                                                          trainSpeed,
                                                                          restEC,
                                                                          this->ActiveLocos.at(i)->powerType);
-//                // TODO: Take care of reducing notch number when there is no enough power >> later releases
-//                // make sure all energy is consumed from active locomotives
-//                while(fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-//                    fuelConsumedFromTender = this->consumeTendersEnergy(timeStep,
-//                                                                        trainSpeed,
-//                                                                        fuelConsumedFromTender.second,
-//                                                                        this->ActiveLocos.at(i)->powerType);
-//                }
-//                // When not all the energy is consumed by the tender
-//                // reduce the current notch to a lower position,
-//                // since there is no power source can provide all required energy
-//                if (!fuelConsumedFromTender.first && fuelConsumedFromTender.second > 0.0) {
-//                    this->ActiveLocos.at(i)->reducePower();
-//                }
                 if (!fuelConsumedFromTender.first && restEC == EC_kwh) {
                     this->ActiveLocos.at(i)->isLocOn = false;
                 }
@@ -1177,7 +1173,8 @@ void Train::resetTrain() {
     this->currentSpeed = 0.0;
     this->previousSpeed = 0.0;
     this->currentTractiveForce = 0.0;
-    //this->currentUsedTractivePower = 0.0;
+    this->cumUsedTractivePower = 0.0;
+    this->currentUsedTractivePower = 0.0;
     this->delayTimeStat = 0.0;
     this->trainTotalPathLength = 0.0;
     this->currentCoordinates = { 0.0, 0.0 };
