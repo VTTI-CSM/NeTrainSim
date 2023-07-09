@@ -31,7 +31,7 @@ SOURCES += \
         traindefinition/trainslist.cpp \
         traindefinition/battery.cpp \
         traindefinition/tank.cpp \
-    util/jsonmanager.cpp \
+        util/jsonmanager.cpp \
         util/logger.cpp \
         util/xmlmanager.cpp \
         util/csvmanager.cpp \
