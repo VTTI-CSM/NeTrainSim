@@ -12,23 +12,31 @@
  * Reads nodes file
  * @author	Ahmed
  * @date	2/14/2023
- * @exception	std::runtime_error	Raised when a runtime error condition occurs.
+ * @exception	std::runtime_error	Raised when a runtime error condition
+ *                                  occurs.
  * @param 	fileName	Filename of the file.
- * @returns	The tuple of IDs as a vector, x coordinates as a vector, y coordinates as a vector,
- *                       description as a vector, x scale, and y scale as doubles.
+ * @returns	The tuple of IDs as a vector, x coordinates as a vector,
+ *          y coordinates as a vector, description as a vector, x scale,
+ *          and y scale as doubles.
  */
-Vector<std::tuple<int, double, double, std::string,
-                  double, double>> ReadWriteNetwork::readNodesFile(const std::string& fileName) {
+Vector<std::tuple<int, double,
+                  double, std::string,
+                  double, double>> ReadWriteNetwork::readNodesFile(
+    const std::string& fileName) {
         if (fileName.empty()) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
+                                     std::to_string(
+                                         static_cast<int>(
+                                         Error::nodesFileDoesNotExist)) +
                                      "\nNodes file does not exist!\n");
         }
         // Open file to read
         std::ifstream file(fileName);
         if (!file.good()) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::nodesFileDoesNotExist)) +
+                                     std::to_string(
+                                         static_cast<int>(
+                                         Error::nodesFileDoesNotExist)) +
                                      "\nNodes file does not exist!\n");
         }
 
@@ -42,7 +50,9 @@ Vector<std::tuple<int, double, double, std::string,
 
         if (lines.size() == 0) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::emptyNodesFile)) +
+                                     std::to_string(
+                                         static_cast<int>(
+                                         Error::emptyNodesFile)) +
                                      "\nNodes File is empty!\n");
         }
 
@@ -59,7 +69,8 @@ Vector<std::tuple<int, double, double, std::string,
         Vector<double> _yNodes;
         Vector<std::string> _descNodes;
 
-        Vector<std::tuple<int, double, double, std::string, double, double>> records;
+        Vector<std::tuple<int, double, double, std::string,
+                          double, double>> records;
 
         for (int i = 2; i < lines.size(); i++)
         {
@@ -70,14 +81,16 @@ Vector<std::tuple<int, double, double, std::string,
             ss >> userID >> x >> y >> desc;
             if (ss.good())
             {
-                records.push_back(std::make_tuple(userID, x, y, desc, scaleX, scaleY));
+                records.push_back(std::make_tuple(userID, x, y,
+                                                  desc, scaleX, scaleY));
             }
             else
             {
                 ss.clear();
                 ss >> userID >> x >> y;
 
-                records.push_back(std::make_tuple(userID, x, y, " ", scaleX, scaleY));
+                records.push_back(std::make_tuple(userID, x, y, " ",
+                                                  scaleX, scaleY));
             }
         }
 
@@ -85,7 +98,9 @@ Vector<std::tuple<int, double, double, std::string,
 
     } catch (const std::exception &e) {
         throw std::runtime_error(std::string("Error: ") +
-                                 std::to_string(static_cast<int>(Error::wrongNodesFileStructure)) +
+                                 std::to_string(
+                                     static_cast<int>(
+                                     Error::wrongNodesFileStructure)) +
                                  "\nBad nodes file structure!\n");
 
     }
@@ -96,7 +111,8 @@ Vector<std::tuple<int, double, double, std::string,
  * Reads links file
  * @author	Ahmed
  * @date	2/14/2023
- * @exception	std::runtime_error	Raised when a runtime error condition occurs.
+ * @exception	std::runtime_error	Raised when a runtime error
+ *              condition occurs.
  * @param 	fileName	Filename of the file.
  * @returns	The links data. A vector record has the following:
  *                          1. Link User ID
@@ -105,26 +121,32 @@ Vector<std::tuple<int, double, double, std::string,
  *                          4. Link Length
  *                          5. Link Max Speed (m/s)
  *                          6. Signal User ID
- *                          7. Signal Placed At Which End Node ID
  *                          7. Link Grade
  *                          8. Link Curvature
  *                          9. Link Number of Directions
  *                          10. Speed Variation Factor
  *                          11. Is Catenary Available for this link
- *                          12. The Region the link is in
+ *                          12. Signal Placed At Which End Node ID
+ *                          13. The Region the link is in
  */
-Vector<std::tuple<int, int, int, double, double, int, std::string,
-                  double, double, int, double, bool,
-                  std::string, double, double>> ReadWriteNetwork::readLinksFile(const std::string& fileName) {
+Vector<std::tuple<int, int, int, double, double, int,
+                  double, double, int, double, bool, std::string,
+                  std::string, double,
+                  double>> ReadWriteNetwork::readLinksFile(
+    const std::string& fileName) {
         if (fileName.empty()) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::linksFileDoesNotExist)) +
+                                     std::to_string(
+                                     static_cast<int>(
+                                     Error::linksFileDoesNotExist)) +
                                      "\nLinks File does not exist!");
         }
         std::ifstream file(fileName);
         if (!file.good()) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::linksFileDoesNotExist)) +
+                                     std::to_string(
+                                         static_cast<int>(
+                                         Error::linksFileDoesNotExist)) +
                                      "\nLinks File does not exist!");
         }
         std::string line;
@@ -136,7 +158,9 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
 
         if (lines.size() == 0) {
             throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(static_cast<int>(Error::emptyLinksFile)) +
+                                     std::to_string(
+                                         static_cast<int>(
+                                         Error::emptyLinksFile)) +
                                      "\nLinks File is empty!");
         }
 
@@ -150,8 +174,9 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
         scaleValues.erase(scaleValues.begin());
 
         // Read links data
-        Vector<std::tuple<int, int, int, double, double, int, std::string,
-                          double, double, int, double, bool, std::string, double, double>> records;
+        Vector<std::tuple<int, int, int, double, double, int,
+                          double, double, int, double, bool, std::string,
+                          std::string, double, double>> records;
 
         for (int i = 2; i < lines.size(); i++) {
             Vector<std::string> linkValues;
@@ -161,29 +186,49 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
             }
             if (!linkValues.empty()) {
                 bool hasCaten;
-                std::stringstream ss(linkValues[11]);
+                std::stringstream ss(linkValues[10]);
                 ss >> hasCaten;
 
-                if (linkValues.size() < 13) {
+                if (linkValues.size() == 11) {
                     records.push_back(std::make_tuple(stoi(linkValues[0]),
                                                       std::stoi(linkValues[1]),
                                                       std::stoi(linkValues[2]),
                                                       stod(linkValues[3]),
                                                       stod(linkValues[4]),
                                                       stoi(linkValues[5]),
-                                                      linkValues[6],
+                                                      stod(linkValues[6]),
                                                       stod(linkValues[7]),
-                                                      stod(linkValues[8]),
-                                                      stoi(linkValues[9]),
-                                                      stod(linkValues[10]),
+                                                      stoi(linkValues[8]),
+                                                      stod(linkValues[9]),
                                                       hasCaten,
+                                                      "",
                                                       "ND Region",
                                                       stod(scaleValues[0]),
                                                       stod(scaleValues[1])));
                 }
-                else {
-                    records.push_back(std::tuple<int, int, int, double, double, int, std::string,
-                                                 double, double, int, double, bool, std::string,
+                else if (linkValues.size() == 12) {
+                    records.push_back(std::make_tuple(stoi(linkValues[0]),
+                                                      std::stoi(linkValues[1]),
+                                                      std::stoi(linkValues[2]),
+                                                      stod(linkValues[3]),
+                                                      stod(linkValues[4]),
+                                                      stoi(linkValues[5]),
+                                                      stod(linkValues[6]),
+                                                      stod(linkValues[7]),
+                                                      stoi(linkValues[8]),
+                                                      stod(linkValues[9]),
+                                                      hasCaten,
+                                                      linkValues[11],
+                                                      "ND Region",
+                                                      stod(scaleValues[0]),
+                                                      stod(scaleValues[1])));
+                }
+                else if (linkValues.size() == 13) {
+                    records.push_back(std::tuple<int, int, int, double,
+                                                 double, int, double,
+                                                 double, int, double,
+                                                 bool, std::string,
+                                                 std::string,
                                                  double, double>(
                         std::stoi(linkValues[0]),
                         std::stoi(linkValues[1]),
@@ -191,12 +236,12 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
                         stod(linkValues[3]),
                         stod(linkValues[4]),
                         std::stoi(linkValues[5]),
-                        linkValues[6],
+                        stod(linkValues[6]),
                         stod(linkValues[7]),
-                        stod(linkValues[8]),
-                        std::stoi(linkValues[9]),
-                        stod(linkValues[10]),
+                        std::stoi(linkValues[8]),
+                        stod(linkValues[9]),
                         hasCaten,
+                        linkValues[11],
                         linkValues[12],
                         stod(scaleValues[0]),
                         stod(scaleValues[1])));
@@ -208,7 +253,9 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
 
     } catch (const std::exception &e) {
         throw std::runtime_error(std::string("Error: ") +
-                                 std::to_string(static_cast<int>(Error::wrongLinksFileStructure)) +
+                                 std::to_string(
+                                     static_cast<int>(
+                                     Error::wrongLinksFileStructure)) +
                                  "\nBad links file structure!\n");
     }
 }
@@ -218,9 +265,10 @@ Vector<std::tuple<int, int, int, double, double, int, std::string,
          * @param nodesRecords
          * @return
          */
-Vector<std::shared_ptr<NetNode>> ReadWriteNetwork::generateNodes(Vector<std::tuple<int, double,
-                                                                             double, std::string,
-                                                                             double, double>> nodesRecords) {
+Vector<std::shared_ptr<NetNode>> ReadWriteNetwork::generateNodes(
+    Vector<std::tuple<int, double,
+                      double, std::string,
+                      double, double>> nodesRecords) {
     Vector<std::shared_ptr<NetNode>> _Nodes;
     int nodeSimID = 0;
     for (auto &record: nodesRecords) {
@@ -235,32 +283,42 @@ Vector<std::shared_ptr<NetNode>> ReadWriteNetwork::generateNodes(Vector<std::tup
     return _Nodes;
 }
 
-Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
-                                                                 Vector<std::tuple<int, int, int, double,
-                                                                                   double, int, std::string,
-                                                                                   double, double, int,
-                                                                                   double, bool, std::string,
-                                                                                   double, double> > linksRecords) {
+Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(
+    Vector<std::shared_ptr<NetNode>> theFileNodes,
+    Vector<std::tuple<int, int, int, double,
+                      double, int,
+                      double, double, int,
+                      double, bool, std::string,
+                      std::string, double, double> > linksRecords)
+{
     Vector<std::shared_ptr<NetLink>> links;
     int simulatorlinkID = 0;
     for (auto &record : linksRecords) {
         int linkID, trafficSignalID, linkNoOfDirections, fromNode, toNode;
-        double linkLength, maxSpeed, linkGrade, linkCurvature, speedVariationfactor;
-        double lengthScale, maxSpeedScale;
+        double linkLength, maxSpeed, linkGrade, linkCurvature;
+        double speedVariationfactor, lengthScale, maxSpeedScale;
         bool isCatenaryAvailable;
         std::string linkInRegion, signalsEnds;
 
-        std::tie(linkID, fromNode, toNode, linkLength, maxSpeed, trafficSignalID, signalsEnds,
-                 linkGrade, linkCurvature, linkNoOfDirections, speedVariationfactor,
-                 isCatenaryAvailable, linkInRegion, lengthScale, maxSpeedScale) = record;
+        std::tie(linkID, fromNode, toNode, linkLength, maxSpeed,
+                 trafficSignalID, linkGrade, linkCurvature,
+                 linkNoOfDirections, speedVariationfactor,
+                 isCatenaryAvailable, signalsEnds, linkInRegion,
+                 lengthScale, maxSpeedScale) = record;
 
-        std::shared_ptr<NetNode> fromNodeNode = getSimulatorNodeByUserID(theFileNodes, fromNode);
-        std::shared_ptr<NetNode> toNodeNode   = getSimulatorNodeByUserID(theFileNodes, toNode);
+        std::shared_ptr<NetNode> fromNodeNode =
+            getSimulatorNodeByUserID(theFileNodes, fromNode);
+        std::shared_ptr<NetNode> toNodeNode   =
+            getSimulatorNodeByUserID(theFileNodes, toNode);
 
-        NetLink link = NetLink(simulatorlinkID, linkID, fromNodeNode, toNodeNode, linkLength,
-                               maxSpeed, trafficSignalID, signalsEnds, linkGrade,
-                               linkCurvature, linkNoOfDirections, speedVariationfactor,
-                               isCatenaryAvailable, linkInRegion, lengthScale, maxSpeedScale);
+        NetLink link = NetLink(simulatorlinkID, linkID, fromNodeNode,
+                               toNodeNode, linkLength,
+                               maxSpeed, trafficSignalID,
+                               signalsEnds, linkGrade,
+                               linkCurvature, linkNoOfDirections,
+                               speedVariationfactor,
+                               isCatenaryAvailable, linkInRegion,
+                               lengthScale, maxSpeedScale);
         links.push_back(std::make_shared<NetLink>(link));
         simulatorlinkID++;
     }
@@ -272,28 +330,37 @@ Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(Vector<std::sha
          * Gets simulator node by user identifier
          * @author	Ahmed
          * @date	2/14/2023
-         * @exception	std::runtime_error	Raised when a runtime error condition occurs.
+         * @exception	std::runtime_error	Raised when a runtime error
+         *                                   condition occurs.
          * @param 	oldID	Identifier for the old.
          * @returns	The simulator node by user identifier.
          */
-std::shared_ptr<NetNode> ReadWriteNetwork::getSimulatorNodeByUserID(Vector<std::shared_ptr<NetNode>> theFileNodes,
-                                                              int oldID) {
+std::shared_ptr<NetNode> ReadWriteNetwork::getSimulatorNodeByUserID(
+    Vector<std::shared_ptr<NetNode>> theFileNodes,
+    int oldID)
+{
     for (std::shared_ptr<NetNode>& n : theFileNodes) {
         if (n->userID == oldID) {
             return n;
         }
     }
     throw std::runtime_error(std::string("Error: ") +
-                             std::to_string(static_cast<int>(Error::cannotFindNode)) +
-                             "\nCould not find the node ID: " + std::to_string(oldID) + "\n");
+                             std::to_string(
+                                 static_cast<int>(
+                                 Error::cannotFindNode)) +
+                             "\nCould not find the node ID: " +
+                             std::to_string(oldID) + "\n");
 }
 
 
 
-bool ReadWriteNetwork::writeLinksFile(Vector<std::tuple<int, int, int, double, double,
-                                                        int, std::string, double, double, int,
-                                                        double, bool, string,
-                                                        double, double> > linksRecords, string &filename) {
+bool ReadWriteNetwork::writeLinksFile(
+    Vector<std::tuple<int, int, int, double, double,
+                      int, double, double, int,
+                      double, bool, std::string,
+                      std::string, double, double> > linksRecords,
+    string &filename)
+{
     if (filename.empty()) {
         return false;
     }
@@ -302,10 +369,11 @@ bool ReadWriteNetwork::writeLinksFile(Vector<std::tuple<int, int, int, double, d
     }
     std::stringstream lines;
     lines << "File is created using NeTrainSim GUI\n";
-    lines << std::get<12>(linksRecords[0]) << "\t" << std::get<13>(linksRecords[0]) << "\n";
+    lines << std::get<12>(linksRecords[0]) << "\t" <<
+        std::get<13>(linksRecords[0]) << "\n";
 
     for (auto& record: linksRecords) {
-        lines << Utils::convertTupleToStringStream(record, 12, "\t").str();
+        lines << Utils::convertTupleToStringStream(record, -2, "\t").str();
         lines << "\n";
     }
     return Utils::writeToFile(lines, filename);
@@ -314,18 +382,20 @@ bool ReadWriteNetwork::writeLinksFile(Vector<std::tuple<int, int, int, double, d
 
 
 
-bool ReadWriteNetwork::writeNodesFile(Vector<std::tuple<int, double, double, std::string,
-                                                        double, double> > nodesRecords, string &filename) {
+bool ReadWriteNetwork::writeNodesFile(
+    Vector<std::tuple<int, double, double, std::string,
+                      double, double> > nodesRecords, string &filename) {
     if (filename.empty()) {
         return false;
     }
 
     std::stringstream lines;
     lines << "File is created using NeTrainSim GUI\n";
-    lines << std::get<4>(nodesRecords[0]) << "\t" << std::get<5>(nodesRecords[0]) << "\n";
+    lines << std::get<4>(nodesRecords[0]) << "\t" <<
+        std::get<5>(nodesRecords[0]) << "\n";
 
     for (auto& record: nodesRecords) {
-        lines << Utils::convertTupleToStringStream(record, 3, "\t").str();
+        lines << Utils::convertTupleToStringStream(record, -2, "\t").str();
         lines << "\n";
     }
     return Utils::writeToFile(lines, filename);
