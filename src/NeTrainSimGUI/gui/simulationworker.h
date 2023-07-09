@@ -21,14 +21,16 @@
 
 /**
  * @class SimulationWorker
- * @brief The SimulationWorker class performs simulation work in a separate thread.
+ * @brief The SimulationWorker class performs simulation work in
+ * a separate thread.
  */
 class SimulationWorker : public QObject {
     Q_OBJECT
 
 public:
     /**
-     * @brief Constructs a SimulationWorker object with the specified input data and parameters.
+     * @brief Constructs a SimulationWorker object with the specified
+     * input data and parameters.
      * @param nodeRecords The node records for the simulation.
      * @param linkRecords The link records for the simulation.
      * @param trainRecords The train records for the simulation.
@@ -38,22 +40,29 @@ public:
      * @param plotFrequency The plot frequency for the simulation.
      * @param exportDir The export directory for the simulation.
      * @param summaryFilename The summary filename for the simulation.
-     * @param exportInsta Indicates whether to export instant data in the simulation.
+     * @param exportInsta Indicates whether to export instant data in the
+     * simulation.
      * @param instaFilename The instant data filename for the simulation.
-     * @param exportAllTrainsSummary Indicates whether to export summary data for all trains in the simulation.
+     * @param exportAllTrainsSummary Indicates whether to export summary
+     * data for all trains in the simulation.
      */
     SimulationWorker(Vector<std::tuple<int, double, double, std::string,
                                        double, double>> nodeRecords,
-                     Vector<tuple<int, int, int, double, double, int, std::string,
-                                  double, double, int, double, bool,
-                                  std::string, double, double>> linkRecords,
+                     Vector<tuple<int, int, int, double, double, int, double,
+                                  double, int, double, bool, string,
+                                  string, double, double> > linkRecords,
                      Vector<tuple<std::string, Vector<int>, double, double,
-                                  Vector<tuple<double, double, double, double, double, double, int, int>>,
-                                  Vector<tuple<double, double, double, double, double, int, int>>,
+                                  Vector<tuple<double, double, double,
+                                               double, double, double, int,
+                                               int>>,
+                                  Vector<tuple<double, double, double,
+                                               double, double, int, int>>,
                                   bool>> trainRecords,
                      std::string networkName,
-                     double endTime, double timeStep, double plotFrequency, std::string exportDir,
-                     std::string summaryFilename, bool exportInsta, std::string instaFilename, bool exportAllTrainsSummary);
+                     double endTime, double timeStep, double plotFrequency,
+                     std::string exportDir,
+                     std::string summaryFilename, bool exportInsta,
+                     std::string instaFilename, bool exportAllTrainsSummary);
 
     /**
      * @brief Destroys the SimulationWorker object.
@@ -66,13 +75,19 @@ signals:
      * @param summaryData The summary data of the simulation.
      * @param trajectoryFile The trajectory file path of the simulation.
      */
-    void simulationFinished(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile);
+    void simulationFinished(
+        const Vector<std::pair<std::string, std::string>>& summaryData,
+        const std::string& trajectoryFile);
 
     /**
      * @brief Signal emitted when the coordinates of trains are updated.
-     * @param trainsStartEndPoints The start and end points of trains' coordinates.
+     * @param trainsStartEndPoints The start and end points of trains'
+     * coordinates.
      */
-    void trainsCoordinatesUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
+    void trainsCoordinatesUpdated(
+        Vector<std::pair<std::string,
+                         Vector<std::pair<double,
+                                          double>>>> trainsStartEndPoints);
 
     /**
      * @brief Signal emitted when the simulation progress is updated.
@@ -95,16 +110,23 @@ public slots:
 
     /**
      * @brief Slot called when the coordinates of trains are updated.
-     * @param trainsStartEndPoints The start and end points of trains' coordinates.
+     * @param trainsStartEndPoints The start and end points of trains'
+     * coordinates.
      */
-    void onTrainsCoordinatesUpdated(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints);
+    void onTrainsCoordinatesUpdated(
+        Vector<std::pair<std::string,
+                         Vector<std::pair<double,
+                                          double>>>> trainsStartEndPoints);
 
     /**
      * @brief Slot called when the simulation is finished.
      * @param summaryData The summary data of the simulation.
      * @param trajectoryFile The trajectory file path of the simulation.
      */
-    void onSimulationFinished(const Vector<std::pair<std::string, std::string>> &summaryData, const string &trajectoryFile);
+    void onSimulationFinished(
+        const Vector<std::pair<std::string,
+                               std::string>> &summaryData,
+        const string &trajectoryFile);
 
     /**
      * @brief Slot called to start the simulation work.
@@ -112,8 +134,10 @@ public slots:
     void doWork();
 
 public:
-    Simulator* sim; /**< Pointer to the Simulator object for performing the simulation. */
-    Network* net; /**< Pointer to the Network object used in the simulation. */
+    /**< Pointer to the Simulator object for performing the simulation. */
+    Simulator* sim;
+    /**< Pointer to the Network object used in the simulation. */
+    Network* net;
 };
 
 #endif // SIMULATIONWORKER_H
