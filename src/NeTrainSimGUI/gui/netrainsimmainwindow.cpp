@@ -1124,9 +1124,12 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
  * @param fileName The name of the file to read the link data from.
  * @return A vector of link records containing the link data.
  */
-Vector<tuple<int, int, int, double, double, int, std::string,
-                  double, double, int, double, bool,
-                  std::string, double, double>>  NeTrainSim::getLinkesDataFromLinksFile(QString fileName) {
+Vector<tuple<int, int, int, double, double, int,
+             double, double, int, double, bool,
+             std::string, std::string,
+             double, double>>  NeTrainSim::getLinkesDataFromLinksFile(
+    QString fileName)
+{
     auto records = ReadWriteNetwork::readLinksFile(fileName.toStdString());
     return records;
 }
@@ -1137,13 +1140,14 @@ Vector<tuple<int, int, int, double, double, int, std::string,
  *
  * @return A vector of link records containing the link data from the table.
  */
-Vector<tuple<int, int, int, double, double, int, std::string,
-                  double, double, int, double, bool,
-                  std::string, double, double>>  NeTrainSim::getLinkesDataFromLinksTable() {
+Vector<tuple<int, int, int, double, double, int,
+             double, double, int, double, bool,
+             std::string, std::string, double,
+             double>>  NeTrainSim::getLinkesDataFromLinksTable() {
 
-    Vector<tuple<int, int, int, double, double, int, std::string,
+    Vector<tuple<int, int, int, double, double, int,
                       double, double, int, double, bool,
-                      std::string, double, double>> linksRecords;
+                      std::string, std::string, double, double>> linksRecords;
 
     // get the data from the QTableWidget
     for (int i = 0; i < ui->table_newLinks->rowCount(); i++) {
@@ -1177,12 +1181,12 @@ Vector<tuple<int, int, int, double, double, int, std::string,
                 1.0,
                 ui->table_newLinks->item(i, 3) ? ui->table_newLinks->item(i, 3)->text().trimmed().toDouble() : 0.0,
                 ui->table_newLinks->item(i, 4) ? ui->table_newLinks->item(i, 4)->text().trimmed().toInt() : 0,
-                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "",
                 ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 5)->text().trimmed().toDouble() : 0.0,
                 ui->table_newLinks->item(i, 7) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0,
                 direction,
                 ui->table_newLinks->item(i, 9) ? ui->table_newLinks->item(i, 8)->text().trimmed().toDouble() : 0.0,
                 catenary,
+                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "",
                 ui->table_newLinks->item(i, 11) ? ui->table_newLinks->item(i, 10)->text().trimmed().toStdString() : "",
                 1.0,
                 ui->doubleSpinBox_SpeedScale->value()
@@ -1200,11 +1204,13 @@ Vector<tuple<int, int, int, double, double, int, std::string,
  * @return A tuple containing the start and end node IDs as plottable data.
  */
 tuple<QVector<QString>,
-           QVector<QString>> NeTrainSim::getLinksPlottableData(Vector<tuple<int, int, int,
-                                                                     double, double, int, std::string,
-                                                                     double, double, int,
-                                                                     double, bool, std::string,
-                                                                     double, double>> linksRecords) {
+           QVector<QString>> NeTrainSim::getLinksPlottableData(
+    Vector<tuple<int, int, int,
+           double, double, int,
+           double, double, int,
+           double, bool, std::string,
+           std::string,
+           double, double>> linksRecords) {
     QVector<QString> startNodes;
     QVector<QString> endNodes;
 
@@ -1594,12 +1600,16 @@ void NeTrainSim::showWarning(QString text) {
 void NeTrainSim::simulate() {
     try {
 
-        Vector<std::tuple<int, double, double, std::string, double, double>> nodeRecords;
-        Vector<tuple<int, int, int, double, double, int, std::string, double, double, int, double, bool,
-                     std::string, double, double>> linkRecords;
+        Vector<std::tuple<int, double, double, std::string,
+                          double, double>> nodeRecords;
+        Vector<tuple<int, int, int, double, double, int, double, double,
+                     int, double, bool, std::string, std::string,
+                     double, double>> linkRecords;
         Vector<tuple<std::string, Vector<int>, double, double,
-                     Vector<tuple<double, double, double, double, double, double, int, int>>,
-                     Vector<tuple<double, double, double, double, double, int, int>>,
+                     Vector<tuple<double, double, double, double,
+                                  double, double, int, int>>,
+                     Vector<tuple<double, double, double,
+                                  double, double, int, int>>,
                      bool>> trainRecords;
 
         if (ui->checkBox_defineNewNetwork->checkState() == Qt::Checked) {
@@ -1628,8 +1638,12 @@ void NeTrainSim::simulate() {
             }
             // try to read the files
             try {
-                nodeRecords = ReadWriteNetwork::readNodesFile(ui->lineEdit_nodes->text().trimmed().toStdString());
-                linkRecords = ReadWriteNetwork::readLinksFile(ui->lineEdit_links->text().trimmed().toStdString());
+                nodeRecords =
+                    ReadWriteNetwork::readNodesFile(
+                    ui->lineEdit_nodes->text().trimmed().toStdString());
+                linkRecords =
+                    ReadWriteNetwork::readLinksFile(
+                    ui->lineEdit_links->text().trimmed().toStdString());
             } catch (const std::exception& e) {
                 ErrorHandler::showError(e.what());
                 return;
@@ -1647,7 +1661,9 @@ void NeTrainSim::simulate() {
             }
         }
         else {
-            trainRecords = TrainsList::readTrainsFile(ui->lineEdit_trains->text().toStdString());
+            trainRecords =
+                TrainsList::readTrainsFile(
+                ui->lineEdit_trains->text().toStdString());
         }
 
         std::string exportDir = "";
@@ -1661,23 +1677,28 @@ void NeTrainSim::simulate() {
 
         std::string summaryFilename = "";
         if (! ui->lineEdit_summaryfilename->text().trimmed().isEmpty()) {
-            summaryFilename = ui->lineEdit_summaryfilename->text().trimmed().toStdString();
+            summaryFilename =
+                ui->lineEdit_summaryfilename->text().trimmed().toStdString();
         }
         else {
             this->showWarning("Summary filename is not set!");
             return;
         }
 
-        bool exportAllTrainsSummary = ui->checkBox_detailedTrainsSummay->checkState() == Qt::Checked;
-        bool exportInta = ui->checkBox_exportTrajectory->checkState() == Qt::Checked;
+        bool exportAllTrainsSummary =
+            ui->checkBox_detailedTrainsSummay->checkState() == Qt::Checked;
+        bool exportInta =
+            ui->checkBox_exportTrajectory->checkState() == Qt::Checked;
 
         std::string instaFilename = "";
         if (! ui->lineEdit_trajectoryFilename->text().trimmed().isEmpty() &&
             exportInta) {
-            instaFilename = ui->lineEdit_trajectoryFilename->text().trimmed().toStdString();
+            instaFilename =
+                ui->lineEdit_trajectoryFilename->text().trimmed().toStdString();
         }
         else if (exportInta &&
-                   ui->lineEdit_trajectoryFilename->text().trimmed().isEmpty()) {
+                   ui->lineEdit_trajectoryFilename->text().trimmed().isEmpty())
+        {
             this->showWarning("Summary filename is not set!");
             return;
         }
@@ -1686,8 +1707,11 @@ void NeTrainSim::simulate() {
         }
 
 
-        std::string netName = ui->lineEdit_networkName->text().trimmed().isEmpty()? "Not Defined" :
-                                  ui->lineEdit_networkName->text().trimmed().toStdString();
+        std::string netName =
+            ui->lineEdit_networkName->text().
+                                  trimmed().isEmpty() ? "Not Defined" :
+                                  ui->lineEdit_networkName->text().
+                                                        trimmed().toStdString();
         double endTime = ui->doubleSpinBox->value();
         double timeStep = ui->doubleSpinBox_timeStep->value();
         int plotFreq = ui->spinBox_plotEvery->value();
@@ -1703,22 +1727,30 @@ void NeTrainSim::simulate() {
 
         ui->progressBar->setVisible(true);
         worker = new SimulationWorker(nodeRecords, linkRecords, trainRecords,
-                                            netName, endTime, timeStep, plotFreq,
-                                            exportDir, summaryFilename, exportInta,
-                                            instaFilename, exportAllTrainsSummary);
+                                      netName, endTime, timeStep, plotFreq,
+                                      exportDir, summaryFilename, exportInta,
+                                      instaFilename, exportAllTrainsSummary);
 
         // handle any error that arise from the simulator
-        connect(worker, &SimulationWorker::errorOccurred, this, &NeTrainSim::handleError);
+        connect(worker, &SimulationWorker::errorOccurred, this,
+                &NeTrainSim::handleError);
 
         // update the progress bar
-        connect(worker, &SimulationWorker::simulaionProgressUpdated, ui->progressBar, &QProgressBar::setValue);
+        connect(worker, &SimulationWorker::simulaionProgressUpdated,
+                ui->progressBar, &QProgressBar::setValue);
 
         // Connect the operationCompleted signal to a slot in your GUI class
-        connect(worker, &SimulationWorker::simulationFinished, this, &NeTrainSim::handleSimulationFinished);
+        connect(worker, &SimulationWorker::simulationFinished, this,
+                &NeTrainSim::handleSimulationFinished);
 
         // replot the trains coordinates
         connect(worker, &SimulationWorker::trainsCoordinatesUpdated, this,
-                [this](Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints) {
+                [this](Vector<
+                       std::pair<std::string,
+                                 Vector<std::pair<double,
+                                                  double>>>>
+                                                    trainsStartEndPoints)
+                {
                     updateTrainsPlot(trainsStartEndPoints);
                 });
 
@@ -1748,26 +1780,33 @@ void NeTrainSim::simulate() {
 
 
 // Slot to handle the simulation finished signal
-void NeTrainSim::handleSimulationFinished(Vector<std::pair<std::string, std::string>> summaryData, std::string trajectoryFile) {
-        ui->tabWidget_project->setTabEnabled(4, true); // enable the results window
-        ui->pushButton_projectNext->setEnabled(true);
-        this->ui->progressBar->setVisible(false);
-        this->showNotification("Simulation finished Successfully!");
-        this->trainsSummaryData = summaryData;
-        this->thread->quit();
-        this->thread = nullptr;
-        delete this->worker;
-        this->worker = nullptr;
-        this->showReport();
-        this->showDetailedReport(QString::fromStdString(trajectoryFile));
-        //QMetaObject::invokeMethod(this, "showReport", Qt::QueuedConnection); // Call showReport in the GUI thread
-        ui->tabWidget_project->setCurrentIndex(4);
-        ui->pushButton_pauseResume->setVisible(false);
+void NeTrainSim::handleSimulationFinished(
+    Vector<std::pair<std::string,
+                     std::string>> summaryData,
+    std::string trajectoryFile)
+{
+    // enable the results window
+    ui->tabWidget_project->setTabEnabled(4, true);
+    ui->pushButton_projectNext->setEnabled(true);
+    this->ui->progressBar->setVisible(false);
+    this->showNotification("Simulation finished Successfully!");
+    this->trainsSummaryData = summaryData;
+    this->thread->quit();
+    this->thread = nullptr;
+    delete this->worker;
+    this->worker = nullptr;
+    this->showReport();
+    this->showDetailedReport(QString::fromStdString(trajectoryFile));
+    ui->tabWidget_project->setCurrentIndex(4);
+    ui->pushButton_pauseResume->setVisible(false);
 }
 
 void NeTrainSim::saveProjectFile(bool saveAs) {
     if (projectFileName.isEmpty() || saveAs) {
-        QString saveFilePath = QFileDialog::getSaveFileName(this, "Save Project", QDir::homePath(),  "NeTrainSim Files (*.NTS)");
+        QString saveFilePath =
+            QFileDialog::getSaveFileName(this, "Save Project",
+                                         QDir::homePath(),
+                                         "NeTrainSim Files (*.NTS)");
         if (saveFilePath.isEmpty()) {
             return;
         }
@@ -1775,12 +1814,26 @@ void NeTrainSim::saveProjectFile(bool saveAs) {
     }
 
 //    try {
-        projectName = (!ui->lineEdit_projectName->text().trimmed().isEmpty()) ? ui->lineEdit_projectName->text().trimmed() : "Not Defined";
-        author = (!ui->lineEdit_createdBy->text().trimmed().isEmpty()) ? ui->lineEdit_createdBy->text().trimmed() : "Not Defined";
-        networkName = (!ui->lineEdit_networkName->text().trimmed().isEmpty()) ? ui->lineEdit_networkName->text().trimmed() : "Not Defined";
-        QString simulationEndTime = QString::number(std::max(ui->doubleSpinBox->text().trimmed().toDouble(), 0.0));
-        QString simulationTimestep = QString::number(std::max(ui->doubleSpinBox_timeStep->text().trimmed().toDouble(), 0.1));
-        QString simulationPlotTime = QString::number(ui->doubleSpinBox->text().trimmed().toDouble());
+        projectName =
+         (!ui->lineEdit_projectName->text().trimmed().
+                    isEmpty()) ? ui->lineEdit_projectName->text().
+                                          trimmed() : "Not Defined";
+        author =
+            (!ui->lineEdit_createdBy->text().trimmed().
+                   isEmpty()) ? ui->lineEdit_createdBy->text().
+                                          trimmed() : "Not Defined";
+        networkName =
+            (!ui->lineEdit_networkName->text().trimmed().
+                        isEmpty()) ? ui->lineEdit_networkName->text().
+                                          trimmed() : "Not Defined";
+        QString simulationEndTime =
+            QString::number(std::max(ui->doubleSpinBox->text().
+                                          trimmed().toDouble(), 0.0));
+        QString simulationTimestep =
+            QString::number(std::max(
+                ui->doubleSpinBox_timeStep->text().trimmed().toDouble(), 0.1));
+        QString simulationPlotTime =
+            QString::number(ui->doubleSpinBox->text().trimmed().toDouble());
 
         if (nodesFilename.isEmpty()) {
             showWarning("Save nodes file first!");
@@ -1795,9 +1848,11 @@ void NeTrainSim::saveProjectFile(bool saveAs) {
             return;
         }
 
-        XMLManager::createProjectFile(projectName, networkName, author, nodesFilename, linksFilename,
-                                  trainsFilename, simulationEndTime, simulationTimestep, simulationPlotTime,
-                                  projectFileName);
+        XMLManager::createProjectFile(projectName, networkName, author,
+                                      nodesFilename, linksFilename,
+                                      trainsFilename, simulationEndTime,
+                                      simulationTimestep, simulationPlotTime,
+                                      projectFileName);
 
         showNotification("File Saved Successfully");
 //    } catch (const std::exception& e) {
@@ -1805,7 +1860,10 @@ void NeTrainSim::saveProjectFile(bool saveAs) {
 //    }
 }
 
-void NeTrainSim::updateTrainsPlot(Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints) {
+void NeTrainSim::updateTrainsPlot(
+        Vector<std::pair<std::string,
+                     Vector<std::pair<double,double>>>> trainsStartEndPoints)
+{
     // check if the plot has at least 2 graphs, that means no links added
     if (ui->plot_simulation->graphCount() < 2) { return; }
 
@@ -1817,7 +1875,9 @@ void NeTrainSim::updateTrainsPlot(Vector<std::pair<std::string, Vector<std::pair
 
     // the first graph is for nodes and the second is for links
     // starting from the third, is the trains graphs
-    while((ui->plot_simulation->graphCount() - 2) < trainsStartEndPoints.size()) {
+    while((ui->plot_simulation->graphCount() - 2) <
+           trainsStartEndPoints.size())
+    {
         auto graph = ui->plot_simulation->addGraph();
 
         // Generate a random Qt::GlobalColor value
@@ -1833,10 +1893,12 @@ void NeTrainSim::updateTrainsPlot(Vector<std::pair<std::string, Vector<std::pair
 
         // skip the first two graphs
         int index = std::max(ui->plot_simulation->graphCount() - 2, 0);
-        index = std::min(index, static_cast<int>(trainsStartEndPoints.size()) - 1);
+        index = std::min(index,
+                         static_cast<int>(trainsStartEndPoints.size()) - 1);
 
         // Set the name for the graph in the legend
-        graph->setName(QString::fromStdString(trainsStartEndPoints[index].first));
+        graph->setName(QString::fromStdString(
+                                        trainsStartEndPoints[index].first));
 
     }
 
@@ -1881,37 +1943,44 @@ void NeTrainSim::showReport() {
 
     QObject::connect(this->report, SIGNAL(setValue(int,QString,QVariant&,int)),
                      this, SLOT(setValue(int,QString,QVariant&,int)));
-    QObject::connect(this->report, &QtRPT::setDSInfo, this, &NeTrainSim::setDSInfo);
+    QObject::connect(this->report, &QtRPT::setDSInfo, this,
+                     &NeTrainSim::setDSInfo);
 
     this->report->loadReport(":/resources/report.xml");
 
     this->printer = new QPrinter(QPrinter::PrinterResolution);
     this->printer->setOutputFormat(QPrinter::PdfFormat);
 
-    QPageLayout pageLayout(QPageSize(QPageSize::A4), QPageLayout::Portrait, QMarginsF(0, 0, 0, 0));
+    QPageLayout pageLayout(QPageSize(QPageSize::A4),
+                           QPageLayout::Portrait, QMarginsF(0, 0, 0, 0));
     this->printer->setPageLayout(pageLayout);
     this->printer->setFullPage(true);
 
     // connect the print preview to the report
-    connect(ui->widget_SummaryReport, SIGNAL(paintRequested(QPrinter*)), this->report, SLOT(printPreview(QPrinter*)));
+    connect(ui->widget_SummaryReport, SIGNAL(paintRequested(QPrinter*)),
+            this->report, SLOT(printPreview(QPrinter*)));
 
     auto popup = [=]() {
         this->report->printExec();
     };
 
-    QObject::connect(ui->pushButton_popoutPreview, &QPushButton::clicked, popup);
+    QObject::connect(ui->pushButton_popoutPreview,
+                     &QPushButton::clicked, popup);
 }
 
 
-void NeTrainSim::setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage)
+void NeTrainSim::setValue(const int recNo, const QString paramName,
+                          QVariant &paramValue, const int reportPage)
 {
     if (paramName == "Description") {
 //        if (reportPage == 0) {
-        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].first);
+        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].
+                                            first);
 //        }
     }
     if (paramName == "Value") {
-        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].second);
+        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].
+                                            second);
     }
 
     if (paramName == "Project") {
@@ -1956,8 +2025,11 @@ void NeTrainSim::showDetailedReport(QString trajectoryFilename) {
         if (ui->comboBox_trainsResults->currentText() == "--") {
             return;
         }
-        auto selectedTrain = CSV->filterByColumn(df, 0, ui->comboBox_trainsResults->currentText());
-        int columnNumber = ui->comboBox_resultsXAxis->currentText() == "Distance" ? 2 : 1;
+        auto selectedTrain =
+            CSV->filterByColumn(df, 0,
+                                ui->comboBox_trainsResults->currentText());
+        int columnNumber =
+            ui->comboBox_resultsXAxis->currentText() == "Distance" ? 2 : 1;
         QString xAxisLabel = ui->comboBox_resultsXAxis->currentText() == "Distance" ? "Distance (km)" : "Time (hr)";
         double xDataFactor = ui->comboBox_resultsXAxis->currentText() == "Distance" ? 1.0/1000 : 1.0 / 3600.0;
         auto xData = Utils::factorQVector(Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, columnNumber)), xDataFactor);
