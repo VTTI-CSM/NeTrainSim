@@ -51,7 +51,6 @@ public:
     int direction; /**< The direction of the link. */
     double speedVariation; /**< The speed variation of the link. */
     std::string region; /**< The region in which the link is located. */
-    double linksScaleLength; /**< The length scale of the links. */
     double linksScaleFreeSpeed; /**< The free speed scale of the links. */
     Vector<std::shared_ptr<Train>> currentTrains; /**< A vector of pointers to trains currently on this link. */
     double cost; /**< The cost associated with this link. */
@@ -78,10 +77,12 @@ public:
      * @param lengthScale The length scale of the link.
      * @param maxSpeedScale The maximum speed scale of the link.
      */
-    NetLink(int simulatorID, int linkID, std::shared_ptr<NetNode> fromNode, std::shared_ptr<NetNode> toNode,
-            double linkLength, double maxSpeed, int trafficSignalID, string signalAtEnd, double linkGrade,
-            double linkCurvature, int linkNoOfDirections, double speedVariationfactor,
-            bool isCatenaryAvailable, string linkInRegion, double lengthScale, double maxSpeedScale);
+    NetLink(int simulatorID, int linkID, std::shared_ptr<NetNode> fromNode,
+            std::shared_ptr<NetNode> toNode, double maxSpeed,
+            int trafficSignalID, string signalAtEnd, double linkGrade,
+            double linkCurvature, int linkNoOfDirections,
+            double speedVariationfactor, bool isCatenaryAvailable,
+            string linkInRegion, double maxSpeedScale);
 
     /**
      * @brief Destructor
@@ -93,12 +94,6 @@ public:
      * @param newID The new simulator identifier.
      */
     void setLinkSimulatorID(int newID);
-
-    /**
-     * @brief Updates the links scale length.
-     * @param newScale The new scale value.
-     */
-    void updateLinksScaleLength(double newScale);
 
     /**
      * @brief Gets the number of links in the simulator.
@@ -163,6 +158,10 @@ private:
     std::pair<double, double> getPositionOnVector(std::pair<std::pair<double, double>, std::pair<double, double>>vector,
                                                   double travelledDistanceOnXAxis);
 
+    /**
+     * @brief updateLength
+     */
+    void updateLength();
 
     /**
      * Project a specified length along a given vector direction
