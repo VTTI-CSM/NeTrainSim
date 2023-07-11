@@ -29,9 +29,14 @@ namespace TrainsList {
      * @param fileName The filename of the trains file to read.
      * @returns A Vector of train records.
      */
-Vector<std::tuple<string, Vector<int>, double, double,
-                  Vector<std::tuple<double, double, double, double, double, double, int, int>>,
-                  Vector<std::tuple<double, double, double, double, double, int, int>>,
+Vector<std::tuple<std::string, Vector<int>, double, double,
+                  Vector<std::tuple<
+                      int, double, double,
+                      int, double, double,
+                      double, double, int>>,
+                  Vector<std::tuple<int, int, double, double,
+                                    double, double,
+                                    double, int>>,
                   bool>> readTrainsFile(const std::string& fileName);
 
 /**
@@ -40,10 +45,16 @@ Vector<std::tuple<string, Vector<int>, double, double,
      * @param trainRecords The train records to generate trains from.
      * @returns A Vector of shared pointers to Train objects.
      */
-Vector<std::shared_ptr<Train>> generateTrains(Vector<std::tuple<string, Vector<int>, double, double,
-                                                                Vector<std::tuple<double, double, double, double, double, double, int, int>>,
-                                                                Vector<std::tuple<double, double, double, double, double, int, int>>,
-                                                                bool>>& trainRecords);
+Vector<std::shared_ptr<Train>> generateTrains(
+    Vector<std::tuple<std::string, Vector<int>, double, double,
+                      Vector<std::tuple<
+                          int, double, double,
+                          int, double, double,
+                          double, double, int>>,
+                      Vector<std::tuple<int, int, double, double,
+                                        double, double,
+                                        double, int>>,
+                      bool>> &trainRecords);
 
 /**
      * Reads a trains file, generates trains from the train records, and returns the generated trains.
@@ -60,10 +71,17 @@ Vector<std::shared_ptr<Train>> ReadAndGenerateTrains(const std::string& fileName
      * @param fileName The filename of the trains file to write to.
      * @returns True if the write operation is successful, false otherwise.
      */
-    bool writeTrainsFile(Vector<std::tuple<string, Vector<int>, double, double,
-                                           Vector<std::tuple<double, double, double, double, double, double, int, int> >,
-                                           Vector<std::tuple<double, double, double, double, double, int, int> >,
-                                           bool>> trains, const std::string& fileName);
+    bool writeTrainsFile(Vector<std::tuple<std::string, Vector<int>, double,
+                                       double,
+                                       Vector<std::tuple<
+                                           int, double, double,
+                                           int, double, double,
+                                           double, double, int>>,
+                                       Vector<std::tuple<int, int, double,
+                                                         double,
+                                                         double, double,
+                                                         double, int>>,
+                                       bool>> trains, const std::string& fileName);
 
 
 
