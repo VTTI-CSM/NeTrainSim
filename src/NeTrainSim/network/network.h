@@ -93,10 +93,10 @@ public:
      */
     Network(Vector<tuple<int, double, double,
                          std::string, double, double>> nodesRecords,
-            Vector<tuple<int, int, int, double, double,
+            Vector<tuple<int, int, int, double,
                          int, double, double, int, double,
                          bool, std::string, std::string,
-                         double, double>> linksRecords,
+                         double>> linksRecords,
             std::string netName = "") {
 
         if (netName == "") {
