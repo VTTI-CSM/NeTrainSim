@@ -371,7 +371,7 @@ double Locomotive::getTractiveForce(double &frictionCoef,
 		this->maxTractiveForce = f1;
 		return f1;
 	}
-	else {
+    else {
         f = min((this->locPowerReductionFactor * 1000.0 *
                  this->transmissionEfficiency *
                  this->getThrottleLevel(trainSpeed, optimize,
@@ -530,7 +530,7 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
             this->getRegenerativeEffeciency(tractivePower,
                                             trainAcceleration, trainSpeed);
 
-        return ((tractivePower) * regenerativeEff *
+        return ((tractivePower * regenerativeEff + this->auxiliaryPower) *
                 EC::getDriveLineEff(trainSpeed,
                                     this->currentLocNotch,
                                     std::abs(powerPortion),
