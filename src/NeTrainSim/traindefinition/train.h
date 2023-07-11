@@ -12,6 +12,7 @@
 #include "car.h"
 #include "locomotive.h"
 #include "../util/map.h"
+#include "qobject.h"
 #include <utility>
 #include <variant>
 
@@ -38,7 +39,8 @@ using namespace std;
  * @author	Ahmed Aredah
  * @date	2/28/2023
  */
-class Train {
+class Train : public QObject {
+    Q_OBJECT
     /***********************************************
     *              variables declaration           *
     ************************************************/
@@ -1208,6 +1210,26 @@ public:
          * @returns	The acceleration an2.
          */
         double get_acceleration_an2(double gap, double minGap, double speed, double leaderSpeed, double T_s, double frictionCoef);
+
+    public:
+    signals:
+
+        /**
+         * @brief report a sudden acceleration.
+         * @details this is emitted when the train's acceleration is larger
+         * than the jerk
+         * @param msg is the warning message
+         */
+        void suddenAccelerationOccurred(std::string msg);
+
+        /**
+         * @brief report the trains is very slow or stopped
+         * @details this is emitted when the train's speed is very
+         * slow either because the resistance is high or because the
+         * distance in front of the train is very small
+         * @param msg
+         */
+        void slowSpeedOrStopped(std::string msg);
 
 };
 

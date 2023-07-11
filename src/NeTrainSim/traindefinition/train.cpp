@@ -20,7 +20,7 @@ unsigned int Train::NumberOfTrainsInSimulator = 0;
 Train::Train(int simulatorID, string id, Vector<int> trainPath, double trainStartTime_sec, double frictionCoeff,
     Vector<std::shared_ptr<Locomotive>> locomotives, Vector<std::shared_ptr<Car>> cars, bool optimize,
     double desiredDecelerationRate_mPs, double operatorReactionTime_s, bool stopIfNoEnergy,
-    double maxAllowedJerk_mPcs) {
+             double maxAllowedJerk_mPcs) : QObject(nullptr) {
 
     this->d_des = desiredDecelerationRate_mPs;
     this->operatorReactionTime = operatorReactionTime_s;
@@ -562,9 +562,11 @@ double Train::adjustAcceleration(double speed, double previousSpeed, double delt
 }
 
 void Train::checkSuddenAccChange(double previousAcceleration, double currentAcceleration, double deltaT) {
-//    if (std::abs((currentAcceleration - previousAcceleration) / deltaT) > this->maxJerk) {
-//        throw std::runtime_error("sudden acceleration change!\n Report to the developer!");
-//    }
+    if (std::abs((currentAcceleration - previousAcceleration) / deltaT) >
+        this->maxJerk) {
+        emit suddenAccelerationOccurred(
+            "sudden acceleration change!\n Report to the developer!");
+    }
 }
 
 
@@ -613,12 +615,15 @@ double Train::getStepAcceleration(double timeStep, double freeFlowSpeed, Vector<
     }
 
 
-    if (nonsmoothedAcceleration < 0.0 && this->currentSpeed <= 0.001 && gapToNextCriticalPoint.back() > 50) {
+    if (nonsmoothedAcceleration < 0.0 && this->currentSpeed <= 0.001 &&
+        gapToNextCriticalPoint.back() > 50) {
         if (this->NoPowerCountStep < 5) {
             stringstream message;
             message << "Train " << this->id
-                    << " Slad is short or Resistance is larger than train tractive force at distance "
-                    << travelledDistance << "!\n";
+                    << " Resistance is "
+                    << "larger than train tractive force at distance "
+                    << travelledDistance << "(m)!\n";
+            emit slowSpeedOrStopped(message.str());
             Logger::Logger::logMessage(Logger::LogLevel::WARNING, message.str());
             NoPowerCountStep++;
         }
@@ -1075,7 +1080,9 @@ std::pair<double, Map<TrainTypes::PowerType, double>> Train::getMaxProvidedEnerg
     // define a var to hold the result
     Map<TrainTypes::PowerType, double> locoMaxEC = this->getMaxProvidedEnergyFromLocomotivesOnly(timeStep);
 
-    if (locoMaxEC.get_keys().size() == 0) { return std::make_pair(0.0, Map<TrainTypes::PowerType, double>()); }
+    if (locoMaxEC.get_keys().size() == 0) {
+        return std::make_pair(0.0, Map<TrainTypes::PowerType, double>());
+    }
 
     auto out = this->getMaxProvidedEnergyFromTendersOnly(locoMaxEC, timeStep);
 
