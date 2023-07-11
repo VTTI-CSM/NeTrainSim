@@ -158,6 +158,7 @@ namespace EC {
         {TrainTypes::PowerType::biodiesel, DefaultBiodieselConversionFactor},
         {TrainTypes::PowerType::biodieselHybrid, DefaultBiodieselConversionFactor},
         {TrainTypes::PowerType::hydrogenHybrid, DefaultHydrogenConversionFactor},
+        {TrainTypes::PowerType::electric, 1.0}
         };
 // ##################################################################
 // #          end: general energy consumption default values        #
