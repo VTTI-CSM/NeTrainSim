@@ -56,10 +56,9 @@ bool writeNodesFile(Vector<std::tuple<int, double, double,
      *         of the connected nodes, length, speed, etc.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, int, int, double, double, int,
-                  double, double, int, double, bool,
-                  std::string, std::string, double,
-                  double>> readLinksFile(const std::string& fileName);
+Vector<std::tuple<int, int, int, double, int, double,
+                  double, int, double, bool, string,
+                  string, double> > readLinksFile(const std::string& fileName);
 
 /**
      * @brief Writes the links file.
@@ -67,10 +66,10 @@ Vector<std::tuple<int, int, int, double, double, int,
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeLinksFile(Vector<std::tuple<int, int, int, double, double, int,
-                                      double, double, int, double, bool,
-                                      std::string, std::string, double,
-                                      double>> linksRecords,
+bool writeLinksFile(Vector<std::tuple<int, int, int, double, int,
+                                      double, double, int, double,
+                                      bool, string, string,
+                                      double> > linksRecords,
                     std::string& filename);
 
 /**
@@ -88,12 +87,8 @@ Vector<std::shared_ptr<NetNode>> generateNodes(
      * @param linksRecords The records of links as a vector of tuples.
      * @return The generated NetLink objects as a vector.
      */
-Vector<std::shared_ptr<NetLink>> generateLinks(
-    Vector<std::shared_ptr<NetNode>> theFileNodes,
-    Vector<std::tuple<int, int, int, double, double,
-                      int,double, double,
-                      int, double, bool, std::string,
-                      std::string, double, double>> linksRecords);
+Vector<std::shared_ptr<NetLink>> generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
+    Vector<std::tuple<int, int, int, double, int, double, double, int, double, bool, string, string, double> > linksRecords);
 
 /**
      * @brief Gets the NetNode object with the given user identifier.
