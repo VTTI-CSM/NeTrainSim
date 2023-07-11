@@ -6,15 +6,18 @@ SimulationWorker::SimulationWorker(
     Vector<std::tuple<int, double, double,
            std::string,
            double, double>> nodeRecords,
-    Vector<tuple<int, int, int, double, double, int,
+    Vector<tuple<int, int, int, double, int,
            double, double, int, double, bool,
-           std::string, std::string, double, double>> linkRecords,
-    Vector<tuple<std::string, Vector<int>, double, double,
-                 Vector<tuple<double, double, double, double, double,
-                              double, int, int>>,
-                 Vector<tuple<double, double, double,
-                              double, double, int, int>>,
-                 bool>> trainRecords,
+           std::string, std::string, double>> linkRecords,
+    Vector<std::tuple<std::string, Vector<int>, double, double,
+                      Vector<std::tuple<
+                          int, double, double,
+                          int, double, double,
+                          double, double, int>>,
+                      Vector<std::tuple<int, int, double, double,
+                                        double, double,
+                                        double, int>>,
+                      bool>> trainRecords,
     std::string networkName,
     double endTime, double timeStep,
     double plotFrequency, std::string exportDir,
@@ -36,6 +39,19 @@ SimulationWorker::SimulationWorker(
     // check if the trainrecords is empty
     if (trains.size() < 1) {
         emit errorOccurred("No trains are added!"); return;
+    }
+
+    // report the suddent acceleration or slow speeds
+    for (auto &t : trains) {
+        connect(t.get(), &Train::suddenAccelerationOccurred,
+                [this](const std::string& msg) {
+            emit trainSuddenAcceleration(msg);
+        });
+
+        connect(t.get(), &Train::slowSpeedOrStopped,
+               [this](const std::string& msg) {
+            emit trainSlowSpeed(msg);
+        });
     }
 
     this->sim = new Simulator(net, trains, timeStep);
