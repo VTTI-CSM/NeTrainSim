@@ -4,7 +4,7 @@ var class_vector =
     [ "argmin", "d5/db2/class_vector.html#ac414048d6f79dbe76dc3d268eec69f35", null ],
     [ "exist", "d5/db2/class_vector.html#aa16f45532f4e87931e633584b9e5dccb", null ],
     [ "hasCommonElement", "d5/db2/class_vector.html#a7c255f91343d63a32db6e8922f45846e", null ],
-    [ "index", "d5/db2/class_vector.html#a9d6aef6499e5a42b959153ad9fa9b1ee", null ],
+    [ "index", "d5/db2/class_vector.html#ad8eb5ede7cccd4d27386a50d0fbd562d", null ],
     [ "insertToEnd", "d5/db2/class_vector.html#ac1e737456e1c8c7934b81b5424753cd0", null ],
     [ "isSubsetOf", "d5/db2/class_vector.html#a20e99b280ec953a42f8151049a296ba3", null ],
     [ "max", "d5/db2/class_vector.html#ab5b4b4a2e96b296e67ea96bfaffb127e", null ],

@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -102,6 +102,7 @@ $(document).ready(function(){initNavTree('dd/dc9/class_simulation_worker.html','
 <a href="#pub-slots">Public Slots</a> &#124;
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="../../d0/d30/class_simulation_worker-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">SimulationWorker Class Reference</div></div>
 </div><!--header-->
@@ -147,21 +148,33 @@ Signals</h2></td></tr>
 <tr class="memitem:aada09ee10817c1f008072a3a26daca87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#aada09ee10817c1f008072a3a26daca87">errorOccurred</a> (std::string error)</td></tr>
 <tr class="memdesc:aada09ee10817c1f008072a3a26daca87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when an error occurs during the simulation.  <br /></td></tr>
 <tr class="separator:aada09ee10817c1f008072a3a26daca87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf5ad5ac928fe7f77dabb481cc0ac33d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#acf5ad5ac928fe7f77dabb481cc0ac33d">trainSuddenAcceleration</a> (std::string msg)</td></tr>
+<tr class="separator:acf5ad5ac928fe7f77dabb481cc0ac33d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63fc06c98b378157082e239b862b045a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#a63fc06c98b378157082e239b862b045a">trainSlowSpeed</a> (std::string msg)</td></tr>
+<tr class="separator:a63fc06c98b378157082e239b862b045a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac833882815aaf7ce96276b42cce226c0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#ac833882815aaf7ce96276b42cce226c0">SimulationWorker</a> (<a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, double, double, std::string, double, double &gt; &gt; nodeRecords, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; int, int, int, double, double, int, double, double, int, double, bool, std::string, double, double &gt; &gt; linkRecords, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; std::string, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;, double, double, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; double, double, double, double, double, double, int, int &gt; &gt;, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; double, double, double, double, double, int, int &gt; &gt;, bool &gt; &gt; trainRecords, std::string networkName, double endTime, double timeStep, double plotFrequency, std::string exportDir, std::string summaryFilename, bool exportInsta, std::string instaFilename, bool exportAllTrainsSummary)</td></tr>
-<tr class="memdesc:ac833882815aaf7ce96276b42cce226c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a <a class="el" href="../../dd/dc9/class_simulation_worker.html" title="The SimulationWorker class performs simulation work in a separate thread.">SimulationWorker</a> object with the specified input data and parameters.  <br /></td></tr>
-<tr class="separator:ac833882815aaf7ce96276b42cce226c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a366a9a1d2bcfe48f796ba737649b348d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#a366a9a1d2bcfe48f796ba737649b348d">SimulationWorker</a> (<a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, double, double, std::string, double, double &gt; &gt; nodeRecords, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; int, int, int, double, int, double, double, int, double, bool, string, string, double &gt; &gt; linkRecords, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; std::string, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;, double, double, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, double, double, int, double, double, double, double, int &gt; &gt;, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, int, double, double, double, double, double, int &gt; &gt;, bool &gt; &gt; trainRecords, std::string networkName, double endTime, double timeStep, double plotFrequency, std::string exportDir, std::string summaryFilename, bool exportInsta, std::string instaFilename, bool exportAllTrainsSummary)</td></tr>
+<tr class="memdesc:a366a9a1d2bcfe48f796ba737649b348d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a <a class="el" href="../../dd/dc9/class_simulation_worker.html" title="The SimulationWorker class performs simulation work in a separate thread.">SimulationWorker</a> object with the specified input data and parameters.  <br /></td></tr>
+<tr class="separator:a366a9a1d2bcfe48f796ba737649b348d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4018fea17ef8c12cd1ba4e3d9c030914"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#a4018fea17ef8c12cd1ba4e3d9c030914">~SimulationWorker</a> ()</td></tr>
 <tr class="memdesc:a4018fea17ef8c12cd1ba4e3d9c030914"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys the <a class="el" href="../../dd/dc9/class_simulation_worker.html" title="The SimulationWorker class performs simulation work in a separate thread.">SimulationWorker</a> object.  <br /></td></tr>
 <tr class="separator:a4018fea17ef8c12cd1ba4e3d9c030914"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ae85a3e6ef6697ac26d4b43c44a17b633"><td class="memItemLeft" align="right" valign="top">Simulator *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#ae85a3e6ef6697ac26d4b43c44a17b633">sim</a></td></tr>
+<tr class="memdesc:ae85a3e6ef6697ac26d4b43c44a17b633"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Pointer to the Simulator object for performing the simulation.  <br /></td></tr>
+<tr class="separator:ae85a3e6ef6697ac26d4b43c44a17b633"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a150e2e45f7c01608857d3ac3cde220fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../de/de1/class_network.html">Network</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dc9/class_simulation_worker.html#a150e2e45f7c01608857d3ac3cde220fc">net</a></td></tr>
+<tr class="separator:a150e2e45f7c01608857d3ac3cde220fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="../../dd/dc9/class_simulation_worker.html" title="The SimulationWorker class performs simulation work in a separate thread.">SimulationWorker</a> class performs simulation work in a separate thread. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ac833882815aaf7ce96276b42cce226c0" name="ac833882815aaf7ce96276b42cce226c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac833882815aaf7ce96276b42cce226c0">&#9670;&#160;</a></span>SimulationWorker()</h2>
+<a id="a366a9a1d2bcfe48f796ba737649b348d" name="a366a9a1d2bcfe48f796ba737649b348d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a366a9a1d2bcfe48f796ba737649b348d">&#9670;&#160;</a></span>SimulationWorker()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -175,13 +188,13 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; int, int, int, double, double, int, double, double, int, double, bool, std::string, double, double &gt; &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; int, int, int, double, int, double, double, int, double, bool, string, string, double &gt; &gt;&#160;</td>
           <td class="paramname"><em>linkRecords</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; std::string, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;, double, double, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; double, double, double, double, double, double, int, int &gt; &gt;, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; tuple&lt; double, double, double, double, double, int, int &gt; &gt;, bool &gt; &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; std::string, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;, double, double, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, double, double, int, double, double, double, double, int &gt; &gt;, <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::tuple&lt; int, int, double, double, double, double, double, int &gt; &gt;, bool &gt; &gt;&#160;</td>
           <td class="paramname"><em>trainRecords</em>, </td>
         </tr>
         <tr>
@@ -571,6 +584,90 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a63fc06c98b378157082e239b862b045a" name="a63fc06c98b378157082e239b862b045a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63fc06c98b378157082e239b862b045a">&#9670;&#160;</a></span>trainSlowSpeed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SimulationWorker::trainSlowSpeed </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acf5ad5ac928fe7f77dabb481cc0ac33d" name="acf5ad5ac928fe7f77dabb481cc0ac33d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf5ad5ac928fe7f77dabb481cc0ac33d">&#9670;&#160;</a></span>trainSuddenAcceleration</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SimulationWorker::trainSuddenAcceleration </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a150e2e45f7c01608857d3ac3cde220fc" name="a150e2e45f7c01608857d3ac3cde220fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a150e2e45f7c01608857d3ac3cde220fc">&#9670;&#160;</a></span>net</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../de/de1/class_network.html">Network</a>* SimulationWorker::net</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae85a3e6ef6697ac26d4b43c44a17b633" name="ae85a3e6ef6697ac26d4b43c44a17b633"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae85a3e6ef6697ac26d4b43c44a17b633">&#9670;&#160;</a></span>sim</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Simulator* SimulationWorker::sim</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>&lt; Pointer to the Simulator object for performing the simulation. </p>
+<p>Pointer to the <a class="el" href="../../de/de1/class_network.html" title="This class defined a network for trains.">Network</a> object used in the simulation. </p>
 
 </div>
 </div>

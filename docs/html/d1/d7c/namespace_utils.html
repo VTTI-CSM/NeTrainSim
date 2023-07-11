@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -106,13 +106,26 @@ $(document).ready(function(){initNavTree('d1/d7c/namespace_utils.html','../../')
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a21d3505afe40a926061e19a6260dd81d"><td class="memItemLeft" align="right" valign="top">std::pair&lt; double, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a21d3505afe40a926061e19a6260dd81d">dot</a> (<a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; double &gt; &gt; matrix, std::pair&lt; double, double &gt; &amp;v)</td></tr>
+<tr class="memdesc:a21d3505afe40a926061e19a6260dd81d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the dot product of a 2x2 matrix and a 2D vector.  <br /></td></tr>
+<tr class="separator:a21d3505afe40a926061e19a6260dd81d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfe79d358085a838dce245ab655ea891"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#adfe79d358085a838dce245ab655ea891">dot</a> (std::pair&lt; double, double &gt; &amp;u, std::pair&lt; double, double &gt; &amp;v)</td></tr>
+<tr class="memdesc:adfe79d358085a838dce245ab655ea891"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the dot product of two 2D vectors.  <br /></td></tr>
+<tr class="separator:adfe79d358085a838dce245ab655ea891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9fd0c701cf19051b73c064a04d571e7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#ab9fd0c701cf19051b73c064a04d571e7">cross</a> (std::pair&lt; double, double &gt; &amp;u, std::pair&lt; double, double &gt; &amp;v)</td></tr>
+<tr class="memdesc:ab9fd0c701cf19051b73c064a04d571e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the cross product of two 2D vectors.  <br /></td></tr>
+<tr class="separator:ab9fd0c701cf19051b73c064a04d571e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc501d215f458e8ca5fbb8ff7f4fea8e"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#abc501d215f458e8ca5fbb8ff7f4fea8e">getDistanceByTwoCoordinates</a> (const std::pair&lt; double, double &gt; &amp;position1, const std::pair&lt; double, double &gt; &amp;position2)</td></tr>
+<tr class="memdesc:abc501d215f458e8ca5fbb8ff7f4fea8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the Euclidean distance between two coordinates.  <br /></td></tr>
+<tr class="separator:abc501d215f458e8ca5fbb8ff7f4fea8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5fbe69c9c9227b0c0037b012cfb33182"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a5fbe69c9c9227b0c0037b012cfb33182">power</a> (double base, int exponent)</td></tr>
 <tr class="memdesc:a5fbe69c9c9227b0c0037b012cfb33182"><td class="mdescLeft">&#160;</td><td class="mdescRight">Powers.  <br /></td></tr>
 <tr class="separator:a5fbe69c9c9227b0c0037b012cfb33182"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc56db65ca01eb9d50bba6b1c6509cbe"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:adc56db65ca01eb9d50bba6b1c6509cbe"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#adc56db65ca01eb9d50bba6b1c6509cbe">thousandSeparator</a> (T n, int decimals=3)</td></tr>
-<tr class="memdesc:adc56db65ca01eb9d50bba6b1c6509cbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a plain numeric value to thousand separated value.  <br /></td></tr>
-<tr class="separator:adc56db65ca01eb9d50bba6b1c6509cbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62e7ff58b05fac3281b3c97ebde99bae"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; <br />
+requires std::is_arithmetic&lt;T&gt;</td></tr>
+<tr class="memitem:a62e7ff58b05fac3281b3c97ebde99bae"><td class="memTemplItemLeft" align="right" valign="top">::value std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a62e7ff58b05fac3281b3c97ebde99bae">thousandSeparator</a> (T n, int decimals=3)</td></tr>
+<tr class="memdesc:a62e7ff58b05fac3281b3c97ebde99bae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a plain numeric value to thousand separated value.  <br /></td></tr>
+<tr class="separator:a62e7ff58b05fac3281b3c97ebde99bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0acc66754eb4e000675e1a624d9a6fbc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a0acc66754eb4e000675e1a624d9a6fbc"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a0acc66754eb4e000675e1a624d9a6fbc">formatDuration</a> (T seconds)</td></tr>
 <tr class="memdesc:a0acc66754eb4e000675e1a624d9a6fbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format duration.  <br /></td></tr>
@@ -130,6 +143,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ae28c4aa5ddf09f77bade74ca7f6bb666"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#ae28c4aa5ddf09f77bade74ca7f6bb666">split</a> (const std::string &amp;s, char delimiter)</td></tr>
 <tr class="memdesc:ae28c4aa5ddf09f77bade74ca7f6bb666"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is splitting a given string "s" into substrings using a delimiter "delimiter" and returning the resulting substrings as a vector of strings.  <br /></td></tr>
 <tr class="separator:ae28c4aa5ddf09f77bade74ca7f6bb666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d20dab6876a4da38a2036bc64ef1fcc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a6d20dab6876a4da38a2036bc64ef1fcc">convertStringVectorToIntVector</a> (const std::vector&lt; std::string &gt; &amp;stringVector)</td></tr>
+<tr class="separator:a6d20dab6876a4da38a2036bc64ef1fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a709fc9d3286a8b90de822055fed9ca88"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7c/namespace_utils.html#a709fc9d3286a8b90de822055fed9ca88">trim</a> (const std::string &amp;str)</td></tr>
 <tr class="memdesc:a709fc9d3286a8b90de822055fed9ca88"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function trim takes in a string str and returns a copy of it with leading and trailing white spaces removed.  <br /></td></tr>
 <tr class="separator:a709fc9d3286a8b90de822055fed9ca88"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -240,6 +255,32 @@ template&lt;typename Tuple , size_t... Indices&gt; </div>
 
 </div>
 </div>
+<a id="a6d20dab6876a4da38a2036bc64ef1fcc" name="a6d20dab6876a4da38a2036bc64ef1fcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d20dab6876a4da38a2036bc64ef1fcc">&#9670;&#160;</a></span>convertStringVectorToIntVector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt; Utils::convertStringVectorToIntVector </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>stringVector</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a9a9ea9c25b329f16a7fc20679f4750c0" name="a9a9ea9c25b329f16a7fc20679f4750c0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9a9ea9c25b329f16a7fc20679f4750c0">&#9670;&#160;</a></span>convertTupleToStringStream()</h2>
 
@@ -281,6 +322,150 @@ template&lt;typename... Args&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab9fd0c701cf19051b73c064a04d571e7" name="ab9fd0c701cf19051b73c064a04d571e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9fd0c701cf19051b73c064a04d571e7">&#9670;&#160;</a></span>cross()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Utils::cross </td>
+          <td>(</td>
+          <td class="paramtype">std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the cross product of two 2D vectors. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">u</td><td>A pair of doubles representing the first vector. </td></tr>
+    <tr><td class="paramname">v</td><td>A pair of doubles representing the second vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A double representing the pseudo cross product of the two vectors.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
+
+</div>
+</div>
+<a id="adfe79d358085a838dce245ab655ea891" name="adfe79d358085a838dce245ab655ea891"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfe79d358085a838dce245ab655ea891">&#9670;&#160;</a></span>dot() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Utils::dot </td>
+          <td>(</td>
+          <td class="paramtype">std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the dot product of two 2D vectors. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">u</td><td>A pair of doubles representing the first vector. </td></tr>
+    <tr><td class="paramname">v</td><td>A pair of doubles representing the second vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A double representing the dot product of the two vectors.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
+
+</div>
+</div>
+<a id="a21d3505afe40a926061e19a6260dd81d" name="a21d3505afe40a926061e19a6260dd81d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21d3505afe40a926061e19a6260dd81d">&#9670;&#160;</a></span>dot() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt; double, double &gt; Utils::dot </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; <a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; double &gt; &gt;&#160;</td>
+          <td class="paramname"><em>matrix</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the dot product of a 2x2 matrix and a 2D vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">matrix</td><td>A 2D vector representing a 2x2 matrix. </td></tr>
+    <tr><td class="paramname">v</td><td>A pair of doubles representing a 2D vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A pair of doubles representing the resulting vector after the dot product operation.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
 
 </div>
 </div>
@@ -362,6 +547,54 @@ template&lt;typename T &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="abc501d215f458e8ca5fbb8ff7f4fea8e" name="abc501d215f458e8ca5fbb8ff7f4fea8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc501d215f458e8ca5fbb8ff7f4fea8e">&#9670;&#160;</a></span>getDistanceByTwoCoordinates()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Utils::getDistanceByTwoCoordinates </td>
+          <td>(</td>
+          <td class="paramtype">const std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>position1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::pair&lt; double, double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>position2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Computes the Euclidean distance between two coordinates. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">position1</td><td>A pair of doubles representing the first coordinate. </td></tr>
+    <tr><td class="paramname">position2</td><td>A pair of doubles representing the second coordinate. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The Euclidean distance between position1 and position2. </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
 
 </div>
 </div>
@@ -738,19 +971,20 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="adc56db65ca01eb9d50bba6b1c6509cbe" name="adc56db65ca01eb9d50bba6b1c6509cbe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc56db65ca01eb9d50bba6b1c6509cbe">&#9670;&#160;</a></span>thousandSeparator()</h2>
+<a id="a62e7ff58b05fac3281b3c97ebde99bae" name="a62e7ff58b05fac3281b3c97ebde99bae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62e7ff58b05fac3281b3c97ebde99bae">&#9670;&#160;</a></span>thousandSeparator()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;typename T &gt; <br />
+requires std::is_arithmetic&lt;T&gt;</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string Utils::thousandSeparator </td>
+          <td class="memname">::value std::string Utils::thousandSeparator </td>
           <td>(</td>
           <td class="paramtype">T&#160;</td>
           <td class="paramname"><em>n</em>, </td>

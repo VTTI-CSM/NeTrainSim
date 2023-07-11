@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -105,10 +105,7 @@ $(document).ready(function(){initNavTree('df/daf/class_checkbox_delegate.html','
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="../../df/daf/class_checkbox_delegate.html" title="The CheckboxDelegate class provides a checkbox editor for boolean data in a view.">CheckboxDelegate</a> class provides a checkbox editor for boolean data in a view.  
- <a href="../../df/daf/class_checkbox_delegate.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="../../db/dcb/_checkbox_delegate_8h_source.html">CheckboxDelegate.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../dd/d06/checkboxdelegate_8h_source.html">checkboxdelegate.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for CheckboxDelegate:</div>
 <div class="dyncontent">
@@ -118,26 +115,47 @@ Inheritance diagram for CheckboxDelegate:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2a0df6427d6518032a6da725c00c9d95"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#a2a0df6427d6518032a6da725c00c9d95">displayText</a> (const QVariant &amp;value, const QLocale &amp;locale) const override</td></tr>
-<tr class="memdesc:a2a0df6427d6518032a6da725c00c9d95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the display text for the given value and locale.  <br /></td></tr>
-<tr class="separator:a2a0df6427d6518032a6da725c00c9d95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa64732dd4cdc981f80b70d39989ea0c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#afa64732dd4cdc981f80b70d39989ea0c">CheckboxDelegate</a> (QObject *parent=nullptr)</td></tr>
+<tr class="separator:afa64732dd4cdc981f80b70d39989ea0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b1c5b9a37078b17f6b6369870ab51b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#a2b1c5b9a37078b17f6b6369870ab51b0">paint</a> (QPainter *painter, const QStyleOptionViewItem &amp;option, const QModelIndex &amp;index) const override</td></tr>
+<tr class="separator:a2b1c5b9a37078b17f6b6369870ab51b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2944e269a30277093f1bee374cbb351c"><td class="memItemLeft" align="right" valign="top">QWidget *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#a2944e269a30277093f1bee374cbb351c">createEditor</a> (QWidget *parent, const QStyleOptionViewItem &amp;option, const QModelIndex &amp;index) const override</td></tr>
-<tr class="memdesc:a2944e269a30277093f1bee374cbb351c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an editor widget for the given parent, style option, and model index.  <br /></td></tr>
 <tr class="separator:a2944e269a30277093f1bee374cbb351c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a409899c2f0f2bcd1baa4cf7cda09045b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#a409899c2f0f2bcd1baa4cf7cda09045b">setEditorData</a> (QWidget *editor, const QModelIndex &amp;index) const override</td></tr>
-<tr class="memdesc:a409899c2f0f2bcd1baa4cf7cda09045b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the data of the editor widget based on the data in the model index.  <br /></td></tr>
 <tr class="separator:a409899c2f0f2bcd1baa4cf7cda09045b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac475303068ee3d220ebdf954d9118ca0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#ac475303068ee3d220ebdf954d9118ca0">setModelData</a> (QWidget *editor, QAbstractItemModel *model, const QModelIndex &amp;index) const override</td></tr>
-<tr class="memdesc:ac475303068ee3d220ebdf954d9118ca0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the data in the model index based on the data of the editor widget.  <br /></td></tr>
 <tr class="separator:ac475303068ee3d220ebdf954d9118ca0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab91d354f019156fe1eece029c75e9d36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/daf/class_checkbox_delegate.html#ab91d354f019156fe1eece029c75e9d36">updateEditorGeometry</a> (QWidget *editor, const QStyleOptionViewItem &amp;option, const QModelIndex &amp;index) const override</td></tr>
-<tr class="memdesc:ab91d354f019156fe1eece029c75e9d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the editor geometry to match the style options and model index.  <br /></td></tr>
 <tr class="separator:ab91d354f019156fe1eece029c75e9d36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="../../df/daf/class_checkbox_delegate.html" title="The CheckboxDelegate class provides a checkbox editor for boolean data in a view.">CheckboxDelegate</a> class provides a checkbox editor for boolean data in a view. </p>
-<p>It allows users to edit boolean values using checkboxes in a model-based view. This delegate does not display any text as it only shows checkboxes. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="afa64732dd4cdc981f80b70d39989ea0c" name="afa64732dd4cdc981f80b70d39989ea0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa64732dd4cdc981f80b70d39989ea0c">&#9670;&#160;</a></span>CheckboxDelegate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">CheckboxDelegate::CheckboxDelegate </td>
+          <td>(</td>
+          <td class="paramtype">QObject *&#160;</td>
+          <td class="paramname"><em>parent</em> = <code>nullptr</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a2944e269a30277093f1bee374cbb351c" name="a2944e269a30277093f1bee374cbb351c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2944e269a30277093f1bee374cbb351c">&#9670;&#160;</a></span>createEditor()</h2>
 
@@ -178,21 +196,10 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Creates an editor widget for the given parent, style option, and model index. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">parent</td><td>The parent widget. </td></tr>
-    <tr><td class="paramname">option</td><td>The style options for the item. </td></tr>
-    <tr><td class="paramname">index</td><td>The model index of the item. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The created editor widget. </dd></dl>
-
 </div>
 </div>
-<a id="a2a0df6427d6518032a6da725c00c9d95" name="a2a0df6427d6518032a6da725c00c9d95"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a0df6427d6518032a6da725c00c9d95">&#9670;&#160;</a></span>displayText()</h2>
+<a id="a2b1c5b9a37078b17f6b6369870ab51b0" name="a2b1c5b9a37078b17f6b6369870ab51b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b1c5b9a37078b17f6b6369870ab51b0">&#9670;&#160;</a></span>paint()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -201,16 +208,22 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">QString CheckboxDelegate::displayText </td>
+          <td class="memname">void CheckboxDelegate::paint </td>
           <td>(</td>
-          <td class="paramtype">const QVariant &amp;&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
+          <td class="paramtype">QPainter *&#160;</td>
+          <td class="paramname"><em>painter</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const QLocale &amp;&#160;</td>
-          <td class="paramname"><em>locale</em>&#160;</td>
+          <td class="paramtype">const QStyleOptionViewItem &amp;&#160;</td>
+          <td class="paramname"><em>option</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QModelIndex &amp;&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -224,16 +237,6 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Returns the display text for the given value and locale. </p>
-<p>This delegate does not display any text, so an empty string is returned. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">value</td><td>The value to be displayed. </td></tr>
-    <tr><td class="paramname">locale</td><td>The locale used for formatting. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The display text. </dd></dl>
 
 </div>
 </div>
@@ -270,15 +273,6 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Sets the data of the editor widget based on the data in the model index. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">editor</td><td>The editor widget. </td></tr>
-    <tr><td class="paramname">index</td><td>The model index of the item. </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -322,16 +316,6 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Sets the data in the model index based on the data of the editor widget. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">editor</td><td>The editor widget. </td></tr>
-    <tr><td class="paramname">model</td><td>The abstract item model. </td></tr>
-    <tr><td class="paramname">index</td><td>The model index of the item. </td></tr>
-  </table>
-  </dd>
-</dl>
-
 </div>
 </div>
 <a id="ab91d354f019156fe1eece029c75e9d36" name="ab91d354f019156fe1eece029c75e9d36"></a>
@@ -373,16 +357,6 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Updates the editor geometry to match the style options and model index. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">editor</td><td>The editor widget. </td></tr>
-    <tr><td class="paramname">option</td><td>The style options for the item. </td></tr>
-    <tr><td class="paramname">index</td><td>The model index of the item. </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>

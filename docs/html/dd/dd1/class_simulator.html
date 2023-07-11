@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -111,7 +111,7 @@ $(document).ready(function(){initNavTree('dd/dd1/class_simulator.html','../../')
 <p>The <a class="el" href="../../dd/dd1/class_simulator.html" title="The Simulator class represents a simulation engine for train simulations.">Simulator</a> class represents a simulation engine for train simulations.  
  <a href="../../dd/dd1/class_simulator.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../dc/d8c/_simulator_8h_source.html">Simulator.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../d3/d9e/simulator_8h_source.html">simulator.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Simulator:</div>
 <div class="dyncontent">
@@ -124,6 +124,10 @@ Public Slots</h2></td></tr>
 <tr class="memitem:adfe488254b0356fa6e1bd3965519b73e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#adfe488254b0356fa6e1bd3965519b73e">runSimulation</a> ()</td></tr>
 <tr class="memdesc:adfe488254b0356fa6e1bd3965519b73e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes the 'simulator' operation.  <br /></td></tr>
 <tr class="separator:adfe488254b0356fa6e1bd3965519b73e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41996b8add365ea62d03363ae2e1ab0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a41996b8add365ea62d03363ae2e1ab0d">pauseSimulation</a> ()</td></tr>
+<tr class="separator:a41996b8add365ea62d03363ae2e1ab0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cef6b4f74d2765743abb2a86e367a96"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a7cef6b4f74d2765743abb2a86e367a96">resumeSimulation</a> ()</td></tr>
+<tr class="separator:a7cef6b4f74d2765743abb2a86e367a96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="signals" name="signals"></a>
 Signals</h2></td></tr>
@@ -172,6 +176,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2cb64e9b36fe7440d98f4919deea58e7"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d7/d2c/class_net_signal.html">NetSignal</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a2cb64e9b36fe7440d98f4919deea58e7">getClosestSignal</a> (std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &amp;train)</td></tr>
 <tr class="memdesc:a2cb64e9b36fe7440d98f4919deea58e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets closest signal.  <br /></td></tr>
 <tr class="separator:a2cb64e9b36fe7440d98f4919deea58e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a0a96554be4250deeb8e17d545033b4"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d7/d2c/class_net_signal.html">NetSignal</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#a3a0a96554be4250deeb8e17d545033b4">getClosestSignalToTrainEnd</a> (std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &amp;train)</td></tr>
+<tr class="memdesc:a3a0a96554be4250deeb8e17d545033b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the Closest Signal from the train end side along the train path.  <br /></td></tr>
+<tr class="separator:a3a0a96554be4250deeb8e17d545033b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0ddc625488be4ea03d7034937bac6ea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd1/class_simulator.html#ab0ddc625488be4ea03d7034937bac6ea">openTrajectoryFile</a> ()</td></tr>
 <tr class="memdesc:ab0ddc625488be4ea03d7034937bac6ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens trajectory file.  <br /></td></tr>
 <tr class="separator:ab0ddc625488be4ea03d7034937bac6ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -568,7 +575,34 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The closest signal. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The closest signal if found, nullptr if not found. </dd></dl>
+
+</div>
+</div>
+<a id="a3a0a96554be4250deeb8e17d545033b4" name="a3a0a96554be4250deeb8e17d545033b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a0a96554be4250deeb8e17d545033b4">&#9670;&#160;</a></span>getClosestSignalToTrainEnd()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="../../d7/d2c/class_net_signal.html">NetSignal</a> &gt; Simulator::getClosestSignalToTrainEnd </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../d4/d01/class_train.html">Train</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>train</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the Closest Signal from the train end side along the train path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">train</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the closest signal if found, nullptr if not found. </dd></dl>
 
 </div>
 </div>
@@ -945,6 +979,31 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a41996b8add365ea62d03363ae2e1ab0d" name="a41996b8add365ea62d03363ae2e1ab0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41996b8add365ea62d03363ae2e1ab0d">&#9670;&#160;</a></span>pauseSimulation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Simulator::pauseSimulation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a3a4f983cd80db559f3c13e9509c7f176" name="a3a4f983cd80db559f3c13e9509c7f176"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a4f983cd80db559f3c13e9509c7f176">&#9670;&#160;</a></span>playTrainOneTimeStep()</h2>
 
@@ -1123,6 +1182,31 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a7cef6b4f74d2765743abb2a86e367a96" name="a7cef6b4f74d2765743abb2a86e367a96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cef6b4f74d2765743abb2a86e367a96">&#9670;&#160;</a></span>resumeSimulation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Simulator::resumeSimulation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

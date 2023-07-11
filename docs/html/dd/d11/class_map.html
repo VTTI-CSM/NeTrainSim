@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('dd/d11/class_map.html','../../'); init
 <p>A map.  
  <a href="../../dd/d11/class_map.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../d3/d63/_map_8h_source.html">Map.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../dc/db7/map_8h_source.html">map.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Map&lt; Key, Value &gt;:</div>
 <div class="dyncontent">
@@ -146,6 +146,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af6b8832bd17c8cb7e41b040998b909fb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d11/class_map.html#af6b8832bd17c8cb7e41b040998b909fb">is_value</a> (const <a class="el" href="../../dd/d11/class_map.html#abcbd5d41783cfb0c7aa08a37ab5e0d10">mapped_type</a> &amp;value) const</td></tr>
 <tr class="memdesc:af6b8832bd17c8cb7e41b040998b909fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query if 'value' is value.  <br /></td></tr>
 <tr class="separator:af6b8832bd17c8cb7e41b040998b909fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a501efad653abf9e851b7497e160f798b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dd/d11/class_map.html#abcbd5d41783cfb0c7aa08a37ab5e0d10">mapped_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d11/class_map.html#a501efad653abf9e851b7497e160f798b">sumValues</a> () const</td></tr>
+<tr class="memdesc:a501efad653abf9e851b7497e160f798b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the sum of all values in the map.  <br /></td></tr>
+<tr class="separator:a501efad653abf9e851b7497e160f798b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a326891138f4efe9f0c4e4c381af33eb9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d11/class_map.html#a326891138f4efe9f0c4e4c381af33eb9">print</a> () const</td></tr>
 <tr class="memdesc:a326891138f4efe9f0c4e4c381af33eb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints this object.  <br /></td></tr>
 <tr class="separator:a326891138f4efe9f0c4e4c381af33eb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -409,6 +412,36 @@ template&lt;typename Key , typename Value &gt; </div>
 <p>Prints this object. </p>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2/28/2023 </dd></dl>
+
+</div>
+</div>
+<a id="a501efad653abf9e851b7497e160f798b" name="a501efad653abf9e851b7497e160f798b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a501efad653abf9e851b7497e160f798b">&#9670;&#160;</a></span>sumValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../dd/d11/class_map.html#abcbd5d41783cfb0c7aa08a37ab5e0d10">mapped_type</a> <a class="el" href="../../dd/d11/class_map.html">Map</a>&lt; Key, Value &gt;::sumValues </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculates the sum of all values in the map. </p>
+<dl class="section return"><dt>Returns</dt><dd>The sum of all values. </dd></dl>
 
 </div>
 </div>

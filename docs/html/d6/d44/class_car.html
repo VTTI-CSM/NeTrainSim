@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('d6/d44/class_car.html','../../'); init
 <p>A rail car.  
  <a href="../../d6/d44/class_car.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../d2/d40/_train_defintion_2_car_8h_source.html">Car.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../db/d42/car_8h_source.html">car.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Car:</div>
 <div class="dyncontent">
@@ -125,30 +125,6 @@ Inheritance diagram for Car:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa3920ba7449568511c2d1a325ce84d8b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#aa3920ba7449568511c2d1a325ce84d8b">Car</a> (double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t, double carCurrentWeight_t, int carNoOfAxles, int <a class="el" href="../../d6/d44/class_car.html#a41c7252ecb95f46c8c3916d2071a68b3">carType</a>, double auxiliaryPower_kw=EC::DefaultCarAuxiliaryPower, double batteryMaxCapacity_kWh=EC::DefaultCarBatteryMaxCapacity, double batteryInitialCharge_perc=EC::DefaultCarBatteryInitialCharge, double tenderMaxCapacity_kg_l=EC::DefaultCarTenderMaxCapacity, double tenderInitialCapacity_perc=EC::DefaultCarTenderInitialCapacity, std::string carName=DefaultCarName)</td></tr>
-<tr class="memdesc:aa3920ba7449568511c2d1a325ce84d8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:aa3920ba7449568511c2d1a325ce84d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a431cb4ca9fd4e8ed435035568b4d1e76">getCargoNetWeight</a> ()</td></tr>
-<tr class="memdesc:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the cargo net weight.  <br /></td></tr>
-<tr class="separator:a431cb4ca9fd4e8ed435035568b4d1e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07c9aeff611a5fb4a978e9195120b3cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a07c9aeff611a5fb4a978e9195120b3cc">setCarCurrentWeight</a> (double newCurrentWeight)</td></tr>
-<tr class="memdesc:a07c9aeff611a5fb4a978e9195120b3cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the car's current weight.  <br /></td></tr>
-<tr class="separator:a07c9aeff611a5fb4a978e9195120b3cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41442d1464a019cdb1e35d3d95a893cc"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a41442d1464a019cdb1e35d3d95a893cc">getResistance</a> (double trainSpeed) override</td></tr>
-<tr class="memdesc:a41442d1464a019cdb1e35d3d95a893cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the resistance contributed by this car to the whole train.  <br /></td></tr>
-<tr class="separator:a41442d1464a019cdb1e35d3d95a893cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a4f69d1f9f7068b9ec52fec65e7a858e2">getEnergyConsumption</a> (double &amp;timeStep)</td></tr>
-<tr class="memdesc:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the energy consumption of the car (in case there is auxiliary power).  <br /></td></tr>
-<tr class="separator:a4f69d1f9f7068b9ec52fec65e7a858e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cdc1b0db67822f6ef2aaf732a7ca30e"><td class="memItemLeft" align="right" valign="top">std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a2cdc1b0db67822f6ef2aaf732a7ca30e">consumeFuel</a> (double timeStep, double trainSpeed, double EC_kwh, double carVirtualTractivePower=std::numeric_limits&lt; double &gt;::quiet_NaN(), double dieselConversionFactor=EC::DefaultDieselConversionFactor, double biodieselConversionFactor=EC::DefaultBiodieselConversionFactor, double hydrogenConversionFactor=EC::DefaultHydrogenConversionFactor, double dieselDensity=EC::DefaultDieselDensity, double biodieselDensity=EC::DefaultBioDieselDensity, double hydrogenDensity=EC::DefaultHydrogenDensity) override</td></tr>
-<tr class="memdesc:a2cdc1b0db67822f6ef2aaf732a7ca30e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consumes fuel from the tender.  <br /></td></tr>
-<tr class="separator:a2cdc1b0db67822f6ef2aaf732a7ca30e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89e2e106450d8bf9e48104d69e2048d2"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#a89e2e106450d8bf9e48104d69e2048d2">getMaxProvidedEnergy</a> (double &amp;timeStep)</td></tr>
-<tr class="memdesc:a89e2e106450d8bf9e48104d69e2048d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum energy provided by the car.  <br /></td></tr>
-<tr class="separator:a89e2e106450d8bf9e48104d69e2048d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa99d3998186aadf21cd0f1623dc0c9be"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#aa99d3998186aadf21cd0f1623dc0c9be">canProvideEnergy</a> (double &amp;EC, double &amp;timeStep)</td></tr>
-<tr class="memdesc:aa99d3998186aadf21cd0f1623dc0c9be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the car can provide energy.  <br /></td></tr>
-<tr class="separator:aa99d3998186aadf21cd0f1623dc0c9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3920ba7449568511c2d1a325ce84d8b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#aa3920ba7449568511c2d1a325ce84d8b">Car</a> (double carLength_m, double carDragCoef, double carFrontalArea_sqm, double carEmptyWeight_t, double carCurrentWeight_t, int carNoOfAxles, int <a class="el" href="../../d6/d44/class_car.html#a41c7252ecb95f46c8c3916d2071a68b3">carType</a>, double auxiliaryPower_kw=EC::DefaultCarAuxiliaryPower, double batteryMaxCapacity_kWh=EC::DefaultCarBatteryMaxCapacity, double batteryInitialCharge_perc=EC::DefaultCarBatteryInitialCharge, double tenderMaxCapacity_kg_l=EC::DefaultCarTenderMaxCapacity, double tenderInitialCapacity_perc=EC::DefaultCarTenderInitialCapacity, std::string carName=DefaultCarName)</td></tr>
 <tr class="memdesc:aa3920ba7449568511c2d1a325ce84d8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:aa3920ba7449568511c2d1a325ce84d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,121 +180,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a082f1a4e667504e93ddc0788bfcc886f inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a082f1a4e667504e93ddc0788bfcc886f">consumeFuel</a> (double timeStep, double trainSpeed, double EC_kwh, double LocomotiveVirtualTractivePower=std::numeric_limits&lt; double &gt;::quiet_NaN(), double dieselConversionFactor=EC::DefaultDieselConversionFactor, double biodieselConversionFactor=EC::DefaultBiodieselConversionFactor, double hydrogenConversionFactor=EC::DefaultHydrogenConversionFactor, double dieselDensity=EC::DefaultDieselDensity, double biodieselDensity=EC::DefaultBioDieselDensity, double hydrogenDensity=EC::DefaultHydrogenDensity)</td></tr>
 <tr class="memdesc:a082f1a4e667504e93ddc0788bfcc886f inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume fuel or battery from the vehicle.  <br /></td></tr>
 <tr class="separator:a082f1a4e667504e93ddc0788bfcc886f inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5be021df85c1bc98921c791469c0de08 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a5be021df85c1bc98921c791469c0de08">getResistance</a> (double trainSpeed)</td></tr>
-<tr class="memdesc:a5be021df85c1bc98921c791469c0de08 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the resistance applied on only this vehicle.  <br /></td></tr>
-<tr class="separator:a5be021df85c1bc98921c791469c0de08 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb40abca99fa6c952f4b9854fd7a8e44 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#afb40abca99fa6c952f4b9854fd7a8e44">resetTimeStepConsumptions</a> ()</td></tr>
-<tr class="memdesc:afb40abca99fa6c952f4b9854fd7a8e44 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the energy consumptions data for the current time step.  <br /></td></tr>
-<tr class="separator:afb40abca99fa6c952f4b9854fd7a8e44 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ae5ef1d288ad55fff75f83da3f004ea inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a7ae5ef1d288ad55fff75f83da3f004ea">setCurrentWeight</a> (double newCurrentWeight)</td></tr>
-<tr class="memdesc:a7ae5ef1d288ad55fff75f83da3f004ea inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">sets the current weight of the vehicle  <br /></td></tr>
-<tr class="separator:a7ae5ef1d288ad55fff75f83da3f004ea inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68fe802e7b57970df7bd75d2c7f1222c inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a68fe802e7b57970df7bd75d2c7f1222c">consumeFuelDiesel</a> (double EC_kwh, double dieselConversionFactor, double dieselDensity)</td></tr>
-<tr class="memdesc:a68fe802e7b57970df7bd75d2c7f1222c inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">consume the locomotive diesel fuel.  <br /></td></tr>
-<tr class="separator:a68fe802e7b57970df7bd75d2c7f1222c inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1fb97cbcd0f82924ed0a811ad547747 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#af1fb97cbcd0f82924ed0a811ad547747">consumeFuelBioDiesel</a> (double EC_kwh, double bioDieselConversionFactor, double bioDieselDensity)</td></tr>
-<tr class="memdesc:af1fb97cbcd0f82924ed0a811ad547747 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">consume the locomotive bio diesel fuel.  <br /></td></tr>
-<tr class="separator:af1fb97cbcd0f82924ed0a811ad547747 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee55c198cfc88bdd96f5f45e7e63ff1c inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#aee55c198cfc88bdd96f5f45e7e63ff1c">consumeElectricity</a> (double timeStep, double EC_kwh)</td></tr>
-<tr class="memdesc:aee55c198cfc88bdd96f5f45e7e63ff1c inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">consume any source of electricity in the locomotive; either the catenary or the batteries.  <br /></td></tr>
-<tr class="separator:aee55c198cfc88bdd96f5f45e7e63ff1c inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3c104c27055556a511efe324a54bfa6 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#ab3c104c27055556a511efe324a54bfa6">consumeFuelHydrogen</a> (double EC_kwh, double hydrogenConversionFactor, double hydrogenDensity)</td></tr>
-<tr class="memdesc:ab3c104c27055556a511efe324a54bfa6 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">consume the locomotive hydrogen fuel.  <br /></td></tr>
-<tr class="separator:ab3c104c27055556a511efe324a54bfa6 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa179c6b932ac033081932a14525ec119 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#aa179c6b932ac033081932a14525ec119">refillBattery</a> (double timeStep, double EC_kwh)</td></tr>
-<tr class="memdesc:aa179c6b932ac033081932a14525ec119 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">refill the locomtoive battery  <br /></td></tr>
-<tr class="separator:aa179c6b932ac033081932a14525ec119 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a862ce1655994b15bac0f862339a03c95 inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a862ce1655994b15bac0f862339a03c95">rechargeCatenary</a> (double EC_kwh)</td></tr>
-<tr class="memdesc:a862ce1655994b15bac0f862339a03c95 inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rechage catenary and grid system if they are available.  <br /></td></tr>
-<tr class="separator:a862ce1655994b15bac0f862339a03c95 inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade9c6180e5a662e9cd54a7b423294b5d inherit pub_methods_class_train_component"><td class="memItemLeft" align="right" valign="top">virtual std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#ade9c6180e5a662e9cd54a7b423294b5d">consumeFuel</a> (double timeStep, double trainSpeed, double EC_kwh, double LocomotiveVirtualTractivePower=std::numeric_limits&lt; double &gt;::quiet_NaN(), double dieselConversionFactor=EC::DefaultDieselConversionFactor, double biodieselConversionFactor=EC::DefaultBiodieselConversionFactor, double hydrogenConversionFactor=EC::DefaultHydrogenConversionFactor, double dieselDensity=EC::DefaultDieselDensity, double biodieselDensity=EC::DefaultBioDieselDensity, double hydrogenDensity=EC::DefaultHydrogenDensity)</td></tr>
-<tr class="memdesc:ade9c6180e5a662e9cd54a7b423294b5d inherit pub_methods_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume fuel or battery from the vehicle.  <br /></td></tr>
-<tr class="separator:ade9c6180e5a662e9cd54a7b423294b5d inherit pub_methods_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_battery"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_battery')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../dc/df2/class_battery.html">Battery</a></td></tr>
-<tr class="memitem:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a06c01fb09d64fdd9a364a413c829bd92">setBattery</a> (double maxCharge, double initialChargePercentage, double depthOfDischarge, double batteryCRate, double maxRechargeSOC=0.9, double minRechargeSOC=0.5)</td></tr>
-<tr class="memdesc:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the battery properties.  <br /></td></tr>
-<tr class="separator:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f351bd5656a89157c019a6fce19d548 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a9f351bd5656a89157c019a6fce19d548">getBatteryMaxCharge</a> () const</td></tr>
-<tr class="memdesc:a9f351bd5656a89157c019a6fce19d548 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum charge of the battery.  <br /></td></tr>
-<tr class="separator:a9f351bd5656a89157c019a6fce19d548 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a344363a6b5558aa8331ba3227396ee62 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a344363a6b5558aa8331ba3227396ee62">setBatteryMaxCharge</a> (double newMaxCharge)</td></tr>
-<tr class="memdesc:a344363a6b5558aa8331ba3227396ee62 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the maximum charge of the battery.  <br /></td></tr>
-<tr class="separator:a344363a6b5558aa8331ba3227396ee62 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfddf26b1e97e22ee43c6c9684a42be3 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#adfddf26b1e97e22ee43c6c9684a42be3">getBatteryInitialCharge</a> () const</td></tr>
-<tr class="memdesc:adfddf26b1e97e22ee43c6c9684a42be3 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the initial charge of the battery.  <br /></td></tr>
-<tr class="separator:adfddf26b1e97e22ee43c6c9684a42be3 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af02104660afe339edfe4e003e275e8e7 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#af02104660afe339edfe4e003e275e8e7">setBatteryInitialCharge</a> (double newInitialCharge)</td></tr>
-<tr class="memdesc:af02104660afe339edfe4e003e275e8e7 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the initial charge of the battery.  <br /></td></tr>
-<tr class="separator:af02104660afe339edfe4e003e275e8e7 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a253846630704574fe7ffeb4ca80e93 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a6a253846630704574fe7ffeb4ca80e93">getBatteryCurrentCharge</a> () const</td></tr>
-<tr class="memdesc:a6a253846630704574fe7ffeb4ca80e93 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current charge of the battery.  <br /></td></tr>
-<tr class="separator:a6a253846630704574fe7ffeb4ca80e93 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7ab120d717e1df86f8f11898400a4c9 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">std::pair&lt; bool, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ad7ab120d717e1df86f8f11898400a4c9">consumeBattery</a> (double timeStep, double consumedCharge)</td></tr>
-<tr class="memdesc:ad7ab120d717e1df86f8f11898400a4c9 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consumes charge from the battery.  <br /></td></tr>
-<tr class="separator:ad7ab120d717e1df86f8f11898400a4c9 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4c1606ec8b6082204d1b9c0bba4aeec inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#aa4c1606ec8b6082204d1b9c0bba4aeec">rechargeBatteryForHybrids</a> (double timeStep, double recharge)</td></tr>
-<tr class="memdesc:aa4c1606ec8b6082204d1b9c0bba4aeec inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recharges the battery for hybrid vehicles.  <br /></td></tr>
-<tr class="separator:aa4c1606ec8b6082204d1b9c0bba4aeec inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a049768f40f4808da89fd768d8ab3478e inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a049768f40f4808da89fd768d8ab3478e">rechargeBatteryByRegeneratedEnergy</a> (double timeStep, double recharge)</td></tr>
-<tr class="memdesc:a049768f40f4808da89fd768d8ab3478e inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recharges the battery by regenerated energy.  <br /></td></tr>
-<tr class="separator:a049768f40f4808da89fd768d8ab3478e inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a873989befaab8bf674ab8849430730d9 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a873989befaab8bf674ab8849430730d9">getBatteryStateOfCharge</a> () const</td></tr>
-<tr class="memdesc:a873989befaab8bf674ab8849430730d9 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the state of charge of the battery.  <br /></td></tr>
-<tr class="separator:a873989befaab8bf674ab8849430730d9 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ac58b06a673893d8a542b64afaf96a3 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a0ac58b06a673893d8a542b64afaf96a3">getBatteryDOD</a> () const</td></tr>
-<tr class="memdesc:a0ac58b06a673893d8a542b64afaf96a3 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the depth of discharge of the battery.  <br /></td></tr>
-<tr class="separator:a0ac58b06a673893d8a542b64afaf96a3 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71d6622e729c52a0102eaaf1c4010d1b inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a71d6622e729c52a0102eaaf1c4010d1b">setBatteryDOD</a> (double newBatteryDOD)</td></tr>
-<tr class="memdesc:a71d6622e729c52a0102eaaf1c4010d1b inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the depth of discharge of the battery.  <br /></td></tr>
-<tr class="separator:a71d6622e729c52a0102eaaf1c4010d1b inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9080904d869356e0d6607e8fbb69720 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ac9080904d869356e0d6607e8fbb69720">getBatteryCRate</a> () const</td></tr>
-<tr class="memdesc:ac9080904d869356e0d6607e8fbb69720 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the C-Rate of discharge for the battery.  <br /></td></tr>
-<tr class="separator:ac9080904d869356e0d6607e8fbb69720 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39c9943d69a8367180a2053962909eb3 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a39c9943d69a8367180a2053962909eb3">setBatteryCRate</a> (double newBatteryCRate)</td></tr>
-<tr class="memdesc:a39c9943d69a8367180a2053962909eb3 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the C-Rate of discharge for the battery.  <br /></td></tr>
-<tr class="separator:a39c9943d69a8367180a2053962909eb3 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a395f63faac3084a97c7997b67c9ec1c0 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a395f63faac3084a97c7997b67c9ec1c0">isBatteryDrainable</a> (double requiredCharge)</td></tr>
-<tr class="memdesc:a395f63faac3084a97c7997b67c9ec1c0 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the battery can be drained by the required charge.  <br /></td></tr>
-<tr class="separator:a395f63faac3084a97c7997b67c9ec1c0 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac00bb30b4870adb3872d975815c2fb4 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#aac00bb30b4870adb3872d975815c2fb4">isBatteryRechargable</a> ()</td></tr>
-<tr class="memdesc:aac00bb30b4870adb3872d975815c2fb4 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the battery can be recharged.  <br /></td></tr>
-<tr class="separator:aac00bb30b4870adb3872d975815c2fb4 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5927b896e9bced6221e53983889605b inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ab5927b896e9bced6221e53983889605b">getBatteryMaxDischarge</a> (double timeStep)</td></tr>
-<tr class="memdesc:ab5927b896e9bced6221e53983889605b inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum discharge of the battery.  <br /></td></tr>
-<tr class="separator:ab5927b896e9bced6221e53983889605b inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52237c0121fe9ce18fea9f551640d2ef inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a52237c0121fe9ce18fea9f551640d2ef">getBatteryMaxRecharge</a> (double timeStep)</td></tr>
-<tr class="memdesc:a52237c0121fe9ce18fea9f551640d2ef inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum recharge of the battery.  <br /></td></tr>
-<tr class="separator:a52237c0121fe9ce18fea9f551640d2ef inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a741f0f8641faa43bc967e742ff445661 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a741f0f8641faa43bc967e742ff445661">isRechargeRequired</a> () const</td></tr>
-<tr class="memdesc:a741f0f8641faa43bc967e742ff445661 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the battery requires a recharge.  <br /></td></tr>
-<tr class="separator:a741f0f8641faa43bc967e742ff445661 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09e02958dbbe290add0356eab2bb8639 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a09e02958dbbe290add0356eab2bb8639">getBatteryRechargeSOCUpperBound</a> () const</td></tr>
-<tr class="memdesc:a09e02958dbbe290add0356eab2bb8639 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the upper bound of the battery's recharge state of charge.  <br /></td></tr>
-<tr class="separator:a09e02958dbbe290add0356eab2bb8639 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6b8815ffc4de5af4decf6596c74232f5 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a6b8815ffc4de5af4decf6596c74232f5">setBatteryRechargeSOCUpperBound</a> (double newBatteryMaxSOC)</td></tr>
-<tr class="memdesc:a6b8815ffc4de5af4decf6596c74232f5 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the upper bound of the battery's recharge state of charge.  <br /></td></tr>
-<tr class="separator:a6b8815ffc4de5af4decf6596c74232f5 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6409c7e7c3ce9fab818291da03c5268 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ab6409c7e7c3ce9fab818291da03c5268">getBatteryRechargeSOCLowerBound</a> () const</td></tr>
-<tr class="memdesc:ab6409c7e7c3ce9fab818291da03c5268 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the lower bound of the battery's recharge state of charge.  <br /></td></tr>
-<tr class="separator:ab6409c7e7c3ce9fab818291da03c5268 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad09351df82896aaac9d653e95ceffc2 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#aad09351df82896aaac9d653e95ceffc2">setBatteryRechargeSOCLowerBound</a> (double newBatteryRechargeSOCLowerBound)</td></tr>
-<tr class="memdesc:aad09351df82896aaac9d653e95ceffc2 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the lower bound of the battery's recharge state of charge.  <br /></td></tr>
-<tr class="separator:aad09351df82896aaac9d653e95ceffc2 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2380d6ec81dfeb73d6f80e52ce2d49a inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ac2380d6ec81dfeb73d6f80e52ce2d49a">getBatteryCumEnergyConsumption</a> ()</td></tr>
-<tr class="memdesc:ac2380d6ec81dfeb73d6f80e52ce2d49a inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the cumulative energy consumption for this battery only.  <br /></td></tr>
-<tr class="separator:ac2380d6ec81dfeb73d6f80e52ce2d49a inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b7dacba54133641244e73911b0bd355 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a2b7dacba54133641244e73911b0bd355">getBatteryCumEnergyRegenerated</a> ()</td></tr>
-<tr class="memdesc:a2b7dacba54133641244e73911b0bd355 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the cumulative energy regenerated for this battery only.  <br /></td></tr>
-<tr class="separator:a2b7dacba54133641244e73911b0bd355 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a062c9d55b46d43788ef63f05390bc812 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a062c9d55b46d43788ef63f05390bc812">getBatteryCumNetEnergyConsumption</a> ()</td></tr>
-<tr class="memdesc:a062c9d55b46d43788ef63f05390bc812 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the cumulative net energy consumption for this battery.  <br /></td></tr>
-<tr class="separator:a062c9d55b46d43788ef63f05390bc812 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada0f9474ba7dc6c4668b5821657898af inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#ada0f9474ba7dc6c4668b5821657898af">batteryHasCharge</a> ()</td></tr>
-<tr class="memdesc:ada0f9474ba7dc6c4668b5821657898af inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the battery has enough charge.  <br /></td></tr>
-<tr class="separator:ada0f9474ba7dc6c4668b5821657898af inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa98b06071d27c14201638f56403ccd76 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#aa98b06071d27c14201638f56403ccd76">IsBatteryExceedingThresholds</a> ()</td></tr>
-<tr class="memdesc:aa98b06071d27c14201638f56403ccd76 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the battery exceeds certain thresholds.  <br /></td></tr>
-<tr class="separator:aa98b06071d27c14201638f56403ccd76 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df2/class_battery.html#a06c01fb09d64fdd9a364a413c829bd92">setBattery</a> (double maxCharge, double initialChargePercentage, double depthOfDischarge, double batteryCRate, double maxRechargeSOC=0.9, double minRechargeSOC=0.5)</td></tr>
 <tr class="memdesc:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the battery properties.  <br /></td></tr>
 <tr class="separator:a06c01fb09d64fdd9a364a413c829bd92 inherit pub_methods_class_battery"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -443,45 +305,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad251a75d2dbb591eb5dc90aad4caa7ef">getTankCumConsumedFuel</a> () const</td></tr>
 <tr class="memdesc:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the total amount of fuel consumed from the tank.  <br /></td></tr>
 <tr class="separator:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bd942af4f6d36fc00331a4989a10427 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a2bd942af4f6d36fc00331a4989a10427">SetTank</a> (double maxCapacity, double initialCapacityPercentage, double depthOfDischarge)</td></tr>
-<tr class="memdesc:a2bd942af4f6d36fc00331a4989a10427 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the main properties of the tank (initialize the tank)  <br /></td></tr>
-<tr class="separator:a2bd942af4f6d36fc00331a4989a10427 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afae7269f26f228687b0fa3e2002eba0f inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#afae7269f26f228687b0fa3e2002eba0f">getTankMaxCapacity</a> () const</td></tr>
-<tr class="memdesc:afae7269f26f228687b0fa3e2002eba0f inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum capacity of the tank.  <br /></td></tr>
-<tr class="separator:afae7269f26f228687b0fa3e2002eba0f inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab11dfa13ac2fc2a6eaed5fcba92a441d inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ab11dfa13ac2fc2a6eaed5fcba92a441d">setTankMaxCapacity</a> (double newMaxCapacity)</td></tr>
-<tr class="memdesc:ab11dfa13ac2fc2a6eaed5fcba92a441d inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the maximum capacity of the tank.  <br /></td></tr>
-<tr class="separator:ab11dfa13ac2fc2a6eaed5fcba92a441d inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c69b32e02c42e7e31225c6d9b0c9d26 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a9c69b32e02c42e7e31225c6d9b0c9d26">getTankInitialCapacity</a> () const</td></tr>
-<tr class="memdesc:a9c69b32e02c42e7e31225c6d9b0c9d26 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the initial capacity of the tank.  <br /></td></tr>
-<tr class="separator:a9c69b32e02c42e7e31225c6d9b0c9d26 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf3f24ad99a1bb7698f0ee57df84a0e1 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#abf3f24ad99a1bb7698f0ee57df84a0e1">setTankInitialCapacity</a> (double newInitialCapacityPercentage)</td></tr>
-<tr class="memdesc:abf3f24ad99a1bb7698f0ee57df84a0e1 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the initial capacity of the tank.  <br /></td></tr>
-<tr class="separator:abf3f24ad99a1bb7698f0ee57df84a0e1 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3a6abc36842f25ebda1195051a13b49 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad3a6abc36842f25ebda1195051a13b49">getTankCurrentCapacity</a> () const</td></tr>
-<tr class="memdesc:ad3a6abc36842f25ebda1195051a13b49 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current capacity of the tank.  <br /></td></tr>
-<tr class="separator:ad3a6abc36842f25ebda1195051a13b49 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a8cd02d304aff500da796177ea9a5e6 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a4a8cd02d304aff500da796177ea9a5e6">consumeTank</a> (double consumedAmount)</td></tr>
-<tr class="memdesc:a4a8cd02d304aff500da796177ea9a5e6 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consumes fuel from the tank.  <br /></td></tr>
-<tr class="separator:a4a8cd02d304aff500da796177ea9a5e6 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0e16718e90fcec90939f3c54c98f0f9 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ab0e16718e90fcec90939f3c54c98f0f9">getTankStateOfCapacity</a> () const</td></tr>
-<tr class="memdesc:ab0e16718e90fcec90939f3c54c98f0f9 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the state of capacity of the tank.  <br /></td></tr>
-<tr class="separator:ab0e16718e90fcec90939f3c54c98f0f9 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a440d4603b4b7093d33c0ab36adaa8fff inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a440d4603b4b7093d33c0ab36adaa8fff">isTankDrainable</a> (double consumedAmount)</td></tr>
-<tr class="memdesc:a440d4603b4b7093d33c0ab36adaa8fff inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the specified amount of fuel is drainable from the tank.  <br /></td></tr>
-<tr class="separator:a440d4603b4b7093d33c0ab36adaa8fff inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25aeaebde85871f1a4d4de11a779352a inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a25aeaebde85871f1a4d4de11a779352a">getTankDOD</a> () const</td></tr>
-<tr class="memdesc:a25aeaebde85871f1a4d4de11a779352a inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the depth of discharge of the tank.  <br /></td></tr>
-<tr class="separator:a25aeaebde85871f1a4d4de11a779352a inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac3762c5507276c7dcb4c429718e0db97 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ac3762c5507276c7dcb4c429718e0db97">setTankDOD</a> (double newTankDOD)</td></tr>
-<tr class="memdesc:ac3762c5507276c7dcb4c429718e0db97 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the depth of discharge of the tank.  <br /></td></tr>
-<tr class="separator:ac3762c5507276c7dcb4c429718e0db97 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a601826afc9ef1aebd4623ddf59225118 inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a601826afc9ef1aebd4623ddf59225118">tankHasFuel</a> ()</td></tr>
-<tr class="memdesc:a601826afc9ef1aebd4623ddf59225118 inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the tank has fuel (current capacity &gt; 0)  <br /></td></tr>
-<tr class="separator:a601826afc9ef1aebd4623ddf59225118 inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad251a75d2dbb591eb5dc90aad4caa7ef">getTankCumConsumedFuel</a> () const</td></tr>
-<tr class="memdesc:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the total amount of fuel consumed from the tank.  <br /></td></tr>
-<tr class="separator:ad251a75d2dbb591eb5dc90aad4caa7ef inherit pub_methods_class_tank"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -531,15 +354,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#ac39f13eae27da68e9103244b262ad1f7">cumEnergyRegenerated</a> = 0.0</td></tr>
 <tr class="memdesc:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of cummulative energy regenerated in kwh.  <br /></td></tr>
 <tr class="separator:ac39f13eae27da68e9103244b262ad1f7 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa02b65951e4fde77b34cc522d032b07b inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d8/d2d/class_net_link.html">NetLink</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#aa02b65951e4fde77b34cc522d032b07b">hostLink</a></td></tr>
-<tr class="memdesc:aa02b65951e4fde77b34cc522d032b07b inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds the current link this vehicle is on.  <br /></td></tr>
-<tr class="separator:aa02b65951e4fde77b34cc522d032b07b inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24fdd05bea53482449f8086294633fd6 inherit pub_attribs_class_train_component"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../d8/d2d/class_net_link.html">NetLink</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de2/class_train_component.html#a24fdd05bea53482449f8086294633fd6">hostLink</a></td></tr>
+<tr class="memdesc:a24fdd05bea53482449f8086294633fd6 inherit pub_attribs_class_train_component"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds the current link this vehicle is on.  <br /></td></tr>
+<tr class="separator:a24fdd05bea53482449f8086294633fd6 inherit pub_attribs_class_train_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:ac50f516dc1bf46f656a3e0c5f518b829"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#ac50f516dc1bf46f656a3e0c5f518b829">operator&lt;&lt;</a> (std::ostream &amp;ostr, <a class="el" href="../../d6/d44/class_car.html">Car</a> &amp;stud)</td></tr>
-<tr class="memdesc:ac50f516dc1bf46f656a3e0c5f518b829"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream insertion operator.  <br /></td></tr>
-<tr class="separator:ac50f516dc1bf46f656a3e0c5f518b829"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac50f516dc1bf46f656a3e0c5f518b829"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d44/class_car.html#ac50f516dc1bf46f656a3e0c5f518b829">operator&lt;&lt;</a> (std::ostream &amp;ostr, <a class="el" href="../../d6/d44/class_car.html">Car</a> &amp;stud)</td></tr>
 <tr class="memdesc:ac50f516dc1bf46f656a3e0c5f518b829"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream insertion operator.  <br /></td></tr>
 <tr class="separator:ac50f516dc1bf46f656a3e0c5f518b829"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -550,121 +370,7 @@ Friends</h2></td></tr>
 <p>@Author Ahmed @Date 2/14/2023 </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aa3920ba7449568511c2d1a325ce84d8b" name="aa3920ba7449568511c2d1a325ce84d8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3920ba7449568511c2d1a325ce84d8b">&#9670;&#160;</a></span>Car() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">Car::Car </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carLength_m</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carDragCoef</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carFrontalArea_sqm</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carEmptyWeight_t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carCurrentWeight_t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>carNoOfAxles</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>carType</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>auxiliaryPower_kw</em> = <code>EC::DefaultCarAuxiliaryPower</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>batteryMaxCapacity_kWh</em> = <code>EC::DefaultCarBatteryMaxCapacity</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>batteryInitialCharge_perc</em> = <code>EC::DefaultCarBatteryInitialCharge</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>tenderMaxCapacity_kg_l</em> = <code>EC::DefaultCarTenderMaxCapacity</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>tenderInitialCapacity_perc</em> = <code>EC::DefaultCarTenderInitialCapacity</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>carName</em> = <code>DefaultCarName</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Constructor. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">carLength_m</td><td>The car length in meters. </td></tr>
-    <tr><td class="paramname">carDragCoef</td><td>The car drag coefficient. </td></tr>
-    <tr><td class="paramname">carFrontalArea_sqm</td><td>The car frontal area in square meters. </td></tr>
-    <tr><td class="paramname">carEmptyWeight_t</td><td>The car empty weight in tons. </td></tr>
-    <tr><td class="paramname">carCurrentWeight_t</td><td>The car current weight in tons. </td></tr>
-    <tr><td class="paramname">carNoOfAxles</td><td>The number of axles in the car. </td></tr>
-    <tr><td class="paramname">carType</td><td>The type of the car. </td></tr>
-    <tr><td class="paramname">auxiliaryPower_kw</td><td>(Optional) The auxiliary power in kW. Default is 0.0. </td></tr>
-    <tr><td class="paramname">batteryMaxCapacity_kWh</td><td>(Optional) The battery maximum capacity in kWh. Default is 10,000. </td></tr>
-    <tr><td class="paramname">batteryInitialCharge_perc</td><td>(Optional) The battery initial charge percentage. Default is 0.9. </td></tr>
-    <tr><td class="paramname">tenderMaxCapacity_kg_l</td><td>(Optional) The tender maximum capacity in kilograms or liters. </td></tr>
-    <tr><td class="paramname">tenderInitialCapacity_perc</td><td>(Optional) The tender initial capacity percentage. Default is 0.9. </td></tr>
-    <tr><td class="paramname">carName</td><td>(Optional) The name of the car. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="aa3920ba7449568511c2d1a325ce84d8b" name="aa3920ba7449568511c2d1a325ce84d8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3920ba7449568511c2d1a325ce84d8b">&#9670;&#160;</a></span>Car() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3920ba7449568511c2d1a325ce84d8b">&#9670;&#160;</a></span>Car()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -779,45 +485,7 @@ Friends</h2></td></tr>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="aa99d3998186aadf21cd0f1623dc0c9be" name="aa99d3998186aadf21cd0f1623dc0c9be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa99d3998186aadf21cd0f1623dc0c9be">&#9670;&#160;</a></span>canProvideEnergy() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Car::canProvideEnergy </td>
-          <td>(</td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>EC</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>timeStep</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Checks if the car can provide energy. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname"><a class="el" href="../../d4/dcb/namespace_e_c.html">EC</a></td><td>The <a class="el" href="../../d4/dcb/namespace_e_c.html">EC</a>. </td></tr>
-    <tr><td class="paramname">timeStep</td><td>The time step. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>True if the car can provide energy, false otherwise. </dd></dl>
-
-</div>
-</div>
-<a id="aa99d3998186aadf21cd0f1623dc0c9be" name="aa99d3998186aadf21cd0f1623dc0c9be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa99d3998186aadf21cd0f1623dc0c9be">&#9670;&#160;</a></span>canProvideEnergy() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa99d3998186aadf21cd0f1623dc0c9be">&#9670;&#160;</a></span>canProvideEnergy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -855,7 +523,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a2cdc1b0db67822f6ef2aaf732a7ca30e" name="a2cdc1b0db67822f6ef2aaf732a7ca30e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2cdc1b0db67822f6ef2aaf732a7ca30e">&#9670;&#160;</a></span>consumeFuel() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cdc1b0db67822f6ef2aaf732a7ca30e">&#9670;&#160;</a></span>consumeFuel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -958,132 +626,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a2cdc1b0db67822f6ef2aaf732a7ca30e" name="a2cdc1b0db67822f6ef2aaf732a7ca30e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2cdc1b0db67822f6ef2aaf732a7ca30e">&#9670;&#160;</a></span>consumeFuel() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::pair&lt; bool, double &gt; Car::consumeFuel </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>timeStep</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>trainSpeed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>EC_kwh</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>carVirtualTractivePower</em> = <code>std::numeric_limits&lt;&#160;double&#160;&gt;::quiet_NaN()</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>dieselConversionFactor</em> = <code>EC::DefaultDieselConversionFactor</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>biodieselConversionFactor</em> = <code>EC::DefaultBiodieselConversionFactor</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>hydrogenConversionFactor</em> = <code>EC::DefaultHydrogenConversionFactor</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>dieselDensity</em> = <code>EC::DefaultDieselDensity</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>biodieselDensity</em> = <code>EC::DefaultBioDieselDensity</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>hydrogenDensity</em> = <code>EC::DefaultHydrogenDensity</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Consumes fuel from the tender. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">timeStep</td><td>The time step. </td></tr>
-    <tr><td class="paramname">trainSpeed</td><td>The train speed. </td></tr>
-    <tr><td class="paramname">EC_kWh</td><td>The <a class="el" href="../../d4/dcb/namespace_e_c.html">EC</a> kWh. </td></tr>
-    <tr><td class="paramname">carVirtualTractivePower</td><td>(Optional) The car's virtual tractive power. </td></tr>
-    <tr><td class="paramname">dieselConversionFactor</td><td>(Optional) The diesel conversion factor. </td></tr>
-    <tr><td class="paramname">biodieselConversionFactor</td><td>(Optional) The biodiesel conversion factor. </td></tr>
-    <tr><td class="paramname">hydrogenConversionFactor</td><td>(Optional) The hydrogen conversion factor. </td></tr>
-    <tr><td class="paramname">dieselDensity</td><td>(Optional) The diesel density. </td></tr>
-    <tr><td class="paramname">biodieselDensity</td><td>(Optional) The biodiesel density. </td></tr>
-    <tr><td class="paramname">hydrogenDensity</td><td>(Optional) The hydrogen density. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A std::pair&lt;bool, double&gt;. </dd></dl>
-
-<p>Reimplemented from <a class="el" href="../../da/de2/class_train_component.html#a082f1a4e667504e93ddc0788bfcc886f">TrainComponent</a>.</p>
-
-</div>
-</div>
 <a id="a431cb4ca9fd4e8ed435035568b4d1e76" name="a431cb4ca9fd4e8ed435035568b4d1e76"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a431cb4ca9fd4e8ed435035568b4d1e76">&#9670;&#160;</a></span>getCargoNetWeight() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Car::getCargoNetWeight </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the cargo net weight. </p>
-<dl class="section return"><dt>Returns</dt><dd>The cargo net weight in tons. </dd></dl>
-
-</div>
-</div>
-<a id="a431cb4ca9fd4e8ed435035568b4d1e76" name="a431cb4ca9fd4e8ed435035568b4d1e76"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a431cb4ca9fd4e8ed435035568b4d1e76">&#9670;&#160;</a></span>getCargoNetWeight() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a431cb4ca9fd4e8ed435035568b4d1e76">&#9670;&#160;</a></span>getCargoNetWeight()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1103,35 +647,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a4f69d1f9f7068b9ec52fec65e7a858e2" name="a4f69d1f9f7068b9ec52fec65e7a858e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f69d1f9f7068b9ec52fec65e7a858e2">&#9670;&#160;</a></span>getEnergyConsumption() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Car::getEnergyConsumption </td>
-          <td>(</td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>timeStep</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the energy consumption of the car (in case there is auxiliary power). </p>
-<p>Otherwise, it returns 0.0.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">timeStep</td><td>The time step of the simulator in seconds. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The energy consumption in kWh. </dd></dl>
-
-</div>
-</div>
-<a id="a4f69d1f9f7068b9ec52fec65e7a858e2" name="a4f69d1f9f7068b9ec52fec65e7a858e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f69d1f9f7068b9ec52fec65e7a858e2">&#9670;&#160;</a></span>getEnergyConsumption() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f69d1f9f7068b9ec52fec65e7a858e2">&#9670;&#160;</a></span>getEnergyConsumption()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1159,34 +675,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a89e2e106450d8bf9e48104d69e2048d2" name="a89e2e106450d8bf9e48104d69e2048d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89e2e106450d8bf9e48104d69e2048d2">&#9670;&#160;</a></span>getMaxProvidedEnergy() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Car::getMaxProvidedEnergy </td>
-          <td>(</td>
-          <td class="paramtype">double &amp;&#160;</td>
-          <td class="paramname"><em>timeStep</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the maximum energy provided by the car. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">timeStep</td><td>The time step. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The maximum provided energy in kWh. </dd></dl>
-
-</div>
-</div>
-<a id="a89e2e106450d8bf9e48104d69e2048d2" name="a89e2e106450d8bf9e48104d69e2048d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89e2e106450d8bf9e48104d69e2048d2">&#9670;&#160;</a></span>getMaxProvidedEnergy() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a89e2e106450d8bf9e48104d69e2048d2">&#9670;&#160;</a></span>getMaxProvidedEnergy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1213,44 +702,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a41442d1464a019cdb1e35d3d95a893cc" name="a41442d1464a019cdb1e35d3d95a893cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41442d1464a019cdb1e35d3d95a893cc">&#9670;&#160;</a></span>getResistance() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Car::getResistance </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>trainSpeed</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Gets the resistance contributed by this car to the whole train. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">trainSpeed</td><td>The train speed in m/s. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The car's resistance in Newton. </dd></dl>
-
-<p>Reimplemented from <a class="el" href="../../da/de2/class_train_component.html#a810f1e95553eed39601b553b5d8bbe10">TrainComponent</a>.</p>
-
-</div>
-</div>
-<a id="a41442d1464a019cdb1e35d3d95a893cc" name="a41442d1464a019cdb1e35d3d95a893cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41442d1464a019cdb1e35d3d95a893cc">&#9670;&#160;</a></span>getResistance() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a41442d1464a019cdb1e35d3d95a893cc">&#9670;&#160;</a></span>getResistance()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1287,33 +739,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a07c9aeff611a5fb4a978e9195120b3cc" name="a07c9aeff611a5fb4a978e9195120b3cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07c9aeff611a5fb4a978e9195120b3cc">&#9670;&#160;</a></span>setCarCurrentWeight() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Car::setCarCurrentWeight </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>newCurrentWeight</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the car's current weight. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">newCurrentWeight</td><td>The new gross weight of the car, which cannot be less than the light weight of the car. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a07c9aeff611a5fb4a978e9195120b3cc" name="a07c9aeff611a5fb4a978e9195120b3cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07c9aeff611a5fb4a978e9195120b3cc">&#9670;&#160;</a></span>setCarCurrentWeight() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a07c9aeff611a5fb4a978e9195120b3cc">&#9670;&#160;</a></span>setCarCurrentWeight()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1340,53 +766,7 @@ Friends</h2></td></tr>
 </div>
 <h2 class="groupheader">Friends And Related Symbol Documentation</h2>
 <a id="ac50f516dc1bf46f656a3e0c5f518b829" name="ac50f516dc1bf46f656a3e0c5f518b829"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac50f516dc1bf46f656a3e0c5f518b829">&#9670;&#160;</a></span>operator&lt;&lt; <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::ostream &amp; operator&lt;&lt; </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>ostr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d6/d44/class_car.html">Car</a> &amp;&#160;</td>
-          <td class="paramname"><em>stud</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Stream insertion operator. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ostr</td><td>The ostr. </td></tr>
-    <tr><td class="paramname">stud</td><td>The stud. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The shifted result. </dd></dl>
-
-</div>
-</div>
-<a id="ac50f516dc1bf46f656a3e0c5f518b829" name="ac50f516dc1bf46f656a3e0c5f518b829"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac50f516dc1bf46f656a3e0c5f518b829">&#9670;&#160;</a></span>operator&lt;&lt; <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac50f516dc1bf46f656a3e0c5f518b829">&#9670;&#160;</a></span>operator&lt;&lt;</h2>
 
 <div class="memitem">
 <div class="memproto">

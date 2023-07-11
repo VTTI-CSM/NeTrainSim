@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['powertype_0',['PowerType',['../da/d9c/namespace_train_types.html#a055684effa66c62cacad5bd3a1d4f49c',1,'TrainTypes']]]
+  ['map_5ftype_0',['map_type',['../dd/d11/class_map.html#a9c69664d624e49d231502530c793b6ce',1,'Map']]],
+  ['mapped_5ftype_1',['mapped_type',['../dd/d11/class_map.html#abcbd5d41783cfb0c7aa08a37ab5e0d10',1,'Map']]]
 ];

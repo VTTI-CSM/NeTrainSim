@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -102,6 +102,7 @@ $(document).ready(function(){initNavTree('da/df1/class_ne_train_sim.html','../..
 <a href="#pub-slots">Public Slots</a> &#124;
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="../../d0/d1b/class_ne_train_sim-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">NeTrainSim Class Reference</div></div>
@@ -111,7 +112,7 @@ $(document).ready(function(){initNavTree('da/df1/class_ne_train_sim.html','../..
 <p>A network train simulation GUI.  
  <a href="../../da/df1/class_ne_train_sim.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../df/dd7/_netrainsim_8h_source.html">Netrainsim.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../d7/d75/netrainsimmainwindow_8h_source.html">netrainsimmainwindow.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for NeTrainSim:</div>
 <div class="dyncontent">
@@ -139,6 +140,10 @@ Public Slots</h2></td></tr>
 <tr class="memitem:a28d9248a5a969bf8324df7b5146ba0ce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a28d9248a5a969bf8324df7b5146ba0ce">handleSampleProject</a> ()</td></tr>
 <tr class="memdesc:a28d9248a5a969bf8324df7b5146ba0ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slot for handling loading the sample project files.  <br /></td></tr>
 <tr class="separator:a28d9248a5a969bf8324df7b5146ba0ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7add954c219203337d34be201d70a72e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a7add954c219203337d34be201d70a72e">pauseSimulation</a> ()</td></tr>
+<tr class="separator:a7add954c219203337d34be201d70a72e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a219287d39630d659f17248b05713d92a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a219287d39630d659f17248b05713d92a">resumeSimulation</a> ()</td></tr>
+<tr class="separator:a219287d39630d659f17248b05713d92a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="signals" name="signals"></a>
 Signals</h2></td></tr>
@@ -151,6 +156,12 @@ Signals</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a7537f8487b604d40558eae056d0f20d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a7537f8487b604d40558eae056d0f20d7">loadDefaults</a> ()</td></tr>
+<tr class="memdesc:a7537f8487b604d40558eae056d0f20d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">load default settings  <br /></td></tr>
+<tr class="separator:a7537f8487b604d40558eae056d0f20d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc4fd016c55b0d3e1b244d23beb90a5b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#afc4fd016c55b0d3e1b244d23beb90a5b">saveDefaults</a> (QStringList defaults)</td></tr>
+<tr class="memdesc:afc4fd016c55b0d3e1b244d23beb90a5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">NeTrainSim::save Default values.  <br /></td></tr>
+<tr class="separator:afc4fd016c55b0d3e1b244d23beb90a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31604603607174b7cf7b995af86dbdd7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a31604603607174b7cf7b995af86dbdd7">NeTrainSim</a> (QWidget *parent=nullptr)</td></tr>
 <tr class="memdesc:a31604603607174b7cf7b995af86dbdd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a31604603607174b7cf7b995af86dbdd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,6 +177,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a702e3d796ad49149d2792afd3fd01257"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a702e3d796ad49149d2792afd3fd01257">loadProjectFiles</a> (QString projectFilename)</td></tr>
 <tr class="memdesc:a702e3d796ad49149d2792afd3fd01257"><td class="mdescLeft">&#160;</td><td class="mdescRight">load the Project Files to the simulator GUI  <br /></td></tr>
 <tr class="separator:a702e3d796ad49149d2792afd3fd01257"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a5e886c070bbfa4bb3bcd39e36b3cd372"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#a5e886c070bbfa4bb3bcd39e36b3cd372">defaultBrowsePath</a></td></tr>
+<tr class="memdesc:a5e886c070bbfa4bb3bcd39e36b3cd372"><td class="mdescLeft">&#160;</td><td class="mdescRight">default Browse Path  <br /></td></tr>
+<tr class="separator:a5e886c070bbfa4bb3bcd39e36b3cd372"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab97b7132f41ff15c5e0c21aca93b50c0"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/df1/class_ne_train_sim.html#ab97b7132f41ff15c5e0c21aca93b50c0">userBrowsePath</a></td></tr>
+<tr class="separator:ab97b7132f41ff15c5e0c21aca93b50c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -400,6 +419,27 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a7537f8487b604d40558eae056d0f20d7" name="a7537f8487b604d40558eae056d0f20d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7537f8487b604d40558eae056d0f20d7">&#9670;&#160;</a></span>loadDefaults()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NeTrainSim::loadDefaults </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>load default settings </p>
+<dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>7/1/2023 </dd></dl>
+
+</div>
+</div>
 <a id="a702e3d796ad49149d2792afd3fd01257" name="a702e3d796ad49149d2792afd3fd01257"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a702e3d796ad49149d2792afd3fd01257">&#9670;&#160;</a></span>loadProjectFiles()</h2>
 
@@ -479,6 +519,83 @@ Protected Member Functions</h2></td></tr>
 </dl>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>6/7/2023 </dd></dl>
+
+</div>
+</div>
+<a id="a7add954c219203337d34be201d70a72e" name="a7add954c219203337d34be201d70a72e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7add954c219203337d34be201d70a72e">&#9670;&#160;</a></span>pauseSimulation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NeTrainSim::pauseSimulation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a219287d39630d659f17248b05713d92a" name="a219287d39630d659f17248b05713d92a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a219287d39630d659f17248b05713d92a">&#9670;&#160;</a></span>resumeSimulation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NeTrainSim::resumeSimulation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afc4fd016c55b0d3e1b244d23beb90a5b" name="afc4fd016c55b0d3e1b244d23beb90a5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc4fd016c55b0d3e1b244d23beb90a5b">&#9670;&#160;</a></span>saveDefaults()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool NeTrainSim::saveDefaults </td>
+          <td>(</td>
+          <td class="paramtype">QStringList&#160;</td>
+          <td class="paramname"><em>defaults</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NeTrainSim::save Default values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">defaults</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
@@ -672,6 +789,37 @@ Protected Member Functions</h2></td></tr>
 </dl>
 <dl class="section author"><dt>Author</dt><dd>Ahmed Aredah </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>6/7/2023 </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a5e886c070bbfa4bb3bcd39e36b3cd372" name="a5e886c070bbfa4bb3bcd39e36b3cd372"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e886c070bbfa4bb3bcd39e36b3cd372">&#9670;&#160;</a></span>defaultBrowsePath</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString NeTrainSim::defaultBrowsePath</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>default Browse Path </p>
+
+</div>
+</div>
+<a id="ab97b7132f41ff15c5e0c21aca93b50c0" name="ab97b7132f41ff15c5e0c21aca93b50c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab97b7132f41ff15c5e0c21aca93b50c0">&#9670;&#160;</a></span>userBrowsePath</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString NeTrainSim::userBrowsePath</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

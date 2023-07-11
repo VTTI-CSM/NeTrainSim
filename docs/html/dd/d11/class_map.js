@@ -9,5 +9,6 @@ var class_map =
     [ "is_key", "dd/d11/class_map.html#ae404c813c5952ac052f82506b3fd5037", null ],
     [ "is_value", "dd/d11/class_map.html#af6b8832bd17c8cb7e41b040998b909fb", null ],
     [ "print", "dd/d11/class_map.html#a326891138f4efe9f0c4e4c381af33eb9", null ],
+    [ "sumValues", "dd/d11/class_map.html#a501efad653abf9e851b7497e160f798b", null ],
     [ "toString", "dd/d11/class_map.html#a7c618e7ae32f358948233d495fc3cac6", null ]
 ];

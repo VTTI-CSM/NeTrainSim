@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('d1/da1/class_tank.html','../../'); ini
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="../../de/d32/_train_defintion_2tank_8h_source.html">tank.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../d4/d5d/tank_8h_source.html">tank.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Tank:</div>
 <div class="dyncontent">
@@ -159,76 +159,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad251a75d2dbb591eb5dc90aad4caa7ef">getTankCumConsumedFuel</a> () const</td></tr>
 <tr class="memdesc:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the total amount of fuel consumed from the tank.  <br /></td></tr>
 <tr class="separator:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bd942af4f6d36fc00331a4989a10427"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a2bd942af4f6d36fc00331a4989a10427">SetTank</a> (double maxCapacity, double initialCapacityPercentage, double depthOfDischarge)</td></tr>
-<tr class="memdesc:a2bd942af4f6d36fc00331a4989a10427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the main properties of the tank (initialize the tank)  <br /></td></tr>
-<tr class="separator:a2bd942af4f6d36fc00331a4989a10427"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afae7269f26f228687b0fa3e2002eba0f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#afae7269f26f228687b0fa3e2002eba0f">getTankMaxCapacity</a> () const</td></tr>
-<tr class="memdesc:afae7269f26f228687b0fa3e2002eba0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the maximum capacity of the tank.  <br /></td></tr>
-<tr class="separator:afae7269f26f228687b0fa3e2002eba0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab11dfa13ac2fc2a6eaed5fcba92a441d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ab11dfa13ac2fc2a6eaed5fcba92a441d">setTankMaxCapacity</a> (double newMaxCapacity)</td></tr>
-<tr class="memdesc:ab11dfa13ac2fc2a6eaed5fcba92a441d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the maximum capacity of the tank.  <br /></td></tr>
-<tr class="separator:ab11dfa13ac2fc2a6eaed5fcba92a441d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c69b32e02c42e7e31225c6d9b0c9d26"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a9c69b32e02c42e7e31225c6d9b0c9d26">getTankInitialCapacity</a> () const</td></tr>
-<tr class="memdesc:a9c69b32e02c42e7e31225c6d9b0c9d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the initial capacity of the tank.  <br /></td></tr>
-<tr class="separator:a9c69b32e02c42e7e31225c6d9b0c9d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf3f24ad99a1bb7698f0ee57df84a0e1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#abf3f24ad99a1bb7698f0ee57df84a0e1">setTankInitialCapacity</a> (double newInitialCapacityPercentage)</td></tr>
-<tr class="memdesc:abf3f24ad99a1bb7698f0ee57df84a0e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the initial capacity of the tank.  <br /></td></tr>
-<tr class="separator:abf3f24ad99a1bb7698f0ee57df84a0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3a6abc36842f25ebda1195051a13b49"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad3a6abc36842f25ebda1195051a13b49">getTankCurrentCapacity</a> () const</td></tr>
-<tr class="memdesc:ad3a6abc36842f25ebda1195051a13b49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current capacity of the tank.  <br /></td></tr>
-<tr class="separator:ad3a6abc36842f25ebda1195051a13b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a8cd02d304aff500da796177ea9a5e6"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a4a8cd02d304aff500da796177ea9a5e6">consumeTank</a> (double consumedAmount)</td></tr>
-<tr class="memdesc:a4a8cd02d304aff500da796177ea9a5e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consumes fuel from the tank.  <br /></td></tr>
-<tr class="separator:a4a8cd02d304aff500da796177ea9a5e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0e16718e90fcec90939f3c54c98f0f9"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ab0e16718e90fcec90939f3c54c98f0f9">getTankStateOfCapacity</a> () const</td></tr>
-<tr class="memdesc:ab0e16718e90fcec90939f3c54c98f0f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the state of capacity of the tank.  <br /></td></tr>
-<tr class="separator:ab0e16718e90fcec90939f3c54c98f0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a440d4603b4b7093d33c0ab36adaa8fff"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a440d4603b4b7093d33c0ab36adaa8fff">isTankDrainable</a> (double consumedAmount)</td></tr>
-<tr class="memdesc:a440d4603b4b7093d33c0ab36adaa8fff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the specified amount of fuel is drainable from the tank.  <br /></td></tr>
-<tr class="separator:a440d4603b4b7093d33c0ab36adaa8fff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25aeaebde85871f1a4d4de11a779352a"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a25aeaebde85871f1a4d4de11a779352a">getTankDOD</a> () const</td></tr>
-<tr class="memdesc:a25aeaebde85871f1a4d4de11a779352a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the depth of discharge of the tank.  <br /></td></tr>
-<tr class="separator:a25aeaebde85871f1a4d4de11a779352a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac3762c5507276c7dcb4c429718e0db97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ac3762c5507276c7dcb4c429718e0db97">setTankDOD</a> (double newTankDOD)</td></tr>
-<tr class="memdesc:ac3762c5507276c7dcb4c429718e0db97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the depth of discharge of the tank.  <br /></td></tr>
-<tr class="separator:ac3762c5507276c7dcb4c429718e0db97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a601826afc9ef1aebd4623ddf59225118"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#a601826afc9ef1aebd4623ddf59225118">tankHasFuel</a> ()</td></tr>
-<tr class="memdesc:a601826afc9ef1aebd4623ddf59225118"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the tank has fuel (current capacity &gt; 0)  <br /></td></tr>
-<tr class="separator:a601826afc9ef1aebd4623ddf59225118"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da1/class_tank.html#ad251a75d2dbb591eb5dc90aad4caa7ef">getTankCumConsumedFuel</a> () const</td></tr>
-<tr class="memdesc:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the total amount of fuel consumed from the tank.  <br /></td></tr>
-<tr class="separator:ad251a75d2dbb591eb5dc90aad4caa7ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a4a8cd02d304aff500da796177ea9a5e6" name="a4a8cd02d304aff500da796177ea9a5e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a8cd02d304aff500da796177ea9a5e6">&#9670;&#160;</a></span>consumeTank() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::consumeTank </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>consumedAmount</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Consumes fuel from the tank. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">consumedAmount</td><td>The amount of fuel to consume from the tank in liters. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The actual amount of fuel consumed from the tank in liters. </dd></dl>
-
-</div>
-</div>
-<a id="a4a8cd02d304aff500da796177ea9a5e6" name="a4a8cd02d304aff500da796177ea9a5e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a8cd02d304aff500da796177ea9a5e6">&#9670;&#160;</a></span>consumeTank() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a8cd02d304aff500da796177ea9a5e6">&#9670;&#160;</a></span>consumeTank()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -255,27 +189,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad251a75d2dbb591eb5dc90aad4caa7ef" name="ad251a75d2dbb591eb5dc90aad4caa7ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad251a75d2dbb591eb5dc90aad4caa7ef">&#9670;&#160;</a></span>getTankCumConsumedFuel() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankCumConsumedFuel </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the total amount of fuel consumed from the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The cumulative consumed fuel from the tank in liters. </dd></dl>
-
-</div>
-</div>
-<a id="ad251a75d2dbb591eb5dc90aad4caa7ef" name="ad251a75d2dbb591eb5dc90aad4caa7ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad251a75d2dbb591eb5dc90aad4caa7ef">&#9670;&#160;</a></span>getTankCumConsumedFuel() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad251a75d2dbb591eb5dc90aad4caa7ef">&#9670;&#160;</a></span>getTankCumConsumedFuel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -295,27 +209,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad3a6abc36842f25ebda1195051a13b49" name="ad3a6abc36842f25ebda1195051a13b49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3a6abc36842f25ebda1195051a13b49">&#9670;&#160;</a></span>getTankCurrentCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankCurrentCapacity </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the current capacity of the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The tank's current capacity in liters. </dd></dl>
-
-</div>
-</div>
-<a id="ad3a6abc36842f25ebda1195051a13b49" name="ad3a6abc36842f25ebda1195051a13b49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3a6abc36842f25ebda1195051a13b49">&#9670;&#160;</a></span>getTankCurrentCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3a6abc36842f25ebda1195051a13b49">&#9670;&#160;</a></span>getTankCurrentCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -335,27 +229,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a25aeaebde85871f1a4d4de11a779352a" name="a25aeaebde85871f1a4d4de11a779352a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25aeaebde85871f1a4d4de11a779352a">&#9670;&#160;</a></span>getTankDOD() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankDOD </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the depth of discharge of the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The tank's depth of discharge. </dd></dl>
-
-</div>
-</div>
-<a id="a25aeaebde85871f1a4d4de11a779352a" name="a25aeaebde85871f1a4d4de11a779352a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25aeaebde85871f1a4d4de11a779352a">&#9670;&#160;</a></span>getTankDOD() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a25aeaebde85871f1a4d4de11a779352a">&#9670;&#160;</a></span>getTankDOD()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -375,27 +249,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a9c69b32e02c42e7e31225c6d9b0c9d26" name="a9c69b32e02c42e7e31225c6d9b0c9d26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c69b32e02c42e7e31225c6d9b0c9d26">&#9670;&#160;</a></span>getTankInitialCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankInitialCapacity </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the initial capacity of the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The tank's initial capacity in liters. </dd></dl>
-
-</div>
-</div>
-<a id="a9c69b32e02c42e7e31225c6d9b0c9d26" name="a9c69b32e02c42e7e31225c6d9b0c9d26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c69b32e02c42e7e31225c6d9b0c9d26">&#9670;&#160;</a></span>getTankInitialCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c69b32e02c42e7e31225c6d9b0c9d26">&#9670;&#160;</a></span>getTankInitialCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -415,27 +269,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="afae7269f26f228687b0fa3e2002eba0f" name="afae7269f26f228687b0fa3e2002eba0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afae7269f26f228687b0fa3e2002eba0f">&#9670;&#160;</a></span>getTankMaxCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankMaxCapacity </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the maximum capacity of the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The tank's maximum capacity in liters. </dd></dl>
-
-</div>
-</div>
-<a id="afae7269f26f228687b0fa3e2002eba0f" name="afae7269f26f228687b0fa3e2002eba0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afae7269f26f228687b0fa3e2002eba0f">&#9670;&#160;</a></span>getTankMaxCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afae7269f26f228687b0fa3e2002eba0f">&#9670;&#160;</a></span>getTankMaxCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -455,27 +289,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ab0e16718e90fcec90939f3c54c98f0f9" name="ab0e16718e90fcec90939f3c54c98f0f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0e16718e90fcec90939f3c54c98f0f9">&#9670;&#160;</a></span>getTankStateOfCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double Tank::getTankStateOfCapacity </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the state of capacity of the tank. </p>
-<dl class="section return"><dt>Returns</dt><dd>The tank's state of capacity. </dd></dl>
-
-</div>
-</div>
-<a id="ab0e16718e90fcec90939f3c54c98f0f9" name="ab0e16718e90fcec90939f3c54c98f0f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0e16718e90fcec90939f3c54c98f0f9">&#9670;&#160;</a></span>getTankStateOfCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0e16718e90fcec90939f3c54c98f0f9">&#9670;&#160;</a></span>getTankStateOfCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -495,34 +309,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a440d4603b4b7093d33c0ab36adaa8fff" name="a440d4603b4b7093d33c0ab36adaa8fff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a440d4603b4b7093d33c0ab36adaa8fff">&#9670;&#160;</a></span>isTankDrainable() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Tank::isTankDrainable </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>consumedAmount</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Checks if the specified amount of fuel is drainable from the tank. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">consumedAmount</td><td>The amount of fuel to be drained from the tank in liters. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>True if the tank is drainable (has enough fuel), false otherwise. </dd></dl>
-
-</div>
-</div>
-<a id="a440d4603b4b7093d33c0ab36adaa8fff" name="a440d4603b4b7093d33c0ab36adaa8fff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a440d4603b4b7093d33c0ab36adaa8fff">&#9670;&#160;</a></span>isTankDrainable() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a440d4603b4b7093d33c0ab36adaa8fff">&#9670;&#160;</a></span>isTankDrainable()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -549,51 +336,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a2bd942af4f6d36fc00331a4989a10427" name="a2bd942af4f6d36fc00331a4989a10427"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2bd942af4f6d36fc00331a4989a10427">&#9670;&#160;</a></span>SetTank() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Tank::SetTank </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>maxCapacity</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>initialCapacityPercentage</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>depthOfDischarge</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the main properties of the tank (initialize the tank) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">maxCapacity</td><td>The maximum capacity the tank can hold in liters </td></tr>
-    <tr><td class="paramname">initialCapacityPercentage</td><td>The initial capacity percentage that the tank holds once the train is loaded onto the network. </td></tr>
-    <tr><td class="paramname">depthOfDischarge</td><td>The allowable depth of discharge, the tank can drain to. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a2bd942af4f6d36fc00331a4989a10427" name="a2bd942af4f6d36fc00331a4989a10427"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2bd942af4f6d36fc00331a4989a10427">&#9670;&#160;</a></span>SetTank() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bd942af4f6d36fc00331a4989a10427">&#9670;&#160;</a></span>SetTank()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -637,33 +380,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ac3762c5507276c7dcb4c429718e0db97" name="ac3762c5507276c7dcb4c429718e0db97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3762c5507276c7dcb4c429718e0db97">&#9670;&#160;</a></span>setTankDOD() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Tank::setTankDOD </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>newTankDOD</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the depth of discharge of the tank. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">newTankDOD</td><td>The new depth of discharge of the tank. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ac3762c5507276c7dcb4c429718e0db97" name="ac3762c5507276c7dcb4c429718e0db97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3762c5507276c7dcb4c429718e0db97">&#9670;&#160;</a></span>setTankDOD() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3762c5507276c7dcb4c429718e0db97">&#9670;&#160;</a></span>setTankDOD()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -689,33 +406,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="abf3f24ad99a1bb7698f0ee57df84a0e1" name="abf3f24ad99a1bb7698f0ee57df84a0e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abf3f24ad99a1bb7698f0ee57df84a0e1">&#9670;&#160;</a></span>setTankInitialCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Tank::setTankInitialCapacity </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>newInitialCapacityPercentage</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the initial capacity of the tank. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">newInitialCapacityPercentage</td><td>The new initial capacity percentage of the tank. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="abf3f24ad99a1bb7698f0ee57df84a0e1" name="abf3f24ad99a1bb7698f0ee57df84a0e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abf3f24ad99a1bb7698f0ee57df84a0e1">&#9670;&#160;</a></span>setTankInitialCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abf3f24ad99a1bb7698f0ee57df84a0e1">&#9670;&#160;</a></span>setTankInitialCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -741,33 +432,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ab11dfa13ac2fc2a6eaed5fcba92a441d" name="ab11dfa13ac2fc2a6eaed5fcba92a441d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab11dfa13ac2fc2a6eaed5fcba92a441d">&#9670;&#160;</a></span>setTankMaxCapacity() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Tank::setTankMaxCapacity </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>newMaxCapacity</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the maximum capacity of the tank. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">newMaxCapacity</td><td>The new maximum capacity of the tank in liters. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ab11dfa13ac2fc2a6eaed5fcba92a441d" name="ab11dfa13ac2fc2a6eaed5fcba92a441d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab11dfa13ac2fc2a6eaed5fcba92a441d">&#9670;&#160;</a></span>setTankMaxCapacity() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab11dfa13ac2fc2a6eaed5fcba92a441d">&#9670;&#160;</a></span>setTankMaxCapacity()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -793,27 +458,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a601826afc9ef1aebd4623ddf59225118" name="a601826afc9ef1aebd4623ddf59225118"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a601826afc9ef1aebd4623ddf59225118">&#9670;&#160;</a></span>tankHasFuel() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Tank::tankHasFuel </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Checks if the tank has fuel (current capacity &gt; 0) </p>
-<dl class="section return"><dt>Returns</dt><dd>True if the tank has fuel, false otherwise. </dd></dl>
-
-</div>
-</div>
-<a id="a601826afc9ef1aebd4623ddf59225118" name="a601826afc9ef1aebd4623ddf59225118"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a601826afc9ef1aebd4623ddf59225118">&#9670;&#160;</a></span>tankHasFuel() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a601826afc9ef1aebd4623ddf59225118">&#9670;&#160;</a></span>tankHasFuel()</h2>
 
 <div class="memitem">
 <div class="memproto">

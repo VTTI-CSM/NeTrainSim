@@ -33,7 +33,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../50x50.png"/></td>
   <td id="projectalign">
-   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.0.9 beta</span>
+   <div id="projectname">NeTrainSim<span id="projectnumber">&#160;0.1.1 beta</span>
    </div>
    <div id="projectbrief">The Open-Source Network Trains Simulator</div>
   </td>
@@ -110,22 +110,19 @@ $(document).ready(function(){initNavTree('d8/d2d/class_net_link.html','../../');
 <p>The <a class="el" href="../../d8/d2d/class_net_link.html" title="The NetLink class represents a network link in a simulation.">NetLink</a> class represents a network link in a simulation.  
  <a href="../../d8/d2d/class_net_link.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="../../d7/d84/_net_link_8h_source.html">NetLink.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="../../de/d4c/netlink_8h_source.html">netlink.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac86c07ba59d65da52401adcb8a3af56b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#ac86c07ba59d65da52401adcb8a3af56b">NetLink</a> (int simulatorID, int linkID, std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; fromNode, std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; toNode, double linkLength, double maxSpeed, int trafficSignalID, double linkGrade, double linkCurvature, int linkNoOfDirections, double speedVariationfactor, bool isCatenaryAvailable, string linkInRegion, double lengthScale, double maxSpeedScale)</td></tr>
-<tr class="memdesc:ac86c07ba59d65da52401adcb8a3af56b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:ac86c07ba59d65da52401adcb8a3af56b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72ffa4cc7c77ccaea00179a279688f4b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a72ffa4cc7c77ccaea00179a279688f4b">NetLink</a> (int simulatorID, int linkID, std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; fromNode, std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; toNode, double maxSpeed, int trafficSignalID, string signalAtEnd, double linkGrade, double linkCurvature, int linkNoOfDirections, double speedVariationfactor, bool isCatenaryAvailable, string linkInRegion, double maxSpeedScale)</td></tr>
+<tr class="memdesc:a72ffa4cc7c77ccaea00179a279688f4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a72ffa4cc7c77ccaea00179a279688f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac40cf8224945811808dc846c316480ea"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#ac40cf8224945811808dc846c316480ea">~NetLink</a> ()</td></tr>
 <tr class="memdesc:ac40cf8224945811808dc846c316480ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:ac40cf8224945811808dc846c316480ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9eb5a7266bdd38fbf771f54ab33d48ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a9eb5a7266bdd38fbf771f54ab33d48ba">setLinkSimulatorID</a> (int newID)</td></tr>
 <tr class="memdesc:a9eb5a7266bdd38fbf771f54ab33d48ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the simulator identifier of the link.  <br /></td></tr>
 <tr class="separator:a9eb5a7266bdd38fbf771f54ab33d48ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae6309a90838b6130bdb104a5dd2b366"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#aae6309a90838b6130bdb104a5dd2b366">updateLinksScaleLength</a> (double newScale)</td></tr>
-<tr class="memdesc:aae6309a90838b6130bdb104a5dd2b366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the links scale length.  <br /></td></tr>
-<tr class="separator:aae6309a90838b6130bdb104a5dd2b366"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a90919209d5bde62eaa1080a6f163c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a48a90919209d5bde62eaa1080a6f163c">updateLinksScaleFreeSpeed</a> (double newScale)</td></tr>
 <tr class="memdesc:a48a90919209d5bde62eaa1080a6f163c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the links scale free speed.  <br /></td></tr>
 <tr class="separator:a48a90919209d5bde62eaa1080a6f163c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,6 +132,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a20a52e87fc2f3797ac44a5d98401e449"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a20a52e87fc2f3797ac44a5d98401e449">getCost</a> ()</td></tr>
 <tr class="memdesc:a20a52e87fc2f3797ac44a5d98401e449"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the cost associated with the link.  <br /></td></tr>
 <tr class="separator:a20a52e87fc2f3797ac44a5d98401e449"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4ddb51e4da340d101ac78bb7b2195cf"><td class="memItemLeft" align="right" valign="top">std::pair&lt; std::pair&lt; double, double &gt;, std::pair&lt; double, double &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#af4ddb51e4da340d101ac78bb7b2195cf">vectorizeLinkOfOneSegment</a> (std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; startNode)</td></tr>
+<tr class="memdesc:af4ddb51e4da340d101ac78bb7b2195cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a vector representation of a link with respect to a given start node.  <br /></td></tr>
+<tr class="separator:af4ddb51e4da340d101ac78bb7b2195cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a835318dab15d95d94a6553a051b99cc7"><td class="memItemLeft" align="right" valign="top">pair&lt; double, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a835318dab15d95d94a6553a051b99cc7">findPositionOnLink</a> (double travelledLength, std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; startNode)</td></tr>
+<tr class="separator:a835318dab15d95d94a6553a051b99cc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -156,8 +158,10 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a654a0889894197c415301f6209541d6d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a654a0889894197c415301f6209541d6d">toLoc</a></td></tr>
 <tr class="memdesc:a654a0889894197c415301f6209541d6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The end node of the link.  <br /></td></tr>
 <tr class="separator:a654a0889894197c415301f6209541d6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b473f972c72e626eaeb36607d24221b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a3b473f972c72e626eaeb36607d24221b">intermediatePoints</a></td></tr>
+<tr class="separator:a3b473f972c72e626eaeb36607d24221b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71b7e6b560502e660938d7a3132bdaf3"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a71b7e6b560502e660938d7a3132bdaf3">length</a></td></tr>
-<tr class="memdesc:a71b7e6b560502e660938d7a3132bdaf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The length of the link.  <br /></td></tr>
+<tr class="memdesc:a71b7e6b560502e660938d7a3132bdaf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This extends the line link to a polyline link.  <br /></td></tr>
 <tr class="separator:a71b7e6b560502e660938d7a3132bdaf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ec0d4a5e27bff0c9104c91ace41188c"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a2ec0d4a5e27bff0c9104c91ace41188c">freeFlowSpeed</a></td></tr>
 <tr class="memdesc:a2ec0d4a5e27bff0c9104c91ace41188c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The free flow speed of the link.  <br /></td></tr>
@@ -180,9 +184,6 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a2821d19ebee1160ec28ad97f44f13d3f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a2821d19ebee1160ec28ad97f44f13d3f">region</a></td></tr>
 <tr class="memdesc:a2821d19ebee1160ec28ad97f44f13d3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The region in which the link is located.  <br /></td></tr>
 <tr class="separator:a2821d19ebee1160ec28ad97f44f13d3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c21bdc2976f05df050be75df359753f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a5c21bdc2976f05df050be75df359753f">linksScaleLength</a></td></tr>
-<tr class="memdesc:a5c21bdc2976f05df050be75df359753f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The length scale of the links.  <br /></td></tr>
-<tr class="separator:a5c21bdc2976f05df050be75df359753f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24d1b577f1e91fce08eb6fc0a84d66de"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a24d1b577f1e91fce08eb6fc0a84d66de">linksScaleFreeSpeed</a></td></tr>
 <tr class="memdesc:a24d1b577f1e91fce08eb6fc0a84d66de"><td class="mdescLeft">&#160;</td><td class="mdescRight">The free speed scale of the links.  <br /></td></tr>
 <tr class="separator:a24d1b577f1e91fce08eb6fc0a84d66de"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,12 +202,14 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a1d676a1dfc0d95e55fcc32b2ad73d203"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a1d676a1dfc0d95e55fcc32b2ad73d203">catenaryCumConsumedEnergy</a></td></tr>
 <tr class="memdesc:a1d676a1dfc0d95e55fcc32b2ad73d203"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of energy consumed by all trains on the network.  <br /></td></tr>
 <tr class="separator:a1d676a1dfc0d95e55fcc32b2ad73d203"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a517ea9e3eaaa7ebba9387341da9c6515"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d2d/class_net_link.html#a517ea9e3eaaa7ebba9387341da9c6515">trafficSignalAtEnd</a></td></tr>
+<tr class="separator:a517ea9e3eaaa7ebba9387341da9c6515"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="../../d8/d2d/class_net_link.html" title="The NetLink class represents a network link in a simulation.">NetLink</a> class represents a network link in a simulation. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ac86c07ba59d65da52401adcb8a3af56b" name="ac86c07ba59d65da52401adcb8a3af56b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac86c07ba59d65da52401adcb8a3af56b">&#9670;&#160;</a></span>NetLink()</h2>
+<a id="a72ffa4cc7c77ccaea00179a279688f4b" name="a72ffa4cc7c77ccaea00179a279688f4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72ffa4cc7c77ccaea00179a279688f4b">&#9670;&#160;</a></span>NetLink()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -239,12 +242,6 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>linkLength</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
           <td class="paramname"><em>maxSpeed</em>, </td>
         </tr>
         <tr>
@@ -252,6 +249,12 @@ Public Attributes</h2></td></tr>
           <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>trafficSignalID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>signalAtEnd</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -293,12 +296,6 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>lengthScale</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
           <td class="paramname"><em>maxSpeedScale</em>&#160;</td>
         </tr>
         <tr>
@@ -319,6 +316,7 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">linkLength</td><td>The length of the link. </td></tr>
     <tr><td class="paramname">maxSpeed</td><td>The maximum speed of the link. </td></tr>
     <tr><td class="paramname">trafficSignalID</td><td>The traffic signal identifier of the link. </td></tr>
+    <tr><td class="paramname">signalAtEnd</td><td>Which End of the link, the signal is placed at </td></tr>
     <tr><td class="paramname">linkGrade</td><td>The grade of the link. </td></tr>
     <tr><td class="paramname">linkCurvature</td><td>The curvature of the link. </td></tr>
     <tr><td class="paramname">linkNoOfDirections</td><td>The number of directions of the link. </td></tr>
@@ -353,6 +351,34 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a835318dab15d95d94a6553a051b99cc7" name="a835318dab15d95d94a6553a051b99cc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a835318dab15d95d94a6553a051b99cc7">&#9670;&#160;</a></span>findPositionOnLink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pair&lt; double, double &gt; NetLink::findPositionOnLink </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>travelledLength</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt;&#160;</td>
+          <td class="paramname"><em>startNode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a20a52e87fc2f3797ac44a5d98401e449" name="a20a52e87fc2f3797ac44a5d98401e449"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a20a52e87fc2f3797ac44a5d98401e449">&#9670;&#160;</a></span>getCost()</h2>
 
@@ -480,29 +506,42 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aae6309a90838b6130bdb104a5dd2b366" name="aae6309a90838b6130bdb104a5dd2b366"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae6309a90838b6130bdb104a5dd2b366">&#9670;&#160;</a></span>updateLinksScaleLength()</h2>
+<a id="af4ddb51e4da340d101ac78bb7b2195cf" name="af4ddb51e4da340d101ac78bb7b2195cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4ddb51e4da340d101ac78bb7b2195cf">&#9670;&#160;</a></span>vectorizeLinkOfOneSegment()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void NetLink::updateLinksScaleLength </td>
+          <td class="memname">std::pair&lt; std::pair&lt; double, double &gt;, std::pair&lt; double, double &gt; &gt; NetLink::vectorizeLinkOfOneSegment </td>
           <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>newScale</em></td><td>)</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="../../da/d7a/class_net_node.html">NetNode</a> &gt;&#160;</td>
+          <td class="paramname"><em>startNode</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Updates the links scale length. </p>
+<p>Creates a vector representation of a link with respect to a given start node. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">newScale</td><td>The new scale value. </td></tr>
+    <tr><td class="paramname">startNode</td><td>A shared_ptr to a <a class="el" href="../../da/d7a/class_net_node.html" title="The NetNode class represents a network node in a simulation.">NetNode</a> object representing the start node. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>A pair of pairs of doubles, where the first pair represents the coordinates of the start node, and the second pair represents the vector from the start node to the end node. </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">link</td><td>A shared_ptr to a <a class="el" href="../../d8/d2d/class_net_link.html" title="The NetLink class represents a network link in a simulation.">NetLink</a> object. </td></tr>
+    <tr><td class="paramname">startNode</td><td>A shared_ptr to a <a class="el" href="../../da/d7a/class_net_node.html" title="The NetNode class represents a network node in a simulation.">NetNode</a> object representing the start node. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A pair of pairs of doubles, where the first pair represents the coordinates of the start node, and the second pair represents the vector from the start node to the end node. </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Ahmed </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2/14/2023 </dd></dl>
 
 </div>
 </div>
@@ -683,6 +722,20 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a3b473f972c72e626eaeb36607d24221b" name="a3b473f972c72e626eaeb36607d24221b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b473f972c72e626eaeb36607d24221b">&#9670;&#160;</a></span>intermediatePoints</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt;std::shared_ptr&lt;<a class="el" href="../../da/d7a/class_net_node.html">NetNode</a>&gt; &gt; NetLink::intermediatePoints</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a71b7e6b560502e660938d7a3132bdaf3" name="a71b7e6b560502e660938d7a3132bdaf3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a71b7e6b560502e660938d7a3132bdaf3">&#9670;&#160;</a></span>length</h2>
 
@@ -695,6 +748,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>This extends the line link to a polyline link. </p>
 <p>The length of the link. </p>
 
 </div>
@@ -712,22 +766,6 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The free speed scale of the links. </p>
-
-</div>
-</div>
-<a id="a5c21bdc2976f05df050be75df359753f" name="a5c21bdc2976f05df050be75df359753f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5c21bdc2976f05df050be75df359753f">&#9670;&#160;</a></span>linksScaleLength</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double NetLink::linksScaleLength</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The length scale of the links. </p>
 
 </div>
 </div>
@@ -776,6 +814,20 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The end node of the link. </p>
+
+</div>
+</div>
+<a id="a517ea9e3eaaa7ebba9387341da9c6515" name="a517ea9e3eaaa7ebba9387341da9c6515"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a517ea9e3eaaa7ebba9387341da9c6515">&#9670;&#160;</a></span>trafficSignalAtEnd</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d5/db2/class_vector.html">Vector</a>&lt;int&gt; NetLink::trafficSignalAtEnd</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

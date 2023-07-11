@@ -1,12 +1,13 @@
 var class_net_link =
 [
-    [ "NetLink", "d8/d2d/class_net_link.html#ac86c07ba59d65da52401adcb8a3af56b", null ],
+    [ "NetLink", "d8/d2d/class_net_link.html#a72ffa4cc7c77ccaea00179a279688f4b", null ],
     [ "~NetLink", "d8/d2d/class_net_link.html#ac40cf8224945811808dc846c316480ea", null ],
+    [ "findPositionOnLink", "d8/d2d/class_net_link.html#a835318dab15d95d94a6553a051b99cc7", null ],
     [ "getCost", "d8/d2d/class_net_link.html#a20a52e87fc2f3797ac44a5d98401e449", null ],
     [ "setGrade", "d8/d2d/class_net_link.html#a4e422eb7bf8401705619770cf32d0646", null ],
     [ "setLinkSimulatorID", "d8/d2d/class_net_link.html#a9eb5a7266bdd38fbf771f54ab33d48ba", null ],
     [ "updateLinksScaleFreeSpeed", "d8/d2d/class_net_link.html#a48a90919209d5bde62eaa1080a6f163c", null ],
-    [ "updateLinksScaleLength", "d8/d2d/class_net_link.html#aae6309a90838b6130bdb104a5dd2b366", null ],
+    [ "vectorizeLinkOfOneSegment", "d8/d2d/class_net_link.html#af4ddb51e4da340d101ac78bb7b2195cf", null ],
     [ "catenaryCumConsumedEnergy", "d8/d2d/class_net_link.html#a1d676a1dfc0d95e55fcc32b2ad73d203", null ],
     [ "catenaryCumRegeneratedEnergy", "d8/d2d/class_net_link.html#a9a392dd0c3c04a494f750428bd308447", null ],
     [ "cost", "d8/d2d/class_net_link.html#ae2bb4738b8b2e575259f9289cb04f92e", null ],
@@ -18,12 +19,13 @@ var class_net_link =
     [ "grade", "d8/d2d/class_net_link.html#aee00749932ac5f1409681e6828721817", null ],
     [ "hasCatenary", "d8/d2d/class_net_link.html#a076f9feb7fd7c579c7c9b9a9620561e8", null ],
     [ "id", "d8/d2d/class_net_link.html#aaf6dd053f23acb76b1521112656d5bda", null ],
+    [ "intermediatePoints", "d8/d2d/class_net_link.html#a3b473f972c72e626eaeb36607d24221b", null ],
     [ "length", "d8/d2d/class_net_link.html#a71b7e6b560502e660938d7a3132bdaf3", null ],
     [ "linksScaleFreeSpeed", "d8/d2d/class_net_link.html#a24d1b577f1e91fce08eb6fc0a84d66de", null ],
-    [ "linksScaleLength", "d8/d2d/class_net_link.html#a5c21bdc2976f05df050be75df359753f", null ],
     [ "region", "d8/d2d/class_net_link.html#a2821d19ebee1160ec28ad97f44f13d3f", null ],
     [ "speedVariation", "d8/d2d/class_net_link.html#a8e37c379126a4dcc80a1cae80d914fd1", null ],
     [ "toLoc", "d8/d2d/class_net_link.html#a654a0889894197c415301f6209541d6d", null ],
+    [ "trafficSignalAtEnd", "d8/d2d/class_net_link.html#a517ea9e3eaaa7ebba9387341da9c6515", null ],
     [ "trafficSignalNo", "d8/d2d/class_net_link.html#afc7764300ec902750a107c337e435bfd", null ],
     [ "userID", "d8/d2d/class_net_link.html#aa8003dcf1c11b4d0ea523b5dc34f771e", null ]
 ];

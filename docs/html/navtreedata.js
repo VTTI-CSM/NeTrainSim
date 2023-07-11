@@ -50,7 +50,7 @@ var NAVTREE =
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
-        [ "Variables", "functions_vars.html", "functions_vars" ],
+        [ "Variables", "functions_vars.html", null ],
         [ "Typedefs", "functions_type.html", null ],
         [ "Related Symbols", "functions_rela.html", null ]
       ] ]
@@ -70,12 +70,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d4/d01/class_train.html#a3b692904302dc31f62664ef4486f4aa6",
-"d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#a28065da228f8e00d762a230e5110983f",
-"d5/dac/class_netrainsim__ui_1_1_ui___ne_train_sim.html#acd833f40ca2f52367092c304dbf0c9eb",
-"d8/d2e/train_defintion_2_trains_list_8h.html#ad9a8a115d32bc8cfe9d9590201b49e31",
-"da/d9c/namespace_train_types.html#ae15dc8bae87f4a97ebc9ed15fdb89d19a74b4356cda64f57e76d7954307b44ecd",
-"de/de1/class_network.html#a2e18feaca0442068c0516ca3bae7db69"
+"d4/d01/class_train.html#a55a926f99aba5b8e69a79a5abed59bde",
+"d8/d2d/class_net_link.html#a3b473f972c72e626eaeb36607d24221b",
+"dc/df2/class_battery.html#ac9080904d869356e0d6607e8fbb69720",
+"index.html#resources_subsec"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
