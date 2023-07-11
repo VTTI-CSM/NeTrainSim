@@ -488,10 +488,10 @@ private:
     * @return A vector of tuples representing the links data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, double, int,
+    Vector<std::tuple<int, int, int, double, int,
                       double, double, int, double, bool,
                       std::string, std::string,
-                      double, double>> getLinkesDataFromLinksFile(QString fileName);
+                      double>> getLinkesDataFromLinksFile(QString fileName);
 
     /**
     * Retrieves links data from the links table in the UI.
@@ -500,8 +500,8 @@ private:
     * @return A vector of tuples representing the links' data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, double, int, double, double,
-                      int, double, bool,std::string, std::string, double,
+    Vector<std::tuple<int, int, int, double, int, double, double,
+                      int, double, bool,std::string, std::string,
                       double>> getLinkesDataFromLinksTable();
 
     /**
@@ -514,10 +514,10 @@ private:
     */
     std::tuple<QVector<QString>, QVector<QString>>
                     getLinksPlottableData(Vector<std::tuple<int, int, int,
-                                            double, double, int, double,
+                                            double, int, double,
                                             double, int, double, bool,
                                             std::string, std::string,
-                                            double, double>> linksRecords);
+                                            double>> linksRecords);
 
     /**
     * Updates the links plot with new data.
@@ -566,11 +566,13 @@ private:
     *         end time, speed profile, acceleration profile, and whether the train is enabled.
     */
     Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<double, double, double,
-                                        double, double, double,
-                                        int, int>>,
-                      Vector<std::tuple<double, double, double,
-                                        double, double, int, int>>,
+                      Vector<std::tuple<
+                          int, double, double,
+                          int, double, double,
+                          double, double, int>>,
+                      Vector<std::tuple<int, int, double, double,
+                                        double, double,
+                                        double, int>>,
                       bool>> getTrainsDataFromTables();
 
     /**

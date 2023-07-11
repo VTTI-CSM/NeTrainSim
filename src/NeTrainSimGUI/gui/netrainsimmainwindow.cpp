@@ -458,10 +458,15 @@ void NeTrainSim::setupPage2(){
         QString saveFilePath = QFileDialog::getSaveFileName(this, "Save Trains File", QDir::homePath(), "DAT Files (*.DAT)");
 
         if (!saveFilePath.isEmpty()) {
-            Vector<tuple<std::string, Vector<int>, double, double,
-                         Vector<tuple<double, double, double, double, double, double, int, int>>,
-                         Vector<tuple<double, double, double, double, double, int, int>>,
-                         bool>> out;
+            Vector<std::tuple<std::string, Vector<int>, double, double,
+                              Vector<std::tuple<
+                                  int, double, double,
+                                  int, double, double,
+                                  double, double, int>>,
+                              Vector<std::tuple<int, int, double, double,
+                                                double, double,
+                                                double, int>>,
+                              bool>> out;
             try {
                 out = this->getTrainsDataFromTables();
             } catch (const std::exception& e) {
@@ -1124,10 +1129,10 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
  * @param fileName The name of the file to read the link data from.
  * @return A vector of link records containing the link data.
  */
-Vector<tuple<int, int, int, double, double, int,
+Vector<tuple<int, int, int, double, int,
              double, double, int, double, bool,
              std::string, std::string,
-             double, double>>  NeTrainSim::getLinkesDataFromLinksFile(
+             double>>  NeTrainSim::getLinkesDataFromLinksFile(
     QString fileName)
 {
     auto records = ReadWriteNetwork::readLinksFile(fileName.toStdString());
@@ -1140,14 +1145,14 @@ Vector<tuple<int, int, int, double, double, int,
  *
  * @return A vector of link records containing the link data from the table.
  */
-Vector<tuple<int, int, int, double, double, int,
+Vector<tuple<int, int, int, double, int,
              double, double, int, double, bool,
-             std::string, std::string, double,
+             std::string, std::string,
              double>>  NeTrainSim::getLinkesDataFromLinksTable() {
 
-    Vector<tuple<int, int, int, double, double, int,
+    Vector<tuple<int, int, int, double, int,
                       double, double, int, double, bool,
-                      std::string, std::string, double, double>> linksRecords;
+                      std::string, std::string, double>> linksRecords;
 
     // get the data from the QTableWidget
     for (int i = 0; i < ui->table_newLinks->rowCount(); i++) {
@@ -1175,21 +1180,19 @@ Vector<tuple<int, int, int, double, double, int,
 
             // Add the link record to the vector
             linksRecords.push_back(std::make_tuple(
-                ui->table_newLinks->item(i, 0) ? ui->table_newLinks->item(i, 0)->text().trimmed().toInt() : 0,
-                ui->table_newLinks->item(i, 1) ? ui->table_newLinks->item(i, 1)->text().trimmed().toInt() : 0,
-                ui->table_newLinks->item(i, 2) ? ui->table_newLinks->item(i, 2)->text().trimmed().toInt() : 0,
-                1.0,
-                ui->table_newLinks->item(i, 3) ? ui->table_newLinks->item(i, 3)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLinks->item(i, 4) ? ui->table_newLinks->item(i, 4)->text().trimmed().toInt() : 0,
-                ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 5)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLinks->item(i, 7) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0,
-                direction,
-                ui->table_newLinks->item(i, 9) ? ui->table_newLinks->item(i, 8)->text().trimmed().toDouble() : 0.0,
-                catenary,
-                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "",
-                ui->table_newLinks->item(i, 11) ? ui->table_newLinks->item(i, 10)->text().trimmed().toStdString() : "",
-                1.0,
-                ui->doubleSpinBox_SpeedScale->value()
+                ui->table_newLinks->item(i, 0) ? ui->table_newLinks->item(i, 0)->text().trimmed().toInt() : 0, // ID
+                ui->table_newLinks->item(i, 1) ? ui->table_newLinks->item(i, 1)->text().trimmed().toInt() : 0, // From
+                ui->table_newLinks->item(i, 2) ? ui->table_newLinks->item(i, 2)->text().trimmed().toInt() : 0, // To
+                ui->table_newLinks->item(i, 3) ? ui->table_newLinks->item(i, 3)->text().trimmed().toDouble() : 0.0, // Free flow speed
+                ui->table_newLinks->item(i, 4) ? ui->table_newLinks->item(i, 4)->text().trimmed().toInt() : 0, // Signal
+                ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0, // Grade
+                ui->table_newLinks->item(i, 7) ? ui->table_newLinks->item(i, 7)->text().trimmed().toDouble() : 0.0, // Curvature
+                direction, // Directionality
+                ui->table_newLinks->item(i, 9) ? ui->table_newLinks->item(i, 9)->text().trimmed().toDouble() : 0.0, // Variation
+                catenary, // has catenary?
+                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "", // Signal at which node
+                ui->table_newLinks->item(i, 11) ? ui->table_newLinks->item(i, 11)->text().trimmed().toStdString() : "", // Describtion
+                ui->doubleSpinBox_SpeedScale->value() // Free flow speed scale
                 ));
 
         }
@@ -1206,11 +1209,10 @@ Vector<tuple<int, int, int, double, double, int,
 tuple<QVector<QString>,
            QVector<QString>> NeTrainSim::getLinksPlottableData(
     Vector<tuple<int, int, int,
-           double, double, int,
+           double, int,
            double, double, int,
            double, bool, std::string,
-           std::string,
-           double, double>> linksRecords) {
+           std::string, double>> linksRecords) {
     QVector<QString> startNodes;
     QVector<QString> endNodes;
 
@@ -1224,7 +1226,9 @@ tuple<QVector<QString>,
 }
 
 // create a slot to update the QCustomPlot data and redraw the plot
-void NeTrainSim::updateLinksPlot(CustomPlot &plot, QVector<QString> startNodeIDs, QVector<QString> endNodeIDs) {
+void NeTrainSim::updateLinksPlot(CustomPlot &plot,
+                                 QVector<QString> startNodeIDs,
+                                 QVector<QString> endNodeIDs) {
     // check if the plot has at least 2 graphs
     if (plot.graphCount() < 2) { return; }
     // get the QCPGraph object for the graph in the QCustomPlot
@@ -1233,7 +1237,8 @@ void NeTrainSim::updateLinksPlot(CustomPlot &plot, QVector<QString> startNodeIDs
     graph->data()->clear();
     plot.replot();
 
-    if (startNodeIDs.size() != endNodeIDs.size() || startNodeIDs.size() < 1 || this->networkNodes.size() < 1) {
+    if (startNodeIDs.size() != endNodeIDs.size() ||
+        startNodeIDs.size() < 1 || this->networkNodes.size() < 1) {
         return;
     }
 
@@ -1267,21 +1272,34 @@ void NeTrainSim::updateLinksPlot(CustomPlot &plot, QVector<QString> startNodeIDs
  *
  * @return A vector of train records containing the trains data from the tables.
  */
-Vector<tuple<std::string, Vector<int>, double, double,
-                  Vector<tuple<double, double, double, double, double, double, int, int>>,
-                  Vector<tuple<double, double, double, double, double, int, int>>,
+Vector<std::tuple<std::string, Vector<int>, double, double,
+                  Vector<std::tuple<
+                      int, double, double,
+                      int, double, double,
+                      double, double, int>>,
+                  Vector<std::tuple<int, int, double, double,
+                                    double, double,
+                                    double, int>>,
                   bool>> NeTrainSim::getTrainsDataFromTables() {
 
-    Vector<tuple<std::string, Vector<int>, double, double,
-                 Vector<tuple<double, double, double, double, double, double, int, int>>,
-                 Vector<tuple<double, double, double, double, double, int, int>>,
-                 bool>> trains;
+    Vector<std::tuple<std::string, Vector<int>, double, double,
+                      Vector<std::tuple<
+                          int, double, double,
+                          int, double, double,
+                          double, double, int>>,
+                      Vector<std::tuple<int, int, double, double,
+                                        double, double,
+                                        double, int>>,
+                      bool>> trains;
 
 //    try {
 
-        Map<QString, tuple<double, double, double, double, double, double, int, int>> tableLocomotives;
-        Map<QString, tuple<double, double, double, double, double, int, int>> tableCars;
-        Map<QString, Map<QString, QVector<std::pair<QString, int>>>> configTable;
+        Map<QString, tuple<double, double, double, double,
+                       double, double, int, int>> tableLocomotives;
+        Map<QString, tuple<double, double, double, double,
+                           double, int, int>> tableCars;
+        Map<QString, Map<QString, QVector<std::pair<QString,
+                                                    int>>>> configTable;
 
         // --------------------------------------------------------------
         // -------------------- Locomotives Table -----------------------
@@ -1303,26 +1321,43 @@ Vector<tuple<std::string, Vector<int>, double, double,
         for (int i = 0; i< ui->table_newLocomotive->rowCount(); i++) {
             if (ui->table_newLocomotive->isRowEmpty(i, {8})) { continue; }
             // Get the combobox widget from the cell
-            QComboBox* comboBox = qobject_cast<QComboBox*>(ui->table_newLocomotive->cellWidget(i, 8));
+            QComboBox* comboBox = qobject_cast<QComboBox*>(
+                ui->table_newLocomotive->cellWidget(i, 8));
             // Get the selected text from the combobox
-            std::string locoType = comboBox->currentText().trimmed().toStdString() + " Locomotive";
+            std::string locoType =
+                comboBox->currentText().trimmed().toStdString() + " Locomotive";
             // get the enum index
             auto typeEnum = TrainTypes::strToPowerType(locoType);
             int type = static_cast<int>(typeEnum);
 
             auto loco = std::make_tuple(
-                ui->table_newLocomotive->item(i, 1) ? ui->table_newLocomotive->item(i, 1)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 2) ? ui->table_newLocomotive->item(i, 2)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 3) ? ui->table_newLocomotive->item(i, 3)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 4) ? ui->table_newLocomotive->item(i, 4)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 5) ? ui->table_newLocomotive->item(i, 5)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 6) ? ui->table_newLocomotive->item(i, 6)->text().trimmed().toDouble() : 0.0,
-                ui->table_newLocomotive->item(i, 7) ? ui->table_newLocomotive->item(i, 7)->text().trimmed().toInt()    : 0,
-                type
+                ui->table_newLocomotive->item(i, 1)
+                    ? ui->table_newLocomotive->item(i, 1)->text().
+                      trimmed().toDouble() : 0.0, //power
+                ui->table_newLocomotive->item(i, 2)
+                    ? ui->table_newLocomotive->item(i, 2)->text().
+                      trimmed().toDouble() : 0.0, //trans eff
+                ui->table_newLocomotive->item(i, 7)
+                    ? ui->table_newLocomotive->item(i, 7)->text().
+                      trimmed().toInt()    : 0, // axles
+                ui->table_newLocomotive->item(i, 4)
+                    ? ui->table_newLocomotive->item(i, 4)->text().
+                      trimmed().toDouble() : 0.0, // k
+                ui->table_newLocomotive->item(i, 5)
+                    ? ui->table_newLocomotive->item(i, 5)->text().
+                      trimmed().toDouble() : 0.0, // area
+                ui->table_newLocomotive->item(i, 3)
+                    ? ui->table_newLocomotive->item(i, 3)->text().
+                      trimmed().toDouble() : 0.0, //length
+                ui->table_newLocomotive->item(i, 6)
+                    ? ui->table_newLocomotive->item(i, 6)->text().
+                      trimmed().toDouble() : 0.0, // weight
+                type // type
                 );
 
 
-            tableLocomotives[ui->table_newLocomotive->item(i, 0)->text().trimmed()] = loco;
+            tableLocomotives[ui->table_newLocomotive->item(i, 0)->text().
+                             trimmed()] = loco;
         }
 
         // --------------------------------------------------------------
@@ -1343,20 +1378,34 @@ Vector<tuple<std::string, Vector<int>, double, double,
         for (int i = 0; i< ui->table_newCar->rowCount(); i++) {
             if (ui->table_newCar->isRowEmpty(i, {7})) { continue; }
             // Get the combobox widget from the cell
-            QComboBox* comboBox = qobject_cast<QComboBox*>(ui->table_newCar->cellWidget(i, 7));
+            QComboBox* comboBox =
+                qobject_cast<QComboBox*>(ui->table_newCar->cellWidget(i, 7));
             // Get the selected text from the combobox
-            std::string carType = comboBox->currentText().trimmed().toStdString();
+            std::string carType =
+                comboBox->currentText().trimmed().toStdString();
             auto typeEnum = TrainTypes::strtoCarType(carType);
             int type = static_cast<int>(typeEnum);
 
             auto car = std::make_tuple(
-                ui->table_newCar->item(i, 1) ? ui->table_newCar->item(i, 1)->text().trimmed().toDouble() : 0.0,
-                ui->table_newCar->item(i, 2) ? ui->table_newCar->item(i, 2)->text().trimmed().toDouble() : 0.0,
-                ui->table_newCar->item(i, 3) ? ui->table_newCar->item(i, 3)->text().trimmed().toDouble() : 0.0,
-                ui->table_newCar->item(i, 4) ? ui->table_newCar->item(i, 4)->text().trimmed().toDouble() : 0.0,
-                ui->table_newCar->item(i, 5) ? ui->table_newCar->item(i, 5)->text().trimmed().toDouble() : 0.0,
-                ui->table_newCar->item(i, 6) ? ui->table_newCar->item(i, 6)->text().trimmed().toInt() : 0,
-                type
+                ui->table_newCar->item(i, 6)
+                    ? ui->table_newCar->item(i, 6)->text().
+                      trimmed().toInt() : 0, // axles
+                ui->table_newCar->item(i, 2)
+                    ? ui->table_newCar->item(i, 2)->text().
+                      trimmed().toDouble() : 0.0, // air drag
+                ui->table_newCar->item(i, 3)
+                    ? ui->table_newCar->item(i, 3)->text().
+                      trimmed().toDouble() : 0.0, // area
+                ui->table_newCar->item(i, 1)
+                    ? ui->table_newCar->item(i, 1)->text().
+                      trimmed().toDouble() : 0.0, // length
+                ui->table_newCar->item(i, 5)
+                    ? ui->table_newCar->item(i, 5)->text().
+                      trimmed().toDouble() : 0.0, // full weight
+                ui->table_newCar->item(i, 4)
+                    ? ui->table_newCar->item(i, 4)->text().
+                      trimmed().toDouble() : 0.0, // empty weight
+                type // type
                 );
 
             tableCars[ui->table_newCar->item(i, 0)->text().trimmed()] = car;
@@ -1368,7 +1417,8 @@ Vector<tuple<std::string, Vector<int>, double, double,
         // ------------------ Configurations Table ----------------------
         // --------------------------------------------------------------
 
-        // check if the Configurations table does not have at least a complete row
+        // check if the Configurations table does not have
+        // at least a complete row
         if (ui->table_newConfiguration->isTableIncomplete({0,1,3})) {
             throw std::invalid_argument("Configurations Table is empty!");
             return trains;
@@ -1376,50 +1426,73 @@ Vector<tuple<std::string, Vector<int>, double, double,
 
         // check if the cars table has any empty cell
         if (ui->table_newConfiguration->hasEmptyCell({0,1,3})) {
-            throw std::invalid_argument("Configurations Table has empty cells!");
+            throw std::invalid_argument(
+                "Configurations Table has empty cells!");
             return trains;
         }
 
         for (int i = 0; i<ui->table_newConfiguration->rowCount(); i++) {
-            if (ui->table_newConfiguration->isRowEmpty(i, {0,1,3})) { continue; }
+            if (ui->table_newConfiguration->isRowEmpty(i, {0,1,3}))
+            {
+                continue;
+            }
 
             // if the config ID exists
-            if (configTable.get_keys().exist(ui->table_newConfiguration->item(i,0)->text().trimmed())) {
+            if (configTable.get_keys().
+                exist(ui->table_newConfiguration->item(i,0)->text().
+                                             trimmed()))
+            {
 
                 // Get the combobox widget from the cell
-                QComboBox* comboBox = qobject_cast<QComboBox*>(ui->table_newConfiguration->cellWidget(i, 1));
+                QComboBox* comboBox =
+                    qobject_cast<QComboBox*>(
+                    ui->table_newConfiguration->cellWidget(i, 1));
                 // Get the selected text from the combobox
-                std::string type = comboBox->currentText().trimmed().toStdString();
+                std::string type =
+                    comboBox->currentText().trimmed().toStdString();
 
                 // get the number of instances
-                QSpinBox* spinbox = qobject_cast<QSpinBox*>(ui->table_newConfiguration->cellWidget(i, 3));
+                QSpinBox* spinbox =
+                    qobject_cast<QSpinBox*>(
+                    ui->table_newConfiguration->cellWidget(i, 3));
                 // Get the selected text from the spinbox
                 int countInstances = spinbox->value();
 
 
-                configTable[ui->table_newConfiguration->item(i,0)->text().trimmed()][
-                    QString::fromStdString(type)].push_back(                        //loco or car
-                        std::make_pair(ui->table_newConfiguration->item(i,2)->text().trimmed(),
-                                       countInstances));
+                configTable[
+                    ui->table_newConfiguration->item(i,0)->text().trimmed()][
+                    QString::fromStdString(type)].push_back(      //loco or car
+                        std::make_pair(
+                        ui->table_newConfiguration->item(i,2)->text().trimmed(),
+                        countInstances));
             }
             // if the ID does not exist
             else {
                 Map<QString, QVector<std::pair<QString, int>>> instances;
 
                 // Get the combobox widget from the cell
-                QComboBox* comboBox = qobject_cast<QComboBox*>(ui->table_newConfiguration->cellWidget(i, 1));
+                QComboBox* comboBox =
+                    qobject_cast<QComboBox*>(
+                    ui->table_newConfiguration->cellWidget(i, 1));
                 // Get the selected text from the combobox
                 QString type = comboBox->currentText().trimmed();
 
                 // get the number of instances
-                QSpinBox* spinbox = qobject_cast<QSpinBox*>(ui->table_newConfiguration->cellWidget(i, 3));
+                QSpinBox* spinbox =
+                    qobject_cast<QSpinBox*>(
+                    ui->table_newConfiguration->cellWidget(i, 3));
+
                 // Get the selected text from the spinbox
                 int countInstances = spinbox->value();
 
-                instances[type].push_back(std::make_pair(ui->table_newConfiguration->item(i,2)->text().trimmed(),
+                instances[type].push_back(
+                    std::make_pair(
+                        ui->table_newConfiguration->item(i,2)->text().trimmed(),
                                                            countInstances));
                 // add the map to the config table
-                configTable[ui->table_newConfiguration->item(i,0)->text().trimmed()] = instances;
+                configTable[
+                    ui->table_newConfiguration->item(i,0)->text().
+                            trimmed()] = instances;
             }
         }
 
@@ -1427,7 +1500,8 @@ Vector<tuple<std::string, Vector<int>, double, double,
         // ----------------------- Trains Table -------------------------
         // --------------------------------------------------------------
 
-        // check if the Configurations table does not have at least a complete row
+        // check if the Configurations table does not have
+        // at least a complete row
         if (ui->table_newTrain->isTableIncomplete()) {
             throw std::invalid_argument("Trains Table is empty!");
             return trains;
@@ -1442,68 +1516,117 @@ Vector<tuple<std::string, Vector<int>, double, double,
         for (int i = 0; i<ui->table_newTrain->rowCount(); i++) {
             if (ui->table_newTrain->isRowEmpty(i)) { continue; }
 
-            auto trainID = ui->table_newTrain->item(i,0)->text().trimmed().toStdString();
+            auto trainID =
+                ui->table_newTrain->item(i,0)->text().trimmed().toStdString();
             auto trainConfig = ui->table_newTrain->item(i,1)->text().trimmed();
-            auto trainPathStrings = ui->table_newTrain->item(i,2)->text().trimmed().split(',').toVector();
+            auto trainPathStrings =
+                ui->table_newTrain->item(i,2)->text().trimmed().
+                                    split(',').toVector();
             Vector<int> trainPath;
             for (const QString& str : trainPathStrings) {
                 trainPath.push_back(str.toInt());
             }
-            auto startTime = ui->table_newTrain->item(i,3)->text().trimmed().toDouble();
-            auto locoCount = ui->table_newTrain->item(i,4)->text().trimmed().toInt();
-            auto carCount = ui->table_newTrain->item(i,5)->text().trimmed().toInt();
-            auto frictionCof = ui->table_newTrain->item(i,6)->text().trimmed().toDouble();
+            auto startTime =
+                ui->table_newTrain->item(i,3)->text().trimmed().toDouble();
+            auto locoCount =
+                ui->table_newTrain->item(i,4)->text().trimmed().toInt();
+            auto carCount =
+                ui->table_newTrain->item(i,5)->text().trimmed().toInt();
+            auto frictionCof =
+                ui->table_newTrain->item(i,6)->text().trimmed().toDouble();
 
-            Vector<tuple<double, double, double, double, double, double, int, int>> locomotivesRecords;
-            Vector<tuple<double, double, double, double, double, int, int>> carsRecords;
+            Vector<std::tuple<
+                int, double, double, int, double, double,
+                double, double, int>> locomotivesRecords;
+
+            Vector<std::tuple<int, int, double, double,
+                              double, double, double, int>> carsRecords;
 
             if (! configTable.is_key(trainConfig)) {
-                throw std::invalid_argument("Could not find configuration ID: " + trainConfig.toStdString());
+                throw std::invalid_argument(
+                    "Could not find configuration ID: " +
+                    trainConfig.toStdString());
             }
 
 
             if (! configTable[trainConfig].is_key("Locomotive")) {
-                throw std::invalid_argument("Consist " + trainConfig.toStdString() + " does not have locomotives");
+                throw std::invalid_argument("Consist " +
+                                            trainConfig.toStdString() +
+                                            " does not have locomotives");
             }
 
             for (auto &vehicle: configTable[trainConfig]["Locomotive"]){
-                for (int i = 0; i < vehicle.second; i++) {
-                    if (tableLocomotives.is_key(vehicle.first)) {
-                        locomotivesRecords.push_back(tableLocomotives[vehicle.first]);
-                    }
-                    else {
-                        throw std::invalid_argument("Could not find locomotive: " + vehicle.first.toStdString());
-                    }
+                if (tableLocomotives.is_key(vehicle.first)) {
+                    // get the loco record that corresponds to the id
+                    auto lr = tableLocomotives[vehicle.first];
+
+                    locomotivesRecords.push_back(
+                    std::make_tuple(
+                        vehicle.second,  // count
+                        std::get<0>(lr), // power
+                        std::get<1>(lr), // trans eff
+                        std::get<2>(lr), // axles
+                        std::get<3>(lr), // air drag
+                        std::get<4>(lr), // area
+                        std::get<5>(lr), // length
+                        std::get<6>(lr), // weight
+                        std::get<7>(lr)));//type
+                }
+                else {
+                    throw std::invalid_argument(
+                        "Could not find locomotive: " +
+                        vehicle.first.toStdString());
                 }
             }
             // double check the locos and cars counts
             if (locoCount != locomotivesRecords.size()) {
-                throw std::runtime_error("Error: " + std::to_string(static_cast<int>(Error::trainHasWrongLocos)) +
-                                         "\nlocomotives count does not match added locomotives!");
+                throw std::runtime_error("Error: " +
+                                         std::to_string(
+                                             static_cast<int>(
+                                             Error::trainHasWrongLocos)) +
+                                         "\nlocomotives count does" +
+                                         " not match added locomotives!");
             }
 
             if (configTable[trainConfig].is_key("Car")) {
                 for (auto &vehicle: configTable[trainConfig]["Car"]){
-                    for (int i = 0; i < vehicle.second; i++) {
-                        if (tableCars.is_key(vehicle.first)) {
-                            carsRecords.push_back(tableCars[vehicle.first]);
-                        }
-                        else {
-                            throw std::invalid_argument("Could not find car: " + vehicle.first.toStdString());
-                        }
+                    if (tableCars.is_key(vehicle.first))
+                    {
+                        auto cr = tableCars[vehicle.first];
 
+                        carsRecords.push_back(
+                        std::make_tuple(
+                            vehicle.second,
+                            std::get<0>(cr),
+                            std::get<1>(cr),
+                            std::get<2>(cr),
+                            std::get<3>(cr),
+                            std::get<4>(cr),
+                            std::get<5>(cr),
+                            std::get<6>(cr)));
+                    }
+                    else {
+                        throw std::invalid_argument(
+                            "Could not find car: " +
+                            vehicle.first.toStdString());
                     }
                 }
             }
 
             if (carCount != carsRecords.size()) {
-                throw std::runtime_error("Error: " + std::to_string(static_cast<int>(Error::trainHasWrongLocos)) +
-                                         "\ncars count does not match added cars!");
+                throw std::runtime_error("Error: " +
+                                         std::to_string(
+                                             static_cast<int>(
+                                             Error::trainHasWrongLocos)) +
+                                         "\ncars count does not " +
+                                         "match added cars!");
             }
 
 
 
-            auto record = std::make_tuple(trainID, trainPath, startTime, frictionCof, locomotivesRecords, carsRecords, false);
+            auto record = std::make_tuple(trainID, trainPath, startTime,
+                                          frictionCof, locomotivesRecords,
+                                          carsRecords, false);
             trains.push_back(record);
         }
 
@@ -1602,15 +1725,18 @@ void NeTrainSim::simulate() {
 
         Vector<std::tuple<int, double, double, std::string,
                           double, double>> nodeRecords;
-        Vector<tuple<int, int, int, double, double, int, double, double,
+        Vector<tuple<int, int, int, double, int, double, double,
                      int, double, bool, std::string, std::string,
-                     double, double>> linkRecords;
-        Vector<tuple<std::string, Vector<int>, double, double,
-                     Vector<tuple<double, double, double, double,
-                                  double, double, int, int>>,
-                     Vector<tuple<double, double, double,
-                                  double, double, int, int>>,
-                     bool>> trainRecords;
+                     double>> linkRecords;
+        Vector<std::tuple<std::string, Vector<int>, double, double,
+                          Vector<std::tuple<
+                              int, double, double,
+                              int, double, double,
+                              double, double, int>>,
+                          Vector<std::tuple<int, int, double, double,
+                                            double, double,
+                                            double, int>>,
+                          bool>> trainRecords;
 
         if (ui->checkBox_defineNewNetwork->checkState() == Qt::Checked) {
             if (ui->table_newNodes->hasEmptyCell({0,3})) {
@@ -1730,6 +1856,23 @@ void NeTrainSim::simulate() {
                                       netName, endTime, timeStep, plotFreq,
                                       exportDir, summaryFilename, exportInta,
                                       instaFilename, exportAllTrainsSummary);
+
+        if (worker == nullptr) {
+            ErrorHandler::showError("Error!");
+            return;
+        }
+
+        connect(worker, &SimulationWorker::trainSlowSpeed,
+                [this](const std::string &msg){
+            this->showWarning(
+                QString::fromStdString(msg));
+            });
+
+        connect(worker, &SimulationWorker::trainSuddenAcceleration,
+                [this](const std::string &msg){
+                    this->showWarning(
+                        QString::fromStdString(msg));
+                });
 
         // handle any error that arise from the simulator
         connect(worker, &SimulationWorker::errorOccurred, this,
