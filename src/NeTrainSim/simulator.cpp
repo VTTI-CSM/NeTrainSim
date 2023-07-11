@@ -339,10 +339,11 @@ pair<int, bool> Simulator::getNextStoppingNodeID(std::shared_ptr<Train> train, i
 		}
 		// If current node has network signals
 		else if (!train->trainPathNodes[i]->networkSignals.empty()) {
+            if (i == 0) { continue;}
 			int prevI = i - 1;
 			// Iterate over network signals at current node
-			for (auto &s: train->trainPathNodes[i]->networkSignals) {
-				// If the signal matches the path from the previous node to the current node
+            for (auto &s: train->trainPathNodes[i]->networkSignals) {
+                // If the signal matches the path from the previous node to the current node
 				if (s->currentNode.lock()->id == train->trainPathNodes[i]->id &&
 					s->previousNode.lock()->id == train->trainPathNodes[prevI]->id) {
 					// If signal is not green, return current node ID and true
@@ -583,8 +584,8 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
             // calculate approximate max energy supplied at this time step
             double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
-			// If the stepEC is larger than what the train can consume in a time step,
-			// reduce the locomotives power
+            // If the stepEC is larger than what the train can consume in a time step,
+            // reduce the locomotives power
             if (stepEC > maxEC) {
                 double reductionFactor = maxEC / stepEC;
                 train->reducePower(reductionFactor);
@@ -998,19 +999,25 @@ void Simulator::runSimulation() {
 	if (this->exportTrajectory) {
 		this->openTrajectoryFile();
 		std::stringstream exportLine;
-        exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,Speed_mps,LinkMaxSpeed_mps,"
-                   << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,Stoppings,tractiveForce_N,"
-                   << "ResistanceForces_N,CurrentUsedTractivePower_kw,GradeAtTip_Perc,CurvatureAtTip_Perc,"
+        exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,"
+                   << "Speed_mps,LinkMaxSpeed_mps,"
+                   << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,"
+                   << "Stoppings,tractiveForce_N,"
+                   << "ResistanceForces_N,CurrentUsedTractivePower_kw,"
+                   << "GradeAtTip_Perc,CurvatureAtTip_Perc,"
                    << "FirstLocoNotchPosition\n";
 		this->trajectoryFile << exportLine.str();
 	}
 
+    time_t init_time = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now());
 
-	time_t init_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-	while (this->simulationTime <= this->simulationEndTime || this->runSimulationEndlessly) {
+    while (this->simulationTime <= this->simulationEndTime ||
+           this->runSimulationEndlessly)
+    {
         mutex.lock();
-        if (pauseFlag) pauseCond.wait(&mutex); // This will block the thread if pauseFlag is true
+         // This will block the thread if pauseFlag is true
+        if (pauseFlag) pauseCond.wait(&mutex);
         mutex.unlock();
 
 		if (this->checkAllTrainsReachedDestination()) {
@@ -1523,9 +1530,12 @@ void Simulator::runSignalsforTrains() {
 
     // loop over all train in the simulator
 	for (auto& train : this->trains) {
-        // if the train is not yet loaded or reached destination already,
-        // skip this train
-		if (!train->loaded || train->reachedDestination) { continue; }
+        // if the train is not yet loaded or reached destination already, or
+        // it ran out of fuel, skip this train
+        if (!train->loaded || train->reachedDestination || train->offloaded)
+        {
+            continue;
+        }
 
         // try to retreive the next signal for that train
         // the next from both ends of the train
@@ -1550,6 +1560,7 @@ void Simulator::runSignalsforTrains() {
             // get the signal group controller at the current node
             if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextSignal->currentNode))) {
                 sgfront = this->signalsGroups.at(std::shared_ptr<NetNode>(nextSignal->currentNode));
+                sgfront->clearTimeoutTrains(this->simulationTime);
             }
 
             // if no group controller was found, skip it
@@ -1590,6 +1601,7 @@ void Simulator::runSignalsforTrains() {
             // get the signal group controller at the current node
             if (this->signalsGroups.is_key(std::shared_ptr<NetNode>(nextBackSignal->currentNode))) {
                 sgback = this->signalsGroups.at(std::shared_ptr<NetNode>(nextBackSignal->currentNode));
+                sgback->clearTimeoutTrains(this->simulationTime);
             }
             // skip if the same signal group
             // the train's call was already processed once
