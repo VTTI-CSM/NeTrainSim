@@ -178,6 +178,20 @@ int main(int argc, char *argv[])
     try {
         std::cout << "Reading Trains!                 \r";
         Vector<std::shared_ptr<Train>> trains = TrainsList::ReadAndGenerateTrains(trainsFile);
+
+        if (trains.empty()) {
+            ErrorHandler::showError("No Trains Found!");
+            return -1;
+        }
+        for (auto &t: trains) {
+            QEventLoop::connect(t.get(), &Train::slowSpeedOrStopped,
+                    [](const auto &msg){
+                        ErrorHandler::showWarning(msg);});
+
+            QEventLoop::connect(t.get(), &Train::suddenAccelerationOccurred,
+                    [](const auto &msg){
+                ErrorHandler::showWarning(msg);});
+        }
         std::cout << "Reading Network!                \r";
         net = new Network(nodesFile, linksFile);
         std::cout << "Define Simulator Space!         \r";
