@@ -38,6 +38,8 @@ private:
     // The timestamp at which the controller last updated.
     double timeStamp;
 
+    double clearTrainsAt;
+
 public:
 
     /**
@@ -97,6 +99,7 @@ public:
                                     double& simulatorTime,
                                     Vector<std::shared_ptr<NetSignal>> &sameDirectionSignals);
 
+    void clearTimeoutTrains(double simulatorTime);
     /**
      * Update Time Step
      *
