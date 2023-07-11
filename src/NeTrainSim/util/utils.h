@@ -364,18 +364,27 @@ namespace Utils {
     inline std::stringstream convertTupleToStringStream(const std::tuple<Args...>& t, int limit, std::string delim) {
         std::stringstream ss;
         addTupleValuesToStreamImpl(t, ss, std::index_sequence_for<Args...>(),
-                                   limit > 0? limit: std::tuple_size<std::tuple<Args...>>::value - std::abs(limit), delim);
+                                   limit > 0 ? limit: std::tuple_size<std::tuple<Args...>>::value - std::abs(limit) -1, delim);
         return ss;
     }
 
     template <typename Tuple, size_t... Indices>
-    inline void addTupleValuesToStreamImpl(const Tuple& t, std::stringstream& ss,
-                                           std::index_sequence<Indices...>, int limit, std::string delim) {
-        ((Indices <= limit ? Utils::writeToStream(std::get<Indices>(t), ss, delim) : void()), ...);
+    inline void addTupleValuesToStreamImpl(const Tuple& t,
+                                           std::stringstream& ss,
+                                           std::index_sequence<Indices...>,
+                                           int limit, std::string delim) {
+        ((Indices < limit
+              ? Utils::writeToStream(std::get<Indices>(t), ss, delim) :
+              void()), ...);
+        ((Indices == limit
+              ? Utils::writeToStream(std::get<Indices>(t), ss, "") :
+              void()), ...);
     }
 
     template <typename T>
-    inline void writeToStream(const T& value, std::stringstream& ss, std::string delim) {
+    inline void writeToStream(const T& value,
+                              std::stringstream& ss,
+                              std::string delim) {
         if constexpr (std::is_same_v<T, bool>) {
             ss << (value ? "1" : "0") << delim;
         } else {
