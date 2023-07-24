@@ -1056,7 +1056,7 @@
                      <item>
                       <widget class="QLabel" name="label_14">
                        <property name="text">
-                        <string>Train Cars:</string>
+                        <string>Train Vehicles:</string>
                        </property>
                       </widget>
                      </item>
@@ -1839,7 +1839,7 @@
      <x>0</x>
      <y>0</y>
      <width>1318</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuNeTrainSim">

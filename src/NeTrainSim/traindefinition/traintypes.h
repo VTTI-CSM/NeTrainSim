@@ -81,7 +81,7 @@ namespace TrainTypes {
     /** The car type map */
     static const std::map<std::string, CarType> carTypeMap = {
     {"Cargo Car", CarType::cargo},
-    {"Fuel Tank", CarType::dieselTender},
+    {"Diesel Tender", CarType::dieselTender},
     {"Battery Tender", CarType::batteryTender},
     {"Hydrogen Tender", CarType::hydrogenFuelCell},
     {"Biodiesel Tender", CarType::biodieselTender}
@@ -247,7 +247,7 @@ namespace TrainTypes {
     "Diesel Locomotive",
     "Electric Locomotive",
     "Biodiesel Locomotive",
-    "Diesel-Electric Locomotive",
+    "Diesel-Battery Locomotive",
     "Diesel-Hybrid Locomotive",
     "Hydrogen-Hybrid Locomotive",
     "Biodiesel-Hybrid Locomotive"
@@ -269,7 +269,7 @@ namespace TrainTypes {
     {"Diesel Locomotive", PowerType::diesel},
     {"Electric Locomotive", PowerType::electric},
     {"Biodiesel Locomotive", PowerType::biodiesel},
-    {"Diesel-Electric Locomotive", PowerType::dieselElectric},
+    {"Diesel-Battery Locomotive", PowerType::dieselElectric},
     {"Diesel-Hyprid Locomotive", PowerType::dieselHybrid},
     {"Hydrogen-Hyprid Locomotive", PowerType::hydrogenHybrid},
     {"biodiesel-Hyprid Locomotive", PowerType::biodieselHybrid}
