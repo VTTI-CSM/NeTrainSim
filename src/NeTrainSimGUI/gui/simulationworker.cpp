@@ -1,28 +1,17 @@
 #include "simulationworker.h"
 #include "../NeTrainSim/traindefinition/trainslist.h"
-
+#include <any>
 
 SimulationWorker::SimulationWorker(
-    Vector<std::tuple<int, double, double,
-           std::string,
-           double, double>> nodeRecords,
-    Vector<tuple<int, int, int, double, int,
-           double, double, int, double, bool,
-           std::string, std::string, double>> linkRecords,
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> trainRecords,
+    Vector<Map<std::string, std::string>> nodeRecords,
+    Vector<Map<std::string, std::string>> linkRecords,
+    Vector<Map<std::string, std::any>> trainRecords,
     std::string networkName,
     double endTime, double timeStep,
     double plotFrequency, std::string exportDir,
     std::string summaryFilename, bool exportInsta,
-    std::string instaFilename, bool exportAllTrainsSummary) {
+    std::string instaFilename, bool exportAllTrainsSummary)
+{
 
     // check if the nodeRecords and linkRecords are empty
     if (nodeRecords.size() < 1) {
@@ -71,6 +60,8 @@ SimulationWorker::SimulationWorker(
             &SimulationWorker::onTrainsCoordinatesUpdated);
     connect(this->sim, &Simulator::progressUpdated, this,
             &SimulationWorker::onProgressUpdated);
+    connect(this->sim, &Simulator::trainsCollided, [&](std::string& msg){
+        emit this->trainsCollided(msg);});
 }
 
 void SimulationWorker::onProgressUpdated(int progressPercentage) {

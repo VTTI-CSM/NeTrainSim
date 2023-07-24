@@ -16,6 +16,7 @@
 #ifndef SIMULATIONWORKER_H
 #define SIMULATIONWORKER_H
 
+#include <any>
 #include <QObject>
 #include "../NeTrainSim/simulator.h"
 
@@ -46,22 +47,9 @@ public:
      * @param exportAllTrainsSummary Indicates whether to export summary
      * data for all trains in the simulation.
      */
-    SimulationWorker(Vector<std::tuple<int, double, double, std::string,
-                                       double, double>> nodeRecords,
-                     Vector<tuple<int, int, int, double, int, double,
-                                  double, int, double, bool, string,
-                                  string, double> > linkRecords,
-                     Vector<std::tuple<std::string, Vector<int>, double,
-                                       double,
-                                       Vector<std::tuple<
-                                           int, double, double,
-                                           int, double, double,
-                                           double, double, int>>,
-                                       Vector<std::tuple<int, int, double,
-                                                         double,
-                                                         double, double,
-                                                         double, int>>,
-                                       bool>> trainRecords,
+    SimulationWorker(Vector<Map<std::string, std::string>> nodeRecords,
+                     Vector<Map<std::string, std::string>> linkRecords,
+                     Vector<Map<string, std::any> > trainRecords,
                      std::string networkName,
                      double endTime, double timeStep, double plotFrequency,
                      std::string exportDir,
@@ -108,6 +96,8 @@ signals:
     void trainSuddenAcceleration(std::string msg);
 
     void trainSlowSpeed(std::string msg);
+
+    void trainsCollided(std::string& msg);
 
 public slots:
     /**
