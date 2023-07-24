@@ -24,7 +24,7 @@ namespace TrainTypes {
         cargo,
         dieselTender,
         batteryTender,
-        hydrogenTender,
+        hydrogenFuelCell,
         biodieselTender
     };
 
@@ -39,17 +39,17 @@ namespace TrainTypes {
     /** The car non rechargable technologies */
     static const Vector<CarType> carNonRechargableTechnologies = {
         CarType::dieselTender,
-        CarType::hydrogenTender,
+        CarType::hydrogenFuelCell,
         CarType::biodieselTender
     };
 
     /** The car type strings[] */
     static const std::string carTypeStrings[] = {
     "Cargo Car",
-    "Diesel Tank",
+    "Diesel Tender",
     "Battery Tender",
-    "Hydrogen Tender",
-    "Biodiesel Tank"
+    "Hydrogen Fuel Cell",
+    "Biodiesel Tender"
     };
 
     /** The car type array[] */
@@ -57,7 +57,7 @@ namespace TrainTypes {
     CarType::cargo,
     CarType::dieselTender,
     CarType::batteryTender,
-    CarType::hydrogenTender,
+    CarType::hydrogenFuelCell,
     CarType::biodieselTender
     };
 
@@ -83,7 +83,7 @@ namespace TrainTypes {
     {"Cargo Car", CarType::cargo},
     {"Fuel Tank", CarType::dieselTender},
     {"Battery Tender", CarType::batteryTender},
-    {"Hydrogen Tender", CarType::hydrogenTender},
+    {"Hydrogen Tender", CarType::hydrogenFuelCell},
     {"Biodiesel Tender", CarType::biodieselTender}
     };
 
@@ -107,7 +107,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	cartype	The cartype.
      *
@@ -116,7 +117,10 @@ namespace TrainTypes {
     inline CarType strtoCarType(const std::string& cartype) {
         auto it = carTypeMap.find(cartype);
         if (it == carTypeMap.end()) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongCarType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongCarType)) +
                                         "\nInvalid car type");
         }
         return it->second;
@@ -128,7 +132,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	cartype	The cartype.
      *
@@ -136,10 +141,34 @@ namespace TrainTypes {
      */
     inline CarType itoCarType(int cartype) {
         if (cartype < 0 || cartype >= carTypeN) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongCarType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongCarType)) +
                                         "\nInvalid car type");
         }
         return carTypeArray[cartype];
+    }
+
+
+    /**
+     * Converts a powertype string to the corresponding index
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @param powerTypesString  is the target string
+     *
+     * @return the corresponding index
+     */
+    inline int carTypestrToInt(std::string carTypesString) {
+        // TODO: get closest match instead of exact match
+        for (int i = 0; i < carTypeN; i++) {
+            if (carTypeStrings[i] == carTypesString) {
+                return i;
+            }
+        }
+        return -1;  // returns -1 if the target string is not found
     }
 
     /**
@@ -159,9 +188,9 @@ namespace TrainTypes {
     }
 
     /**
-     * *************************************************************************************
+     * ***********************************************************************
      *  Locomotives power types
-     *  ************************************************************************************
+     *  **********************************************************************
      */
     static const int powerTypeN = 7;
     /** Values that represent power types */
@@ -190,14 +219,14 @@ namespace TrainTypes {
     static const Vector<PowerType> locomotiveNonRechargableTechnologies = {
         PowerType::diesel,
         PowerType::biodiesel,
-        PowerType::dieselElectric  // it does not have a battery to store energy in
+        PowerType::dieselElectric //it doesnt have a battery to store energy in
     };
 
     /** The locomotive tank only */
     static const Vector<PowerType> locomotiveTankOnly = {
         PowerType::diesel,
         PowerType::biodiesel,
-        PowerType::dieselElectric  // it does not have a battery to store energy in
+        PowerType::dieselElectric //it doesnt have a battery to store energy in
     };
 
     /** The locomotive battery only */
@@ -252,7 +281,7 @@ namespace TrainTypes {
         {PowerType::electric, CarType::batteryTender},
         {PowerType::biodiesel, CarType::biodieselTender},
         {PowerType::dieselHybrid, CarType::dieselTender},
-        {PowerType::hydrogenHybrid, CarType::hydrogenTender},
+        {PowerType::hydrogenHybrid, CarType::hydrogenFuelCell},
         {PowerType::biodieselHybrid, CarType::biodieselTender}
     };
 
@@ -276,7 +305,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	powertype	The powertype.
      *
@@ -285,10 +315,32 @@ namespace TrainTypes {
     inline PowerType strToPowerType(std::string powertype) {
         auto it = powerTypeMap.find(powertype);
         if (it == powerTypeMap.end()) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongLocoType)) +
                                         "\nInvalid locomotive type");
         }
         return it->second;
+    }
+
+    /**
+     * Converts a powertype string to the corresponding index
+     *
+     * @author	Ahmed Aredah
+     * @date	3/20/2023
+     *
+     * @param powerTypesString  is the target string
+     *
+     * @return the corresponding index
+     */
+    inline int powerTypestrToInt(std::string powerTypesString) {
+        for (int i = 0; i < powerTypeN; i++) {
+            if (powerTypeStrings[i] == powerTypesString) {
+                return i;
+            }
+        }
+        return -1;  // returns -1 if the target string is not found
     }
 
     /**
@@ -297,7 +349,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	powertype	The powertype.
      *
@@ -305,7 +358,10 @@ namespace TrainTypes {
      */
     inline PowerType iToPowerType(int powertype) {
         if (powertype < 0 || powertype >= powerTypeN) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongLocoType)) +
                                         "\nInvalid locomotive type");
         }
         return powerTypeArray[powertype];
@@ -328,9 +384,9 @@ namespace TrainTypes {
     }
 
     /**
-     * *************************************************************************************
+     * **********************************************************************
      *  Locomotives power Method
-     *  ************************************************************************************
+     *  *********************************************************************
      */
     static const int powerMethodN = 2;
     /** Values that represent power types */
@@ -369,7 +425,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	powertype	The powertype.
      *
@@ -378,7 +435,10 @@ namespace TrainTypes {
     inline LocomotivePowerMethod strToPowerMethod(std::string powertype) {
         auto it = powerMethodMap.find(powertype);
         if (it == powerMethodMap.end()) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongLocoType)) +
                                         "\nInvalid locomotive type");
         }
         return it->second;
@@ -390,7 +450,8 @@ namespace TrainTypes {
      * @author	Ahmed Aredah
      * @date	3/20/2023
      *
-     * @exception	std::invalid_argument	Thrown when an invalid argument error condition occurs.
+     * @exception	std::invalid_argument	Thrown when an invalid argument
+     *              error condition occurs.
      *
      * @param 	powertype	The powertype.
      *
@@ -398,7 +459,10 @@ namespace TrainTypes {
      */
     inline LocomotivePowerMethod iToPowerMethod(int powertype) {
         if (powertype < 0 || powertype >= powerMethodN) {
-            throw std::invalid_argument("Error: " + std::to_string(static_cast<int>(Error::trainWrongLocoType)) +
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                            Error::trainWrongLocoType)) +
                                         "\nInvalid locomotive type");
         }
         return powerMethodArray[powertype];
@@ -415,16 +479,17 @@ namespace TrainTypes {
      *
      * @returns	The shifted result.
      */
-    inline std::ostream& operator<<(std::ostream& ss, const LocomotivePowerMethod& obj) {
+    inline std::ostream& operator<<(std::ostream& ss,
+                                    const LocomotivePowerMethod& obj) {
         ss << powerMethodsStrings[static_cast<int>(obj)];
         return ss;
     }
 
 
     /**
-     * *************************************************************************************
+     * *********************************************************************
      * Fuel Types
-     * ************************************************************************************
+     * *********************************************************************
      */
     static const int fuelN = 4;
     /** Values that represent fuel types */
@@ -478,7 +543,7 @@ namespace TrainTypes {
         {CarType::batteryTender, FuelType::noFuel},
         {CarType::biodieselTender, FuelType::biodiesel},
         {CarType::dieselTender, FuelType::diesel},
-        {CarType::hydrogenTender, FuelType::hydrogen}
+        {CarType::hydrogenFuelCell, FuelType::hydrogen}
     };
 
     inline std::string fuelTypeToStr(FuelType type) {
