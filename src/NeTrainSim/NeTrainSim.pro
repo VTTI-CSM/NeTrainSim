@@ -86,5 +86,7 @@ DISTFILES += \
     config.pri
 
 
-DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSim/data
+!CONFIG(debug, debug|release) {
+    DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSim/data
+}
 
