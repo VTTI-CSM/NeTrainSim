@@ -146,7 +146,7 @@ namespace EC {
     static std::map<TrainTypes::CarType, double> fuelConversionFactor_carTypes = {
         {TrainTypes::CarType::dieselTender, DefaultDieselConversionFactor},
         {TrainTypes::CarType::biodieselTender, DefaultBiodieselConversionFactor},
-        {TrainTypes::CarType::hydrogenTender, DefaultHydrogenConversionFactor},
+        {TrainTypes::CarType::hydrogenFuelCell, DefaultHydrogenConversionFactor},
         {TrainTypes::CarType::batteryTender, 1.0}
     };
 
