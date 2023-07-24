@@ -10,25 +10,28 @@ using namespace std;
 unsigned int NetLink::NumberOfLinksInSimulator = 0;
 
 NetLink::NetLink(int simulatorID, int linkID,
-                 std::shared_ptr<NetNode> fromNodeID,
-                 std::shared_ptr<NetNode> toNodeID,
-                 double maxSpeed, int trafficSignalID, string signalAtEnd,
-                 double linkGrade,
-                 double linkCurvature, int linkNoOfDirections,
-                 double speedVariationfactor, bool isCatenaryAvailable,
-                 string linkInRegion, double maxSpeedScale)
+                 std::shared_ptr<NetNode> fromNode,
+                 std::shared_ptr<NetNode> toNode,
+                 double linkLength, double maxSpeed,
+                 int trafficSignalID, string signalAtEnd,
+                 double linkGrade, double linkCurvature,
+                 int linkNoOfDirections,
+                 double speedVariationfactor,
+                 bool isCatenaryAvailable,
+                 string linkInRegion, double lengthScale,
+                 double maxSpeedScale)
 {
     this->id = simulatorID;
 	this->userID = linkID;
-	this->fromLoc = fromNodeID;
-	this->toLoc = toNodeID;
-    this->length = 0.0;
+    this->fromLoc = fromNode;
+    this->toLoc = toNode;
+    this->length = linkLength;
 	this->freeFlowSpeed = maxSpeed;
 	this->trafficSignalNo = trafficSignalID;
     this->direction = linkNoOfDirections;
     auto vec = Utils::split(signalAtEnd, ',');
     if (vec.empty() && this->direction == 2) {
-        this->trafficSignalAtEnd.push_back(fromNodeID->userID);
+        this->trafficSignalAtEnd.push_back(fromNode->userID);
         this->trafficSignalAtEnd.push_back(toLoc->userID);
     }
     else if (!vec.empty() && this->direction == 2){
@@ -44,14 +47,16 @@ NetLink::NetLink(int simulatorID, int linkID,
 	this->grade = this->setGrade(linkGrade);
 	this->curvature = linkCurvature;
 	this->speedVariation = speedVariationfactor;
-	this->region = linkInRegion;
+    this->region = linkInRegion;
+    this->linksScaleLength = lengthScale;
+    this->length *= linksScaleLength;
 	this->linksScaleFreeSpeed = maxSpeedScale;
 	this->freeFlowSpeed *= linksScaleFreeSpeed;
 	this->cost = this->getCost();
     this->hasCatenary = isCatenaryAvailable;
     this->catenaryCumRegeneratedEnergy = 0.0;
     this->catenaryCumConsumedEnergy = 0.0;
-    this->updateLength();
+    this->updateSimulatorLength();
 	NetLink::NumberOfLinksInSimulator++;
 }
 
@@ -63,6 +68,11 @@ void NetLink::setLinkSimulatorID(int newID) {
     this->id = newID;
 }
 
+void NetLink::updateLinksScaleLength(double newScale) {
+    double oldScale = this->linksScaleLength;
+    this->length = (this->length / oldScale) * newScale;
+    this->linksScaleLength = newScale;
+}
 
 unsigned int NetLink::getNumberOfLinks()
 {
@@ -92,12 +102,12 @@ double NetLink::getCost() {
 	}
 }
 
-void NetLink::updateLength() {
+void NetLink::updateSimulatorLength() {
 
     // If there are no intermediate points, calculate position on the direct
     // link between start and end points
     if (intermediatePoints.empty()) {
-        this->length = Utils::getDistanceByTwoCoordinates(
+        this->simulatorLength = Utils::getDistanceByTwoCoordinates(
             fromLoc->coordinates(), toLoc->coordinates());
     }
     else {
@@ -120,7 +130,7 @@ void NetLink::updateLength() {
                 intermediatePoints.back()->coordinates(),
                 toLoc->coordinates());
 
-        this->length = len;
+        this->simulatorLength = len;
 
     }
 }
@@ -129,9 +139,12 @@ void NetLink::updateLength() {
 pair<double, double> NetLink::findPositionOnLink(
     double travelledLength, std::shared_ptr<NetNode> startNode)
 {
+    double scalledTravelledLength =
+        (this->simulatorLength / this->length) * this->length;
     // If the travelled length is greater than the link's length,
     // return infinite coordinates
-    if (travelledLength > this->length || travelledLength < 0.0) {
+    if (scalledTravelledLength > this->length || scalledTravelledLength < 0.0)
+    {
         return std::make_pair(static_cast<double>(
                                   std::numeric_limits<double>::infinity()),
                               static_cast<double>(
@@ -142,7 +155,7 @@ pair<double, double> NetLink::findPositionOnLink(
     // link between start and end points
     if (intermediatePoints.empty()) {
         auto out = vectorizeLinkOfOneSegment(startNode);
-        return getPositionOnVector(out, travelledLength);
+        return getPositionOnVector(out, scalledTravelledLength);
     }
 
     // Get nodes of the link
@@ -210,12 +223,12 @@ pair<double, double> NetLink::findPositionOnLink(
     }
 
     // Use binary search to find the first distance that is not less
-    // than travelledLength
+    // than scalledTravelledLength
     auto it = std::lower_bound(distances.begin(), distances.end(),
-                               travelledLength);
+                               scalledTravelledLength);
 
-    // If the iterator points to the end of distances, the travelledLength is
-    // larger than any accumulated distances
+    // If the iterator points to the end of distances, the
+    // scalledTravelledLength is larger than any accumulated distances
     // Calculate the position on the segment between the last intermediate
     // point and the end node
     if(it == distances.end()) {
@@ -226,10 +239,10 @@ pair<double, double> NetLink::findPositionOnLink(
                                                  n2->y -
                                                  intermediatePoints.back()->y));
         // Use the last accumulated distance
-        return getPositionOnVector(vec, travelledLength - *(it-1));
+        return getPositionOnVector(vec, scalledTravelledLength - *(it-1));
     }
     // If the iterator points to the beginning of distances, the
-    // travelledLength is less than the first accumulated distance
+    // scalledTravelledLength is less than the first accumulated distance
     // Calculate the position on the segment between the start node
     // and the first intermediate point
     else if(it == distances.begin()) {
@@ -237,7 +250,7 @@ pair<double, double> NetLink::findPositionOnLink(
                                   std::make_pair(intermediatePoints[0]->x -
                                                  n1->x,
                                   intermediatePoints[0]->y - n1->y));
-        return getPositionOnVector(vec, travelledLength);
+        return getPositionOnVector(vec, scalledTravelledLength);
     }
     // The iterator points to some accumulated distance in the middle of the
     // distances vector
@@ -252,7 +265,7 @@ pair<double, double> NetLink::findPositionOnLink(
                                                  intermediatePoints[idx]->y -
                                                  intermediatePoints[idx-1]->y));
         // Subtract the accumulated distance of the previous point
-        return getPositionOnVector(vec, travelledLength - *(it-1));
+        return getPositionOnVector(vec, scalledTravelledLength - *(it-1));
     }
 }
 
