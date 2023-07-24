@@ -628,7 +628,10 @@ public: signals:
      * @param trainsStartEndPoints A vector containing the names of the trains
      *                            along with their start and end points.
      */
-    void plotTrainsUpdated(Vector<std::pair<std::string, Vector<std::pair<double, double>>>> trainsStartEndPoints);
+    void plotTrainsUpdated(
+        Vector<std::pair<std::string,
+                         Vector<std::pair<double,
+                                          double>>>> trainsStartEndPoints);
 
     /**
      * @brief Signals that the simulation has finished.
@@ -636,7 +639,16 @@ public: signals:
      * @param summaryData   A vector containing the summary data of the simulation.
      * @param trajectoryFile The file path of the generated trajectory file.
      */
-    void finishedSimulation(const Vector<std::pair<std::string, std::string>>& summaryData, const std::string& trajectoryFile);
+    void finishedSimulation(
+        const Vector<std::pair<std::string,
+                               std::string>>& summaryData,
+        const std::string& trajectoryFile);
+
+    /**
+     * @brief reports trains collision
+     * @param msg is the message of trains collision
+     */
+    void trainsCollided(std::string& msg);
 
 public slots:
     /**
@@ -647,7 +659,14 @@ public slots:
      */
     void runSimulation();
 
+    /**
+     * @brief pause the simulation
+     */
     void pauseSimulation();
+
+    /**
+     * @brief resume the simulation
+     */
     void resumeSimulation();
 
 private:

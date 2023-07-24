@@ -1455,16 +1455,31 @@ bool Simulator::checkTrainsCollision() {
 	for (int i = 0; i < this->trains.size() - 1; i++) {
 		for (int j = i + 1; j < this->trains.size(); j++) {
 			std::shared_ptr < Train> tt = this->trains.at(i);
-			comb.push_back( std::make_pair(this->trains.at(i), this->trains.at(j)));
+            comb.push_back( std::make_pair(this->trains.at(i),
+                                          this->trains.at(j)));
 		}
 	}
 	for (auto &t : comb) {
-		if (t.first->loaded && t.second->loaded) {
-			if (this->network->twoLinesIntersect(t.first->startEndPoints[0], t.first->startEndPoints[1],
-												 t.second->startEndPoints[0], t.second->startEndPoints[1])
-					&& (t.second->currentLinks.hasCommonElement(t.first->currentLinks))
-					&& (!t.first->reachedDestination && !t.second->reachedDestination)
-					&& (this->timeStep > t.first->trainStartTime && this->timeStep > t.second->trainStartTime)) {
+        if (t.first->loaded && t.second->loaded && !t.first->offloaded &&
+            !t.second->offloaded && !t.first->reachedDestination &&
+            !t.second->reachedDestination)
+        {
+            if (this->network->twoLinesIntersect(
+                    t.first->startEndPoints[0],
+                    t.first->startEndPoints[1],
+                    t.second->startEndPoints[0],
+                    t.second->startEndPoints[1])
+                && (t.second->currentLinks.hasCommonElement(
+                    t.first->currentLinks))
+                && (!t.first->reachedDestination
+                    && !t.second->reachedDestination)
+                && (this->timeStep > t.first->trainStartTime
+                    && this->timeStep > t.second->trainStartTime))
+            {
+                    std::string msg = "Train " + t.first->trainUserID +
+                                      "and " + t.second->trainUserID +
+                                      "collided!";
+                    emit trainsCollided(msg);
 				return true;
 			}
 		}
@@ -1481,15 +1496,19 @@ void Simulator::setTrainSimulatorPath() {
 
 		if (t->trainPath.size() == 2) {
 			// check if the path is only 2 nodes
-			auto nodes= this->network->getNodeByID(t->trainPath[0])->linkTo.get_keys();
+            auto nodes= this->network->getNodeByID(
+                                          t->trainPath[0])->linkTo.get_keys();
 			auto targetN = this->network->getNodeByID(t->trainPath[1]);
 			for (auto & n: nodes){
 				if (n == targetN) {
 					continue;
 				}
 			}
-			// if the path is more than 2 nodes but the user wants the simulator to decide the path.
-			Vector<std::shared_ptr<NetNode>> nPath = this->network->shortestPathSearch(t->trainPath[0], t->trainPath[1]).first;
+            // if the path is more than 2 nodes but the user wants the
+            // simulator to decide the path.
+            Vector<std::shared_ptr<NetNode>> nPath =
+                this->network->shortestPathSearch(t->trainPath[0],
+                                                  t->trainPath[1]).first;
 			Vector<int> path;
 			for (auto &n: nPath) {
 				path.push_back(n->id);
