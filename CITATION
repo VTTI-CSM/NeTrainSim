@@ -1,0 +1,16 @@
+To cite NeTrainSim in publications use:
+
+  Aredah, Ahmed S. and Fadhloun, Karim and Rakha, Hesham and List, George and Hegazi, Mohamed and Hoffrichter, Andreas, 
+  Netrainsim: A Network Freight Train Simulator for Estimating Energy/Fuel Consumption. 
+  Available at SSRN: https://ssrn.com/abstract=4377164 or 
+  http://dx.doi.org/10.2139/ssrn.4377164
+
+A BibTeX entry for LaTeX users is
+
+  @inproceedings{aredah2023netrainsim,
+    title = {NeTrainSim: A Network Freight Train Simulator for Estimating Energy/Fuel Consumption},
+    author = {Aredah, Ahmed and Fadhloun, Karim and Rakha, Hesham and List, George},
+	booktitle={102nd Transportation Research Board Annual Meeting},
+	year={2023}
+    doi = {https://dx.doi.org/10.2139/ssrn.4377164},
+  }

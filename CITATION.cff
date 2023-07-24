@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: Please cite this software using these metadata or in the CITATION file.
+type: software
+title: NeTrainSim
+version: 0.1.2
+date-released: 2023-07-23
+doi: 10.2139/ssrn.4377164
+abstract: Although train simulation research is vast, the majority of simulation
+ tools available are confined to city- or trip-scale analysis, primarily 
+ offering micro-level simulations of network segments. This paper introduces 
+ the NeTrainSim simulator for heavy long-haul freight trains on a network of 
+ multiple intersecting tracks. The simulator is an attempt towards simulating 
+ the entire train system for energy consumption analysis. Four case studies 
+ are conducted to demonstrate the simulator’s performance. The first case 
+ study validates the model by comparing the NeTrainSim’s output to empirical 
+ trajectory data using a basic single-train network. The second demonstrates the 
+ train-following model considering six trains following each other. The 
+ remaining case studies highlight the simulator’s capability in resolving 
+ train conflicts for different possible scenarios. Finally, the suitability of 
+ the NeTrainSim for the modeling of realistic railroad networks is verified 
+ through the implementation of a sample network located in Cook county, Illinois.
+
+repository-code: https://github.com/AhmedAredah/NeTrainSim
+license: GPLv3
+authors:
+  - given-names: Ahmed
+    family-names: Aredah
+    affiliation: Virginia Tech 
+    orcid: https://orcid.org/0000-0003-0186-3783
+  - given-names: Karim
+    family-names: Fadhloun
+    affiliation: Virginia Department of Transportation
+  - given-names: Hesham
+    family-names: Rakha
+    affiliation: Virginia Tech 
+    orcid: https://orcid.org/0000-0002-5845-2929
+  - given-names: George
+    family-names: List
+    affiliation: North Carolina State University
+  - given-names: Mohamed
+    family-names: Hegazi
+    affiliation: Deutsch Bahn
+  - given-names: Andreas
+    family-names: Hoffrichter
+    affiliation: Deutsch Bahn
+keywords:
+  - NeTrainSim
+  - Network Trains Simulation
+  - Energy Consumption
+  - Environmental Footprint
