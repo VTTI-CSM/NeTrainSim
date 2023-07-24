@@ -73,6 +73,7 @@ HEADERS += \
     ../NeTrainSim/network/netsignalgroupcontroller.h \
     ../NeTrainSim/network/netsignalgroupcontrollerwithqueuing.h \
     gui/checkboxdelegate.h \
+    gui/comboboxdelegate.h \
     gui/customprogressbar.h \
     gui/customtablewidget.h \
     gui/disappearinglabel.h \
@@ -84,6 +85,7 @@ HEADERS += \
     gui/numericdelegate.h \
     gui/settingswindow.h \
     gui/simulationworker.h \
+    gui/textboxdelegate.h \
     gui/togglebutton.h \
     util/configurationmanager.h \
     util/errorhandler.h \
@@ -130,9 +132,9 @@ unix:!macx {
     INSTALLS += desktopfile
 }
 
-
-DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data
-
+!CONFIG(debug, debug|release) {
+    DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data
+}
 
 ## Copy default INI file to the build directory
 #copy_cmd = $$QMAKE_COPY_DIR
