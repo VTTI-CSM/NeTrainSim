@@ -1,11 +1,17 @@
 /**
  * @file CustomTableWidget.h
  * @brief This file contains the declaration of the CustomTableWidget class.
- *        The CustomTableWidget class is a subclass of QTableWidget that provides additional functionality and customization for table widgets.
- *        It includes methods for checking empty cells, setting delegates for specific columns, setting up the table, and generating unique IDs.
- *        The CustomTableWidget class also emits signals for key press events and when row deletion is not allowed.
- *        It overrides the keyPressEvent() method and the setData() method for custom handling.
- *        The CustomTableWidget class is intended to be used in a QWidget-based application.
+ *        The CustomTableWidget class is a subclass of QTableWidget that
+ *        provides additional functionality and customization for table widgets.
+ *        It includes methods for checking empty cells, setting
+ *        delegates for specific columns, setting up the table, and
+ *        generating unique IDs.
+ *        The CustomTableWidget class also emits signals for key press
+ *        events and when row deletion is not allowed.
+ *        It overrides the keyPressEvent() method and the setData()
+ *        method for custom handling.
+ *        The CustomTableWidget class is intended to be used in
+ *        a QWidget-based application.
  * @author Ahmed Aredah
  * @date 6/7/2023
  */
@@ -19,7 +25,8 @@
 
 /**
  * @class CustomTableWidget
- * @brief The CustomTableWidget class is a subclass of QTableWidget that provides additional functionality and customization for table widgets.
+ * @brief The CustomTableWidget class is a subclass of QTableWidget
+ * that provides additional functionality and customization for table widgets.
  */
 class CustomTableWidget : public QTableWidget
 {
@@ -45,18 +52,26 @@ public:
      * @param exceptionColumns The columns to exclude from the check.
      * @return True if the row is empty, false otherwise.
      */
-    bool isRowEmpty(int row, const QList<int>& exceptionColumns = QList<int>());
+    bool isRowEmpty(int row,
+                    const QList<int>& exceptionColumns = QList<int>());
 
     /**
-     * Checks if the table is incomplete, i.e., if it does not have at least one complete row of data.
-     * A row is considered complete if all cells in the row have non-empty data.
+     * Checks if the table is incomplete, i.e., if it does not have
+     * at least one complete row of data.
+     * A row is considered complete if all cells in the row have
+     * non-empty data.
      *
-     * @param exceptionColumns (optional) A list of column indices to exclude from the completeness check.
-     *                          Any rows that only have empty cells in the specified columns will still be considered incomplete.
-     *                          Defaults to an empty list, which means all columns will be considered for completeness.
+     * @param exceptionColumns (optional) A list of column indices to
+     * exclude from the completeness check.
+     *                          Any rows that only have empty cells in
+     *                          the specified columns will still be
+     *                          considered incomplete.
+     *                          Defaults to an empty list, which means
+     *                          all columns will be considered for completeness.
      *
-     * @return true if the table is incomplete, i.e., it does not have at least one complete row of data.
-     *         false if the table has at least one complete row.
+     * @return true if the table is incomplete, i.e., it does not have
+     * at least one complete row of data. false if the table has at
+     * least one complete row.
      */
     bool isTableIncomplete(const QList<int>& exceptionColumns = QList<int>());
 
@@ -76,16 +91,20 @@ public:
 
     /**
      * @brief Performs initial setup for the table.
-     *        This includes setting up default properties and signals/slots connections.
+     *        This includes setting up default properties and signals/slots
+     *        connections.
      */
     void setupTable();
 
     /**
      * @brief Generates a unique ID.
-     *        This method can be used to generate unique identifiers for table entries.
+     *        This method can be used to generate unique identifiers for
+     *        table entries.
      * @return The generated unique ID.
      */
     int generateUniqueID();
+
+    void clearContent();
 
 signals:
     /**
@@ -100,6 +119,12 @@ signals:
      */
     void cannotDeleteRow();
 
+    /**
+     * @brief Signal emitted when the table content is
+     * clear and all test is removed.
+     */
+    void tableCleared();
+
 private slots:
     /**
      * @brief Deletes the selected rows from the table.
@@ -108,18 +133,34 @@ private slots:
 
 protected:
     /**
-     * @brief Overridden keyPressEvent() method to handle key press events in the table.
+     * @brief Overridden keyPressEvent() method to handle key press events
+     * in the table.
      * @param event The key event.
      */
     void keyPressEvent(QKeyEvent *event) override;
 
     /**
-     * @brief Overridden setData() method for custom handling of data changes in the table.
+     * @brief Overridden setData() method for custom handling of data
+     * changes in the table.
      * @param index The model index of the item.
      * @param value The new value for the item.
      * @param role The role for the item.
      */
-    void setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+    void setData(const QModelIndex& index, const QVariant& value,
+                 int role = Qt::EditRole);
+
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
+public slots:
+    void importFromClipboard();
+
+private:
+    int levenshteinDistance(const QString& str1,
+                            const QString& str2);
+    QString findClosestMatch(const QString& input,
+                             const std::vector<QString>& values);
+
+    bool checkAllRowsHasThisValue(const QString value, const int columnIndex);
 };
 
 #endif // CUSTOMTABLEWIDGET_H
