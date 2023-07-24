@@ -288,13 +288,18 @@ namespace Utils {
      *
      * @returns	A Vector&lt;std::string&gt;
      */
-    inline Vector<std::string> split(const std::string& s, char delimiter)
+    inline Vector<std::string> split(const std::string& s,
+                                     char delimiter,
+                                     bool ignoreEmpty = false)
     {
         Vector<std::string> tokens;
         std::string token;
         std::istringstream tokenStream(s);
         while (std::getline(tokenStream, token, delimiter))
         {
+            if (token.empty() && ignoreEmpty) {
+                continue;
+            }
             tokens.push_back(token);
         }
         return tokens;
@@ -469,6 +474,77 @@ namespace Utils {
         return str;
     }
 
+    template <typename T>
+    inline bool isValueInRange(T valueToCheck, T lowerLimit, T upperLimit) {
+        if (valueToCheck >= lowerLimit && valueToCheck <= upperLimit) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Function to calculate the Levenshtein distance between two strings
+    inline int levenshteinDistance(const std::string& str1,
+                                   const std::string& str2) {
+        const int len1 = str1.length();
+        const int len2 = str2.length();
+
+        std::vector<std::vector<int>> dp(len1 + 1,
+                                         std::vector<int>(len2 + 1, 0));
+
+        for (int i = 0; i <= len1; ++i)
+            dp[i][0] = i;
+
+        for (int j = 0; j <= len2; ++j)
+            dp[0][j] = j;
+
+        for (int i = 1; i <= len1; ++i) {
+            for (int j = 1; j <= len2; ++j) {
+                int cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1;
+                dp[i][j] = std::min({ dp[i - 1][j] + 1,
+                                     dp[i][j - 1] + 1,
+                                     dp[i - 1][j - 1] + cost });
+            }
+        }
+
+        return dp[len1][len2];
+    }
+
+    // Function to find the closest match in the vector of QStrings
+    inline std::string findClosestMatch(const std::string& input,
+                                        const std::vector<std::string>& values)
+    {
+        int minDistance = std::numeric_limits<int>::max();
+        std::string closestMatch;
+
+        for (const std::string& value : values) {
+            int distance = levenshteinDistance(value, input);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestMatch = value;
+            }
+        }
+
+        return closestMatch;
+    }
+
+    // Function to find the closest match in the vector of QStrings
+    inline QString findClosestMatch(const QString& input,
+                                    const std::vector<QString>& values) {
+        int minDistance = std::numeric_limits<int>::max();
+        QString closestMatch;
+
+        for (const QString& value : values) {
+            int distance = levenshteinDistance(value.toStdString(),
+                                               input.toStdString());
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestMatch = value;
+            }
+        }
+
+        return closestMatch;
+    }
 
 }
 
