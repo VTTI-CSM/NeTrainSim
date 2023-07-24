@@ -1,13 +1,18 @@
 TEMPLATE = aux
+
 QT_INSTALL_FRAMEWORK_PATH = C:\Qt\Tools\QtInstallerFramework\4.6
 
+include(../mainconfig.pri)
+include(create_xml.pri)
+
+
 !CONFIG(debug, debug|release) {
-    DESTDIR_NeTrainSim =    packages/com.VTTICSM.NeTrainSim/data
+    DESTDIR_NeTrainSim    = packages/com.VTTICSM.NeTrainSim/data
     DESTDIR_NeTrainSimGUI = packages/com.VTTICSM.NeTrainSimGUI/data
 
     win32 {
-    create_package.commands = $$quote("C:\Qt\6.4.2\msvc2019_64\bin\windeployqt.exe" --qmldir ../NeTrainSim/ $${DESTDIR_NeTrainSim})
-    create_package.commands += $$quote("C:\Qt\6.4.2\msvc2019_64\bin\windeployqt.exe" --qmldir ../NeTrainSimGUI/ $${DESTDIR_NeTrainSimGUI})
+        create_package.commands = $$quote("C:\Qt\6.4.2\msvc2019_64\bin\windeployqt.exe" --qmldir ../NeTrainSim/ $${DESTDIR_NeTrainSim})
+        create_package.commands += $$quote("C:\Qt\6.4.2\msvc2019_64\bin\windeployqt.exe" --qmldir ../NeTrainSimGUI/ $${DESTDIR_NeTrainSimGUI})
     }
 
     macx {
@@ -18,12 +23,12 @@ QT_INSTALL_FRAMEWORK_PATH = C:\Qt\Tools\QtInstallerFramework\4.6
     PRE_TARGETDEPS  += create_package
 
     DISTFILES += \
-        config/config.xml \
-        packages/com.VTTICSM.NeTrainSim/meta/package.xml \
+    config/config.xml.in \
         packages/com.VTTICSM.NeTrainSim/meta/installscript.qs \
-        packages/com.VTTICSM.NeTrainSimGUI/meta/package.xml \
+    packages/com.VTTICSM.NeTrainSim/meta/package.xml.in \
         packages/com.VTTICSM.NeTrainSimGUI/meta/installscript.qs \
-        ../data/*
+        ../data/* \
+    packages/com.VTTICSM.NeTrainSimGUI/meta/package.xml.in
 
     # copy the manual and sample project to the installer
     win32 {
@@ -45,7 +50,6 @@ QT_INSTALL_FRAMEWORK_PATH = C:\Qt\Tools\QtInstallerFramework\4.6
     NeTrainSimInstaller.input = INPUT
     NeTrainSimInstaller.output = $$INSTALLER
     NeTrainSimInstaller.commands = $$QT_INSTALL_FRAMEWORK_PATH/bin/binarycreator.exe --offline-only -c config/config.xml -p packages ${QMAKE_FILE_OUT}
-    #NeTrainSimInstaller.CONFIG += target_predeps no_link combine
     win32 {
         NeTrainSimInstaller.clean_commands += $$quote(del ..\NeTrainSim\NeTrainSimInstaller\packages\com.VTTICSM.NeTrainSim\data /Q)
         NeTrainSimInstaller.clean_commands += & for /d %%x in (..\NeTrainSim\NeTrainSimInstaller\packages\com.VTTICSM.NeTrainSim\data\*) do rd /s /q "%%x"
@@ -58,3 +62,6 @@ QT_INSTALL_FRAMEWORK_PATH = C:\Qt\Tools\QtInstallerFramework\4.6
     QMAKE_EXTRA_COMPILERS += NeTrainSimInstaller
 
 }
+
+OTHER_FILES += \
+    config/installscript.qs

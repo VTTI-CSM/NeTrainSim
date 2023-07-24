@@ -10,12 +10,18 @@ Component.prototype.createOperations = function()
 
     if (systemInfo.productType === "windows") {
         // Create a shortcut in the Start Menu
-        component.addOperation("CreateShortcut", "@TargetDir@/NeTrainSimGUI.exe", "@StartMenuDir@/NeTrainSimGUI.lnk",
-                    "workingDirectory=@TargetDir@", "description=NeTrainSimGUI");
+        component.addOperation("CreateShortcut",
+                               "@TargetDir@/NeTrainSimGUI.exe",
+                               "@StartMenuDir@/NeTrainSimGUI.lnk",
+                               "workingDirectory=@TargetDir@",
+                               "description=NeTrainSimGUI");
 
         // Create a shortcut on the Desktop
-        component.addOperation("CreateShortcut", "@TargetDir@/NeTrainSimGUI.exe", "@DesktopDir@/NeTrainSimGUI.lnk",
-                    "workingDirectory=@TargetDir@", "description=NeTrainSimGUI");
+        component.addOperation("CreateShortcut",
+                               "@TargetDir@/NeTrainSimGUI.exe",
+                               "@DesktopDir@/NeTrainSimGUI.lnk",
+                               "workingDirectory=@TargetDir@",
+                               "description=NeTrainSimGUI");
     }
 }
 
