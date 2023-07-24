@@ -9532,7 +9532,7 @@ void QCPAxis::mousePressEvent(QMouseEvent *event, const QVariant &details)
     return;
   }
   
-  if (event->buttons() & Qt::LeftButton)
+  if (event->buttons() & Qt::MiddleButton)
   {
     mDragging = true;
     // initialize antialiasing backup in case we start dragging:
@@ -18543,7 +18543,7 @@ void QCPAxisRect::layoutChanged()
 void QCPAxisRect::mousePressEvent(QMouseEvent *event, const QVariant &details)
 {
   Q_UNUSED(details)
-  if (event->buttons() & Qt::LeftButton)
+  if (event->buttons() & Qt::MiddleButton)
   {
     mDragging = true;
     // initialize antialiasing backup in case we start dragging:
@@ -32185,7 +32185,7 @@ void QCPPolarAxisRadial::mousePressEvent(QMouseEvent *event, const QVariant &det
     return;
   }
   
-  if (event->buttons() & Qt::LeftButton)
+  if (event->buttons() & Qt::MiddleButton)
   {
     mDragging = true;
     // initialize antialiasing backup in case we start dragging:
@@ -33988,7 +33988,7 @@ QColor QCPPolarAxisAngular::getLabelColor() const
 void QCPPolarAxisAngular::mousePressEvent(QMouseEvent *event, const QVariant &details)
 {
   Q_UNUSED(details)
-  if (event->buttons() & Qt::LeftButton)
+  if (event->buttons() & Qt::MiddleButton)
   {
     mDragging = true;
     // initialize antialiasing backup in case we start dragging:
