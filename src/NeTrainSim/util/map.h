@@ -34,6 +34,19 @@ public:
     /** Type of the value */
     using value_type = typename map_type::value_type;
 
+    using Base = std::map<Key, Value>;
+
+    // Add a default constructor
+    Map() : Base() {}
+
+    /**
+     * Constructor that takes an initializer list of key-value pairs.
+     *
+     * @param  initList  The initializer list of key-value pairs.
+     */
+    Map(std::initializer_list<std::pair<Key, Value>> initList)
+        : Base(initList.begin(), initList.end()) {}
+
     /**
      * Gets the keys
      *
@@ -154,6 +167,45 @@ public:
             first = false;
         }
         ss << "}";
+        return ss.str();
+    }
+
+    std::string valuesToString(Vector<key_type>keyOrder = Vector<key_type>(),
+                               Vector<key_type>ignore = Vector<key_type>(),
+                               std::string delim = ",") {
+        std::stringstream ss = std::stringstream("");
+        bool isFirst = true;
+        if (keyOrder.empty()) {
+            for (const auto& pair : *this) {
+                if (ignore.exist(pair.first)) {
+                    continue;
+                }
+                if (!isFirst) {
+                    ss << delim;
+                }
+                ss << pair.second;
+                isFirst = false;
+            }
+        }
+        else
+        {
+            for (auto& key: keyOrder) {
+                if (this->is_key(key)) {
+                    if (ignore.exist(key)) {
+                        continue;
+                    }
+                    if (!isFirst) {
+                        ss << delim;
+                    }
+                    ss << this->at(key);
+                    isFirst = false;
+                }
+                else {
+                    throw std::runtime_error("Key: " + key +
+                                             " is not found!");
+                }
+            }
+        }
         return ss.str();
     }
 
