@@ -1,3 +1,25 @@
+/**
+ * @brief This file contains the declaration of the
+ *        NetSignalGroupControllerWithqueue class.
+ *        The NetSignalGroupController class represents a controller for
+ *        handling network signal groups in a simulation.
+ *        It manages the network signals, nodes, and confined links within
+ *        the group.
+ *        The controller is responsible for processing pass requests from
+ *        trains, maintaining the controller state, and providing feedback on
+ *        signal activation.
+ *        The NetSignalGroupController class is intended to be used as part of
+ *        a network simulation system.
+ *        It is designed to work with other classes and data structures in the
+ *        simulation.
+ *        Note: The implementation of some methods is not provided in this
+ *        declaration file.
+ *              They should be implemented separately in a corresponding
+ *              source file.
+ * @author Ahmed Aredah
+ * @version 0.1
+ * @date 6/7/2023
+ */
 #ifndef NETSIGNALGROUPCONTROLLERWITHQUEUING_H
 #define NETSIGNALGROUPCONTROLLERWITHQUEUING_H
 
