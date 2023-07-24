@@ -20,10 +20,12 @@
 
 #include <QItemDelegate>
 #include <QSpinBox>
+#include <QPainter>
 
 /**
  * @class IntNumericDelegate
- * @brief The IntNumericDelegate class provides a spin box editor for integer numeric data in a view.
+ * @brief The IntNumericDelegate class provides a spin box
+ *        editor for integer numeric data in a view.
  */
 class IntNumericDelegate : public QItemDelegate {
     Q_OBJECT
@@ -33,6 +35,16 @@ private:
     int minValue;
     int stepSize;
     int value;
+    QString defaultValueString;
+
+    void setupSpinBox(QSpinBox *spinBox, const QModelIndex &index) const {
+        QVariant data = index.model()->data(index, Qt::EditRole);
+        if (data.isValid() && data.canConvert<int>()) {
+            spinBox->setValue(data.toInt());
+        } else {
+            spinBox->setValue(value);
+        }
+    }
 
 public:
     /**
@@ -42,23 +54,45 @@ public:
      * @param minValue The minimum value for the spin box.
      * @param stepSize The step size for the spin box.
      */
-    IntNumericDelegate(QWidget *parent = nullptr, int maxValue = 1000000000, int minValue = -1000000000, int stepSize = 1, int value = 0)
-        : QItemDelegate(parent), maxValue(maxValue), minValue(minValue), stepSize(stepSize), value(value) {}
+    IntNumericDelegate(QWidget *parent = nullptr,
+                       int maxValue = 1000000000,
+                       int minValue = -1000000000,
+                       int stepSize = 1,
+                       int value = 0)
+        : QItemDelegate(parent),
+        maxValue(maxValue),
+        minValue(minValue),
+        stepSize(stepSize),
+        value(value),
+        defaultValueString(QString::number(value)){}
 
     /**
-     * @brief Creates an editor widget for the given parent, style option, and model index.
+     * @brief Creates an editor widget for the given parent,
+     *        style option, and model index.
      * @param parent The parent widget.
      * @param option The style options for the item.
      * @param index The model index of the item.
      * @return The created editor widget.
      */
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
+    QWidget *createEditor(QWidget *parent,
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override {
         QSpinBox *editor = new QSpinBox(parent);
         editor->setMaximum(maxValue);
         editor->setMinimum(minValue);
         editor->setSingleStep(stepSize);
         editor->setValue(value);
+        // Set the default value if the cell doesn't contain valid data
+        setupSpinBox(editor, index);
         return editor;
+    }
+
+    void setEditorData(QWidget *editor,
+                       const QModelIndex &index) const override {
+        QSpinBox *spinBox = qobject_cast<QSpinBox *>(editor);
+        if(spinBox){
+            setupSpinBox(spinBox, index);
+        }
     }
 
     /**
@@ -67,10 +101,62 @@ public:
      * @param model The abstract item model.
      * @param index The model index of the item.
      */
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override {
+    void setModelData(QWidget *editor,
+                      QAbstractItemModel *model,
+                      const QModelIndex &index) const override {
         QSpinBox *spinBox = qobject_cast<QSpinBox *>(editor);
-        int value = spinBox->value();
-        model->setData(index, value, Qt::EditRole);
+        if(spinBox){
+            model->setData(index, spinBox->value(), Qt::EditRole);
+        }
+    }
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override {
+        QStyleOptionViewItem opt = option;
+
+        QVariant data = index.model()->data(index, Qt::EditRole);
+        if (data.isValid() && data.canConvert<int>()) {
+            opt.text = QString::number(data.toInt());
+            // Apply grey text color
+            QPalette palette = opt.palette;
+            palette.setColor(QPalette::Text, Qt::black);
+            opt.palette = palette;
+        }
+        else {
+            opt.text = "Ex: " + defaultValueString;
+            // Apply grey text color
+            QPalette palette = opt.palette;
+            palette.setColor(QPalette::Text, Qt::gray);
+            opt.palette = palette;
+        }
+
+//        opt.text = data.isValid() && data.canConvert<int>()
+//                       ? QString::number(data.toInt()) :
+//                       "EX: " + defaultValueString;
+
+        QItemDelegate::paint(painter, opt, index);
+    }
+
+    void drawDisplay(QPainter *painter,
+                     const QStyleOptionViewItem &option,
+                     const QRect &rect, const QString &text) const override {
+        QItemDelegate::drawDisplay(painter,
+                                   option, rect,
+                                   text.isEmpty()
+                                       ? "EX: " + defaultValueString : text);
+    }
+
+    int getMaxValue() {
+        return maxValue;
+    }
+
+    int getMinValue() {
+        return minValue;
+    }
+
+    int getDefaultValue() {
+        return value;
     }
 };
 
