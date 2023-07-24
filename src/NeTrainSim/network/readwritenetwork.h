@@ -1,14 +1,16 @@
 /**
  * @file ReadWriteNetwork.h
  * @brief This file contains the declaration of the ReadWriteNetwork namespace.
- *        The ReadWriteNetwork namespace provides functions for reading and writing network data.
- *        It includes functions for reading nodes and links files, writing nodes and links files,
+ *        The ReadWriteNetwork namespace provides functions for reading and
+ *        writing network data.
+ *        It includes functions for reading nodes and links files, writing
+ *        nodes and links files,
  *        and generating NetNode and NetLink objects from the read data.
- *        The ReadWriteNetwork namespace is intended to be used as part of a network simulation system.
- *        It is designed to work with other classes and data structures in the simulation.
- *        The functions in the ReadWriteNetwork namespace can be used in a C++ application.
- *        Note: The implementation of some functions is not provided in this declaration file.
- *              They should be implemented separately in a corresponding source file.
+ *        It is designed to work with other classes and data structures in
+ *        the simulation.
+ *        Note: The implementation of the functions is not provided in
+ *        this declaration file.
+ *        They are implemented separately in a corresponding source file.
  * @author Ahmed
  * @version 0.1
  * @date 6/1/2023
@@ -26,6 +28,35 @@
 
 namespace ReadWriteNetwork {
 
+static Vector<std::string> nodeFilekeys = {"UserID",
+                                           "XCoordinate",
+                                           "YCoordinate",
+                                           "Desc",
+                                           "XScale",
+                                           "YScale"};
+
+static Vector<std::string> nodeFileIgnoreRecordsWrite = {"XScale",
+                                                         "YScale"};
+
+static Vector<std::string> linksFilekeys = {"UserID",                   //0
+                                            "FromNodeID",               //1
+                                            "ToNodeID",                 //2
+                                            "Length",                   //3
+                                            "FreeFlowSpeed",            //4
+                                            "SignalNo",                 //5
+                                            "DirectionalGrade",         //6
+                                            "Curvature",                //7
+                                            "Directions",               //8
+                                            "SpeedVariation",           //9
+                                            "HasCatenary",              //10
+                                            "SignalsAtNodes",           //11
+                                            "Region",                   //12
+                                            "LengthScale",              //13
+                                            "FreeFlowSpeedScale"};      //14
+
+static Vector<std::string> linksFileIgnoreRecordsWrite = {"LengthScale",
+                                                          "FreeFlowSpeedScale"};
+
 /**
      * @brief Reads the nodes file.
      * @param fileName The filename of the file.
@@ -34,8 +65,8 @@ namespace ReadWriteNetwork {
      *         description, x-scale, and y-scale of a node.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, double, double, std::string,
-                  double, double>> readNodesFile(const std::string& fileName);
+Vector<Map<std::string, std::string>> readNodesFile(
+    const std::string& fileName);
 
 /**
      * @brief Writes the nodes file.
@@ -43,9 +74,7 @@ Vector<std::tuple<int, double, double, std::string,
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeNodesFile(Vector<std::tuple<int, double, double,
-                                      std::string, double,
-                                      double>> nodesRecords,
+bool writeNodesFile(Vector<Map<std::string, std::string>> nodesRecords,
                     std::string& filename);
 
 /**
@@ -56,9 +85,8 @@ bool writeNodesFile(Vector<std::tuple<int, double, double,
      *         of the connected nodes, length, speed, etc.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<std::tuple<int, int, int, double, int, double,
-                  double, int, double, bool, string,
-                  string, double> > readLinksFile(const std::string& fileName);
+Vector<Map<std::string, std::string>> readLinksFile(
+    const std::string& fileName);
 
 /**
      * @brief Writes the links file.
@@ -66,10 +94,7 @@ Vector<std::tuple<int, int, int, double, int, double,
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeLinksFile(Vector<std::tuple<int, int, int, double, int,
-                                      double, double, int, double,
-                                      bool, string, string,
-                                      double> > linksRecords,
+bool writeLinksFile(Vector<Map<std::string, std::string>> linksRecords,
                     std::string& filename);
 
 /**
@@ -78,8 +103,7 @@ bool writeLinksFile(Vector<std::tuple<int, int, int, double, int,
      * @return The generated NetNode objects as a vector.
      */
 Vector<std::shared_ptr<NetNode>> generateNodes(
-    Vector<std::tuple<int, double, double,
-                      std::string, double, double>> nodesRecords);
+    Vector<Map<string, string> > nodesRecords);
 
 /**
      * @brief Generates NetLink objects from the nodes and links records.
@@ -87,8 +111,9 @@ Vector<std::shared_ptr<NetNode>> generateNodes(
      * @param linksRecords The records of links as a vector of tuples.
      * @return The generated NetLink objects as a vector.
      */
-Vector<std::shared_ptr<NetLink>> generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
-    Vector<std::tuple<int, int, int, double, int, double, double, int, double, bool, string, string, double> > linksRecords);
+Vector<std::shared_ptr<NetLink>> generateLinks(
+    Vector<std::shared_ptr<NetNode>> theFileNodes,
+    Vector<Map<std::string, std::string>> linksRecords);
 
 /**
      * @brief Gets the NetNode object with the given user identifier.
