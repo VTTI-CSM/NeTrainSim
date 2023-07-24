@@ -217,12 +217,12 @@ public:
         return ss.str();
     }
 
-    std::string toNotFormattedString() const {
+    std::string toNotFormattedString(std::string delim = ",") const {
         std::stringstream ss = std::stringstream("");
         bool first = true;
         for (const auto& elem : *this) {
             if (!first) {
-                ss << ",";
+                ss << delim;
             }
             ss << elem;
             first = false;
