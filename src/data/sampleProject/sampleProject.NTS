@@ -2,9 +2,9 @@
     <ProjectName>Not Defined</ProjectName>
     <NetworkName>Not Defined</NetworkName>
     <AuthorName>Not Defined</AuthorName>
-    <NodesFileName>$${PWD}/sampleProject/nodesFile.dat</NodesFileName>
-    <LinksFileName>$${PWD}/sampleProject/linksFile.dat</LinksFileName>
-    <TrainsFileName>$${PWD}/sampleProject/dieselTrain.dat</TrainsFileName>
+    <NodesFileName>$${PWD}/nodesFile.dat</NodesFileName>
+    <LinksFileName>$${PWD}/linksFile.dat</LinksFileName>
+    <TrainsFileName>$${PWD}/dieselTrain.dat</TrainsFileName>
     <simEndTime>0</simEndTime>
     <simTimestep>1.0</simTimestep>
     <simPlotTime>50</simPlotTime>
