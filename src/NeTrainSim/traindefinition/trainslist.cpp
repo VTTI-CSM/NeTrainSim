@@ -1,4 +1,5 @@
 #include "trainslist.h"
+#include <any>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -15,28 +16,11 @@
 // This function readTrainsFile takes a string fileName as the file
 // to read trains from.
 // The function returns the trains as objects
-Vector<std::tuple<std::string, Vector<int>, double, double,
-                  Vector<std::tuple<
-                      int, double, double,
-                      int, double, double,
-                      double, double, int>>,
-                  Vector<std::tuple<int, int, double, double,
-                                    double, double,
-                                    double, int>>,
-                  bool>> TrainsList::readTrainsFile(
+Vector<Map<std::string, std::any>> TrainsList::readTrainsFile(
     const std::string& fileName)
 {
 
-    // define the trains vector
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> trainsRecords;
+    Vector<Map<std::string, std::any>> trainsRecords;
 
     // open the file of trains definitions
     std::ifstream file1(fileName);
@@ -70,26 +54,8 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
     // loop over the lines/trains that we have
     try {
         for (int i = 2; i < lines.size(); ++i) {
-            Vector<std::tuple<int,    // 0: count
-                              double, // 1: power
-                              double, // transmission eff
-                              int,    // 2: axles
-                              double, // 3: air k
-                              double, // 4: area
-                              double, // 5: length
-                              double, // 6: weight
-                              int>    // 7: type
-                   > locomotivesRecords;
-
-            Vector<std::tuple<int,    // 0: count
-                              int,    // 1: axles
-                              double, // 2: air k
-                              double, // 3: area
-                              double, // 4: length
-                              double, // 5: full weight
-                              double, // 6: empty weight
-                              int >   // 7: type
-                   > carsRecords;
+            Vector<Map<std::string, std::string>> locomotiveRecords;
+            Vector<Map<std::string, std::string>> carRecords;
 
             // declare the locomotives, cars vectors for each train
             //std::vector<std::vector<std::string>> trainsCharacteristics;
@@ -116,65 +82,67 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
             if (!lv.empty()) {
                 // define the locomotives
                 std::string locomotivesDef = lv[4];
-                std::vector<std::string> p = Utils::split(locomotivesDef, ';');
+                std::vector<std::string> p = Utils::split(locomotivesDef,
+                                                          ';',
+                                                          true);
                 for (const auto& p_ : p) {
-                    std::vector<std::string> loc = Utils::split(p_, ',');
+                    std::vector<std::string> loc = Utils::split(p_,
+                                                                ',',
+                                                                true);
+                    if (loc.size() != locomotiveFieldsOrder.size()) {
+                        throw std::runtime_error(
+                            "Wrong Trains File Strucuture!");
+                    }
                     // if we have multiple locomotive types, add them all
-                        locomotivesRecords.push_back(
-                            std::make_tuple(
-                                std::stoi(loc[0]),      // count
-                                std::stod(loc[1]),      // power
-                                std::stod(loc[2]),      // transimission eff
-                                std::stoi(lv[3]),       // axles
-                                std::stod(loc[4]),      // air k
-                                std::stod(loc[5]),      // area
-                                std::stod(loc[6]),      // length
-                                std::stod(loc[7]),      // weight
-                                std::stoi(loc[8])));    // type
+                    Map<std::string, std::string> locomotiveRecord;
+                    for (const auto& key: locomotiveFieldsOrder) {
+                        int keyIndex = locomotiveFieldsOrder.index(key);
+                        locomotiveRecord[key] = loc[keyIndex];
+                    }
+                    locomotiveRecords.push_back(locomotiveRecord);
                 }
 
                 // define the cars
                 std::string carsDef = lv[5];
-                std::vector<std::string> cp = Utils::split(carsDef, ';');
+                std::vector<std::string> cp = Utils::split(carsDef,
+                                                           ';',
+                                                           true);
                 for (const auto& cp_ : cp) {
-                    std::vector<std::string> c = Utils::split(cp_, ',');
-                    int cType;
-
-                    if (c.size() > 7) {
-                        cType = std::stoi(c[7]);
+                    std::vector<std::string> c = Utils::split(cp_,
+                                                              ',',
+                                                              true);
+                    if (c.size() < carFieldsOrder.size()) {
+                        c.push_back("0");
                     }
-                    else {
-                        cType = 0;
+                    if (c.size() != carFieldsOrder.size()) {
+                        throw std::runtime_error(
+                            "Wrong Trains File Strucuture!");
                     }
-                    carsRecords.push_back(
-                        std::make_tuple(
-                            std::stoi(c[0]),    // 0: count
-                            std::stoi(c[1]),    // 1: axles
-                            std::stod(c[2]),    // 2: air k
-                            std::stod(c[3]),    // 3: area
-                            std::stod(c[4]),    // 4: length
-                            std::stod(c[5]),    // 5: full weight
-                            std::stod(c[6]),    // 6: empty weight
-                            cType               // 7: type
-                            )
-                        );
 
+                    Map<std::string, std::string> carRecord;
+                    for (const auto& key: carFieldsOrder) {
+                        int keyIndex = carFieldsOrder.index(key);
+                        carRecord[key] = c[keyIndex];
+                    }
+                    carRecords.push_back(carRecord);
                 }
 
             }
             // get a vector of node IDs
             Vector<int> trainPath = Utils::splitStringToIntVector(lv[1]);
 
+            Map<std::string, std::any> trainRecord = {
+                {"UserID", lv[0]},
+                {"TrainPathOnNodeIDs", trainPath},
+                {"LoadTime", std::stod(lv[2])},
+                {"FrictionCoef", std::stod(lv[3])},
+                {"Locomotives", locomotiveRecords},
+                {"Cars", carRecords},
+                {"Optimize", false}
+            };
+
             // create trains vector
-            trainsRecords.push_back(
-                std::make_tuple(
-                    lv[0],              // user id
-                    trainPath,          // path
-                    std::stod(lv[2]),   // time
-                    std::stod(lv[3]),   // friction coef
-                    locomotivesRecords, // locomotives
-                    carsRecords,        // cars
-                    false));            // no optimization
+            trainsRecords.push_back(trainRecord);
         }
     }
     catch(const std::exception &e){
@@ -188,15 +156,7 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
 }
 
 Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> &trainRecords)
+    Vector<Map<std::string, std::any>> &trainRecords)
 {
     // a vector of trains
     Vector<std::shared_ptr<Train>> trains;
@@ -209,49 +169,52 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
         Vector<std::shared_ptr<Car>> cars;
 
         // get loco values
-        auto locoRecords = std::get<4>(trainRecord);
+        auto locoRecords =
+            std::any_cast<Vector<Map<std::string,
+                                     std::string>>>(trainRecord["Locomotives"]);
         for (auto& locoRecord: locoRecords) {
-            for (int i = 0; i < std::get<0>(locoRecord); i++) {
+            for (int i = 0; i < std::stoi(locoRecord["Count"]); i++) {
                 Locomotive loco =
                     Locomotive(
-                        std::get<1>(locoRecord), // Power
-                        std::get<2>(locoRecord), // trans eff
-                        std::get<6>(locoRecord), // length
-                        std::get<4>(locoRecord), // drag
-                        std::get<5>(locoRecord), // area
-                        std::get<7>(locoRecord), // weight
-                        std::get<3>(locoRecord), // axles
-                        std::get<8>(locoRecord)); //power type
+                        stod(locoRecord["Power"]), // Power
+                        stod(locoRecord["TransmissionEff"]), // trans eff
+                        stod(locoRecord["Length"]), // length
+                        stod(locoRecord["AirDragCoeff"]), // drag
+                        stod(locoRecord["FrontalArea"]), // area
+                        stod(locoRecord["GrossWeight"]), // weight
+                        stoi(locoRecord["NoOfAxles"]), // axles
+                        stoi(locoRecord["Type"])); //power type
                 locomotives.push_back(std::make_shared<Locomotive>(loco));
             }
         }
 
         // get car values
-        auto carRecords = std::get<5>(trainRecord);
+        auto carRecords =
+            std::any_cast<Vector<Map<std::string,
+                                     std::string>>>(trainRecord["Cars"]);
         for (auto& carRecord: carRecords) {
-            for (int i = 0; i < std::get<0>(carRecord); i++) {
-                Car car = Car(std::get<4>(carRecord), //length
-                              std::get<2>(carRecord), //drag
-                              std::get<3>(carRecord), //area
-                              std::get<6>(carRecord), //empty weight
-                              std::get<5>(carRecord), //full weight
-                              std::get<1>(carRecord), //axles
-                              std::get<7>(carRecord));//type
+            for (int i = 0; i < std::stoi(carRecord["Count"]); i++) {
+                Car car = Car(std::stod(carRecord["Length"]), //length
+                              std::stod(carRecord["AirDragCoeff"]), //drag
+                              std::stod(carRecord["FrontalArea"]), //area
+                              std::stod(carRecord["TareWeight"]), //empty weight
+                              std::stod(carRecord["GrossWeight"]), //full weight
+                              std::stoi(carRecord["NoOfAxles"]), //axles
+                              std::stoi(carRecord["Type"]));//type
                 cars.push_back(std::make_shared<Car>(car));
             }
-
         }
 
         // create a new train and add it to the trains list
         trains.push_back(std::make_shared<Train>(
             trainID,
-            std::get<0>(trainRecord), // user id
-            std::get<1>(trainRecord), // path
-            std::get<2>(trainRecord), // time
-            std::get<3>(trainRecord), // friction coef
+            std::any_cast<std::string>(trainRecord["UserID"]), // user id
+            std::any_cast<Vector<int>>(trainRecord["TrainPathOnNodeIDs"]),//path
+            std::any_cast<double>(trainRecord["LoadTime"]), // time
+            std::any_cast<double>(trainRecord["FrictionCoef"]), // friction coef
             locomotives,              // locomotives
             cars,                     // cars
-            std::get<6>(trainRecord)  // no optimization
+            std::any_cast<bool>(trainRecord["Optimize"])  // no optimization
             ));
 
         trainID++;
@@ -268,33 +231,35 @@ Vector<std::shared_ptr<Train>> TrainsList::ReadAndGenerateTrains(
 }
 
 bool TrainsList::writeTrainsFile(
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> trains, const std::string& fileName) {
+    Vector<Map<std::string, std::any>> trains, const std::string& fileName) {
 
     std::stringstream lines;
     lines << "File is created using NeTrainSim GUI\n";
     lines << trains.size() << "\n";
 
     for (auto& record: trains) {
-        std::size_t locosSize = std::get<4>(record).size();
-        std::size_t carsSize = std::get<5>(record).size();
+        auto locos = std::any_cast<Vector<Map<std::string,
+                                              std::string>>>(
+            record["Locomotives"]);
+        std::size_t locosSize = locos.size();
 
-        lines << std::get<0>(record) << "\t"; //ID
-        lines << std::get<1>(record).toNotFormattedString() << "\t"; //Path
-        lines << std::get<2>(record) << "\t"; // time
-        lines << std::get<3>(record) << "\t"; //friction coef
+        auto cars = std::any_cast<Vector<Map<std::string,
+                                             std::string>>>(record["Cars"]);
+        std::size_t carsSize = cars.size();
+
+        lines << std::any_cast<std::string>(record["UserID"]) << "\t"; //ID
+        lines << std::any_cast<Vector<int>>(
+                     record["TrainPathOnNodeIDs"]).toNotFormattedString()
+              << "\t"; //Path
+        lines << std::any_cast<double>(record["LoadTime"]) << "\t"; // time
+        lines << std::any_cast<double>(record["FrictionCoef"]) << "\t"; //friction coef
 
         // write locos
         for (int i = 0; i < locosSize; i++) {
-            auto& loco = std::get<4>(record)[i];
-            lines << Utils::convertTupleToStringStream(loco, 0, ",").str() <<
+            auto& loco = locos[i];
+            lines << loco.valuesToString(locomotiveFieldsOrder,
+                                         Vector<std::string>(),
+                                         ",") <<
                 (i != (locosSize -1) ? ";": "");
         }
 
@@ -302,8 +267,10 @@ bool TrainsList::writeTrainsFile(
 
         // write cars
         for (int i = 0; i < carsSize; i++) {
-            auto& car = std::get<5>(record)[i];
-            lines << Utils::convertTupleToStringStream(car, 0, ",").str() <<
+            auto& car = cars[i];
+            lines << car.valuesToString(carFieldsOrder,
+                                        Vector<std::string>(),
+                                        ",") <<
                 (i != (carsSize -1) ? ";": "");
         }
     }
