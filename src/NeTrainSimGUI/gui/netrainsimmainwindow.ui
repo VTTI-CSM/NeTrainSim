@@ -51,6 +51,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="whatsThis">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The progress bar visually represents the progress or completion status of a task, process, or operation within the application. It provides a graphical indicator to show how far along the task has progressed and how much remains to be completed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="value">
          <number>0</number>
         </property>
@@ -77,6 +80,9 @@
       </item>
       <item>
        <widget class="ToggleButton" name="pushButton_pauseResume">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click this button to pause or resume the simulation. The &amp;quot;Pause/Continue&amp;quot; feature allows you to temporarily halt the simulation's progress or resume it from the paused state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Pause</string>
         </property>
@@ -84,6 +90,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_projectNext">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click this button to navigate to the next page or screen. The &amp;quot;Next&amp;quot; button allows you to move forward to the next section or page within the application.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Next</string>
         </property>
@@ -99,7 +108,7 @@
          <enum>QTabWidget::West</enum>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <property name="tabsClosable">
          <bool>false</bool>
@@ -145,6 +154,9 @@
                   <width>200</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter your name or the name of the creator of the project in this textbox. This field helps to attribute ownership and acknowledge the individual or team responsible for developing or initiating the simulation. Providing accurate information in this field ensures proper recognition and facilitates collaboration or communication among users.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -197,6 +209,9 @@
                   <width>200</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the name of your project in this textbox. The project name helps you easily identify and distinguish your project from others. Be sure to choose a descriptive and concise name that accurately represents the purpose or subject of your project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -253,7 +268,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_networkName"/>
+               <widget class="QLineEdit" name="lineEdit_networkName">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the name of the train network or railway system associated with your simulation. This field allows you to provide a distinctive name to identify and differentiate various train networks within your simulator. Consider using a meaningful and recognizable name that reflects the actual railway system you are simulating.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer_10">
@@ -279,355 +298,7 @@
           <string>Network Definition</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="2" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_29">
-            <item>
-             <widget class="QWidget" name="widget_newNetwork" native="true">
-              <layout class="QGridLayout" name="gridLayout_7">
-               <item row="0" column="0">
-                <layout class="QHBoxLayout" name="layout_defineNewNetwork">
-                 <item>
-                  <widget class="QTabWidget" name="tabWidget_defineNetwork">
-                   <property name="currentIndex">
-                    <number>0</number>
-                   </property>
-                   <widget class="QWidget" name="tab_3">
-                    <attribute name="title">
-                     <string>Nodes</string>
-                    </attribute>
-                    <layout class="QGridLayout" name="gridLayout_8">
-                     <item row="0" column="0">
-                      <layout class="QHBoxLayout" name="horizontalLayout_7">
-                       <item>
-                        <widget class="QLabel" name="label_5">
-                         <property name="minimumSize">
-                          <size>
-                           <width>140</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>X-Coordinates Scale:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QDoubleSpinBox" name="doubleSpinBox_xCoordinate">
-                         <property name="decimals">
-                          <number>6</number>
-                         </property>
-                         <property name="minimum">
-                          <double>0.000001000000000</double>
-                         </property>
-                         <property name="maximum">
-                          <double>100000000000000000.000000000000000</double>
-                         </property>
-                         <property name="singleStep">
-                          <double>1.000000000000000</double>
-                         </property>
-                         <property name="value">
-                          <double>1.000000000000000</double>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_9">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeType">
-                          <enum>QSizePolicy::Fixed</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_6">
-                         <property name="minimumSize">
-                          <size>
-                           <width>140</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>Y-Coordinates Scale:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QDoubleSpinBox" name="doubleSpinBox_yCoordinate">
-                         <property name="decimals">
-                          <number>6</number>
-                         </property>
-                         <property name="minimum">
-                          <double>0.000001000000000</double>
-                         </property>
-                         <property name="maximum">
-                          <double>100000000000000000.000000000000000</double>
-                         </property>
-                         <property name="value">
-                          <double>1.000000000000000</double>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_8">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="CustomTableWidget" name="table_newNodes">
-                       <attribute name="horizontalHeaderDefaultSectionSize">
-                        <number>180</number>
-                       </attribute>
-                       <column>
-                        <property name="text">
-                         <string>Identification Number (ID)</string>
-                        </property>
-                        <property name="textAlignment">
-                         <set>AlignLeading|AlignVCenter</set>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>X Coordinate (m)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Y Coordinate (m)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Description</string>
-                        </property>
-                        <property name="textAlignment">
-                         <set>AlignLeading|AlignVCenter</set>
-                        </property>
-                       </column>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <layout class="QHBoxLayout" name="horizontalLayout_26">
-                       <item>
-                        <spacer name="horizontalSpacer_16">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="pushButton_saveNewNodes">
-                         <property name="text">
-                          <string>Save Nodes File</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                    </layout>
-                   </widget>
-                   <widget class="QWidget" name="tab_4">
-                    <attribute name="title">
-                     <string>Links</string>
-                    </attribute>
-                    <layout class="QGridLayout" name="gridLayout_10">
-                     <item row="0" column="0">
-                      <layout class="QHBoxLayout" name="horizontalLayout_6">
-                       <item>
-                        <widget class="QLabel" name="label_4">
-                         <property name="minimumSize">
-                          <size>
-                           <width>140</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>Speed Scale:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QDoubleSpinBox" name="doubleSpinBox_SpeedScale">
-                         <property name="decimals">
-                          <number>6</number>
-                         </property>
-                         <property name="minimum">
-                          <double>0.000001000000000</double>
-                         </property>
-                         <property name="maximum">
-                          <double>100000000000000000.000000000000000</double>
-                         </property>
-                         <property name="value">
-                          <double>1.000000000000000</double>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_7">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="CustomTableWidget" name="table_newLinks">
-                       <attribute name="horizontalHeaderDefaultSectionSize">
-                        <number>180</number>
-                       </attribute>
-                       <column>
-                        <property name="text">
-                         <string>Identification Number (ID)</string>
-                        </property>
-                        <property name="textAlignment">
-                         <set>AlignLeading|AlignVCenter</set>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>From (Node ID)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>To (Node ID)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Free Flow Speed (m/s)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Traffic Signal Number</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Signal Placed At Node IDs</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Grade (Percentage)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Curvature (Percentage)</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>is two directional?</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Speed Variation Factor</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Has Catenary?</string>
-                        </property>
-                       </column>
-                       <column>
-                        <property name="text">
-                         <string>Region</string>
-                        </property>
-                        <property name="textAlignment">
-                         <set>AlignLeading|AlignVCenter</set>
-                        </property>
-                       </column>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <layout class="QHBoxLayout" name="horizontalLayout_27">
-                       <item>
-                        <spacer name="horizontalSpacer_17">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="pushButton_saveNewLinks">
-                         <property name="text">
-                          <string>Save Links File</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                    </layout>
-                   </widget>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="CustomPlot" name="plot_createNetwork" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="mouseTracking">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
+          <item row="0" column="0">
            <widget class="QWidget" name="widget_oldNetwork" native="true">
             <property name="enabled">
              <bool>true</bool>
@@ -639,6 +310,18 @@
              </size>
             </property>
             <layout class="QGridLayout" name="gridLayout_6">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
              <item row="0" column="0">
               <layout class="QGridLayout" name="layout_oldNetwork">
                <item row="1" column="0">
@@ -671,6 +354,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_links">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the file location or path where the links file is stored for your train simulation. The links file contains the information about the connections or links between different nodes in the train network (tracks). Browse to select the appropriate file that contains the relevant link data for your simulation. This file is essential for defining the network's infrastructure and allowing trains to navigate through the system effectively.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Browse</string>
                    </property>
@@ -721,6 +407,9 @@
                  </item>
                  <item row="0" column="2">
                   <widget class="QPushButton" name="pushButton_nodes">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the file location or path where the nodes file is stored for your train simulation. The nodes file contains the necessary information about the various nodes or points of interest within the train network, such as stations, junctions, or landmarks. Browse to select the appropriate file that contains the relevant node data for your simulation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Browse</string>
                    </property>
@@ -746,29 +435,438 @@
             </layout>
            </widget>
           </item>
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_3">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetMaximumSize</enum>
-            </property>
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QCheckBox" name="checkBox_defineNewNetwork">
-                <property name="maximumSize">
+          <item row="1" column="0">
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QGridLayout" name="gridLayout_25">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QSplitter" name="splitter_network">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <widget class="QWidget" name="widget_newNetwork" native="true">
+                <layout class="QGridLayout" name="gridLayout_7">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="0" column="0">
+                  <layout class="QHBoxLayout" name="layout_defineNewNetwork">
+                   <item>
+                    <widget class="QTabWidget" name="tabWidget_defineNetwork">
+                     <property name="currentIndex">
+                      <number>0</number>
+                     </property>
+                     <widget class="QWidget" name="tab_3">
+                      <attribute name="title">
+                       <string>Nodes</string>
+                      </attribute>
+                      <layout class="QGridLayout" name="gridLayout_8">
+                       <item row="0" column="0">
+                        <layout class="QHBoxLayout" name="horizontalLayout_7">
+                         <item>
+                          <widget class="QLabel" name="label_5">
+                           <property name="minimumSize">
+                            <size>
+                             <width>140</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>X-Coordinates Scale:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QDoubleSpinBox" name="doubleSpinBox_xCoordinate">
+                           <property name="decimals">
+                            <number>6</number>
+                           </property>
+                           <property name="minimum">
+                            <double>0.000001000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100000000000000000.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>1.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_9">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeType">
+                            <enum>QSizePolicy::Fixed</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_6">
+                           <property name="minimumSize">
+                            <size>
+                             <width>140</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>Y-Coordinates Scale:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QDoubleSpinBox" name="doubleSpinBox_yCoordinate">
+                           <property name="decimals">
+                            <number>6</number>
+                           </property>
+                           <property name="minimum">
+                            <double>0.000001000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100000000000000000.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_8">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                        </layout>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="CustomTableWidget" name="table_newNodes">
+                         <attribute name="horizontalHeaderDefaultSectionSize">
+                          <number>180</number>
+                         </attribute>
+                         <column>
+                          <property name="text">
+                           <string>Identification Number (ID)</string>
+                          </property>
+                          <property name="toolTip">
+                           <string extracomment="A numerical identifier that is unique to each Node. This number begins from 1 and extends indefinitely."/>
+                          </property>
+                          <property name="whatsThis">
+                           <string/>
+                          </property>
+                          <property name="textAlignment">
+                           <set>AlignLeading|AlignVCenter</set>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>X Coordinate (m)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Y Coordinate (m)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Description</string>
+                          </property>
+                          <property name="textAlignment">
+                           <set>AlignLeading|AlignVCenter</set>
+                          </property>
+                         </column>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <layout class="QHBoxLayout" name="horizontalLayout_26">
+                         <item>
+                          <spacer name="horizontalSpacer_16">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="pushButton_saveNewNodes">
+                           <property name="text">
+                            <string>Save Nodes File</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="tab_4">
+                      <attribute name="title">
+                       <string>Links</string>
+                      </attribute>
+                      <layout class="QGridLayout" name="gridLayout_10">
+                       <item row="0" column="0">
+                        <layout class="QHBoxLayout" name="horizontalLayout_6">
+                         <item>
+                          <widget class="QLabel" name="label_20">
+                           <property name="minimumSize">
+                            <size>
+                             <width>140</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>Length Scale:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QDoubleSpinBox" name="doubleSpinBox_LengthScale">
+                           <property name="decimals">
+                            <number>6</number>
+                           </property>
+                           <property name="minimum">
+                            <double>0.000001000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100000000000000000.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_18">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeType">
+                            <enum>QSizePolicy::Fixed</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_4">
+                           <property name="minimumSize">
+                            <size>
+                             <width>140</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>Speed Scale:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QDoubleSpinBox" name="doubleSpinBox_SpeedScale">
+                           <property name="decimals">
+                            <number>6</number>
+                           </property>
+                           <property name="minimum">
+                            <double>0.000001000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100000000000000000.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_7">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                        </layout>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="CustomTableWidget" name="table_newLinks">
+                         <attribute name="horizontalHeaderDefaultSectionSize">
+                          <number>180</number>
+                         </attribute>
+                         <column>
+                          <property name="text">
+                           <string>Identification Number (ID)</string>
+                          </property>
+                          <property name="textAlignment">
+                           <set>AlignLeading|AlignVCenter</set>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>From (Node ID)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>To (Node ID)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Length (m)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Free Flow Speed (m/s)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Traffic Signal Number</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Signal Placed At Node IDs</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Grade (Percentage)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Curvature (Percentage)</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>is two directional?</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Speed Variation Factor</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Has Catenary?</string>
+                          </property>
+                         </column>
+                         <column>
+                          <property name="text">
+                           <string>Region</string>
+                          </property>
+                          <property name="textAlignment">
+                           <set>AlignLeading|AlignVCenter</set>
+                          </property>
+                         </column>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <layout class="QHBoxLayout" name="horizontalLayout_27">
+                         <item>
+                          <spacer name="horizontalSpacer_17">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="pushButton_saveNewLinks">
+                           <property name="text">
+                            <string>Save Links File</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="CustomPlot" name="plot_createNetwork" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
                  <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
+                  <width>0</width>
+                  <height>0</height>
                  </size>
                 </property>
-                <property name="text">
-                 <string>Create new network</string>
+                <property name="mouseTracking">
+                 <bool>true</bool>
                 </property>
                </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -779,13 +877,6 @@
          <layout class="QGridLayout" name="gridLayout_13">
           <item row="0" column="0">
            <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QCheckBox" name="checkBox_TrainsOD">
-              <property name="text">
-               <string>Create new Train OD Pairs</string>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QWidget" name="widget_oldTrainOD" native="true">
               <property name="enabled">
@@ -798,10 +889,28 @@
                </size>
               </property>
               <layout class="QGridLayout" name="gridLayout_11">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
                <item row="0" column="0">
                 <layout class="QGridLayout" name="layout_oldNetwork_2">
                  <item row="0" column="0">
                   <layout class="QGridLayout" name="gridLayout_12">
+                   <property name="topMargin">
+                    <number>7</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>7</number>
+                   </property>
                    <item row="0" column="0">
                     <widget class="QLabel" name="label_8">
                      <property name="minimumSize">
@@ -830,6 +939,9 @@
                    </item>
                    <item row="0" column="2">
                     <widget class="QPushButton" name="pushButton_trains">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the file location or path where the trains file is stored for your train simulation. The trains file contains the information about the trains in your simulation, such as their characteristics, schedules, and assigned routes. Browse to select the appropriate file that contains the relevant train data for your simulation. This file is crucial for defining the properties and behavior of the trains within the simulated train network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
                      <property name="text">
                       <string>Browse</string>
                      </property>
@@ -858,6 +970,18 @@
             <item>
              <widget class="QWidget" name="widget_newTrainOD" native="true">
               <layout class="QGridLayout" name="gridLayout_14">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
                <item row="1" column="0">
                 <widget class="QTabWidget" name="tabWidget_newTrainOD">
                  <property name="currentIndex">
@@ -1134,6 +1258,13 @@
                    <item row="2" column="0">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
                      <item>
+                      <widget class="QLabel" name="label_21">
+                       <property name="text">
+                        <string>Left click to select a node, right click to deselect it.</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <spacer name="horizontalSpacer_15">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
@@ -1164,29 +1295,19 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0">
-           <spacer name="verticalSpacer_train">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="tab_2">
          <attribute name="title">
           <string>Simulation</string>
          </attribute>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
+         <layout class="QGridLayout" name="gridLayout_26">
+          <item row="0" column="0">
+           <widget class="QSplitter" name="splitter_simulator">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <widget class="QWidget" name="layoutWidget">
              <layout class="QHBoxLayout" name="horizontalLayout_18">
               <item>
                <widget class="QGroupBox" name="groupBox">
@@ -1245,6 +1366,9 @@
                       </item>
                       <item>
                        <widget class="QPushButton" name="pushButton_selectoutputPath">
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the directory location where the simulation output will be saved. It determines the folder or path where the generated simulation output files will be stored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
                         <property name="text">
                          <string>Browse</string>
                         </property>
@@ -1268,10 +1392,17 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_summaryfilename"/>
+                       <widget class="QLineEdit" name="lineEdit_summaryfilename">
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the desired name for the summary file that will be generated by the simulation. It determines the name of the file that will contain an overview or summary of the simulation results. Provide a descriptive and recognizable name for the summary file, reflecting the purpose or content it represents.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                       </widget>
                       </item>
                       <item>
                        <widget class="QCheckBox" name="checkBox_detailedTrainsSummay">
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box if you want to display a detailed summary of trains during the simulation. By selecting this option, you indicate your preference for additional information and metrics about each individual train's performance and status.&lt;/p&gt;&lt;p&gt;When checked, the simulation output will include a detailed trains summary, providing insights such as train energy consumptions, arrival times, and any relevant performance metrics. This detailed summary can be helpful for in-depth analysis and monitoring of each train's behavior throughout the simulation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
                         <property name="text">
                          <string>Show detailed trains summary?</string>
                         </property>
@@ -1283,6 +1414,9 @@
                      <layout class="QHBoxLayout" name="horizontalLayout_17">
                       <item>
                        <widget class="QCheckBox" name="checkBox_exportTrajectory">
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box if you want to export the trajectory data of trains during the simulation. By selecting this option, you indicate your intention to save the detailed trajectory information of each train's movement throughout the simulation.&lt;/p&gt;&lt;p&gt;When checked, the simulation will generate trajectory data files, capturing the precise positions and timestamps of trains at various points in time. Exporting trajectory data allows for further analysis, visualization, or integration with external tools or systems. This option is particularly useful when conducting post-simulation analysis or when you need to examine train movements in detail.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
                         <property name="text">
                          <string>Export trajectory?</string>
                         </property>
@@ -1305,7 +1439,11 @@
                           </widget>
                          </item>
                          <item>
-                          <widget class="QLineEdit" name="lineEdit_trajectoryFilename"/>
+                          <widget class="QLineEdit" name="lineEdit_trajectoryFilename">
+                           <property name="toolTip">
+                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the desired name for the trajectory file that will be generated during the simulation. The &amp;quot;Trajectory File Name&amp;quot; setting determines the name of the file that will store the trajectory data of trains' movements.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                           </property>
+                          </widget>
                          </item>
                         </layout>
                        </widget>
@@ -1348,6 +1486,9 @@
                               <height>0</height>
                              </size>
                             </property>
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the desired end time for your simulation in this textbox. The simulation end time represents the point at which the simulation will conclude or stop running in seconds.&lt;/p&gt;&lt;p&gt;If you set the value to 0, the simulation will stop only when all trains have reached their respective destinations.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="minimum">
                              <double>0.000000000000000</double>
                             </property>
@@ -1384,6 +1525,9 @@
                           </item>
                           <item>
                            <widget class="QDoubleSpinBox" name="doubleSpinBox_timeStep">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the time step duration for your simulation in seconds. The time step represents the increment of time by which the simulation progresses with each iteration. A preferred time step for your simulation is 1.0 seconds. Adjusting the time step duration allows you to balance between simulation accuracy and performance. Keep in mind that smaller time steps provide more precise results but may increase computational load, while larger time steps prioritize performance over absolute accuracy. Find the optimal balance by experimenting with different values for your specific simulation requirements.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="minimum">
                              <double>0.100000000000000</double>
                             </property>
@@ -1417,6 +1561,9 @@
                           </item>
                           <item>
                            <widget class="QSpinBox" name="spinBox_plotEvery">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the interval for updating and drawing the simulation output. It determines how frequently the visual representation of the simulation is updated and displayed. A preferred value for your simulation is 100. Adjust this interval based on your preference for visual feedback and performance considerations.&lt;/p&gt;&lt;p&gt;For example, if you set it to 100, the simulation will update and redraw the output every 100 simulation steps or iterations, providing periodic visual updates. Modify this value according to your requirements, finding the optimal balance between real-time updates and potential performance impacts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="maximum">
                              <number>1000</number>
                             </property>
@@ -1490,15 +1637,19 @@
                </spacer>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="CustomPlot" name="plot_simulation" native="true">
-              <property name="mouseTracking">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+            </widget>
+            <widget class="CustomPlot" name="plot_simulation" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1510,7 +1661,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_results">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_9">
              <attribute name="title">
@@ -1688,7 +1839,7 @@
      <x>0</x>
      <y>0</y>
      <width>1318</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuNeTrainSim">
@@ -1799,7 +1950,7 @@
   <customwidget>
    <class>ToggleButton</class>
    <extends>QPushButton</extends>
-   <header>togglebutton.h</header>
+   <header>gui/togglebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
