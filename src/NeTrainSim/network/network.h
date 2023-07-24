@@ -91,12 +91,8 @@ public:
      * @author Ahmed Aredah
      * @date 2/14/2023
      */
-    Network(Vector<tuple<int, double, double,
-                         std::string, double, double>> nodesRecords,
-            Vector<tuple<int, int, int, double,
-                         int, double, double, int, double,
-                         bool, std::string, std::string,
-                         double>> linksRecords,
+    Network(Vector<Map<std::string, std::string>> nodesRecords,
+            Vector<Map<std::string, std::string>> linksRecords,
             std::string netName = "") {
 
         if (netName == "") {
