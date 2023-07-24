@@ -4,31 +4,16 @@
 // Constructor
 CustomPlot::CustomPlot(QWidget *parent) : QCustomPlot(parent), m_isPanning(false), m_isScrollButtonClicked(false)
 {
-    // Connect the zoomReset signal to the resetZoom slot
+    // Enable interaction
+    setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     QObject::connect(this, SIGNAL(zoomReset()), this, SLOT(resetZoom()));
 }
 
 // Mouse press event
 void CustomPlot::mousePressEvent(QMouseEvent *event)
 {
-    // Check if the middle button is pressed for panning
-    if (event->button() == Qt::MiddleButton)
-    {
-        // get the position of the mouse for the panning
-        if (axisRect()->rect().contains(event->pos()))
-        {
-            m_curXRange = xAxis->range().size();
-            m_curYRange = yAxis->range().size();
-            m_x0 = event->pos().x();
-            m_y0 = event->pos().y();
-            m_xPress = xAxis->pixelToCoord(m_x0);
-            m_yPress = yAxis->pixelToCoord(m_y0);
-            m_isPanning = true;
-            panningSensitivity = this->calculateSensitivity();
-        }
-    }
     // Emit signals for left and right button press
-    else if (event->button() == Qt::LeftButton) {
+    if (event->button() == Qt::LeftButton) {
         emit this->pointLeftSelected(this->getClosestPoint(event));
     }
     else if (event->button() == Qt::RightButton) {
@@ -49,70 +34,6 @@ void CustomPlot::mouseDoubleClickEvent(QMouseEvent *event)
     QCustomPlot::mouseDoubleClickEvent(event);
 }
 
-// Mouse move event
-void CustomPlot::mouseMoveEvent(QMouseEvent *event)
-{
-    if (m_isPanning)
-    {
-        double dx = event->pos().x() - m_x0;
-        double dy = event->pos().y() - m_y0;
-        double xPressNew = xAxis->pixelToCoord(m_x0 + dx);
-        double yPressNew = yAxis->pixelToCoord(m_y0 + dy);
-        double dxPress = xPressNew - m_xPress;
-        double dyPress = yPressNew - m_yPress;
-
-        double xRangeChange = -(dxPress * m_curXRange / axisRect()->width()) * this->panningSensitivity;
-        double yRangeChange = -(dyPress * m_curYRange / axisRect()->height()) * this->panningSensitivity;
-
-        xAxis->setRange(xAxis->range().lower + xRangeChange, xAxis->range().upper + xRangeChange);
-        yAxis->setRange(yAxis->range().lower + yRangeChange, yAxis->range().upper + yRangeChange);
-
-        replot();
-    }
-
-    QCustomPlot::mouseMoveEvent(event);
-}
-
-// Mouse release event
-void CustomPlot::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::MiddleButton && m_isPanning)
-    {
-        m_isPanning = false;
-    }
-
-    QCustomPlot::mouseReleaseEvent(event);
-}
-
-// Wheel event
-void CustomPlot::wheelEvent(QWheelEvent *event)
-{
-    if (event->buttons() == Qt::MiddleButton)
-    {
-        // Center the drawing when the scroll button is clicked
-        if (event->angleDelta().y() == 0)
-        {
-            centerDrawing();
-            return;
-        }
-    }
-
-    // Calculate the scaling factor
-    double scaleFactor = 1.15;
-    double factor = event->angleDelta().y() > 0 ? (1.0 / scaleFactor) : scaleFactor;
-
-    // Calculate the new axis ranges based on the mouse position
-    double x = xAxis->pixelToCoord(event->position().x());
-    double y = yAxis->pixelToCoord(event->position().y());
-    double xRange = xAxis->range().size() * factor;
-    double yRange = yAxis->range().size() * factor;
-    xAxis->setRange(x - (x - xAxis->range().lower) * (xRange / xAxis->range().size()), x + (xAxis->range().upper - x) * (xRange / xAxis->range().size()));
-    yAxis->setRange(y - (y - yAxis->range().lower) * (yRange / yAxis->range().size()), y + (yAxis->range().upper - y) * (yRange / yAxis->range().size()));
-
-    replot();
-    QCustomPlot::wheelEvent(event);
-}
-
 // Center the drawing
 void CustomPlot::centerDrawing()
 {
@@ -121,8 +42,12 @@ void CustomPlot::centerDrawing()
     double centerY = (yAxis->range().lower + yAxis->range().upper) / 2.0;
 
     // Set new axis ranges to center the drawing
-    xAxis->setRange(centerX - (xAxis->range().size() / 2.0), centerX + (xAxis->range().size() / 2.0));
-    yAxis->setRange(centerY - (yAxis->range().size() / 2.0), centerY + (yAxis->range().size() / 2.0));
+    xAxis->setRange(
+        centerX - (xAxis->range().size() / 2.0),
+        centerX + (xAxis->range().size() / 2.0));
+    yAxis->setRange(
+        centerY - (yAxis->range().size() / 2.0),
+        centerY + (yAxis->range().size() / 2.0));
 
     replot();
 }
@@ -172,7 +97,8 @@ void CustomPlot::resetZoom()
 }
 
 // Get all points positions of a graph
-std::pair<Vector<double>, Vector<double>> CustomPlot::getAllPointsPositions(QCPGraph &graph)
+std::pair<Vector<double>,
+          Vector<double>> CustomPlot::getAllPointsPositions(QCPGraph &graph)
 {
     Vector<double> xdata;
     Vector<double> ydata;
@@ -191,29 +117,6 @@ std::pair<Vector<double>, Vector<double>> CustomPlot::getAllPointsPositions(QCPG
     return std::make_pair(xdata, ydata);
 }
 
-// Calculate the panning sensitivity
-double CustomPlot::calculateSensitivity()
-{
-    const double sensitivityMin = 0.01;
-    const double sensitivityMax = 0.5;
-
-    double xRange = xAxis->range().size();
-    double yRange = yAxis->range().size();
-
-    // Calculate the minimum and maximum values of the x-axis range
-    double xRangeMin = xAxis->range().lower;
-    double xRangeMax = xAxis->range().upper;
-
-    // Calculate the average range
-    double averageRange = (xRange + yRange) / 2.0;
-
-    // Map the average range to the sensitivity range
-    double mappedSensitivity = sensitivityMin + (sensitivityMax - sensitivityMin) * (averageRange - xRangeMin) / (xRangeMax - xRangeMin);
-
-    return std::abs(mappedSensitivity);
-}
-
-
 // Get the closest point to a mouse event
 QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
 {
@@ -231,7 +134,8 @@ QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
         auto currentGraph = graph(i);
 
         if (currentGraph) {
-            QSharedPointer<QCPGraphDataContainer> dataContainer = currentGraph->data();
+            QSharedPointer<QCPGraphDataContainer> dataContainer =
+                currentGraph->data();
 
             double maxRangeX = xAxis->range().size();
             double maxRangeY = yAxis->range().size();
@@ -242,7 +146,8 @@ QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
                 double x = dataContainer.data()->at(j)->key;
                 double y = dataContainer.data()->at(j)->value;
 
-                // Calculate the distance between the clicked position and the data point
+                // Calculate the distance between the
+                // clicked position and the data point
                 double distance = std::hypot(x - clickX, y - clickY);
 
                 // if distance is more than max distance, skip
@@ -255,7 +160,8 @@ QPointF CustomPlot::getClosestPoint(QMouseEvent *event)
                     closestDistance = distance;
                     closestPoint.setX(x);
                     closestPoint.setY(y);
-                    pointFound = true; // Set flag to true indicating a point is found
+                    // Set flag to true indicating a point is found
+                    pointFound = true;
                 }
             }
         }
