@@ -12,6 +12,7 @@
 #include "gui/customplot.h"
 #include <QMainWindow>
 #include "../NeTrainSim/util/map.h"
+#include <any>
 #include <iostream>
 //#include "qtrpt/QtRPT/qtrpt.h"
 #include "simulationworker.h"
@@ -205,6 +206,13 @@ private slots:
      */
     void trainPointDeleted(QPointF selectedPoint);
 
+    void updateTheNodesPlotData();
+
+    void updateTheLinksPlotData();
+
+    void addRowToNewNode();
+
+    void addRowToNewLinks();
 
 public:
 
@@ -275,6 +283,16 @@ public:
      */
     void loadProjectFiles(QString projectFilename);
 
+    void replotHistoryNodes();
+
+    void replotHistoryLinks();
+
+    void forceReplotNodes();
+
+    void forceReplotLinks();
+
+    void loadTrainsDataToTables(
+        Vector<Map<std::string, std::any>> trainsRecords);
 
 private:
     // The user interface
@@ -450,8 +468,7 @@ private:
     * @return A vector of tuples representing the nodes' data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<std::tuple<int, double, double, std::string,
-                      double, double>> getNodesDataFromNodesTable();
+    Vector<Map<string, string> > getNodesDataFromNodesTable();
 
     /**
     * Converts nodes data to plottable format.
@@ -462,8 +479,8 @@ private:
     * @return A tuple of QVector objects representing the x-coordinates, y-coordinates, and labels of the nodes.
     */
     std::tuple<QVector<double>, QVector<double>, QVector<QString>>
-                    getNodesPlottableData(Vector<std::tuple<int, double,
-                                            double, std::string, double, double>>& nodeRecords);
+                    getNodesPlottableData(Vector<Map<std::string,
+                                     std::string>>& nodeRecords);
 
     /**
     * Updates the nodes plot with new data.
@@ -488,10 +505,8 @@ private:
     * @return A vector of tuples representing the links data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, int,
-                      double, double, int, double, bool,
-                      std::string, std::string,
-                      double>> getLinkesDataFromLinksFile(QString fileName);
+    Vector<Map<std::string, std::string>>
+    getLinkesDataFromLinksFile(QString fileName);
 
     /**
     * Retrieves links data from the links table in the UI.
@@ -500,9 +515,7 @@ private:
     * @return A vector of tuples representing the links' data. Each tuple contains the start node ID, end node ID, link type,
     *         length, width, lane count, speed limit, and capacity.
     */
-    Vector<std::tuple<int, int, int, double, int, double, double,
-                      int, double, bool,std::string, std::string,
-                      double>> getLinkesDataFromLinksTable();
+    Vector<Map<std::string, std::string>> getLinkesDataFromLinksTable();
 
     /**
     * Converts links data to plottable format.
@@ -513,11 +526,8 @@ private:
     * @return A tuple of QVector objects representing the start node IDs and end node IDs of the links.
     */
     std::tuple<QVector<QString>, QVector<QString>>
-                    getLinksPlottableData(Vector<std::tuple<int, int, int,
-                                            double, int, double,
-                                            double, int, double, bool,
-                                            std::string, std::string,
-                                            double>> linksRecords);
+                    getLinksPlottableData(Vector<Map<std::string,
+                                     std::string>> linksRecords);
 
     /**
     * Updates the links plot with new data.
@@ -547,8 +557,8 @@ private:
     * @return A vector of tuples representing the nodes data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<std::tuple<int, double, double, std::string, double,
-                      double>> getNodesDataFromNodesFile(QString fileName);
+    Vector<Map<std::string, std::string>>
+    getNodesDataFromNodesFile(QString fileName);
 
     /**
     * Opens a folder browser dialog and updates the specified QLineEdit widget with the selected folder path.
@@ -565,19 +575,12 @@ private:
     * @return A vector of tuples representing the trains data. Each tuple contains the train ID, route nodes, start time,
     *         end time, speed profile, acceleration profile, and whether the train is enabled.
     */
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> getTrainsDataFromTables();
+    Vector<Map<string, std::any>> getTrainsDataFromTables();
 
     /**
     * Initiates the simulation process.
-    * This function starts the simulation based on the selected trains data and updates the UI accordingly.
+    * This function starts the simulation based on the selected trains
+    * data and updates the UI accordingly.
     */
     void simulate();
 
@@ -586,10 +589,40 @@ private:
     *
     * @param plot The QCustomPlot object to search for the label in.
     * @param targetPosition The target position of the label.
-    * @return A pointer to the QCPItemText object representing the label if found, nullptr otherwise.
+    * @return A pointer to the QCPItemText object representing the
+    * label if found, nullptr otherwise.
     */
-    QCPItemText* findLabelByPosition(CustomPlot* plot, const QPointF& targetPosition);
+    QCPItemText* findLabelByPosition(CustomPlot* plot,
+                                     const QPointF& targetPosition);
 
+
+
+    void loadNodesDataToTable(
+        Vector<Map<std::string, std::string>> nodesRecords);
+
+    void loadLinksDataToTable(
+        Vector<Map<std::string, std::string>> linksRecords);
+
+    void loadLocomotivesDataToTable(
+        Vector<Map<std::string, std::any>> trainsRecords);
+
+    void loadCarsDataToTable(
+        Vector<Map<std::string, std::any>> trainsRecords);
+
+    void loadTrainConfigsToTable(
+        Vector<Map<std::string, std::any>> trainsRecords);
+
+    void loadTrainsDataToTable(
+        Vector<Map<std::string, std::any>> trainsRecords);
+
+    void loadConfigsDataToTable(
+        Vector<Map<std::string, std::any>> trainsRecords);
+
+    int getCarIDFromTable(
+        Map<std::string, std::string> carRecords);
+
+    int getLocomotiveIDFromTable(
+        Map<std::string, std::string> locomotiveRecords);
 
 
 protected:

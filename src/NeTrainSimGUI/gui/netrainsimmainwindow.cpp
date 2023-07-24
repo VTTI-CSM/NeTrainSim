@@ -4,7 +4,9 @@
  * Implements the netrainsim class
  */
 #include "netrainsimmainwindow.h"
+#include "gui/comboboxdelegate.h"
 #include "gui/settingswindow.h"
+#include "gui/textboxdelegate.h"
 #include "nonemptydelegate.h"
 #include "simulationworker.h"
 #include "../NeTrainSim/util/csvmanager.h"
@@ -96,7 +98,8 @@ void NeTrainSim::setupGenerals(){
     // ########################################################################
 
     // create a new project and clear the form
-    connect(ui->actionNew_Project, &QAction::triggered, this, &NeTrainSim::clearForm);
+    connect(ui->actionNew_Project, &QAction::triggered, this,
+            &NeTrainSim::clearForm);
 
     // save the project file
     connect(ui->actionSave, &QAction::triggered, [this](){
@@ -110,18 +113,23 @@ void NeTrainSim::setupGenerals(){
 
     // load a project file
     connect(ui->actionOpen_a_project, &QAction::triggered, [this](){
-        QString fname = QFileDialog::getOpenFileName(nullptr, "Open NeTrainSim Project File", "", "NeTrainSim Files (*.NTS)");
+        QString fname = QFileDialog::getOpenFileName(
+            nullptr, "Open NeTrainSim Project File", "",
+            "NeTrainSim Files (*.NTS)");
         this->loadProjectFiles(fname);
     });
 
     // close the application when the exit app is clicked
-    connect(ui->actionExit, &QAction::triggered, this, &NeTrainSim::closeApplication);
+    connect(ui->actionExit, &QAction::triggered, this,
+            &NeTrainSim::closeApplication);
 
     // open the sample project
-    connect(ui->actionLoad_Sample_Project, &QAction::triggered, this, &NeTrainSim::handleSampleProject);
+    connect(ui->actionLoad_Sample_Project, &QAction::triggered,
+            this, &NeTrainSim::handleSampleProject);
 
     // define the next page and simulate buttons
-    QObject::connect(ui->pushButton_projectNext, &QPushButton::clicked, [=]() {
+    QObject::connect(ui->pushButton_projectNext,
+                     &QPushButton::clicked, [=]() {
         // switch to the next tab page if it is not the last page
         int nextIndex = ui->tabWidget_project->currentIndex() + 1;
         if (nextIndex < ui->tabWidget_project->count() - 1) {
@@ -143,7 +151,8 @@ void NeTrainSim::setupGenerals(){
     });
 
     // change next page button text
-    QObject::connect(ui->tabWidget_project, &QTabWidget::currentChanged, [=](int index) {
+    QObject::connect(ui->tabWidget_project,
+                     &QTabWidget::currentChanged, [=](int index) {
         // check if the last tab page is focused and update the button text accordingly
         if (index == ui->tabWidget_project->count() - 2) {
             ui->pushButton_projectNext->setText("Simulate");
@@ -160,35 +169,37 @@ void NeTrainSim::setupGenerals(){
 
     // replot the nodes to all plots if the nodes data has changed
     connect(this, &NeTrainSim::nodesDataChanged, [this]() {
-        this->updateNodesPlot(*(ui->plot_createNetwork), this->nodesXData, this->nodesYData, this->nodesLabelData);
-        this->updateNodesPlot(*(ui->plot_trains), this->nodesXData, this->nodesYData, this->nodesLabelData);
-        //this->updateNodesPlot(*(ui->plot_simulation), this->nodesXData, this->nodesYData, this->nodesLabelData);
+        this->replotHistoryNodes();
     });
 
     // replote the links to all plots if the links data has changed
     connect(this, &NeTrainSim::linksDataChanged, [this]() {
-        this->updateLinksPlot(*(ui->plot_createNetwork), this->linksStartNodeIDs, this->linksEndNodeIDs);
-        this->updateLinksPlot(*(ui->plot_trains), this->linksStartNodeIDs, this->linksEndNodeIDs);
-        this->updateLinksPlot(*(ui->plot_simulation), this->linksStartNodeIDs, this->linksEndNodeIDs);
+        this->replotHistoryLinks();
     });
 
     // show error if tables has only 1 row
-    connect(ui->table_newNodes, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newNodes, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
-    connect(ui->table_newLinks, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newLinks, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
-    connect(ui->table_newLocomotive, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newLocomotive, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
-    connect(ui->table_newCar, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newCar, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
-    connect(ui->table_newConfiguration, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newConfiguration, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
-    connect(ui->table_newTrain, &CustomTableWidget::cannotDeleteRow, [this]() {
+    connect(ui->table_newTrain, &CustomTableWidget::cannotDeleteRow,
+            [this]() {
         this->showWarning("Cannot delete the first row!");
     });
 }
@@ -260,9 +271,13 @@ bool NeTrainSim::saveDefaults(QStringList defaults) {
 
 void NeTrainSim::setupPage1(){
 
+    QList<int> networkWidgetSizes;
+    networkWidgetSizes << 250 << 400;
+    ui->splitter_network->setSizes(networkWidgetSizes);
+
     // make the default show the old network only
     ui->widget_oldNetwork->show();
-    ui->widget_newNetwork->hide();
+    //ui->widget_newNetwork->hide();
 
     // add graphs to the plot
     ui->plot_createNetwork->addGraph();
@@ -274,40 +289,59 @@ void NeTrainSim::setupPage1(){
 
     // get the nodes file
     connect(ui->pushButton_nodes, &QPushButton::clicked, [this]() {
-        nodesFilename = this->browseFiles(ui->lineEdit_nodes, "Select Nodes File");
+        nodesFilename = this->browseFiles(ui->lineEdit_nodes,
+                                          "Select Nodes File");
     });
 
     // get the links file
     connect(ui->pushButton_links, &QPushButton::clicked, [this]() {
-        linksFilename = this->browseFiles(ui->lineEdit_links, "Select Links File");
+        linksFilename = this->browseFiles(ui->lineEdit_links,
+                                          "Select Links File");
     });
 
     // read the nodes file
     connect(ui->lineEdit_nodes, &QLineEdit::textChanged, [this]() {
         auto out = this->getNodesDataFromNodesFile(ui->lineEdit_nodes->text());
-        auto plottableout = this->getNodesPlottableData(out);
-        this->setNodesData(std::get<0>(plottableout),std::get<1>(plottableout), std::get<2>(plottableout));
+        this->loadNodesDataToTable(out);
     });
 
     // read the links file
     connect(ui->lineEdit_links, &QLineEdit::textChanged, [this]() {
         auto out = this->getLinkesDataFromLinksFile(ui->lineEdit_links->text());
-        auto plottableOut = this->getLinksPlottableData(out);
-        this->setLinksData(std::get<0>(plottableOut),std::get<1>(plottableOut));
+        this->loadLinksDataToTable(out);
     });
 
     // save the table nodes to DAT file
     connect(ui->pushButton_saveNewNodes, &QPushButton::clicked, [this](){
-        // Open a file dialog to choose the save location
-        QString saveFilePath = QFileDialog::getSaveFileName(this, "Save Nodes File", QDir::homePath(),  "DAT Files (*.DAT)");
+        if (nodesFilename.isEmpty()) {
+            // Open a file dialog to choose the save location
+            QString saveFilePath =
+                QFileDialog::getSaveFileName(this,
+                                             "Save Nodes File",
+                                             QDir::homePath(),
+                                             "DAT Files (*.DAT)");
 
-        if (!saveFilePath.isEmpty()) {
+            if (!saveFilePath.isEmpty()) {
+                // read the table data
+                auto out = this->getNodesDataFromNodesTable();
+                std::string filename = saveFilePath.toStdString();
+                // write the nodes file
+                if (ReadWriteNetwork::writeNodesFile(out, filename)) {
+                    nodesFilename = saveFilePath;
+                    showNotification("File Saved Successfully");
+                }
+                else {
+                    showWarning("Could not save the file!");
+                }
+            }
+        }
+        else {
             // read the table data
             auto out = this->getNodesDataFromNodesTable();
-            std::string filename = saveFilePath.toStdString();
+            std::string sf = nodesFilename.toStdString();
             // write the nodes file
-            if (ReadWriteNetwork::writeNodesFile(out, filename)) {
-                nodesFilename = saveFilePath;
+            if (ReadWriteNetwork::writeNodesFile(out, sf))
+            {
                 showNotification("File Saved Successfully");
             }
             else {
@@ -318,42 +352,45 @@ void NeTrainSim::setupPage1(){
 
     // save the table links to DAT file
     connect(ui->pushButton_saveNewLinks, &QPushButton::clicked, [this](){
-        // Open a file dialog to choose the save location
-        QString saveFilePath = QFileDialog::getSaveFileName(this, "Save Links File", QDir::homePath(),  "DAT Files (*.DAT)");
+        if (linksFilename.isEmpty()) {
+            // Open a file dialog to choose the save location
+            QString saveFilePath =
+                QFileDialog::getSaveFileName(this,
+                                             "Save Links File",
+                                             QDir::homePath(),
+                                             "DAT Files (*.DAT)");
 
-        if (!saveFilePath.isEmpty()) {
+            if (!saveFilePath.isEmpty()) {
+                // get the links data from table
+                auto out = this->getLinkesDataFromLinksTable();
+                std::string filename = saveFilePath.toStdString();
+                // save the links file
+                if (ReadWriteNetwork::writeLinksFile(out, filename)) {
+                    showNotification("File Saved Successfully");
+                    linksFilename = saveFilePath;
+                }
+                else {
+                    showWarning("Could not save the file!");
+                }
+            }
+        }
+        else {
             // get the links data from table
             auto out = this->getLinkesDataFromLinksTable();
-            std::string filename = saveFilePath.toStdString();
+            std::string sf = linksFilename.toStdString();
             // save the links file
-            if (ReadWriteNetwork::writeLinksFile(out, filename)) {
+            if (ReadWriteNetwork::writeLinksFile(out, sf))
+            {
                 showNotification("File Saved Successfully");
-                linksFilename = saveFilePath;
             }
             else {
                 showWarning("Could not save the file!");
             }
+
         }
+
     });
 
-
-    // connect the stateChanged signal of the QCheckBox object to a slot that will hide or show the layout
-    QObject::connect(ui->checkBox_defineNewNetwork, &QCheckBox::stateChanged, [=](int state) {
-        if (state == Qt::Checked) {
-            // hide the layout if the checkbox is checked
-            ui->widget_oldNetwork->hide();
-            ui->widget_newNetwork->show();
-
-            // clear the lineEdit for nodes and links
-            // this will trigger all the plots to clear their data as well
-            ui->lineEdit_nodes->setText("");
-            ui->lineEdit_links->setText("");
-        } else {
-            // show the layout if the checkbox is unchecked
-            ui->widget_oldNetwork->show();
-            ui->widget_newNetwork->hide();
-        }
-    });
 
 // --------------------------------------------------------------------------
 // ------------------------- Nodes Table ------------------------------------
@@ -362,41 +399,33 @@ void NeTrainSim::setupPage1(){
     // add the first row
     this->setupNodesTable();
 
-    // create a slot to add a new row to the QTableWidget
-    auto addRowToNewNode = [=]() {
-        // check if the last row has been edited
-        if (ui->table_newNodes->currentRow() == ui->table_newNodes->rowCount() - 1) {
-            // add a new row to the QTableWidget
-            int newRow = ui->table_newNodes->rowCount();
-            ui->table_newNodes->insertRow(newRow);
-
-            // set the new id count as default value for the first cell of the new row
-            int uniqueID = ui->table_newNodes->generateUniqueID();
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(uniqueID)));
-            ui->table_newNodes->setItem(newRow, 0, newItemID.release());
-
-            // set the default value for the description cell of the new row
-            std::unique_ptr<QTableWidgetItem> newItemDesc(new QTableWidgetItem("ND"));
-            ui->table_newNodes->setItem(newRow, 3, newItemDesc.release());
-        }
-    };
-
-    // update the nodes plot everytime u edit the nodes table
-     auto updatetheNodesPlot = [=]() {
-        auto out = this->getNodesDataFromNodesTable();
-        auto plottableOut = this->getNodesPlottableData(out);
-        // update the plotted data
-        this->setNodesData(std::get<0>(plottableOut), std::get<1>(plottableOut), std::get<2>(plottableOut));
-    };
-
     // connect the cellChanged signals of the QTableWidget to the updatePlot slot
-    QObject::connect(ui->table_newNodes, &QTableWidget::cellChanged, updatetheNodesPlot);
-    QObject::connect(ui->doubleSpinBox_xCoordinate, &QDoubleSpinBox::valueChanged, updatetheNodesPlot);
-    QObject::connect(ui->doubleSpinBox_yCoordinate, &QDoubleSpinBox::valueChanged, updatetheNodesPlot);
+    QObject::connect(ui->table_newNodes,
+                     &QTableWidget::cellChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
+    QObject::connect(ui->doubleSpinBox_xCoordinate,
+                     &QDoubleSpinBox::valueChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
+    QObject::connect(ui->doubleSpinBox_yCoordinate,
+                     &QDoubleSpinBox::valueChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
 
     // connect the cellChanged signal of the QTableWidget to the addRow slot
-    QObject::connect(ui->table_newNodes, &QTableWidget::cellChanged, addRowToNewNode);
-    //QObject::connect(ui->table_newNodes, &QTableWidget::keyPressEvent, deleteRow);
+    QObject::connect(ui->table_newNodes,
+                     &QTableWidget::cellChanged, this,
+                     &NeTrainSim::addRowToNewNode);
+
+    connect(ui->table_newNodes, &CustomTableWidget::tableCleared,
+            [=](){
+                this->addRowToNewNode();
+                ui->lineEdit_nodes->setText("");
+                nodesFilename = "";
+                this->networkNodes.clear();
+                nodesXData.clear();
+                nodesYData.clear();
+                nodesLabelData.clear();
+            }
+            );
 
 // --------------------------------------------------------------------------
 // ------------------------- Links Table ------------------------------------
@@ -405,36 +434,108 @@ void NeTrainSim::setupPage1(){
     // add the first row
     this->setupLinksTable();
 
-    // create a slot to add a new row to the QTableWidget
-    auto addRowToNewLinks = [=]() {
-        // check if the last row has been edited
-        if (ui->table_newLinks->currentRow() == ui->table_newLinks->rowCount() - 1) {
-            // add a new row to the QTableWidget
-            int newRow = ui->table_newLinks->rowCount();
-            ui->table_newLinks->insertRow(newRow);
-
-            // set the new id count as default value for the first cell of the new row
-            int uniqueID = ui->table_newLinks->generateUniqueID();
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(uniqueID)));
-            ui->table_newLinks->setItem(newRow, 0, newItemID.release());
-
-            ui->table_newLinks->setupTable();
-        }
-    };
     // add a row to the links table everytime you edit the last row cell
-    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged, addRowToNewLinks);
+    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged,
+                     this, &NeTrainSim::addRowToNewLinks);
 
+    // connect the cellChanged signal of the QTableWidget to
+    // the updatePlot slot
+    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged,
+                     this, &NeTrainSim::updateTheLinksPlotData);
 
-    // update the links data for the plot
-    auto updateLinksPlot = [=]() {
-        auto out = this->getLinkesDataFromLinksTable();
-        auto plottableOut = this->getLinksPlottableData(out);
-        this->setLinksData(std::get<0>(plottableOut), std::get<1>(plottableOut));
-    };
+    QObject::connect(ui->table_newLinks, &CustomTableWidget::tableCleared,
+            [=](){
+                this->addRowToNewLinks();
+                ui->lineEdit_links->setText("");
+                linksFilename = "";
+                linksStartNodeIDs.clear();
+                linksEndNodeIDs.clear();
+            }
+            );
 
-    // connect the cellChanged signal of the QTableWidget to the updatePlot slot
-    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged, updateLinksPlot);
+}
 
+// create a slot to add a new row to the QTableWidget
+void NeTrainSim::addRowToNewNode() {
+    // check if the last row has been edited
+    if (ui->table_newNodes->currentRow() ==
+        ui->table_newNodes->rowCount() - 1) {
+        // add a new row to the QTableWidget
+        int newRow = ui->table_newNodes->rowCount();
+        ui->table_newNodes->insertRow(newRow);
+
+        // set the new id count as default value for the first
+        // cell of the new row
+        int uniqueID = ui->table_newNodes->generateUniqueID();
+        std::unique_ptr<QTableWidgetItem> newItemID(
+            new QTableWidgetItem(QString::number(uniqueID)));
+        ui->table_newNodes->setItem(newRow, 0, newItemID.release());
+
+    }
+};
+
+// create a slot to add a new row to the QTableWidget
+void NeTrainSim::addRowToNewLinks() {
+    // check if the last row has been edited
+    if (ui->table_newLinks->currentRow() ==
+        ui->table_newLinks->rowCount() - 1) {
+        // add a new row to the QTableWidget
+        int newRow = ui->table_newLinks->rowCount();
+        ui->table_newLinks->insertRow(newRow);
+
+        // set the new id count as default value for the first
+        // cell of the new row
+        int uniqueID = ui->table_newLinks->generateUniqueID();
+        std::unique_ptr<QTableWidgetItem> newItemID(
+            new QTableWidgetItem(QString::number(uniqueID)));
+        ui->table_newLinks->setItem(newRow, 0, newItemID.release());
+
+        ui->table_newLinks->setupTable();
+    }
+};
+
+void NeTrainSim::updateTheNodesPlotData() {
+    auto out = this->getNodesDataFromNodesTable();
+    auto plottableOut = this->getNodesPlottableData(out);
+    // update the plotted data
+    this->setNodesData(std::get<0>(plottableOut),
+                       std::get<1>(plottableOut),
+                       std::get<2>(plottableOut));
+}
+
+// update the links data for the plot
+void NeTrainSim::updateTheLinksPlotData() {
+    auto out = this->getLinkesDataFromLinksTable();
+    auto plottableOut = this->getLinksPlottableData(out);
+    this->setLinksData(std::get<0>(plottableOut),
+                       std::get<1>(plottableOut));
+};
+
+void NeTrainSim::replotHistoryNodes() {
+    this->updateNodesPlot(*(ui->plot_createNetwork), this->nodesXData,
+                          this->nodesYData, this->nodesLabelData);
+    this->updateNodesPlot(*(ui->plot_trains), this->nodesXData,
+                          this->nodesYData, this->nodesLabelData);
+}
+
+void NeTrainSim::replotHistoryLinks() {
+    this->updateLinksPlot(*(ui->plot_createNetwork),
+                          this->linksStartNodeIDs,
+                          this->linksEndNodeIDs);
+    this->updateLinksPlot(*(ui->plot_trains),
+                          this->linksStartNodeIDs, this->linksEndNodeIDs);
+    this->updateLinksPlot(*(ui->plot_simulation),
+                          this->linksStartNodeIDs, this->linksEndNodeIDs);
+}
+
+void NeTrainSim::forceReplotNodes() {
+    this->updateTheNodesPlotData();
+    this->replotHistoryNodes();
+}
+
+void NeTrainSim::forceReplotLinks() {
+    this->updateTheLinksPlotData();
+    this->replotHistoryLinks();
 }
 
 
@@ -445,28 +546,51 @@ void NeTrainSim::setupPage2(){
 
     // show the layout as a default
     ui->widget_oldTrainOD->show();
-    ui->widget_newTrainOD->hide();
+
+    ui->plot_trains->addGraph();
+    ui->plot_trains->addGraph();
+    QObject::connect(ui->plot_trains,
+                     &CustomPlot::pointLeftSelected,
+                     this, &NeTrainSim::trainPointSelected);
+    QObject::connect(ui->plot_trains,
+                     &CustomPlot::pointRightSelected,
+                     this, &NeTrainSim::trainPointDeleted);
+    this->updateNodesPlot(*(ui->plot_trains),
+                          this->nodesXData,
+                          this->nodesYData,
+                          this->nodesLabelData);
+    this->updateLinksPlot(*(ui->plot_trains),
+                          this->linksStartNodeIDs,
+                          this->linksEndNodeIDs);
+
+
+    //ui->widget_newTrainOD->hide();
 
     // get the trains file
     connect(ui->pushButton_trains, &QPushButton::clicked, [this]() {
-        trainsFilename = this->browseFiles(ui->lineEdit_trains, "Select Trains File");
+        trainsFilename = this->browseFiles(ui->lineEdit_trains,
+                                           "Select Trains File");
+    });
+
+    connect(ui->lineEdit_trains, &QLineEdit::textChanged,
+            [=](const QString& file)
+            {
+                std::string filename = file.toStdString();
+                auto out = TrainsList::readTrainsFile(filename);
+                this->loadTrainsDataToTables(out);
     });
 
     // write the trains file
     connect(ui->pushButton_saveNewTrains, &QPushButton::clicked, [this](){
         // Open a file dialog to choose the save location
-        QString saveFilePath = QFileDialog::getSaveFileName(this, "Save Trains File", QDir::homePath(), "DAT Files (*.DAT)");
+        QString saveFilePath =
+            QFileDialog::getSaveFileName(this,
+                                         "Save Trains File",
+                                         QDir::homePath(),
+                                         "DAT Files (*.DAT)");
 
         if (!saveFilePath.isEmpty()) {
-            Vector<std::tuple<std::string, Vector<int>, double, double,
-                              Vector<std::tuple<
-                                  int, double, double,
-                                  int, double, double,
-                                  double, double, int>>,
-                              Vector<std::tuple<int, int, double, double,
-                                                double, double,
-                                                double, int>>,
-                              bool>> out;
+            Vector<Map<std::string, std::any>> out;
             try {
                 out = this->getTrainsDataFromTables();
             } catch (const std::exception& e) {
@@ -486,32 +610,6 @@ void NeTrainSim::setupPage2(){
     });
 
 
-    ui->verticalSpacer_train->changeSize(0,0, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // connect the stateChanged signal of the QCheckBox object to a slot that will hide or show the layout
-    QObject::connect(ui->checkBox_TrainsOD, &QCheckBox::stateChanged, [=](int state) {
-        if (state == Qt::Checked) {
-            // hide the layout if the checkbox is checked
-            ui->widget_oldTrainOD->hide();
-            ui->widget_newTrainOD->show();
-            ui->verticalSpacer_train->changeSize(20,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
-            ui->plot_trains->addGraph();
-            ui->plot_trains->addGraph();
-            QObject::connect(ui->plot_trains, &CustomPlot::pointLeftSelected, this, &NeTrainSim::trainPointSelected);
-            QObject::connect(ui->plot_trains, &CustomPlot::pointRightSelected, this, &NeTrainSim::trainPointDeleted);
-            this->updateNodesPlot(*(ui->plot_trains), this->nodesXData, this->nodesYData, this->nodesLabelData);
-            this->updateLinksPlot(*(ui->plot_trains), this->linksStartNodeIDs, this->linksEndNodeIDs);
-        } else {
-            // show the layout if the checkbox is unchecked
-            ui->widget_oldTrainOD->show();
-            ui->widget_newTrainOD->hide();
-            ui->verticalSpacer_train->changeSize(20,0, QSizePolicy::Expanding, QSizePolicy::Expanding);
-            if (ui->plot_trains->graphCount() > 0){
-                ui->plot_trains->removeGraph(0);
-            }
-        }
-    });
-
-
 // --------------------------------------------------------------------------
 // ---------------------- Locomotives Table ---------------------------------
 // --------------------------------------------------------------------------
@@ -523,27 +621,29 @@ void NeTrainSim::setupPage2(){
     // create a slot to add a new row to the QTableWidget
     auto addRowToNewLocomotives = [=]() {
         // check if the last row has been edited
-        if (ui->table_newLocomotive->currentRow() == ui->table_newLocomotive->rowCount() - 1) {
+        if (ui->table_newLocomotive->currentRow() ==
+            ui->table_newLocomotive->rowCount() - 1) {
             // add a new row to the QTableWidget
             int newRow = ui->table_newLocomotive->rowCount();
             ui->table_newLocomotive->insertRow(newRow);
 
-            // set the new id count as default value for the first cell of the new row
+            // set the new id count as default value for the first
+            // cell of the new row
             int uniqueID = ui->table_newLocomotive->generateUniqueID();
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(uniqueID)));
+            std::unique_ptr<QTableWidgetItem> newItemID(
+                new QTableWidgetItem(QString::number(uniqueID)));
             ui->table_newLocomotive->setItem(newRow, 0, newItemID.release());
 
-            // Create a new combobox and set it as the item in the last column of the new row
-            QComboBox* comboBox_locomotives_newRow = new QComboBox;
-            // Add items to the combobox
-            for (auto locType: TrainTypes::powerTypeStrings) {
-                comboBox_locomotives_newRow->addItem(QString::fromStdString(Utils::removeLastWord(locType)));
-            }
-            ui->table_newLocomotive->setCellWidget(newRow, ui->table_newLocomotive->columnCount() - 1, comboBox_locomotives_newRow);
         }
     };
     // add a new row everytime the last row cells are edited
-    QObject::connect(ui->table_newLocomotive, &QTableWidget::cellChanged, addRowToNewLocomotives);
+    QObject::connect(ui->table_newLocomotive,
+                     &QTableWidget::cellChanged,
+                     addRowToNewLocomotives);
+
+    QObject::connect(ui->table_newLocomotive,
+                     &CustomTableWidget::tableCleared,
+                     addRowToNewLocomotives);
 
 
 // --------------------------------------------------------------------------
@@ -556,27 +656,27 @@ void NeTrainSim::setupPage2(){
     // create a slot to add a new row to the QTableWidget
     auto addRowToNewCars = [=]() {
         // check if the last row has been edited
-        if (ui->table_newCar->currentRow() == ui->table_newCar->rowCount() - 1) {
+        if (ui->table_newCar->currentRow() ==
+            ui->table_newCar->rowCount() - 1) {
             // add a new row to the QTableWidget
             int newRow = ui->table_newCar->rowCount();
             ui->table_newCar->insertRow(newRow);
 
-            // set the new id count as default value for the first cell of the new row
+            // set the new id count as default value for the
+            // first cell of the new row
             int uniqueID = ui->table_newCar->generateUniqueID();
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(uniqueID)));
+            std::unique_ptr<QTableWidgetItem> newItemID(
+                new QTableWidgetItem(QString::number(uniqueID)));
             ui->table_newCar->setItem(newRow, 0, newItemID.release());
-
-            // Create a new combobox and set it as the item in the last column of the new row
-            QComboBox* comboBoxcomboBox_cars_newRow = new QComboBox;
-            // Add items to the combobox
-            for (auto carType: TrainTypes::carTypeStrings) {
-                comboBoxcomboBox_cars_newRow->addItem(QString::fromStdString(carType));
-            }
-            ui->table_newCar->setCellWidget(newRow, ui->table_newCar->columnCount() - 1, comboBoxcomboBox_cars_newRow);
         }
     };
     // add a new row everytime the last row cells are edited
-    QObject::connect(ui->table_newCar, &QTableWidget::cellChanged, addRowToNewCars);
+    QObject::connect(ui->table_newCar, &QTableWidget::cellChanged,
+                     addRowToNewCars);
+
+    QObject::connect(ui->table_newCar,
+                     &CustomTableWidget::tableCleared,
+                     addRowToNewCars);
 
 // --------------------------------------------------------------------------
 // --------------------- Configurations Table -------------------------------
@@ -587,32 +687,26 @@ void NeTrainSim::setupPage2(){
     // create a slot to add a new row to the QTableWidget
     auto addRowToNewConfig = [=]() {
         // check if the last row has been edited
-        if (ui->table_newConfiguration->currentRow() == ui->table_newConfiguration->rowCount() - 1) {
+        if (ui->table_newConfiguration->currentRow() ==
+            ui->table_newConfiguration->rowCount() - 1) {
             // add a new row to the QTableWidget
             int newRow = ui->table_newConfiguration->rowCount();
             ui->table_newConfiguration->insertRow(newRow);
 
-            // set the new id count as default value for the first cell of the new row
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(0)));
+            // set the new id count as default value for the
+            // first cell of the new row
+            std::unique_ptr<QTableWidgetItem> newItemID(
+                new QTableWidgetItem(QString::number(1)));
             ui->table_newConfiguration->setItem(newRow, 0, newItemID.release());
-
-            // Create a new combobox and set it as the item in the last column of the new row
-            QComboBox* comboBoxcomboBox_config_newRow = new QComboBox;
-            // Add items to the combobox
-            comboBoxcomboBox_config_newRow->addItem("Locomotive");
-            comboBoxcomboBox_config_newRow->addItem("Car");
-            ui->table_newConfiguration->setCellWidget(newRow, 1, comboBoxcomboBox_config_newRow);
-
-            // create a spinbox for the number of instances
-            QSpinBox* spinBox_config_instances_newRow = new QSpinBox;
-            spinBox_config_instances_newRow->setMinimum(1);
-            spinBox_config_instances_newRow->setSingleStep(1);
-            ui->table_newConfiguration->setCellWidget(newRow, 3, spinBox_config_instances_newRow);
         }
     };
 
     // add a new row everytime the last row cells are edited
-    QObject::connect(ui->table_newConfiguration, &QTableWidget::cellChanged, addRowToNewConfig);
+    QObject::connect(ui->table_newConfiguration,
+                     &QTableWidget::cellChanged, addRowToNewConfig);
+    QObject::connect(ui->table_newConfiguration,
+                     &CustomTableWidget::tableCleared,
+                     addRowToNewConfig);
 
 
 // --------------------------------------------------------------------------
@@ -620,32 +714,46 @@ void NeTrainSim::setupPage2(){
 // --------------------------------------------------------------------------
 
 
-    QObject::connect(ui->table_newTrain, &QTableWidget::cellChanged, this, &NeTrainSim::updateCombo_visualizeTrains);
+    QObject::connect(ui->table_newTrain, &QTableWidget::cellChanged,
+                     this, &NeTrainSim::updateCombo_visualizeTrains);
 
     this->setupTrainsTable();
 
     // create a slot to add a new row to the QTableWidget
     auto addRowToNewTrain = [=]() {
         // check if the last row has been edited
-        if (ui->table_newTrain->currentRow() == ui->table_newTrain->rowCount() - 1) {
+        if (ui->table_newTrain->currentRow() ==
+            ui->table_newTrain->rowCount() - 1) {
             // add a new row to the QTableWidget
             int newRow = ui->table_newTrain->rowCount();
             ui->table_newTrain->insertRow(newRow);
 
-            // set the new id count as default value for the first cell of the new row
+            // set the new id count as default value for the first
+            // cell of the new row
             int uniqueID = ui->table_newTrain->generateUniqueID();
-            std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(uniqueID)));
+            std::unique_ptr<QTableWidgetItem> newItemID(
+                new QTableWidgetItem(QString::number(uniqueID)));
             ui->table_newTrain->setItem(newRow, 0, newItemID.release());
 
         }
     };
     // add a new row everytime the last row cells are edited
-    QObject::connect(ui->table_newTrain, &QTableWidget::cellChanged, addRowToNewTrain);
+    QObject::connect(ui->table_newTrain, &QTableWidget::cellChanged,
+                     addRowToNewTrain);
+
+    QObject::connect(ui->table_newTrain,
+                     &CustomTableWidget::tableCleared,
+                     addRowToNewTrain);
 
 }
 
 
 void NeTrainSim::setupPage3(){
+
+    QList<int> simulatorWidgetSizes;
+    simulatorWidgetSizes << 229 << 700;
+    ui->splitter_simulator->setSizes(simulatorWidgetSizes);
+
     // disable viewing the axies
     ui->plot_simulation->xAxis->setVisible(false);
     ui->plot_simulation->yAxis->setVisible(false);
@@ -667,7 +775,8 @@ void NeTrainSim::setupPage3(){
     });
 
     connect(ui->checkBox_exportTrajectory, &QCheckBox::stateChanged, [this]() {
-        ui->horizontalWidget_TrajFile->setVisible(ui->checkBox_exportTrajectory->checkState() == Qt::Checked);
+        ui->horizontalWidget_TrajFile->setVisible(
+            ui->checkBox_exportTrajectory->checkState() == Qt::Checked);
     });
 
 }
@@ -689,54 +798,72 @@ void NeTrainSim::trainPointSelected(QPointF selectedPoint) {
 
                 // Iterate over the table rows
                 for (int i = 0; i < ui->table_newTrain->rowCount(); i++) {
-                    // Check if the cell at column 0 exists, otherwise skip to the next row
+                    // Check if the cell at column 0 exists,
+                    // otherwise skip to the next row
                     if (!ui->table_newTrain->item(i, 0)) {
                         continue;
                     }
 
-                    // Check if the row corresponds to the currently selected item in the combo box
-                    if (ui->table_newTrain->item(i, 0)->text().trimmed() == ui->combo_visualizeTrain->currentText()) {
+                    // Check if the row corresponds to the currently
+                    // selected item in the combo box
+                    if (ui->table_newTrain->item(i, 0)->text().trimmed() ==
+                        ui->combo_visualizeTrain->currentText()) {
                         // Check if the cell at column 2 exists
                         if (ui->table_newTrain->item(i, 2)) {
                             // Get the existing value in the table cell
-                            QString alreadyThere = ui->table_newTrain->item(i, 2)->text();
+                            QString alreadyThere =
+                                ui->table_newTrain->item(i, 2)->text();
 
-                            // Split the existing value into parts using comma as the delimiter
+                            // Split the existing value into parts
+                            // using comma as the delimiter
                             QStringList parts = alreadyThere.split(",");
 
                             // Get the value to be added
                             QString newValue = record.first;
 
-                            // Check if the parts list does not contain the value
+                            // Check if the parts list does not contain
+                            // the value
                             if (!parts.contains(newValue)) {
                                 // Append the value to the existing value
                                 parts.push_back(newValue);
                                 alreadyThere = parts.join(',');
 
                                 // Show the selected point ID on the plot
-                                QCPItemText *label = new QCPItemText(ui->plot_trains);
-                                label->setPositionAlignment(Qt::AlignLeft|Qt::AlignBottom);
-                                label->position->setType(QCPItemPosition::ptPlotCoords);
-                                label->position->setCoords(record.second.first, record.second.second);
-                                label->setText(QString("Point %1").arg(record.first));
+                                QCPItemText *label =
+                                    new QCPItemText(ui->plot_trains);
+                                label->setPositionAlignment(
+                                    Qt::AlignLeft|Qt::AlignBottom);
+                                label->position->setType(
+                                    QCPItemPosition::ptPlotCoords);
+                                label->position->setCoords(
+                                    record.second.first, record.second.second);
+                                label->setText(
+                                    QString("Point %1").arg(record.first));
                                 label->setFont(QFont(font().family(), 10));
                                 label->setPen(QPen(Qt::NoPen));
 
                             }
 
                             // Update the table cell with the modified string
-                            ui->table_newTrain->item(i, 2)->setText(alreadyThere);
+                            ui->table_newTrain->item(i, 2)->setText(
+                                alreadyThere);
                         } else {
                             // Create a new QTableWidgetItem with the value
-                            QTableWidgetItem* item = new QTableWidgetItem(record.first);
+                            QTableWidgetItem* item =
+                                new QTableWidgetItem(record.first);
                             ui->table_newTrain->setItem(i, 2, item);
 
                             // Show the selected point ID on the plot
-                            QCPItemText *label = new QCPItemText(ui->plot_trains);
-                            label->setPositionAlignment(Qt::AlignLeft|Qt::AlignBottom);
-                            label->position->setType(QCPItemPosition::ptPlotCoords);
-                            label->position->setCoords(record.second.first, record.second.second);
-                            label->setText(QString("Point %1").arg(record.first));
+                            QCPItemText *label =
+                                new QCPItemText(ui->plot_trains);
+                            label->setPositionAlignment(
+                                Qt::AlignLeft|Qt::AlignBottom);
+                            label->position->setType(
+                                QCPItemPosition::ptPlotCoords);
+                            label->position->setCoords(
+                                record.second.first, record.second.second);
+                            label->setText(
+                                QString("Point %1").arg(record.first));
                             label->setFont(QFont(font().family(), 10));
                             label->setPen(QPen(Qt::NoPen));
                         }
@@ -767,23 +894,29 @@ void NeTrainSim::trainPointDeleted(QPointF selectedPoint) {
 
                 // Iterate over the table rows
                 for (int i = 0; i < ui->table_newTrain->rowCount(); i++) {
-                    // Check if the row corresponds to the currently selected item in the combo box
-                    if (ui->table_newTrain->item(i, 0)->text().trimmed() == ui->combo_visualizeTrain->currentText()) {
+                    // Check if the row corresponds to the currently
+                    // selected item in the combo box
+                    if (ui->table_newTrain->item(i, 0)->text().trimmed() ==
+                        ui->combo_visualizeTrain->currentText()) {
                         // Get the existing value in the table cell
-                        QString alreadyThere = ui->table_newTrain->item(i, 2)->text();
+                        QString alreadyThere =
+                            ui->table_newTrain->item(i, 2)->text();
 
-                        // Split the existing value into parts using comma as the delimiter
+                        // Split the existing value into parts
+                        // using comma as the delimiter
                         QStringList parts = alreadyThere.split(",");
 
                         // Get the value to be removed
                         QString oldValue = record.first;
 
-                        // Check if the parts list contains the value to be removed
+                        // Check if the parts list contains the
+                        // value to be removed
                         if (parts.contains(oldValue)) {
                             // Remove the value from the parts list
                             parts.removeOne(oldValue);
 
-                            // Reconstruct the string by joining the remaining parts with commas
+                            // Reconstruct the string by joining the
+                            // remaining parts with commas
                             alreadyThere = parts.join(",");
                         }
 
@@ -805,7 +938,8 @@ void NeTrainSim::updateCombo_visualizeTrains() {
     // Clear the current items in the combobox
     ui->combo_visualizeTrain->clear();
 
-    // Iterate through each row in the table and add the column value to the combobox
+    // Iterate through each row in the table and add the column
+    // value to the combobox
     for (int row = 0; row < ui->table_newTrain->rowCount(); ++row) {
         QTableWidgetItem* item = ui->table_newTrain->item(row, 0);
         if (item) {
@@ -813,14 +947,16 @@ void NeTrainSim::updateCombo_visualizeTrains() {
         }
     }
 
-    connect(ui->combo_visualizeTrain, &QComboBox::currentIndexChanged, [this](){
+    connect(ui->combo_visualizeTrain,
+            &QComboBox::currentIndexChanged, [this](){
         // remove all labels in the plot of the old train
         // Iterate over the items in the plot
         for (int i = 0; i < ui->plot_trains->itemCount(); ++i) {
             QCPAbstractItem* abstractItem = ui->plot_trains->item(i);
 
             // Check if the item is a QCPItemText
-            if (QCPItemText* label = qobject_cast<QCPItemText*>(abstractItem)) {
+            if (QCPItemText* label = qobject_cast<QCPItemText*>(abstractItem))
+            {
                 ui->plot_trains->removeItem(label);
             }
         }
@@ -828,14 +964,18 @@ void NeTrainSim::updateCombo_visualizeTrains() {
         // add already selected nodes to the plot
         for (int i = 0; i < ui->table_newTrain->rowCount(); i++) {
             if (ui->combo_visualizeTrain->count() == 0) { continue; }
-            // Check if the row corresponds to the currently selected item in the combo box
-            if (ui->table_newTrain->item(i, 0)->text().trimmed() == ui->combo_visualizeTrain->currentText()) {
+            // Check if the row corresponds to the currently selected
+            // item in the combo box
+            if (ui->table_newTrain->item(i, 0)->text().trimmed() ==
+                    ui->combo_visualizeTrain->currentText()) {
                 // Check if the cell at column 2 exists
                 if (ui->table_newTrain->item(i, 2)) {
                     // Get the existing value in the table cell
-                    QString alreadyThere = ui->table_newTrain->item(i, 2)->text();
+                    QString alreadyThere =
+                        ui->table_newTrain->item(i, 2)->text();
 
-                    // Split the existing value into parts using comma as the delimiter
+                    // Split the existing value into parts using comma
+                    // as the delimiter
                     QStringList parts = alreadyThere.split(",");
 
                     for (const auto &nodeID: parts) {
@@ -843,7 +983,8 @@ void NeTrainSim::updateCombo_visualizeTrains() {
                         auto record = this->networkNodes[nodeID];
                         // Show the selected point ID on the plot
                         QCPItemText *label = new QCPItemText(ui->plot_trains);
-                        label->setPositionAlignment(Qt::AlignLeft|Qt::AlignBottom);
+                        label->setPositionAlignment(
+                            Qt::AlignLeft|Qt::AlignBottom);
                         label->position->setType(QCPItemPosition::ptPlotCoords);
                         label->position->setCoords(record.first, record.second);
                         label->setText(QString("Point %1").arg(nodeID));
@@ -864,122 +1005,383 @@ void NeTrainSim::updateCombo_visualizeTrains() {
 
 void NeTrainSim::setupNodesTable() {
     // add the delegates to the nodes columns
-    ui->table_newNodes->setItemDelegateForColumn(0, new NonEmptyDelegate(this));
-    ui->table_newNodes->setItemDelegateForColumn(1, new NumericDelegate(this, 9999999999999999.999, -9999999999999999.999,3, 1, 0.0));
-    ui->table_newNodes->setItemDelegateForColumn(2, new NumericDelegate(this, 9999999999999999.999, -9999999999999999.999,3, 1, 0.0));
+    // ID
+    ui->table_newNodes->setItemDelegateForColumn(0,
+                                                 new NonEmptyDelegate("ID", this));
+    QString IDToolTip = "A numerical identifier that is unique to each Node. "
+                        "This number begins from 0 and extends indefinitely";
+    ui->table_newNodes->horizontalHeaderItem(0)->setToolTip(IDToolTip);
+
+    ui->table_newNodes->
+        setItemDelegateForColumn(1,
+                                 new NumericDelegate(this,
+                                                     9999999999999999.999,
+                                                     -9999999999999999.999,3,
+                                                     1, 0.0));
+    QString xToolTip = "Specifies the X-value of the Node Coordinate.";
+    ui->table_newNodes->horizontalHeaderItem(1)->setToolTip(xToolTip);
+
+    ui->table_newNodes->
+        setItemDelegateForColumn(2,
+                                 new NumericDelegate(this,
+                                                     9999999999999999.999,
+                                                     -9999999999999999.999,3,
+                                                     1, 0.0));
+    QString yToolTip = "Specifies the Y-value of the Node Coordinate.";
+    ui->table_newNodes->horizontalHeaderItem(2)->setToolTip(yToolTip);
 
     // ---------- insert a new row to nodes ----------
     ui->table_newNodes->insertRow(0);
     // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(0)));
+    std::unique_ptr<QTableWidgetItem> newItemID(
+        new QTableWidgetItem(QString::number(1)));
     ui->table_newNodes->setItem(0, 0, newItemID.release());
-    // set the default value for the description cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemDesc(new QTableWidgetItem("ND"));
-    ui->table_newNodes->setItem(0, 3, newItemDesc.release());
+
+    ui->table_newNodes->setItemDelegateForColumn(
+        3, new TextBoxDelegate(this, "Not Defined"));
+
+    QString descToolTip = "A brief overview or explanation "
+                          "regarding the specific Node.";
+    ui->table_newNodes->horizontalHeaderItem(3)->setToolTip(descToolTip);
 }
 
 void NeTrainSim::setupLinksTable() {
     // add the delegates to the links columns
-    ui->table_newLinks->setItemDelegateForColumn(0, new NonEmptyDelegate(this));
-    ui->table_newLinks->setItemDelegateForColumn(1, new IntNumericDelegate(this, 100000000000, 0, 1, 0));
-    ui->table_newLinks->setItemDelegateForColumn(2, new IntNumericDelegate(this, 100000000000, 0, 1, 0));
-    ui->table_newLinks->setItemDelegateForColumn(3, new NumericDelegate(this, 150, 5, 2, 5, 55));
-    ui->table_newLinks->setItemDelegateForColumn(4, new IntNumericDelegate(this, 10000000000, 0, 1, 0));
-    ui->table_newLinks->setItemDelegateForColumn(6, new NumericDelegate(this, 5, -5, 3, 0.05, 0));
-    ui->table_newLinks->setItemDelegateForColumn(7, new NumericDelegate(this, 5, -5, 3, 0.05, 0));
-    ui->table_newLinks->setItemDelegateForColumn(8, new CheckboxDelegate(this));
-    ui->table_newLinks->setItemDelegateForColumn(9, new NumericDelegate(this, 1, 0, 2, 0.05, 0.2));
-    ui->table_newLinks->setItemDelegateForColumn(10, new CheckboxDelegate(this));
+    ui->table_newLinks->
+        setItemDelegateForColumn(0, new NonEmptyDelegate("ID", this));
+    QString IDToolTip = "A unique numerical identifier assigned to "
+                        "each link, ranging from 0 to infinity.";
+    ui->table_newLinks->horizontalHeaderItem(0)->setToolTip(IDToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(1,
+                                 new IntNumericDelegate(this,
+                                                        100000000000, 0, 1, 0));
+    QString fromToolTip = "Indicates the first node ID associated "
+                          "with that particular link.";
+    ui->table_newLinks->horizontalHeaderItem(1)->setToolTip(fromToolTip);
+
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(2,
+                                 new IntNumericDelegate(this,
+                                                        100000000000, 0, 1, 0));
+    QString toToolTip = "Indicates the last node ID associated "
+                          "with that particular link.";
+    ui->table_newLinks->horizontalHeaderItem(2)->setToolTip(toToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(3,
+                                 new NumericDelegate(this,
+                                                     9999999999999999.99999,
+                                                     0.001, 3, 1, 10.0));
+    QString lengthToolTip = "Indicates the length of the link.";
+    ui->table_newLinks->horizontalHeaderItem(3)->setToolTip(lengthToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(4,
+                                 new NumericDelegate(this,
+                                                     150, 5, 2, 5, 35.0));
+    QString freeSpeedToolTip = "Indicates the maximum speed at which a "
+                        "train can traverse on a given link.";
+    ui->table_newLinks->horizontalHeaderItem(4)->setToolTip(freeSpeedToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(5,
+                                 new IntNumericDelegate(this,
+                                                        10000000000, 0, 1, 1));
+    QString signalToolTip = "Identifies a unique signal placed at "
+                            "the termination of each link.";
+    ui->table_newLinks->horizontalHeaderItem(5)->setToolTip(signalToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(6,
+                                 new TextBoxDelegate(this, "1,2"));
+    QString signalLocToolTip = "Designates the node at which a "
+                               "signal is to be positioned. "
+                               "This node number "
+                               "should match either the 'From node' "
+                               "or 'To Node', or both separated by "
+                               "a comma.";
+    ui->table_newLinks->horizontalHeaderItem(6)->setToolTip(signalLocToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(7,
+                                 new NumericDelegate(this, 5, -5, 3,
+                                                     0.05, 0.0));
+    QString gradeToolTip = "Represents the incline or decline grade "
+                           "of the link, denoted as a percentage "
+                           "without the percentage sign.";
+    ui->table_newLinks->horizontalHeaderItem(7)->setToolTip(gradeToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(8,
+                                 new NumericDelegate(this, 5, -5, 3,
+                                                     0.05, 0.0));
+    QString curvToolTip = "Represents the curvature degree of the "
+                          "link, denoted as a percentage without "
+                          "the percentage sign.";
+    ui->table_newLinks->horizontalHeaderItem(8)->setToolTip(curvToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(9,
+                                 new CheckboxDelegate(this));
+    QString dirToolTip = "Represents the directionality of the link. "
+                         "tick to indicate a one-way link, "
+                         "untick to indicate a two-way link.";
+    ui->table_newLinks->horizontalHeaderItem(9)->setToolTip(dirToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(10,
+                                 new NumericDelegate(this, 1, 0, 2, 0.05, 0.2));
+    QString varToolTip = "Represents the variation in max free flow speed.";
+    ui->table_newLinks->horizontalHeaderItem(10)->setToolTip(varToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(11,
+                                 new CheckboxDelegate(this));
+    QString catenToolTip = "A value of '0' signifies that a link does "
+                           "not incorporate a catenary, whereas '1' "
+                           "denotes the presence of a catenary.";
+    ui->table_newLinks->horizontalHeaderItem(11)->setToolTip(catenToolTip);
+
+    ui->table_newLinks->
+        setItemDelegateForColumn(12,
+                                 new TextBoxDelegate(this, "Not Defined"));
+    QString regionToolTip = "Defines the region to which the link "
+                            "is associated.";
+    ui->table_newLinks->horizontalHeaderItem(12)->setToolTip(regionToolTip);
 
     // ---------- insert a new row to nodes ----------
     ui->table_newLinks->insertRow(0);
     ui->table_newLinks->setupTable();
 
     // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newLinkItemID(new QTableWidgetItem(QString::number(0)));
+    std::unique_ptr<QTableWidgetItem> newLinkItemID(
+        new QTableWidgetItem(QString::number(1)));
     ui->table_newLinks->setItem(0, 0, newLinkItemID.release());
 }
 
 void NeTrainSim::setupLocomotivesTable() {
     //set delegates for the locomotives table ID
-    ui->table_newLocomotive->setItemDelegateForColumn(0, new NonEmptyDelegate(this)); // ID
-    ui->table_newLocomotive->setItemDelegateForColumn(1, new NumericDelegate(this, 10000, 100, 2, 100, 3000)); // power
-    ui->table_newLocomotive->setItemDelegateForColumn(2, new NumericDelegate(this, 1, 0, 2, 0.05, 0.85)); // transmission eff
-    ui->table_newLocomotive->setItemDelegateForColumn(3, new NumericDelegate(this, 100, 0, 2, 1, 25)); // length
-    ui->table_newLocomotive->setItemDelegateForColumn(4, new NumericDelegate(this, 0.01, 0, 5, 0.0001, 0.0055)); // streamline
-    ui->table_newLocomotive->setItemDelegateForColumn(5, new NumericDelegate(this, 100, 0, 2, 1, 15)); // area
-    ui->table_newLocomotive->setItemDelegateForColumn(6, new NumericDelegate(this, 400, 0, 2, 10, 150)); // weight
-    ui->table_newLocomotive->setItemDelegateForColumn(7, new IntNumericDelegate(this, 12, 2)); //number of axles
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(0,
+                                 new NonEmptyDelegate("ID", this)); // ID
+    QString idToolTip = "Represents the unique identifier "
+                            "associated with that locomotive";
+    ui->table_newLocomotive->horizontalHeaderItem(0)->setToolTip(idToolTip);
+
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(1,
+                                 new NumericDelegate(
+                                     this, 10000, 100, 2, 100, 3000)); // power
+    QString powerToolTip = "The max power of the locomotive in kW.";
+    ui->table_newLocomotive->horizontalHeaderItem(1)->setToolTip(powerToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(2,
+                                 new NumericDelegate(
+                                     this, 1, 0, 2,
+                                     0.05, 0.85)); // transmission eff
+    QString tranToolTip = "The transmission eff of the locomotive.";
+    ui->table_newLocomotive->horizontalHeaderItem(2)->setToolTip(tranToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(3,
+                                 new NumericDelegate(
+                                     this, 100, 0, 2, 1, 25)); // length
+    QString lenToolTip = "The full length of the locomotive in meters.";
+    ui->table_newLocomotive->horizontalHeaderItem(3)->setToolTip(lenToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(4,
+                                 new NumericDelegate(
+                                     this, 0.01, 0, 5,
+                                     0.0001, 0.0055)); // streamline
+    QString kToolTip = "The streamlining coefficient for the locomotive.";
+    ui->table_newLocomotive->horizontalHeaderItem(4)->setToolTip(kToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(5,
+                                 new NumericDelegate(
+                                     this, 100, 0, 2, 1, 15)); // area
+    QString areaToolTip = "The frontal area for the locomotive in sq. meters.";
+    ui->table_newLocomotive->horizontalHeaderItem(5)->setToolTip(areaToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(6,
+                                 new NumericDelegate(
+                                     this, 400, 0, 2, 10, 150)); // weight
+    QString weightToolTip = "The weight for the locomotive in metric tons.";
+    ui->table_newLocomotive->horizontalHeaderItem(6)->setToolTip(
+        weightToolTip);
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(7,
+                                 new IntNumericDelegate(
+                                     this, 12, 2, 4)); //number of axles
+    QString axleToolTip = "The number of axles in the locomotive.";
+    ui->table_newLocomotive->horizontalHeaderItem(7)->setToolTip(
+        axleToolTip);
+
+
+    ui->table_newLocomotive->
+        setItemDelegateForColumn(8,
+                                 new ComboBoxDelegate(
+                                     TrainTypes::powerTypeStrings,
+                                     this)); // power type
+    QString typeToolTip = "The Locomotive power train type.";
+    ui->table_newLocomotive->horizontalHeaderItem(8)->setToolTip(
+        typeToolTip);
+
 
     // ---------- insert a new row to locomotives ----------
     ui->table_newLocomotive->insertRow(0);
 
-    // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemID(new QTableWidgetItem(QString::number(0)));
+//    // set the new id count as default value for the first cell of the new row
+    std::unique_ptr<QTableWidgetItem> newItemID(
+        new QTableWidgetItem(QString::number(1)));
     ui->table_newLocomotive->setItem(0, 0, newItemID.release());
-    // Create a new combobox and set it as the item in the last column of the new row
-    QComboBox* comboBox_locomotives = new QComboBox;
-    // Add items to the combobox
-    for (auto locType: TrainTypes::powerTypeStrings) {
-        comboBox_locomotives->addItem(QString::fromStdString(Utils::removeLastWord(locType)));
-    }
-    ui->table_newLocomotive->setCellWidget(0, ui->table_newLocomotive->columnCount() - 1, comboBox_locomotives);
+
 }
 
 void NeTrainSim::setupCarsTable() {
     // set the delegates for the cars table ID
-    ui->table_newCar->setItemDelegateForColumn(0, new NonEmptyDelegate(this));
-    ui->table_newCar->setItemDelegateForColumn(1, new NumericDelegate(this, 100, 0, 2, 1, 25)); // length
-    ui->table_newCar->setItemDelegateForColumn(2, new NumericDelegate(this, 0.01, 0, 5, 0.0001, 0.0055)); // streamline
-    ui->table_newCar->setItemDelegateForColumn(3, new NumericDelegate(this, 100, 0, 2, 1, 15)); // area
-    ui->table_newCar->setItemDelegateForColumn(4, new NumericDelegate(this, 400, 0, 2, 10, 150)); // weight
-    ui->table_newCar->setItemDelegateForColumn(5, new NumericDelegate(this, 400, 0, 2, 10, 150)); // weight
-    ui->table_newCar->setItemDelegateForColumn(6, new IntNumericDelegate(this, 12, 2));
+    ui->table_newCar->setItemDelegateForColumn(
+        0, new NonEmptyDelegate("ID", this));
+    QString idToolTip = "Represents the unique identifier "
+                        "associated with that car";
+    ui->table_newCar->horizontalHeaderItem(0)->setToolTip(idToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        1, new NumericDelegate(this, 100, 0, 2, 1, 25)); // length
+    QString lenToolTip = "The full length of the car.";
+    ui->table_newCar->horizontalHeaderItem(1)->setToolTip(lenToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        2, new NumericDelegate(
+               this, 0.01, 0, 5, 0.0001, 0.0055)); // streamline
+    QString kToolTip = "The streamlining coefficient for the car.";
+    ui->table_newCar->horizontalHeaderItem(2)->setToolTip(kToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        3, new NumericDelegate(this, 100, 0, 2, 1, 15)); // area
+    QString areaToolTip = "The frontal area of the car in sq. meters.";
+    ui->table_newCar->horizontalHeaderItem(3)->setToolTip(areaToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        4, new NumericDelegate(this, 400, 0, 2, 10, 150)); // weight
+    QString wToolTip = "The tare weight of the car in metric tons.";
+    ui->table_newCar->horizontalHeaderItem(4)->setToolTip(wToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        5, new NumericDelegate(this, 400, 0, 2, 10, 150)); // weight
+    QString fwToolTip = "The gross weight of the car in metric tons.";
+    ui->table_newCar->horizontalHeaderItem(5)->setToolTip(fwToolTip);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        6, new IntNumericDelegate(this, 12, 2, 4));
+    QString axleToolTip = "The total number of axles in the car.";
+    ui->table_newCar->horizontalHeaderItem(6)->setToolTip(axleToolTip);
+
+    QString tToolTip = "The type of the car.";
+    ui->table_newCar->horizontalHeaderItem(7)->setToolTip(tToolTip);
+
+
     // ---------- insert a new row to cars ----------
     ui->table_newCar->insertRow(0);
     // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemID2(new QTableWidgetItem(QString::number(0)));
+    std::unique_ptr<QTableWidgetItem> newItemID2(
+        new QTableWidgetItem(QString::number(1)));
     ui->table_newCar->setItem(0, 0, newItemID2.release());
-    // Create a new combobox and set it as the item in the last column of the new row
-    QComboBox* comboBox_cars = new QComboBox;
-    // Add items to the combobox
-    for (auto carType: TrainTypes::carTypeStrings) {
-        comboBox_cars->addItem(QString::fromStdString(carType));
-    }
-    ui->table_newCar->setCellWidget(0, ui->table_newCar->columnCount() - 1, comboBox_cars);
+
+    ui->table_newCar->setItemDelegateForColumn(
+        7, new ComboBoxDelegate(TrainTypes::carTypeStrings, this));
 }
 
 void NeTrainSim::setupConfigurationsTable() {
     // ---------- insert a new row to configurations ----------
     ui->table_newConfiguration->insertRow(0);
     // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemID_config(new QTableWidgetItem(QString::number(0)));
+    std::unique_ptr<QTableWidgetItem> newItemID_config(
+        new QTableWidgetItem(QString::number(1)));
+
     ui->table_newConfiguration->setItem(0, 0, newItemID_config.release());
-    ui->table_newConfiguration->setItemDelegateForColumn(2, new NonEmptyDelegate(this));
-    // Create a new combobox and set it as the item in the last column of the new row
-    QComboBox* comboBox_config = new QComboBox;
-    // Add items to the combobox
-    comboBox_config->addItem("Locomotive");
-    comboBox_config->addItem("Car");
-    ui->table_newConfiguration->setCellWidget(0, 1, comboBox_config);
+    QString idToolTip = "The unique numerical identification of the consist."
+                        " This value must be unique for each consist.";
+    ui->table_newConfiguration->horizontalHeaderItem(0)->setToolTip(idToolTip);
 
-    QSpinBox* spinBox_config_instances = new QSpinBox;
-    spinBox_config_instances->setMinimum(1);
-    spinBox_config_instances->setSingleStep(1);
-    ui->table_newConfiguration->setCellWidget(0, 3, spinBox_config_instances);
+    QString tToolTip = "Defines which vehicle type to add.";
+    ui->table_newConfiguration->horizontalHeaderItem(1)->setToolTip(tToolTip);
 
-    ui->table_newConfiguration->horizontalHeaderItem(0)->setToolTip("the configuration ID should be the same for each train consist");
+    QString vtToolTip = "The unique numerical identification of "
+                       "the vehicle type.";
+    ui->table_newConfiguration->horizontalHeaderItem(2)->setToolTip(vtToolTip);
+
+    QString cToolTip = "The number of instances of that vehicle to be added.";
+    ui->table_newConfiguration->horizontalHeaderItem(3)->setToolTip(cToolTip);
+
+    ui->table_newConfiguration->setItemDelegateForColumn(
+        2, new NonEmptyDelegate("VehicleID", this, "1"));
+    // Create a new combobox and set it as the item in the last
+    // column of the new row
+    std::string configV[] = {"Locomotive", "Car"};
+
+    ui->table_newConfiguration->setItemDelegateForColumn(
+        1, new ComboBoxDelegate(configV, this));
+
+    ui->table_newConfiguration->setItemDelegateForColumn(
+        3, new IntNumericDelegate(this, 999999, 0, 1,1));
+
+    ui->table_newConfiguration->horizontalHeaderItem(0)->setToolTip(
+        "the configuration ID should be the same for each train consist");
 }
 
 void NeTrainSim::setupTrainsTable() {
 
     // set the delegates for the trains table IDs
-    ui->table_newTrain->setItemDelegateForColumn(0, new NonEmptyDelegate(this));
-    ui->table_newTrain->setItemDelegateForColumn(1, new NonEmptyDelegate(this));
-    ui->table_newTrain->setItemDelegateForColumn(3, new NumericDelegate(this, 1000000000000.0, 0, 1, 100,0));
-    ui->table_newTrain->setItemDelegateForColumn(4, new IntNumericDelegate(this, 300, 1, 1, 1));
-    ui->table_newTrain->setItemDelegateForColumn(5, new IntNumericDelegate(this, 300, 1, 1, 1));
-    ui->table_newTrain->setItemDelegateForColumn(6, new NumericDelegate(this, 1, 0, 2, 0.05, 0.95));
+    ui->table_newTrain->setItemDelegateForColumn(
+        0, new NonEmptyDelegate("ID", this));
+    QString idToolTip = "The unique identifier of the train.";
+    ui->table_newTrain->horizontalHeaderItem(0)->setToolTip(idToolTip);
+
+    ui->table_newTrain->setItemDelegateForColumn(
+        1, new NonEmptyDelegate("ConfigID", this, "1"));
+    QString consistToolTip = "The unique identifier of the "
+                             "consist configuration that is "
+                             "defined in the upper table.";
+    ui->table_newTrain->horizontalHeaderItem(1)->setToolTip(consistToolTip);
+
+    ui->table_newTrain->
+        setItemDelegateForColumn(2, new TextBoxDelegate(this, "1,2"));
+    QString nodesToolTip = "All the Nodes the train should path on. "
+                           "You can define only the start and end nodes."
+                           "These can be defined in "
+                           "the 'Define Trains Path' tab";
+    ui->table_newTrain->horizontalHeaderItem(2)->setToolTip(nodesToolTip);
+
+    ui->table_newTrain->setItemDelegateForColumn(
+        3, new NumericDelegate(this, 1000000000000.0, 0, 1, 100,0));
+    QString timeToolTip = "Time offset (measured from simulation "
+                           "start time) for the train to enter the network.";
+    ui->table_newTrain->horizontalHeaderItem(3)->setToolTip(timeToolTip);
+
+    ui->table_newTrain->setItemDelegateForColumn(
+        4, new IntNumericDelegate(this, 300, 1, 1, 1));
+    QString locosToolTip = "Total number of locomotives in the train.";
+    ui->table_newTrain->horizontalHeaderItem(4)->setToolTip(locosToolTip);
+
+    ui->table_newTrain->setItemDelegateForColumn(
+        5, new IntNumericDelegate(this, 300, 1, 1, 1));
+    QString carsToolTip = "Total number of cars in the train.";
+    ui->table_newTrain->horizontalHeaderItem(5)->setToolTip(carsToolTip);
+
+    ui->table_newTrain->setItemDelegateForColumn(
+        6, new NumericDelegate(this, 1, 0, 2, 0.05, 0.95));
+    QString fricToolTip = "The friction coefficient of the train's "
+                          "wheels with the track.";
+    ui->table_newTrain->horizontalHeaderItem(6)->setToolTip(fricToolTip);
 
     // ---------- insert a new row to Trains ----------
     ui->table_newTrain->insertRow(0);
@@ -987,22 +1389,24 @@ void NeTrainSim::setupTrainsTable() {
     this->updateCombo_visualizeTrains();
 
     // set the new id count as default value for the first cell of the new row
-    std::unique_ptr<QTableWidgetItem> newItemID_train(new QTableWidgetItem(QString::number(0)));
+    std::unique_ptr<QTableWidgetItem> newItemID_train(
+        new QTableWidgetItem(QString::number(1)));
     ui->table_newTrain->setItem(0, 0, newItemID_train.release());
 
-    ui->table_newTrain->horizontalHeaderItem(1)->setToolTip("add the configuration id from the table above");
-    ui->table_newTrain->horizontalHeaderItem(2)->setToolTip("add the node ids separated by a comma");
+    ui->table_newTrain->horizontalHeaderItem(1)->setToolTip(
+        "add the configuration id from the table above");
+    ui->table_newTrain->horizontalHeaderItem(2)->setToolTip(
+        "add the node ids separated by a comma");
 
 }
 
 
 // get data from table
-Vector<std::tuple<int, double, double, std::string,
-                  double, double>>  NeTrainSim::getNodesDataFromNodesTable() {
+Vector<Map<std::string, std::string>> NeTrainSim::getNodesDataFromNodesTable()
+{
     // clear the networkNodes map
     this->networkNodes.clear();
-    Vector<tuple<int, double, double, std::string,
-                      double, double>> nodesRecords;
+    Vector<Map<std::string, std::string>> nodesRecords;
     // get the data from the QTableWidget
     for (int i = 0; i < ui->table_newNodes->rowCount(); i++) {
         if (ui->table_newNodes->isRowEmpty(i, {0,3})) {
@@ -1023,31 +1427,43 @@ Vector<std::tuple<int, double, double, std::string,
             yCoord = yItem->text().toDouble();
             xScale = ui->doubleSpinBox_xCoordinate->value();
             yScale = ui->doubleSpinBox_yCoordinate->value();
-            desc   = descItem->text().trimmed().toStdString();
+            desc   = descItem? descItem->text().trimmed().toStdString() : "";
 
-            nodesRecords.push_back(std::make_tuple(label.toInt(), xCoord, yCoord, desc, xScale, yScale));
 
-            this->networkNodes[label] = std::make_pair(xCoord * xScale, yCoord * yScale);
+            nodesRecords.push_back({
+                {"UserID", std::to_string(label.toInt())},
+                {"XCoordinate", std::to_string(xCoord)},
+                {"YCoordinate", std::to_string(yCoord)},
+                {"Desc", desc},
+                {"XScale", std::to_string(xScale)},
+                {"YScale", std::to_string(yScale)}
+            });
+
+            this->networkNodes[label] = std::make_pair(xCoord * xScale,
+                                                       yCoord * yScale);
         }
     }
     return nodesRecords;
 }
 
 // get data from table
-Vector<tuple<int, double, double, std::string,
-                  double, double>> NeTrainSim::getNodesDataFromNodesFile(QString fileName) {
+Vector<Map<std::string,
+           std::string>> NeTrainSim::getNodesDataFromNodesFile(
+    QString fileName) {
 
     // clear the networkNodes map
     this->networkNodes.clear();
-    Vector<tuple<int, double, double, std::string,
-                      double, double>> nodesRecords;
+    Vector<Map<std::string, std::string>> nodesRecords;
 
     if (fileName.trimmed().isEmpty()) { return nodesRecords; }
     auto records = ReadWriteNetwork::readNodesFile(fileName.toStdString());
 
     for (auto& record: records) {
-        this->networkNodes[QString::number(std::get<0>(record))] = std::make_pair(std::get<1>(record) * std::get<4>(record),
-                                                                                  std::get<2>(record) * std::get<5>(record));
+        this->networkNodes[QString::number(std::stoi(record["UserID"]))] =
+            std::make_pair(std::stod(record["XCoordinate"]) *
+                                std::stod(record["XScale"]),
+                           std::stod(record["YCoordinate"]) *
+                               std::stod(record["YScale"]));
     }
 
     return records;
@@ -1055,7 +1471,8 @@ Vector<tuple<int, double, double, std::string,
 
 
 // create a slot to update the QCustomPlot data and redraw the plot
-void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector<double>yData,
+void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData,
+                                 QVector<double>yData,
                                  QVector<QString> labels, bool showLabels) {
 
 
@@ -1107,7 +1524,8 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
     if (showLabels) {
         // add the labels
         for (int i = 0; i < xData.size(); i++) {
-            if (!qIsNaN(xData[i]) && !qIsNaN(yData[i] && !labels[i].trimmed().isEmpty())) {
+            if (!qIsNaN(xData[i]) &&
+                !qIsNaN(yData[i] && !labels[i].trimmed().isEmpty())) {
                 QCPItemText *label = new QCPItemText(&plot);
                 label->setPositionAlignment(Qt::AlignLeft|Qt::AlignBottom);
                 label->position->setType(QCPItemPosition::ptPlotCoords);
@@ -1129,30 +1547,34 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData, QVector
  * @param fileName The name of the file to read the link data from.
  * @return A vector of link records containing the link data.
  */
-Vector<tuple<int, int, int, double, int,
-             double, double, int, double, bool,
-             std::string, std::string,
-             double>>  NeTrainSim::getLinkesDataFromLinksFile(
+Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksFile (
     QString fileName)
 {
-    auto records = ReadWriteNetwork::readLinksFile(fileName.toStdString());
-    return records;
+    if (fileName.isEmpty()) {
+        return Vector<Map<std::string, std::string>>();
+    }
+    try {
+        auto records = ReadWriteNetwork::readLinksFile(fileName.toStdString());
+        return records;
+    }
+    catch (std::exception &e) {
+        this->showWarning(e.what());
+        return Vector<Map<std::string, std::string>>();
+    }
+
 }
 
 
 /**
- * Retrieves the link data from the links table and returns a vector of link records.
+ * Retrieves the link data from the links table and returns a vector
+ * of link records.
  *
  * @return A vector of link records containing the link data from the table.
  */
-Vector<tuple<int, int, int, double, int,
-             double, double, int, double, bool,
-             std::string, std::string,
-             double>>  NeTrainSim::getLinkesDataFromLinksTable() {
+Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksTable()
+{
 
-    Vector<tuple<int, int, int, double, int,
-                      double, double, int, double, bool,
-                      std::string, std::string, double>> linksRecords;
+    Vector<Map<std::string, std::string>> linksRecords;
 
     // get the data from the QTableWidget
     for (int i = 0; i < ui->table_newLinks->rowCount(); i++) {
@@ -1161,39 +1583,109 @@ Vector<tuple<int, int, int, double, int,
         QTableWidgetItem* toItem = ui->table_newLinks->item(i, 2);
 
         int direction = 1;
-        int catenary = 0;
+        int hasCaten = 0;
         // Check if the required cells are not empty
         if (fromItem && toItem && !fromItem->text().isEmpty() &&
             !toItem->text().isEmpty() ){
 
             // Check if the row is not empty in specific columns
-            if (ui->table_newLinks->isRowEmpty(i, {0,8,10,11})) {
+            if (ui->table_newLinks->isRowEmpty(i, {0,6,9,11,12})) {
                 continue;
             }
 
-            QAbstractItemModel *model = ui->table_newLinks->model();  // Substitute 'view' with your actual view object
-            QModelIndex directionIndex = model->index(i, 8);  // Substitute 'row' and 'column' with the actual coordinates
-            QModelIndex catenaryIndex = model->index(i,10);
-            direction = (directionIndex.data().toBool())? 2: 1;
-            catenary = (catenaryIndex.data().toBool()) ? 1 : 0;
+            // Substitute 'view' with your actual view object
+            QAbstractItemModel *model =
+                ui->table_newLinks->model();
 
+
+
+            int id =
+                ui->table_newLinks->item(i, 0)
+                    ? ui->table_newLinks->item(i, 0)->text().
+                      trimmed().toInt() : 0;
+            int from =
+                ui->table_newLinks->item(i, 1)
+                    ? ui->table_newLinks->item(i, 1)->text().
+                      trimmed().toInt() : 0;
+
+            int to =
+                ui->table_newLinks->item(i, 2)
+                    ? ui->table_newLinks->item(i, 2)->text().
+                      trimmed().toInt() : 0;
+
+            double length =
+                ui->table_newLinks->item(i, 3)
+                    ? ui->table_newLinks->item(i, 3)->text().
+                      trimmed().toDouble() : 0.0;
+
+            double freespeed =
+                ui->table_newLinks->item(i, 4)
+                    ? ui->table_newLinks->item(i, 4)->text().
+                      trimmed().toDouble() : 0.0;
+
+            int signalNo =
+                ui->table_newLinks->item(i, 5)
+                    ? ui->table_newLinks->item(i, 5)->text().
+                      trimmed().toInt() : 0;
+
+            std::string signalsAt =
+                ui->table_newLinks->item(i, 6)
+                    ? ui->table_newLinks->item(i, 6)->text().
+                      trimmed().toStdString(): "";
+
+            double grade =
+                ui->table_newLinks->item(i, 7)
+                    ? ui->table_newLinks->item(i, 7)->text().
+                      trimmed().toDouble() : 0.0;
+
+            double curvature =
+                ui->table_newLinks->item(i, 8)
+                    ? ui->table_newLinks->item(i, 8)->text().
+                      trimmed().toDouble() : 0.0;
+
+            QModelIndex directionIndex = model->index(i, 9);
+            direction = (directionIndex.
+                         data(Qt::CheckStateRole).toBool())? 2: 1;
+
+            double variation =
+                ui->table_newLinks->item(i, 10)
+                    ? ui->table_newLinks->item(i, 10)->text().
+                      trimmed().toDouble() : 0.0;
+
+            QModelIndex catenaryIndex = model->index(i,11);
+            hasCaten = (catenaryIndex.
+                        data(Qt::CheckStateRole).toBool()) ? 1 : 0;
+
+            std::string region =
+                ui->table_newLinks->item(i, 12)
+                    ? ui->table_newLinks->item(i, 12)->text().
+                      trimmed().toStdString() : "";
+
+            double lengthScale =
+                ui->doubleSpinBox_LengthScale->value();
+            double speedScale =
+                ui->doubleSpinBox_SpeedScale->value();
 
             // Add the link record to the vector
-            linksRecords.push_back(std::make_tuple(
-                ui->table_newLinks->item(i, 0) ? ui->table_newLinks->item(i, 0)->text().trimmed().toInt() : 0, // ID
-                ui->table_newLinks->item(i, 1) ? ui->table_newLinks->item(i, 1)->text().trimmed().toInt() : 0, // From
-                ui->table_newLinks->item(i, 2) ? ui->table_newLinks->item(i, 2)->text().trimmed().toInt() : 0, // To
-                ui->table_newLinks->item(i, 3) ? ui->table_newLinks->item(i, 3)->text().trimmed().toDouble() : 0.0, // Free flow speed
-                ui->table_newLinks->item(i, 4) ? ui->table_newLinks->item(i, 4)->text().trimmed().toInt() : 0, // Signal
-                ui->table_newLinks->item(i, 6) ? ui->table_newLinks->item(i, 6)->text().trimmed().toDouble() : 0.0, // Grade
-                ui->table_newLinks->item(i, 7) ? ui->table_newLinks->item(i, 7)->text().trimmed().toDouble() : 0.0, // Curvature
-                direction, // Directionality
-                ui->table_newLinks->item(i, 9) ? ui->table_newLinks->item(i, 9)->text().trimmed().toDouble() : 0.0, // Variation
-                catenary, // has catenary?
-                ui->table_newLinks->item(i, 5) ? ui->table_newLinks->item(i, 5)->text().trimmed().toStdString(): "", // Signal at which node
-                ui->table_newLinks->item(i, 11) ? ui->table_newLinks->item(i, 11)->text().trimmed().toStdString() : "", // Describtion
-                ui->doubleSpinBox_SpeedScale->value() // Free flow speed scale
-                ));
+            linksRecords.push_back(
+                {
+                    {"UserID", std::to_string(id)},
+                    {"FromNodeID", std::to_string(from)},
+                    {"ToNodeID", std::to_string(to)},
+                    {"Length", std::to_string(length)},
+                    {"SignalNo", std::to_string(signalNo)},
+                    {"Directions", std::to_string(direction)},
+                    {"FreeFlowSpeed", std::to_string(freespeed)},
+                    {"DirectionalGrade", std::to_string(grade)},
+                    {"Curvature", std::to_string(curvature)},
+                    {"SpeedVariation", std::to_string(variation)},
+                    {"SignalsAtNodes", signalsAt},
+                    {"Region", region},
+                    {"HasCatenary", std::to_string(hasCaten)},
+                    {"LengthScale", std::to_string(lengthScale)},
+                    {"FreeFlowSpeedScale",
+                     std::to_string(speedScale)}
+                });
 
         }
     }
@@ -1201,25 +1693,23 @@ Vector<tuple<int, int, int, double, int,
 }
 
 /**
- * Retrieves the start and end node IDs from the link records and returns them as plottable data.
+ * Retrieves the start and end node IDs from the link records and returns
+ * them as plottable data.
  *
  * @param linksRecords A vector of link records containing the link data.
  * @return A tuple containing the start and end node IDs as plottable data.
  */
 tuple<QVector<QString>,
            QVector<QString>> NeTrainSim::getLinksPlottableData(
-    Vector<tuple<int, int, int,
-           double, int,
-           double, double, int,
-           double, bool, std::string,
-           std::string, double>> linksRecords) {
+    Vector<Map<std::string, std::string>> linksRecords) {
+
     QVector<QString> startNodes;
     QVector<QString> endNodes;
 
     // Iterate through the link records
     for (auto& record: linksRecords) {
-        startNodes.push_back(QString::number(std::get<1>(record)));
-        endNodes.push_back(QString::number(std::get<2>(record)));
+        startNodes.push_back(QString::fromStdString(record["FromNodeID"]));
+        endNodes.push_back(QString::fromStdString(record["ToNodeID"]));
     }
 
     return std::make_tuple(startNodes, endNodes);
@@ -1254,8 +1744,10 @@ void NeTrainSim::updateLinksPlot(CustomPlot &plot,
             if (!this->networkNodes.is_key(fromItem.trimmed())){ continue; }
             if (!this->networkNodes.is_key(toItem.trimmed())) { continue; }
 
-            std::pair<double, double> fromNode = this->networkNodes[fromItem.trimmed()];
-            std::pair<double, double> toNode = this->networkNodes[toItem.trimmed()];
+            std::pair<double, double> fromNode =
+                this->networkNodes[fromItem.trimmed()];
+            std::pair<double, double> toNode =
+                this->networkNodes[toItem.trimmed()];
             graph->addData(fromNode.first, fromNode.second);
             graph->addData(toNode.first, toNode.second);
 
@@ -1268,38 +1760,23 @@ void NeTrainSim::updateLinksPlot(CustomPlot &plot,
 };
 
 /**
- * Retrieves the trains data from the tables and returns it as a vector of train records.
+ * Retrieves the trains data from the tables and returns it
+ * as a vector of train records.
  *
- * @return A vector of train records containing the trains data from the tables.
+ * @return A vector of train records containing the trains
+ *         data from the tables.
  */
-Vector<std::tuple<std::string, Vector<int>, double, double,
-                  Vector<std::tuple<
-                      int, double, double,
-                      int, double, double,
-                      double, double, int>>,
-                  Vector<std::tuple<int, int, double, double,
-                                    double, double,
-                                    double, int>>,
-                  bool>> NeTrainSim::getTrainsDataFromTables() {
+Vector<Map<std::string, std::any>> NeTrainSim::getTrainsDataFromTables() {
 
-    Vector<std::tuple<std::string, Vector<int>, double, double,
-                      Vector<std::tuple<
-                          int, double, double,
-                          int, double, double,
-                          double, double, int>>,
-                      Vector<std::tuple<int, int, double, double,
-                                        double, double,
-                                        double, int>>,
-                      bool>> trains;
+    Vector<Map<std::string, std::any>> trains;
 
 //    try {
 
-        Map<QString, tuple<double, double, double, double,
-                       double, double, int, int>> tableLocomotives;
-        Map<QString, tuple<double, double, double, double,
-                           double, int, int>> tableCars;
-        Map<QString, Map<QString, QVector<std::pair<QString,
-                                                    int>>>> configTable;
+    Map<QString, Map<std::string, std::string>> tableLocomotives;
+    Map<QString, Map<std::string, std::string>> tableCars;
+
+    Map<QString, Map<QString, QVector<std::pair<QString,
+                                                int>>>> configTable;
 
         // --------------------------------------------------------------
         // -------------------- Locomotives Table -----------------------
@@ -1320,40 +1797,39 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
         // read locomotives
         for (int i = 0; i< ui->table_newLocomotive->rowCount(); i++) {
             if (ui->table_newLocomotive->isRowEmpty(i, {8})) { continue; }
-            // Get the combobox widget from the cell
-            QComboBox* comboBox = qobject_cast<QComboBox*>(
-                ui->table_newLocomotive->cellWidget(i, 8));
-            // Get the selected text from the combobox
-            std::string locoType =
-                comboBox->currentText().trimmed().toStdString() + " Locomotive";
-            // get the enum index
-            auto typeEnum = TrainTypes::strToPowerType(locoType);
-            int type = static_cast<int>(typeEnum);
 
-            auto loco = std::make_tuple(
-                ui->table_newLocomotive->item(i, 1)
-                    ? ui->table_newLocomotive->item(i, 1)->text().
-                      trimmed().toDouble() : 0.0, //power
-                ui->table_newLocomotive->item(i, 2)
-                    ? ui->table_newLocomotive->item(i, 2)->text().
-                      trimmed().toDouble() : 0.0, //trans eff
-                ui->table_newLocomotive->item(i, 7)
-                    ? ui->table_newLocomotive->item(i, 7)->text().
-                      trimmed().toInt()    : 0, // axles
-                ui->table_newLocomotive->item(i, 4)
-                    ? ui->table_newLocomotive->item(i, 4)->text().
-                      trimmed().toDouble() : 0.0, // k
-                ui->table_newLocomotive->item(i, 5)
-                    ? ui->table_newLocomotive->item(i, 5)->text().
-                      trimmed().toDouble() : 0.0, // area
-                ui->table_newLocomotive->item(i, 3)
-                    ? ui->table_newLocomotive->item(i, 3)->text().
-                      trimmed().toDouble() : 0.0, //length
-                ui->table_newLocomotive->item(i, 6)
-                    ? ui->table_newLocomotive->item(i, 6)->text().
-                      trimmed().toDouble() : 0.0, // weight
-                type // type
-                );
+            std::string theType = ui->table_newLocomotive->item(i, 8)
+                                      ? ui->table_newLocomotive->
+                                        item(i, 8)->text().
+                                        trimmed().toStdString() :
+                                      "Diesel-Electric Locomotive";
+            int type = TrainTypes::powerTypestrToInt(theType);
+
+            Map<std::string, std::string> loco =
+                {
+                {"Power", ui->table_newLocomotive->item(i, 1)
+                        ? ui->table_newLocomotive->item(i, 1)->text().
+                          trimmed().toStdString() : "0.0"}, //power
+                {"TransmissionEff", ui->table_newLocomotive->item(i, 2)
+                        ? ui->table_newLocomotive->item(i, 2)->text().
+                          trimmed().toStdString() : "0.0"}, //trans eff
+                {"NoOfAxles", ui->table_newLocomotive->item(i, 7)
+                        ? ui->table_newLocomotive->item(i, 7)->text().
+                          trimmed().toStdString() : "0"}, // axles
+                {"AirDragCoeff", ui->table_newLocomotive->item(i, 4)
+                        ? ui->table_newLocomotive->item(i, 4)->text().
+                          trimmed().toStdString() : "0.0"}, // k
+                {"FrontalArea", ui->table_newLocomotive->item(i, 5)
+                        ? ui->table_newLocomotive->item(i, 5)->text().
+                          trimmed().toStdString() : "0.0"}, // area
+                {"Length", ui->table_newLocomotive->item(i, 3)
+                        ? ui->table_newLocomotive->item(i, 3)->text().
+                          trimmed().toStdString() : "0.0"}, //length
+                {"GrossWeight", ui->table_newLocomotive->item(i, 6)
+                     ? ui->table_newLocomotive->item(i, 6)->text().
+                       trimmed().toStdString() : "0.0"}, // weight
+                {"Type", std::to_string(type)} // type
+                };
 
 
             tableLocomotives[ui->table_newLocomotive->item(i, 0)->text().
@@ -1377,36 +1853,33 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
 
         for (int i = 0; i< ui->table_newCar->rowCount(); i++) {
             if (ui->table_newCar->isRowEmpty(i, {7})) { continue; }
-            // Get the combobox widget from the cell
-            QComboBox* comboBox =
-                qobject_cast<QComboBox*>(ui->table_newCar->cellWidget(i, 7));
-            // Get the selected text from the combobox
-            std::string carType =
-                comboBox->currentText().trimmed().toStdString();
-            auto typeEnum = TrainTypes::strtoCarType(carType);
-            int type = static_cast<int>(typeEnum);
 
-            auto car = std::make_tuple(
-                ui->table_newCar->item(i, 6)
-                    ? ui->table_newCar->item(i, 6)->text().
-                      trimmed().toInt() : 0, // axles
-                ui->table_newCar->item(i, 2)
-                    ? ui->table_newCar->item(i, 2)->text().
-                      trimmed().toDouble() : 0.0, // air drag
-                ui->table_newCar->item(i, 3)
-                    ? ui->table_newCar->item(i, 3)->text().
-                      trimmed().toDouble() : 0.0, // area
-                ui->table_newCar->item(i, 1)
-                    ? ui->table_newCar->item(i, 1)->text().
-                      trimmed().toDouble() : 0.0, // length
-                ui->table_newCar->item(i, 5)
-                    ? ui->table_newCar->item(i, 5)->text().
-                      trimmed().toDouble() : 0.0, // full weight
-                ui->table_newCar->item(i, 4)
-                    ? ui->table_newCar->item(i, 4)->text().
-                      trimmed().toDouble() : 0.0, // empty weight
-                type // type
-                );
+            std::string theType = ui->table_newCar->item(i, 7)
+                                      ? ui->table_newCar->item(i, 7)->text().
+                                        trimmed().toStdString() : "Cargo Car";
+            int type = TrainTypes::carTypestrToInt(theType);
+
+            Map<std::string, std::string> car = {
+                {"NoOfAxles", ui->table_newCar->item(i, 6)
+                         ? ui->table_newCar->item(i, 6)->text().
+                           trimmed().toStdString() : "0"}, // axles
+                {"AirDragCoeff",ui->table_newCar->item(i, 2)
+                         ? ui->table_newCar->item(i, 2)->text().
+                           trimmed().toStdString() : "0.0"}, // air drag
+                {"FrontalArea",ui->table_newCar->item(i, 3)
+                         ? ui->table_newCar->item(i, 3)->text().
+                           trimmed().toStdString() : "0.0"}, // area
+                {"Length", ui->table_newCar->item(i, 1)
+                         ? ui->table_newCar->item(i, 1)->text().
+                           trimmed().toStdString() : "0.0"}, // length
+                {"GrossWeight", ui->table_newCar->item(i, 5)
+                         ? ui->table_newCar->item(i, 5)->text().
+                           trimmed().toStdString() : "0.0"}, // full weight
+                {"TareWeight", ui->table_newCar->item(i, 4)
+                         ? ui->table_newCar->item(i, 4)->text().
+                           trimmed().toStdString() : "0.0"}, // empty weight
+                {"Type", std::to_string(type)} // type
+            };
 
             tableCars[ui->table_newCar->item(i, 0)->text().trimmed()] = car;
 
@@ -1442,21 +1915,15 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                 exist(ui->table_newConfiguration->item(i,0)->text().
                                              trimmed()))
             {
-
-                // Get the combobox widget from the cell
-                QComboBox* comboBox =
-                    qobject_cast<QComboBox*>(
-                    ui->table_newConfiguration->cellWidget(i, 1));
-                // Get the selected text from the combobox
-                std::string type =
-                    comboBox->currentText().trimmed().toStdString();
+                std::string type = ui->table_newConfiguration->item(i, 1)
+                    ? ui->table_newConfiguration->item(i, 1)->text().
+                      trimmed().toStdString() : "";
 
                 // get the number of instances
-                QSpinBox* spinbox =
-                    qobject_cast<QSpinBox*>(
-                    ui->table_newConfiguration->cellWidget(i, 3));
-                // Get the selected text from the spinbox
-                int countInstances = spinbox->value();
+                int countInstances =
+                    ui->table_newConfiguration->item(i, 3)
+                        ? ui->table_newConfiguration->item(i, 3)->text().
+                          trimmed().toInt() : 0;
 
 
                 configTable[
@@ -1471,21 +1938,18 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                 Map<QString, QVector<std::pair<QString, int>>> instances;
 
                 // Get the combobox widget from the cell
-                QComboBox* comboBox =
-                    qobject_cast<QComboBox*>(
-                    ui->table_newConfiguration->cellWidget(i, 1));
-                // Get the selected text from the combobox
-                QString type = comboBox->currentText().trimmed();
+                std::string type =
+                    ui->table_newConfiguration->item(i, 1)
+                        ? ui->table_newConfiguration->item(i, 1)->text().
+                          trimmed().toStdString() : "";
 
                 // get the number of instances
-                QSpinBox* spinbox =
-                    qobject_cast<QSpinBox*>(
-                    ui->table_newConfiguration->cellWidget(i, 3));
+                int countInstances =
+                    ui->table_newConfiguration->item(i, 3)
+                        ? ui->table_newConfiguration->item(i, 3)->text().
+                          trimmed().toInt() : 0;
 
-                // Get the selected text from the spinbox
-                int countInstances = spinbox->value();
-
-                instances[type].push_back(
+                instances[QString::fromStdString(type)].push_back(
                     std::make_pair(
                         ui->table_newConfiguration->item(i,2)->text().trimmed(),
                                                            countInstances));
@@ -1524,6 +1988,9 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                                     split(',').toVector();
             Vector<int> trainPath;
             for (const QString& str : trainPathStrings) {
+                if (str.isEmpty()) {
+                    continue;
+                }
                 trainPath.push_back(str.toInt());
             }
             auto startTime =
@@ -1535,12 +2002,10 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
             auto frictionCof =
                 ui->table_newTrain->item(i,6)->text().trimmed().toDouble();
 
-            Vector<std::tuple<
-                int, double, double, int, double, double,
-                double, double, int>> locomotivesRecords;
+            // declare the variables
+            Vector<Map<std::string, std::string>> locomotivesRecords;
 
-            Vector<std::tuple<int, int, double, double,
-                              double, double, double, int>> carsRecords;
+            Vector<Map<std::string, std::string>> carsRecords;
 
             if (! configTable.is_key(trainConfig)) {
                 throw std::invalid_argument(
@@ -1560,17 +2025,12 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                     // get the loco record that corresponds to the id
                     auto lr = tableLocomotives[vehicle.first];
 
-                    locomotivesRecords.push_back(
-                    std::make_tuple(
-                        vehicle.second,  // count
-                        std::get<0>(lr), // power
-                        std::get<1>(lr), // trans eff
-                        std::get<2>(lr), // axles
-                        std::get<3>(lr), // air drag
-                        std::get<4>(lr), // area
-                        std::get<5>(lr), // length
-                        std::get<6>(lr), // weight
-                        std::get<7>(lr)));//type
+                    Map<std::string, std::string> loco = {
+                        {"Count", std::to_string(vehicle.second)}
+                    };
+                    loco.insert(lr.begin(), lr.end());
+
+                    locomotivesRecords.push_back(loco);
                 }
                 else {
                     throw std::invalid_argument(
@@ -1578,8 +2038,13 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                         vehicle.first.toStdString());
                 }
             }
+
+            int locoCountPrv = 0;
+            for (auto& loc: locomotivesRecords) {
+                locoCountPrv += stoi(loc["Count"]);
+            }
             // double check the locos and cars counts
-            if (locoCount != locomotivesRecords.size()) {
+            if (locoCount != locoCountPrv) {
                 throw std::runtime_error("Error: " +
                                          std::to_string(
                                              static_cast<int>(
@@ -1592,28 +2057,30 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                 for (auto &vehicle: configTable[trainConfig]["Car"]){
                     if (tableCars.is_key(vehicle.first))
                     {
-                        auto cr = tableCars[vehicle.first];
+                    auto cr = tableCars[vehicle.first];
 
-                        carsRecords.push_back(
-                        std::make_tuple(
-                            vehicle.second,
-                            std::get<0>(cr),
-                            std::get<1>(cr),
-                            std::get<2>(cr),
-                            std::get<3>(cr),
-                            std::get<4>(cr),
-                            std::get<5>(cr),
-                            std::get<6>(cr)));
+                    Map<std::string, std::string> car =
+                        {
+                            {"Count", std::to_string(vehicle.second)}
+                        };
+
+                    car.insert(cr.begin(), cr.end());
+                    carsRecords.push_back(car);
                     }
                     else {
-                        throw std::invalid_argument(
-                            "Could not find car: " +
-                            vehicle.first.toStdString());
+                    throw std::invalid_argument(
+                        "Could not find car: " +
+                        vehicle.first.toStdString());
                     }
                 }
             }
 
-            if (carCount != carsRecords.size()) {
+            int cCountPrv = 0;
+            for (auto& c: carsRecords) {
+                cCountPrv += stoi(c["Count"]);
+            }
+
+            if (carCount != cCountPrv) {
                 throw std::runtime_error("Error: " +
                                          std::to_string(
                                              static_cast<int>(
@@ -1622,27 +2089,23 @@ Vector<std::tuple<std::string, Vector<int>, double, double,
                                          "match added cars!");
             }
 
-
-
-            auto record = std::make_tuple(trainID, trainPath, startTime,
-                                          frictionCof, locomotivesRecords,
-                                          carsRecords, false);
+            Map<std::string, std::any> record = {
+                                                 {"UserID",trainID},
+                {"TrainPathOnNodeIDs", trainPath},
+                {"LoadTime", startTime},
+                {"FrictionCoef", frictionCof},
+                {"Locomotives", locomotivesRecords},
+                {"Cars", carsRecords},
+                {"Optimize", false}
+            };
             trains.push_back(record);
         }
 
         return trains;
-//    }
-//    catch (const std::exception &e) {
-//        ErrorHandler::showError(e.what());
-//        return Vector<tuple<std::string, Vector<int>, double, double,
-//                            Vector<tuple<double, double, double, double, double, double, int, int>>,
-//                            Vector<tuple<double, double, double, double, double, int, int>>,
-//                            bool>>();
-//    }
-
 }
 
-QString NeTrainSim::browseFiles(QLineEdit* theLineEdit, const QString& theFileName) {
+QString NeTrainSim::browseFiles(QLineEdit* theLineEdit,
+                                const QString& theFileName) {
     QString browsLoc = QString();
     if ( this->userBrowsePath.isEmpty()) {
         browsLoc = this->defaultBrowsePath;
@@ -1660,7 +2123,8 @@ QString NeTrainSim::browseFiles(QLineEdit* theLineEdit, const QString& theFileNa
     return fname;
 }
 
-void NeTrainSim::browseFolder(QLineEdit* theLineEdit, const QString& theHelpMessage) {
+void NeTrainSim::browseFolder(QLineEdit* theLineEdit,
+                              const QString& theHelpMessage) {
     QString browsLoc = QString();
     if ( this->userBrowsePath.isEmpty()) {
         browsLoc = this->defaultBrowsePath;
@@ -1668,18 +2132,23 @@ void NeTrainSim::browseFolder(QLineEdit* theLineEdit, const QString& theHelpMess
     else {
         browsLoc = this->userBrowsePath;
     }
-    QString folderPath = QFileDialog::getExistingDirectory(this,
-                                                           theHelpMessage,
-                                                           browsLoc,
-                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString folderPath =
+        QFileDialog::getExistingDirectory(this,
+                                          theHelpMessage,
+                                          browsLoc,
+                                          QFileDialog::ShowDirsOnly |
+                                              QFileDialog::DontResolveSymlinks);
     // Check if a folder was selected
     if (!folderPath.isEmpty()) {
         theLineEdit->setText(folderPath);
     }
 }
 
-void NeTrainSim::setNodesData(QVector<double>& xData, QVector<double>& yData, QVector<QString>& labels) {
-    if (this->nodesXData != xData || this->nodesYData != yData || this->nodesLabelData != labels) {
+void NeTrainSim::setNodesData(QVector<double>& xData,
+                              QVector<double>& yData,
+                              QVector<QString>& labels) {
+    if (this->nodesXData != xData || this->nodesYData != yData ||
+        this->nodesLabelData != labels) {
         this->nodesXData = xData;
         this->nodesYData = yData;
         this->nodesLabelData = labels;
@@ -1688,20 +2157,26 @@ void NeTrainSim::setNodesData(QVector<double>& xData, QVector<double>& yData, QV
 }
 
 tuple<QVector<double>, QVector<double>,
-           QVector<QString>> NeTrainSim::getNodesPlottableData(Vector<tuple<int, double, double, std::string,
-                                                                double, double>> &nodeRecords) {
+           QVector<QString>> NeTrainSim::getNodesPlottableData(
+    Vector<Map<std::string, std::string>> &nodeRecords)
+{
     QVector<double> xData; QVector<double> yData; QVector<QString> labels;
 
     for (auto& record:nodeRecords) {
-        labels.push_back(QString::number(std::get<0>(record)));
-        xData.push_back(std::get<1>(record) * std::get<4>(record));
-        yData.push_back(std::get<2>(record) * std::get<5>(record));
+        labels.push_back(QString::number(std::stoi(record["UserID"])));
+        xData.push_back(std::stod(record["XCoordinate"]) *
+                        std::stod(record["XScale"]));
+        yData.push_back(std::stod(record["YCoordinate"]) *
+                        std::stod(record["YScale"]));
     }
     return std::make_tuple(xData, yData, labels);
 }
 
-void NeTrainSim::setLinksData(QVector<QString>& startNodeIDs, QVector<QString> endNodeIDs) {
-    if (this->linksStartNodeIDs != startNodeIDs || this->linksEndNodeIDs != endNodeIDs) {
+void NeTrainSim::setLinksData(QVector<QString>& startNodeIDs,
+                              QVector<QString> endNodeIDs) {
+    if (this->linksStartNodeIDs != startNodeIDs ||
+        this->linksEndNodeIDs != endNodeIDs)
+    {
         this->linksStartNodeIDs = startNodeIDs;
         this->linksEndNodeIDs = endNodeIDs;
         emit this->linksDataChanged(startNodeIDs, endNodeIDs);
@@ -1723,74 +2198,31 @@ void NeTrainSim::showWarning(QString text) {
 void NeTrainSim::simulate() {
     try {
 
-        Vector<std::tuple<int, double, double, std::string,
-                          double, double>> nodeRecords;
-        Vector<tuple<int, int, int, double, int, double, double,
-                     int, double, bool, std::string, std::string,
-                     double>> linkRecords;
-        Vector<std::tuple<std::string, Vector<int>, double, double,
-                          Vector<std::tuple<
-                              int, double, double,
-                              int, double, double,
-                              double, double, int>>,
-                          Vector<std::tuple<int, int, double, double,
-                                            double, double,
-                                            double, int>>,
-                          bool>> trainRecords;
+        Vector<Map<std::string, std::string>> nodeRecords;
+        Vector<Map<std::string, std::string>> linkRecords;
+        Vector<Map<std::string, std::any>> trainRecords;
 
-        if (ui->checkBox_defineNewNetwork->checkState() == Qt::Checked) {
-            if (ui->table_newNodes->hasEmptyCell({0,3})) {
-                this->showWarning("Missing values in nodes table!");
-                return;
-            }
-            if (ui->table_newLinks->hasEmptyCell({0,7,9})) {
-                this->showWarning("Missing values in links table!");
-                return;
-            }
-            nodeRecords = this->getNodesDataFromNodesTable();
-            linkRecords = this->getLinkesDataFromLinksTable();
+        if (ui->table_newNodes->hasEmptyCell({0,3})) {
+            this->showWarning("Missing values in nodes table!");
+            return;
         }
-        else {
+        if (ui->table_newLinks->hasEmptyCell({0,6,9,11,12})) {
+            this->showWarning("Missing values in links table!");
+            return;
+        }
+        nodeRecords = this->getNodesDataFromNodesTable();
+        linkRecords = this->getLinkesDataFromLinksTable();
 
-            // if no files are added to nodes, show error
-            if (ui->lineEdit_nodes->text().trimmed().isEmpty()) {
-                ErrorHandler::showError("No nodes file is set!");
-                return;
-            }
-            // if no files are added to links, show error
-            if (ui->lineEdit_links->text().trimmed().isEmpty()) {
-                ErrorHandler::showError("No links file is set!");
-                return;
-            }
-            // try to read the files
-            try {
-                nodeRecords =
-                    ReadWriteNetwork::readNodesFile(
-                    ui->lineEdit_nodes->text().trimmed().toStdString());
-                linkRecords =
-                    ReadWriteNetwork::readLinksFile(
-                    ui->lineEdit_links->text().trimmed().toStdString());
-            } catch (const std::exception& e) {
-                ErrorHandler::showError(e.what());
-                return;
-            }
+
+        // read trains from table and generate instances of trains
+        try {
+            trainRecords = this->getTrainsDataFromTables();
+        } catch (const std::exception& e) {
+            ErrorHandler::showError(e.what());
+            return;
         }
 
 
-        if (ui->checkBox_TrainsOD->checkState() == Qt::Checked) {
-            // read trains from table and generate instances of trains
-            try {
-                trainRecords = this->getTrainsDataFromTables();
-            } catch (const std::exception& e) {
-                ErrorHandler::showError(e.what());
-                return;
-            }
-        }
-        else {
-            trainRecords =
-                TrainsList::readTrainsFile(
-                ui->lineEdit_trains->text().toStdString());
-        }
 
         std::string exportDir = "";
         if (! ui->lineEdit_outputPath->text().trimmed().isEmpty()) {
@@ -1862,17 +2294,17 @@ void NeTrainSim::simulate() {
             return;
         }
 
-        connect(worker, &SimulationWorker::trainSlowSpeed,
-                [this](const std::string &msg){
-            this->showWarning(
-                QString::fromStdString(msg));
-            });
+//        connect(worker, &SimulationWorker::trainSlowSpeed,
+//                [this](const std::string &msg){
+//            this->showWarning(
+//                QString::fromStdString(msg));
+//            });
 
-        connect(worker, &SimulationWorker::trainSuddenAcceleration,
-                [this](const std::string &msg){
-                    this->showWarning(
-                        QString::fromStdString(msg));
-                });
+//        connect(worker, &SimulationWorker::trainSuddenAcceleration,
+//                [this](const std::string &msg){
+//                    this->showWarning(
+//                        QString::fromStdString(msg));
+//                });
 
         // handle any error that arise from the simulator
         connect(worker, &SimulationWorker::errorOccurred, this,
@@ -2129,17 +2561,20 @@ void NeTrainSim::setValue(const int recNo, const QString paramName,
     if (paramName == "Project") {
         paramValue = QString("Project: ") +
                      (ui->lineEdit_projectName->text().trimmed().isEmpty() ?
-                                                 QString("Not Defined") : ui->lineEdit_projectName->text().trimmed());
+                          QString("Not Defined") :
+                          ui->lineEdit_projectName->text().trimmed());
     }
     if (paramName == "Network") {
         paramValue = QString("Network: ") +
                      (ui->lineEdit_networkName->text().trimmed().isEmpty() ?
-                          QString("Not Defined") : ui->lineEdit_networkName->text().trimmed());
+                          QString("Not Defined") :
+                          ui->lineEdit_networkName->text().trimmed());
     }
     if (paramName == "Author") {
         paramValue = QString("Author: ") +
                      (ui->lineEdit_createdBy->text().trimmed().isEmpty() ?
-                          QString("Not Defined") : ui->lineEdit_createdBy->text().trimmed());
+                          QString("Not Defined") :
+                          ui->lineEdit_createdBy->text().trimmed());
     }
 }
 
@@ -2173,37 +2608,88 @@ void NeTrainSim::showDetailedReport(QString trajectoryFilename) {
                                 ui->comboBox_trainsResults->currentText());
         int columnNumber =
             ui->comboBox_resultsXAxis->currentText() == "Distance" ? 2 : 1;
-        QString xAxisLabel = ui->comboBox_resultsXAxis->currentText() == "Distance" ? "Distance (km)" : "Time (hr)";
-        double xDataFactor = ui->comboBox_resultsXAxis->currentText() == "Distance" ? 1.0/1000 : 1.0 / 3600.0;
-        auto xData = Utils::factorQVector(Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, columnNumber)), xDataFactor);
-        auto grades = Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 13));
-        auto curvatures = Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 14));
-        auto speeds = Utils::factorQVector(Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 4)), 3.6);
-        auto accelerations = Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 3));
-        auto EC = Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 6));
-        auto tractiveForces = Utils::factorQVector(Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 10)), 1.0/1000.0);
-        auto resistance = Utils::factorQVector(Utils::convertQStringVectorToDouble(CSV->getColumnValues(selectedTrain, 11)), 1.0/1000.0);
-        auto totalForces = Utils::subtractQVector(tractiveForces, resistance);
+        QString xAxisLabel = ui->comboBox_resultsXAxis->currentText() ==
+                                     "Distance" ? "Distance (km)" :
+                                 "Time (hr)";
+        double xDataFactor = ui->comboBox_resultsXAxis->currentText() ==
+                                     "Distance" ? 1.0/1000 : 1.0 / 3600.0;
+        auto xData = Utils::factorQVector(
+            Utils::convertQStringVectorToDouble(
+                CSV->getColumnValues(selectedTrain, columnNumber)),
+            xDataFactor);
+        auto grades =
+            Utils::convertQStringVectorToDouble(
+                CSV->getColumnValues(selectedTrain, 13));
+        auto curvatures =
+            Utils::convertQStringVectorToDouble(
+                CSV->getColumnValues(selectedTrain, 14));
+        auto speeds =
+            Utils::factorQVector(
+                Utils::convertQStringVectorToDouble(
+                    CSV->getColumnValues(selectedTrain, 4)), 3.6);
+        auto accelerations =
+            Utils::convertQStringVectorToDouble(
+                CSV->getColumnValues(selectedTrain, 3));
+        auto EC =
+            Utils::convertQStringVectorToDouble(
+                CSV->getColumnValues(selectedTrain, 6));
+        auto tractiveForces =
+            Utils::factorQVector(
+                Utils::convertQStringVectorToDouble(
+                    CSV->getColumnValues(selectedTrain, 10)), 1.0/1000.0);
+        auto resistance =
+            Utils::factorQVector(
+                Utils::convertQStringVectorToDouble(
+                    CSV->getColumnValues(selectedTrain, 11)), 1.0/1000.0);
+        auto totalForces =
+            Utils::subtractQVector(tractiveForces, resistance);
 
-        this->drawLineGraph(*ui->plot_trajectory_grades, xData, grades, xAxisLabel, "Percentage", "Grades", 0);
-        this->drawLineGraph(*ui->plot_trajectory_grades, xData, curvatures, xAxisLabel, "Percentage", "Curvatures", 1);
-        this->drawLineGraph(*ui->plot_trajectory_speed, xData, speeds, xAxisLabel, "Speed (km/h)", "Speed", 0);
-        this->drawLineGraph(*ui->plot_trajectory_acceleration, xData, accelerations, xAxisLabel, "Accelerations (m/s^2)", "Acceleration", 0);
-        this->drawLineGraph(*ui->plot_trajectory_EC, xData, EC, xAxisLabel, "Energy Consumption (kWh)", "Energy", 0);
+        this->drawLineGraph(
+            *ui->plot_trajectory_grades, xData, grades,
+            xAxisLabel, "Percentage", "Grades", 0);
+        this->drawLineGraph(
+            *ui->plot_trajectory_grades, xData, curvatures,
+            xAxisLabel, "Percentage", "Curvatures", 1);
+        this->drawLineGraph(
+            *ui->plot_trajectory_speed, xData, speeds,
+            xAxisLabel, "Speed (km/h)", "Speed", 0);
+        this->drawLineGraph(
+            *ui->plot_trajectory_acceleration, xData,
+            accelerations, xAxisLabel, "Accelerations (m/s^2)",
+            "Acceleration", 0);
+        this->drawLineGraph(
+            *ui->plot_trajectory_EC, xData, EC, xAxisLabel,
+            "Energy Consumption (kWh)", "Energy", 0);
 
-        this->drawLineGraph(*ui->plot_forces_grades, xData, grades, xAxisLabel, "Percentage", "Grades", 0);
-        this->drawLineGraph(*ui->plot_forces_grades, xData, curvatures, xAxisLabel, "Percentage", "Curvatures", 1);
-        this->drawLineGraph(*ui->plot_forces_tractiveForces, xData, tractiveForces, xAxisLabel, "Forces", "Tractive Forces (kN)", 0);
-        this->drawLineGraph(*ui->plot_forces_resistance, xData, resistance, xAxisLabel, "Forces", "Resistance (kN)", 0);
-        this->drawLineGraph(*ui->plot_forces_totalForces, xData, totalForces, xAxisLabel, "Forces", "Net Forces (kN)", 0);
+        this->drawLineGraph(
+            *ui->plot_forces_grades, xData, grades, xAxisLabel,
+            "Percentage", "Grades", 0);
+        this->drawLineGraph(
+            *ui->plot_forces_grades, xData, curvatures, xAxisLabel,
+            "Percentage", "Curvatures", 1);
+        this->drawLineGraph(
+            *ui->plot_forces_tractiveForces, xData, tractiveForces,
+            xAxisLabel, "Forces", "Tractive Forces (kN)", 0);
+        this->drawLineGraph(
+            *ui->plot_forces_resistance, xData, resistance, xAxisLabel,
+            "Forces", "Resistance (kN)", 0);
+        this->drawLineGraph(
+            *ui->plot_forces_totalForces, xData, totalForces, xAxisLabel,
+            "Forces", "Net Forces (kN)", 0);
     };
 
-    connect(ui->comboBox_trainsResults, &QComboBox::currentTextChanged, updateResultsCurves);
-    connect(ui->comboBox_resultsXAxis, &QComboBox::currentTextChanged, updateResultsCurves);
+    connect(ui->comboBox_trainsResults,
+            &QComboBox::currentTextChanged, updateResultsCurves);
+    connect(ui->comboBox_resultsXAxis,
+            &QComboBox::currentTextChanged, updateResultsCurves);
 }
 
-void NeTrainSim::drawLineGraph(CustomPlot& plot, const QVector<double>& xData, const QVector<double>& yData,
-                               QString xLabel, QString yLabel, QString graphName, int plotIndex) {
+void NeTrainSim::drawLineGraph(CustomPlot& plot,
+                               const QVector<double>& xData,
+                               const QVector<double>& yData,
+                               QString xLabel, QString yLabel,
+                               QString graphName, int plotIndex)
+{
 
     while(plot.graphCount() - 1 < plotIndex ) {
         plot.addGraph(plot.xAxis, plot.yAxis);
@@ -2248,7 +2734,7 @@ void NeTrainSim::handleError(std::string error) {
 void NeTrainSim::closeEvent(QCloseEvent* event) {
     // Stop the thread and perform any necessary cleanup
     if (this->thread != nullptr) {
-        thread->quit();
+        thread->terminate();
         thread->wait();
     }
     if (this->worker != nullptr) {
@@ -2290,7 +2776,8 @@ void NeTrainSim::clearForm() {
 }
 
 
-QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot, const QPointF &targetPosition)
+QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot,
+                                             const QPointF &targetPosition)
 {
     // Iterate over the items in the plot
     for (int i = 0; i < plot->itemCount(); ++i) {
@@ -2302,7 +2789,8 @@ QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot, const QPointF &ta
             double labelX = label->position->coords().x();
             double labelY = label->position->coords().y();
 
-            if ((labelX == targetPosition.x()) && (labelY == targetPosition.y())) {
+            if ((labelX == targetPosition.x()) &&
+                (labelY == targetPosition.y())) {
                     return label; // Return the matching label
             }
         }
@@ -2313,7 +2801,9 @@ QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot, const QPointF &ta
 
 void NeTrainSim::handleSampleProject() {
     QString executablePath = QCoreApplication::applicationDirPath();
-    QString filePath = QDir(QDir(executablePath).filePath("sampleProject")).filePath("sampleProject.NTS");
+    QString filePath =
+        QDir(QDir(executablePath).filePath("sampleProject")).
+                       filePath("sampleProject.NTS");
     this->loadProjectFiles(filePath);
 }
 
@@ -2324,6 +2814,9 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
         return;
     }
     if (!projectFilename.isEmpty()) {
+        QFileInfo fileInfo(projectFilename);
+        QString parentDirPath = fileInfo.dir().absolutePath();
+
         QString executableDirectory = QApplication::applicationDirPath();
 
         auto out = XMLManager::readProjectFile(projectFilename);
@@ -2334,12 +2827,20 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
         QString linksFile = std::get<4>(out);
         QString trainsFile = std::get<5>(out);
         QString PWDString = "$${PWD}";
-        nodesFile.replace(PWDString, executableDirectory);
-        linksFile.replace(PWDString, executableDirectory);
-        trainsFile.replace(PWDString, executableDirectory);
+        nodesFile.replace(PWDString, parentDirPath);
+        linksFile.replace(PWDString, parentDirPath);
+        trainsFile.replace(PWDString, parentDirPath);
+
+        QString ExecutableString = "$${EXE}";
+        nodesFile.replace(ExecutableString, executableDirectory);
+        linksFile.replace(ExecutableString, executableDirectory);
+        trainsFile.replace(ExecutableString, executableDirectory);
+
+
         QFile nfile(nodesFile);
         if (nfile.exists()) {
             ui->lineEdit_nodes->setText(nodesFile);
+            //ui->checkBox_defineNewNetwork->setCheckState(Qt::Unchecked);
         }
         else {
             this->showWarning("Nodes file does not exist");
@@ -2348,6 +2849,7 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
         QFile lfile(linksFile);
         if (lfile.exists()) {
             ui->lineEdit_links->setText(linksFile);
+            //ui->checkBox_defineNewNetwork->setCheckState(Qt::Unchecked);
         }
         else {
             this->showWarning("Links file does not exist");
@@ -2357,6 +2859,7 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
         QFile tfile(trainsFile);
         if (tfile.exists()) {
             ui->lineEdit_trains->setText(trainsFile);
+            //ui->checkBox_TrainsOD->setCheckState(Qt::Unchecked);
         }
         else {
             this->showWarning("Trains file does not exist");
@@ -2368,7 +2871,8 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
             ui->doubleSpinBox->setValue(simTime);
         }
         else {
-            QMessageBox::warning(this, "Error", "Wrong Project File Structure!");
+            QMessageBox::warning(this, "Error",
+                                 "Wrong Project File Structure!");
             return;
         }
         double simTimestep = std::get<7>(out).toDouble(&ok);
@@ -2376,7 +2880,8 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
             ui->doubleSpinBox_timeStep->setValue(simTimestep);
         }
         else {
-            QMessageBox::warning(this, "Error", "Wrong Project File Structure!");
+            QMessageBox::warning(this, "Error",
+                                 "Wrong Project File Structure!");
             return;
         }
         double simTimestepPlot = std::get<8>(out).toDouble(&ok);
@@ -2384,7 +2889,8 @@ void NeTrainSim::loadProjectFiles(QString projectFilename) {
             ui->spinBox_plotEvery->setValue(simTimestepPlot);
         }
         else {
-            QMessageBox::warning(this, "Error", "Wrong Project File Structure!");
+            QMessageBox::warning(this, "Error",
+                                 "Wrong Project File Structure!");
             return;
         }
 
@@ -2431,9 +2937,742 @@ NeTrainSim::~NeTrainSim()
 
 
 void NeTrainSim::pauseSimulation() {
-    QMetaObject::invokeMethod(worker->sim, "pauseSimulation", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        worker->sim, "pauseSimulation", Qt::QueuedConnection);
 }
 
 void NeTrainSim::resumeSimulation() {
-    QMetaObject::invokeMethod(worker->sim, "resumeSimulation", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        worker->sim, "resumeSimulation", Qt::QueuedConnection);
 }
+
+void NeTrainSim::loadNodesDataToTable(
+    Vector<Map<std::string, std::string>> nodesRecords)
+{
+
+    if (nodesRecords.empty()) {
+        return;
+    }
+
+    // First, disconnect the signal and slot
+    QObject::disconnect(ui->table_newNodes,
+                        &QTableWidget::cellChanged,
+                        nullptr, nullptr);
+    QObject::disconnect(ui->doubleSpinBox_xCoordinate,
+                        &QDoubleSpinBox::valueChanged,
+                        nullptr, nullptr);
+    QObject::disconnect(ui->doubleSpinBox_yCoordinate,
+                        &QDoubleSpinBox::valueChanged,
+                        nullptr, nullptr);
+
+    double xScale = std::stod(nodesRecords[0]["XScale"]);
+    double yScale = std::stod(nodesRecords[0]["YScale"]);
+
+    ui->doubleSpinBox_xCoordinate->setValue(xScale);
+    ui->doubleSpinBox_yCoordinate->setValue(yScale);
+
+    try {
+        // get the data from the QTableWidget
+        for (int i = 0; i < nodesRecords.size(); i++) {
+            // get the item at row 0 and column 0 of the table widget
+            double xCoord = std::stod(nodesRecords[i]["XCoordinate"]);
+            double yCoord = std::stod(nodesRecords[i]["YCoordinate"]);
+            std::string desc = nodesRecords[i]["Desc"];
+            QString label = QString::fromStdString(nodesRecords[i]["UserID"]);
+
+            // ID
+            QModelIndex index = ui->table_newNodes->model()->index(i, 0);
+            ui->table_newNodes->model()->setData(index, label, Qt::EditRole);
+
+            // X Coordinate
+            index = ui->table_newNodes->model()->index(i, 1);
+            ui->table_newNodes->model()->setData(index, xCoord, Qt::EditRole);
+
+            // Y Coordinate
+            index = ui->table_newNodes->model()->index(i, 2);
+            ui->table_newNodes->model()->setData(index, yCoord, Qt::EditRole);
+
+            // Describtion
+            index = ui->table_newNodes->model()->index(i, 3);
+            ui->table_newNodes->model()->
+                setData(index, QString::fromStdString(desc), Qt::EditRole);
+
+            ui->table_newNodes->insertRow(ui->table_newNodes->rowCount());
+            // set the new id count as default value for the first
+            // cell of the new row
+            int uniqueID = ui->table_newNodes->generateUniqueID();
+            index = ui->table_newNodes->model()->index(i+1, 0);
+            ui->table_newNodes->model()->
+                setData(index, uniqueID, Qt::EditRole);
+        }
+
+    }
+    catch (std::exception& e) {
+        this->showWarning(e.what());
+    }
+
+    // connect the cellChanged signals of the QTableWidget to the updatePlot slot
+    QObject::connect(ui->table_newNodes,
+                     &QTableWidget::cellChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
+    QObject::connect(ui->doubleSpinBox_xCoordinate,
+                     &QDoubleSpinBox::valueChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
+    QObject::connect(ui->doubleSpinBox_yCoordinate,
+                     &QDoubleSpinBox::valueChanged,
+                     this, &NeTrainSim::updateTheNodesPlotData);
+
+    this->forceReplotNodes();
+
+    // in case the user loaded the links data first
+    this->forceReplotLinks();
+
+}
+
+
+void NeTrainSim::loadLinksDataToTable(
+    Vector<Map<std::string, std::string>> linksRecords)
+{
+
+    if (linksRecords.empty()) {
+        return;
+    }
+
+    // first disconnect the slots from cell changed
+
+    // add a row to the links table everytime you edit the last row cell
+    QObject::disconnect(ui->table_newLinks, &QTableWidget::cellChanged,
+                        nullptr, nullptr);
+
+    // connect the cellChanged signal of the QTableWidget to
+    // the updatePlot slot
+    QObject::disconnect(ui->table_newLinks, &QTableWidget::cellChanged,
+                        nullptr, nullptr);
+
+    double lengthScale = std::stod(linksRecords[0]["LengthScale"]);
+    double speedScale = std::stod(linksRecords[0]["FreeFlowSpeedScale"]);
+
+
+    ui->doubleSpinBox_LengthScale->setValue(lengthScale);
+    ui->doubleSpinBox_SpeedScale->setValue(speedScale);
+
+    try {
+        // get the data from the QTableWidget
+        for (int i = 0; i < linksRecords.size(); i++) {
+
+            std::string userID = linksRecords[i]["UserID"];
+            int FromNodeID = std::stoi(linksRecords[i]["FromNodeID"]);
+            int ToNodeID = std::stoi(linksRecords[i]["ToNodeID"]);
+            double length = std::stod(linksRecords[i]["Length"]);
+            int signalNo = std::stoi(linksRecords[i]["SignalNo"]);
+            int direction = std::stoi(linksRecords[i]["Directions"]);
+            bool dir = (direction == 1) ? false : true;
+            double freeFlow = std::stod(linksRecords[i]["FreeFlowSpeed"]);
+            double grade = std::stod(linksRecords[i]["DirectionalGrade"]);
+            double curv = std::stod(linksRecords[i]["Curvature"]);
+            double spdVar = std::stod(linksRecords[i]["SpeedVariation"]);
+            std::string signalsLoc = linksRecords[i]["SignalsAtNodes"];
+            std::string region = linksRecords[i]["Region"];
+            bool hasCat;
+            std::stringstream s(linksRecords[i]["HasCatenary"]);
+            s >> hasCat;
+
+            QModelIndex index = ui->table_newLinks->model()->index(i, 0);
+            ui->table_newLinks->model()->
+                setData(index, QString::fromStdString(userID), Qt::EditRole);
+
+
+            index = ui->table_newLinks->model()->index(i, 1);
+            ui->table_newLinks->model()->
+                setData(index, FromNodeID, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 2);
+            ui->table_newLinks->model()->
+                setData(index, ToNodeID, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 3);
+            ui->table_newLinks->model()->
+                setData(index, length, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 4);
+            ui->table_newLinks->model()->
+                setData(index, freeFlow, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 5);
+            ui->table_newLinks->model()->
+                setData(index, signalNo, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 6);
+            ui->table_newLinks->model()->
+                setData(index, QString::fromStdString(signalsLoc),
+                                                 Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 7);
+            ui->table_newLinks->model()->
+                setData(index, grade, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 8);
+            ui->table_newLinks->model()->
+                setData(index, curv, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 9);
+            ui->table_newLinks->model()->
+                setData(index, dir, Qt::CheckStateRole);
+
+            index = ui->table_newLinks->model()->index(i, 10);
+            ui->table_newLinks->model()->
+                setData(index, spdVar, Qt::EditRole);
+
+            index = ui->table_newLinks->model()->index(i, 11);
+            ui->table_newLinks->model()->
+                setData(index, hasCat, Qt::CheckStateRole);
+
+            index = ui->table_newLinks->model()->index(i, 12);
+            ui->table_newLinks->model()->
+                setData(index, QString::fromStdString(region), Qt::EditRole);
+
+            ui->table_newLinks->insertRow(ui->table_newLinks->rowCount());
+            // set the new id count as default value for the first
+            // cell of the new row
+            int uniqueID = ui->table_newLinks->generateUniqueID();
+            index = ui->table_newLinks->model()->index(i+1, 0);
+            ui->table_newLinks->model()->
+                setData(index, uniqueID, Qt::EditRole);
+        }
+    }
+    catch (std::exception& e) {
+        this->showWarning(e.what());
+    }
+    // add a row to the links table everytime you edit the last row cell
+    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged,
+                     this, &NeTrainSim::addRowToNewLinks);
+
+    // connect the cellChanged signal of the QTableWidget to
+    // the updatePlot slot
+    QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged,
+                     this, &NeTrainSim::updateTheLinksPlotData);
+
+    this->forceReplotLinks();
+
+}
+
+void NeTrainSim::loadLocomotivesDataToTable(
+    Vector<Map<std::string, std::any>> trainsRecords)
+{
+
+    if (trainsRecords.empty()) {
+        return;
+    }
+
+    ui->table_newLocomotive->clearContent();
+
+    for (auto& trainRecord: trainsRecords) {
+        // get loco values
+        auto locoRecords =
+            std::any_cast<Vector<Map<std::string,
+                                     std::string>>>(trainRecord["Locomotives"]);
+        for (int i = 0; i < locoRecords.size(); i ++) {
+            // if there is a car with the same properties, continue
+            if (getLocomotiveIDFromTable(locoRecords[i]) > 0) {
+                    continue;
+            }
+
+            // Power
+            QModelIndex index = ui->table_newLocomotive->model()->index(i, 1);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["Power"]), Qt::EditRole);
+
+            // trans eff
+            index = ui->table_newLocomotive->model()->index(i, 2);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["TransmissionEff"]),
+                                                 Qt::EditRole);
+
+            // length
+            index = ui->table_newLocomotive->model()->index(i, 3);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["Length"]),
+                        Qt::EditRole);
+
+            // drag
+            index = ui->table_newLocomotive->model()->index(i, 4);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["AirDragCoeff"]),
+                        Qt::EditRole);
+
+            // area
+            index = ui->table_newLocomotive->model()->index(i, 5);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["FrontalArea"]),
+                        Qt::EditRole);
+
+            // weight
+            index = ui->table_newLocomotive->model()->index(i, 6);
+            ui->table_newLocomotive->model()->
+                setData(index, stod(locoRecords[i]["GrossWeight"]),
+                        Qt::EditRole);
+
+            // axles
+            index = ui->table_newLocomotive->model()->index(i, 7);
+            ui->table_newLocomotive->model()->
+                setData(index, stoi(locoRecords[i]["NoOfAxles"]),
+                                                      Qt::EditRole);
+
+            QString theType =
+                QString::fromStdString(TrainTypes::powerTypeStrings[stoi(
+                    locoRecords[i]["Type"])]);
+
+            // axles
+            index = ui->table_newLocomotive->model()->index(i, 8);
+            ui->table_newLocomotive->model()->
+                setData(index, theType, Qt::EditRole);
+
+            // add new row to the table
+            ui->table_newLocomotive->
+                insertRow(ui->table_newLocomotive->rowCount());
+            // set the new id count as default value for the first
+            // cell of the new row
+            int uniqueID = ui->table_newLocomotive->generateUniqueID();
+            index = ui->table_newLocomotive->model()->index(i+1, 0);
+            ui->table_newLocomotive->model()->
+                setData(index, uniqueID, Qt::EditRole);
+
+            }
+    }
+
+}
+
+
+void NeTrainSim::loadCarsDataToTable(
+    Vector<Map<std::string, std::any>> trainsRecords)
+{
+
+    if (trainsRecords.empty()) {
+            return;
+    }
+
+    ui->table_newCar->clearContent();
+
+    for (auto& trainRecord: trainsRecords) {
+            // get loco values
+            auto carRecords =
+                std::any_cast<Vector<Map<std::string,
+                                         std::string>>>(trainRecord["Cars"]);
+            for (int i = 0; i < carRecords.size(); i ++)
+            {
+                    // if there is a car with the same properties, continue
+                    if (getCarIDFromTable(carRecords[i]) > 0) {
+                        continue;
+                    }
+
+                    // get the values
+                    double len = stod(carRecords[i]["Length"]);
+                    double drg = stod(carRecords[i]["AirDragCoeff"]);
+                    double area = stod(carRecords[i]["FrontalArea"]);
+                    double emptyW = stod(carRecords[i]["TareWeight"]);
+                    double grossW = stod(carRecords[i]["GrossWeight"]);
+                    int axles = stoi(carRecords[i]["NoOfAxles"]);
+                    int type = stoi(carRecords[i]["Type"]);
+
+                    // length
+                    QModelIndex index =
+                        ui->table_newCar->model()->index(i, 1);
+                    ui->table_newCar->model()->
+                        setData(index, len, Qt::EditRole);
+
+                    // drag
+                    index =
+                        ui->table_newCar->model()->index(i, 2);
+                    ui->table_newCar->model()->
+                        setData(index, drg, Qt::EditRole);
+
+                    // area
+                    index =
+                        ui->table_newCar->model()->index(i, 3);
+                    ui->table_newCar->model()->
+                        setData(index, area, Qt::EditRole);
+
+                    // tare weight
+                    index =
+                        ui->table_newCar->model()->index(i, 4);
+                    ui->table_newCar->model()->
+                        setData(index, emptyW, Qt::EditRole);
+
+                    // gross weight
+                    index =
+                        ui->table_newCar->model()->index(i, 5);
+                    ui->table_newCar->model()->
+                        setData(index, grossW, Qt::EditRole);
+
+                    // axles
+                    index =
+                        ui->table_newCar->model()->index(i, 6);
+                    ui->table_newCar->model()->
+                        setData(index, axles, Qt::EditRole);
+
+                    // type
+                    QString theType =
+                        QString::fromStdString(
+                            TrainTypes::carTypeStrings[type]);
+                    index =
+                        ui->table_newCar->model()->index(i, 7);
+                    ui->table_newCar->model()->
+                        setData(index, theType, Qt::EditRole);
+
+                    // add new row
+                    ui->table_newCar->insertRow(ui->table_newCar->rowCount());
+                    // set the new id count as default value for the first
+                    // cell of the new row
+                    int uniqueID = ui->table_newCar->generateUniqueID();
+                    index = ui->table_newCar->model()->index(i+1, 0);
+                    ui->table_newCar->model()->
+                        setData(index, uniqueID, Qt::EditRole);
+            }
+    }
+
+}
+
+void NeTrainSim::loadConfigsDataToTable(
+    Vector<Map<std::string, std::any>> trainsRecords)
+{
+    if (trainsRecords.empty())
+    {
+            return;
+    }
+
+    ui->table_newConfiguration->clearContent();
+
+    for (auto& trainRecord: trainsRecords) {
+
+
+            // get loco values
+            auto locoRecords =
+                std::any_cast<Vector<Map<std::string,
+                                         std::string>>>(
+                trainRecord["Locomotives"]);
+
+            // get cars values
+            auto carRecords =
+                std::any_cast<Vector<Map<std::string,
+                                         std::string>>>(trainRecord["Cars"]);
+
+            auto trainID = std::any_cast<std::string>(trainRecord["UserID"]);
+
+            // locomotives
+            for (auto & locoRecord : locoRecords)
+            {
+                    int id = this->getLocomotiveIDFromTable(locoRecord);
+
+                    if (id >= 0) {
+                        int i = ui->table_newConfiguration->rowCount() - 1;
+                        // ID
+                        QModelIndex index =
+                            ui->table_newConfiguration->model()->index(i, 0);
+                        ui->table_newConfiguration->model()->
+                            setData(index,
+                                    QString::fromStdString(trainID),
+                                    Qt::EditRole);
+
+                        // Locomotive
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 1);
+                        QString lname = "Locomotive";
+                        ui->table_newConfiguration->model()->
+                            setData(index, lname, Qt::EditRole);
+
+                        // the instance id
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 2);
+                        ui->table_newConfiguration->model()->
+                            setData(index, id, Qt::EditRole);
+
+                        // the instance id
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 3);
+                        ui->table_newConfiguration->model()->
+                            setData(index,
+                                    stoi(locoRecord["Count"]),
+                                    Qt::EditRole);
+
+                        // insert a new row
+                        ui->table_newConfiguration->
+                            insertRow(ui->table_newConfiguration->rowCount());
+                        // set the new id count as default value for the first
+                        // cell of the new row
+                        int uniqueID = ui->table_newConfiguration->
+                                       generateUniqueID();
+                        index = ui->table_newConfiguration->model()->
+                                index(i+1, 0);
+                        ui->table_newConfiguration->model()->
+                            setData(index, uniqueID, Qt::EditRole);
+                    }
+
+            }
+
+            // cars
+            for (auto& carRecord: carRecords) {
+                    int id = this->getCarIDFromTable(carRecord);
+
+                    if (id >= 0) {
+
+                        int i = ui->table_newConfiguration->rowCount() - 1;
+
+                        // ID
+                        QModelIndex index =
+                            ui->table_newConfiguration->model()->index(i, 0);
+                        ui->table_newConfiguration->model()->
+                            setData(index,
+                                    QString::fromStdString(trainID),
+                                    Qt::EditRole);
+
+                        // Locomotive
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 1);
+                        QString lname = "Car";
+                        ui->table_newConfiguration->model()->
+                            setData(index, lname, Qt::EditRole);
+
+
+                        // the instance id
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 2);
+                        ui->table_newConfiguration->model()->
+                            setData(index, id, Qt::EditRole);
+
+                        // the instance id
+                        index =
+                            ui->table_newConfiguration->model()->index(i, 3);
+                        ui->table_newConfiguration->model()->
+                            setData(index,
+                                    stoi(carRecord["Count"]),
+                                    Qt::EditRole);
+
+                        // insert a new row
+                        ui->table_newConfiguration->
+                            insertRow(ui->table_newConfiguration->rowCount());
+                        // set the new id count as default value for the first
+                        // cell of the new row
+                        int uniqueID = ui->table_newConfiguration->
+                                       generateUniqueID();
+                        index = ui->table_newConfiguration->model()->
+                                index(i+1, 0);
+                        ui->table_newConfiguration->model()->
+                            setData(index, uniqueID, Qt::EditRole);
+                    }
+            }
+
+    }
+}
+
+void NeTrainSim::loadTrainsDataToTable(
+    Vector<Map<std::string, std::any>> trainsRecords)
+{
+
+    if (trainsRecords.empty()) {
+        return;
+    }
+
+    ui->table_newTrain->clearContent();
+
+    for (int i = 0; i < trainsRecords.size(); i++) {
+        auto trainRecord = trainsRecords[i];
+        std::string id = std::any_cast<std::string>(trainRecord["UserID"]);
+        std::string nodes =
+            std::any_cast<Vector<int>>(
+            trainRecord["TrainPathOnNodeIDs"]).toNotFormattedString();
+        double start =
+            std::any_cast<double>(trainRecord["LoadTime"]);
+        auto locos =
+            std::any_cast<Vector<Map<std::string, std::string>>>(
+            trainRecord["Locomotives"]);
+        int locosCount = 0;
+        for (auto& loc:locos) {
+                   locosCount += stoi(loc["Count"]);
+        }
+        auto cars =
+            std::any_cast<Vector<Map<std::string, std::string>>>(
+                trainRecord["Cars"]);
+        int carsCount = 0;
+        for (auto& car:cars) {
+                   carsCount += stoi(car["Count"]);
+        }
+        double friction =
+            std::any_cast<double>(trainRecord["FrictionCoef"]);
+
+
+        // ID
+        QModelIndex index =
+            ui->table_newTrain->model()->index(i, 0);
+        ui->table_newTrain->model()->
+            setData(index,
+                    QString::fromStdString(id),
+                    Qt::EditRole);
+
+        // Config ID
+        index =
+            ui->table_newTrain->model()->index(i, 1);
+        ui->table_newTrain->model()->
+            setData(index,
+                    QString::fromStdString(id),
+                    Qt::EditRole);
+
+
+        // nodes
+        index =
+            ui->table_newTrain->model()->index(i, 2);
+        ui->table_newTrain->model()->
+            setData(index,
+                    QString::fromStdString(nodes),
+                    Qt::EditRole);
+
+        // start time
+        index =
+            ui->table_newTrain->model()->index(i, 3);
+        ui->table_newTrain->model()->
+            setData(index, start, Qt::EditRole);
+
+        // locos count
+        index =
+            ui->table_newTrain->model()->index(i, 4);
+        ui->table_newTrain->model()->
+            setData(index, locosCount, Qt::EditRole);
+
+        // cars count
+        index =
+            ui->table_newTrain->model()->index(i, 5);
+        ui->table_newTrain->model()->
+            setData(index, carsCount, Qt::EditRole);
+
+        // friction
+        index =
+            ui->table_newTrain->model()->index(i, 6);
+        ui->table_newTrain->model()->
+            setData(index, friction, Qt::EditRole);
+
+
+        ui->table_newTrain->
+            insertRow(ui->table_newTrain->rowCount());
+
+        // set the new id count as default value for the first
+        // cell of the new row
+        int uniqueID = ui->table_newTrain->
+                       generateUniqueID();
+        index = ui->table_newTrain->model()->
+                index(i+1, 0);
+        ui->table_newTrain->model()->
+            setData(index, uniqueID, Qt::EditRole);
+    }
+}
+
+void NeTrainSim::loadTrainsDataToTables(
+    Vector<Map<std::string, std::any>> trainsRecords)
+{
+    this->loadLocomotivesDataToTable(trainsRecords);
+    this->loadCarsDataToTable(trainsRecords);
+    this->loadConfigsDataToTable(trainsRecords);
+    this->loadTrainsDataToTable(trainsRecords);
+}
+
+
+
+int NeTrainSim::getCarIDFromTable(Map<std::string, std::string> carRecords) {
+    double eLen = stod(carRecords["Length"]);
+    double eDrg = stod(carRecords["AirDragCoeff"]);
+    double eArea = stod(carRecords["FrontalArea"]);
+    double eEmptyW = stod(carRecords["TareWeight"]);
+    double eGrossW = stod(carRecords["GrossWeight"]);
+    int eAxles = stoi(carRecords["NoOfAxles"]);
+    int eT = stoi(carRecords["Type"]);
+    std::string eType = TrainTypes::carTypeStrings[eT];
+
+    if (ui->table_newCar->rowCount() == 0)
+    {
+        return -1;
+    }
+
+    for (int i = 0; i < ui->table_newCar->rowCount() ; i++ )
+    {
+        QTableWidgetItem* idItem = ui->table_newCar->item(i, 0);
+        QTableWidgetItem* lenItem = ui->table_newCar->item(i, 1);
+        QTableWidgetItem* dragItem = ui->table_newCar->item(i, 2);
+        QTableWidgetItem* areaItem = ui->table_newCar->item(i, 3);
+        QTableWidgetItem* eWItem = ui->table_newCar->item(i, 4);
+        QTableWidgetItem* fWItem = ui->table_newCar->item(i, 5);
+        QTableWidgetItem* axleItem = ui->table_newCar->item(i, 6);
+        QTableWidgetItem* typeItem = ui->table_newCar->item(i, 7);
+
+        if (idItem && lenItem && dragItem &&
+            areaItem && eWItem && fWItem && axleItem) {
+                int id = idItem->text().trimmed().toInt();
+                double len = lenItem->text().trimmed().toDouble();
+                double drag = dragItem->text().trimmed().toDouble();
+                double area = areaItem->text().trimmed().toDouble();
+                double ew = eWItem->text().trimmed().toDouble();
+                double fw = fWItem->text().trimmed().toDouble();
+                int axle = axleItem->text().trimmed().toInt();
+                QString type = typeItem->text().trimmed();
+
+                if (eLen == len && eDrg == drag && eArea == area &&
+                    eEmptyW == ew && eGrossW == fw && eAxles == axle &&
+                    QString::fromStdString(eType) == type)
+                {
+                    return id;
+                }
+        }
+    }
+    return -1;
+}
+
+
+int NeTrainSim::getLocomotiveIDFromTable(
+    Map<std::string, std::string> locomotiveRecords)
+{
+    if (ui->table_newLocomotive->rowCount() == 0)
+    {
+        return -1;
+    }
+    double ePower = stod(locomotiveRecords["Power"]);
+    double eTrans = stod(locomotiveRecords["TransmissionEff"]);
+    double eLen = stod(locomotiveRecords["Length"]);
+    double eDrg = stod(locomotiveRecords["AirDragCoeff"]);
+    double eArea = stod(locomotiveRecords["FrontalArea"]);
+    double eGrossW = stod(locomotiveRecords["GrossWeight"]);
+    int eAxles = stoi(locomotiveRecords["NoOfAxles"]);
+    int eT = stoi(locomotiveRecords["Type"]);
+    std::string eType = TrainTypes::powerTypeStrings[eT];
+
+    for (int i = 0; i < ui->table_newLocomotive->rowCount() ; i++ ) {
+            QTableWidgetItem* idItem = ui->table_newLocomotive->item(i, 0);
+            QTableWidgetItem* pwrItem = ui->table_newLocomotive->item(i, 1);
+            QTableWidgetItem* transItem = ui->table_newLocomotive->item(i, 2);
+            QTableWidgetItem* lenItem = ui->table_newLocomotive->item(i, 3);
+            QTableWidgetItem* dragItem = ui->table_newLocomotive->item(i, 4);
+            QTableWidgetItem* areaItem = ui->table_newLocomotive->item(i, 5);
+            QTableWidgetItem* fWItem = ui->table_newLocomotive->item(i, 6);
+            QTableWidgetItem* axleItem = ui->table_newLocomotive->item(i, 7);
+            QTableWidgetItem* typeItem = ui->table_newLocomotive->item(i, 8);
+
+            if (pwrItem && transItem && idItem && lenItem && dragItem &&
+                areaItem && fWItem && axleItem) {
+                    int id = idItem->text().trimmed().toInt();
+                    double power = pwrItem->text().trimmed().toDouble();
+                    double trans = transItem->text().trimmed().toDouble();
+                    double len = lenItem->text().trimmed().toDouble();
+                    double drag = dragItem->text().trimmed().toDouble();
+                    double area = areaItem->text().trimmed().toDouble();
+                    double fw = fWItem->text().trimmed().toDouble();
+                    int axle = axleItem->text().trimmed().toInt();
+                    QString type = typeItem->text().trimmed();
+
+                    if (power == ePower && trans ==  eTrans &&
+                        eLen == len && eDrg == drag && eArea == area &&
+                        eGrossW == fw && eAxles == axle &&
+                        QString::fromStdString(eType) == type)
+                    {
+                        return id;
+                    }
+            }
+    }
+    return -1;
+}
+
