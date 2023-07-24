@@ -58,7 +58,7 @@ Car::Car(double carLength_m, double carDragCoef,
         else if (this->carType == TrainTypes::CarType::biodieselTender) {
             fuelWeight = this->getTankInitialCapacity() * EC::DefaultBioDieselDensity;
         }
-        else if (this->carType == TrainTypes::CarType::hydrogenTender) {
+        else if (this->carType == TrainTypes::CarType::hydrogenFuelCell) {
             fuelWeight = this->getTankInitialCapacity() * EC::DefaultHydrogenDensity;
         }
         // update the weight to account for the fuel weight
@@ -134,7 +134,7 @@ std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
         else if (this->carType == TrainTypes::CarType::batteryTender) {
             return this->consumeElectricity(timeStep, EC_kwh);
         }// end if technology type battery
-        else if (this->carType == TrainTypes::CarType::hydrogenTender) {
+        else if (this->carType == TrainTypes::CarType::hydrogenFuelCell) {
             return this->consumeFuelHydrogen(EC_kwh, hydrogenConversionFactor, hydrogenDensity);
         }// end if technology type hydrogen
         return std::pair(false, EC_kwh);
