@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://github.com/Ahmed/NeTrainSim">
+  <a href="https://github.com/VTTI-CSM/NeTrainSim">
     <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/d38d4ebe-3eb6-4877-b168-032373a54b11" alt="NeTrainSim"/>
   </a>
   <br/>
@@ -13,19 +13,19 @@
   <a href="https://www.gnu.org/licenses/gpl-3.0">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GNU GPL v3">
   </a>
-  <a href="https://github.com/AhmedAredah/NeTrainSim/releases">
-    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/AhmedAredah/NeTrainSim.svg?label=latest">
+  <a href="https://github.com/VTTI-CSM/NeTrainSim/releases">
+    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/VTTI-CSM/NeTrainSim.svg?label=latest">
   </a>
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/AhmedAredah/NeTrainSim/total.svg">
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/VTTI-CSM/NeTrainSim/total.svg">
   <a href="">
     <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
-    <a href="https://cla-assistant.io/AhmedAredah/NeTrainSim"><img src="https://cla-assistant.io/readme/badge/AhmedAredah/NeTrainSim" alt="CLA assistant" /></a>
+    <a href="https://cla-assistant.io/VTTI-CSM/NeTrainSim"><img src="https://cla-assistant.io/readme/badge/VTTI-CSM/NeTrainSim" alt="CLA assistant" /></a>
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/AhmedAredah/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
-  <a href="https://ahmedaredah.github.io/NeTrainSim/" target="_blank">Documentation</a> |
+  <a href="https://github.com/VTTI-CSM/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
+  <a href="https://VTTI-CSM.github.io/NeTrainSim/" target="_blank">Documentation</a> |
   <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a>
 </p>
 
@@ -65,7 +65,7 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 
 
 ## Getting Started
-To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/AhmedAredah/NeTrainSim/releases).
+To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/VTTI-CSM/NeTrainSim/releases).
 
 ### Prerequisites
 There is no prerequisite required to run NeTrainSim as the installer has all the required 3rd party packages. 
