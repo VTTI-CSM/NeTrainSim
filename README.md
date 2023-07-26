@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/VTTI-CSM/NeTrainSim">
-    <img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/d38d4ebe-3eb6-4877-b168-032373a54b11" alt="NeTrainSim"/>
+    <img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/98776173-7574-404d-8eb4-bfdebe99f1cb" alt="NeTrainSim"/>
   </a>
   <br/>
   NeTrainSim [Network Trains Simulator]
