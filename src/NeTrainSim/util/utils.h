@@ -546,6 +546,22 @@ namespace Utils {
         return closestMatch;
     }
 
+    inline QStringList readEntriesFromFile(const std::string& filename) {
+        QStringList entries;
+        std::ifstream file(filename);
+
+        if (!file.is_open()) {
+            return entries; // Return an empty vector if file couldn't be opened
+        }
+
+        std::string line;
+        while (std::getline(file, line)) {
+            entries.append(QString::fromStdString(line));
+        }
+
+        file.close();
+        return entries;
+    }
 }
 
 

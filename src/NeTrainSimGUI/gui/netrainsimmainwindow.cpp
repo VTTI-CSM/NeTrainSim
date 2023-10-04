@@ -5,6 +5,7 @@
  */
 #include "netrainsimmainwindow.h"
 #include "gui/comboboxdelegate.h"
+#include "gui/importshpwindow.h"
 #include "gui/settingswindow.h"
 #include "gui/textboxdelegate.h"
 #include "nonemptydelegate.h"
@@ -90,6 +91,16 @@ void NeTrainSim::setupGenerals(){
         }
         if (this->theSettingsWindow != nullptr) {
             this->theSettingsWindow->show();
+        }
+    });
+
+    //show the import SHP window
+    connect(ui->actionFrom_ESRI_shape_file, &QAction::triggered, [this]() {
+        if (this->theimportSHPWindow == nullptr) {
+            this->theimportSHPWindow = std::make_shared<ImportSHPWindow>(this);
+        }
+        if (this->theimportSHPWindow != nullptr) {
+            this->theimportSHPWindow->show();
         }
     });
 
@@ -2105,7 +2116,8 @@ Vector<Map<std::string, std::any>> NeTrainSim::getTrainsDataFromTables() {
 }
 
 QString NeTrainSim::browseFiles(QLineEdit* theLineEdit,
-                                const QString& theFileName) {
+                                const QString& theFileName,
+                                QString fileFilterString) {
     QString browsLoc = QString();
     if ( this->userBrowsePath.isEmpty()) {
         browsLoc = this->defaultBrowsePath;
@@ -2114,7 +2126,7 @@ QString NeTrainSim::browseFiles(QLineEdit* theLineEdit,
         browsLoc = this->userBrowsePath;
     }
     QString fname = QFileDialog::getOpenFileName(nullptr, theFileName,
-                                                 browsLoc, "DAT Files (*.DAT)");
+                                                 browsLoc, fileFilterString);
     if (!fname.isEmpty()) {
         theLineEdit->setText(fname);
         QFileInfo fileInfo(fname);

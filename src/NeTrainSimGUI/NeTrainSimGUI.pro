@@ -18,6 +18,7 @@ include($$PWD/../dependencies/QtRptProject/QtRPT/QtRPT.pri)
 
 
 SOURCES += \
+    gui/importshpwindow.cpp \
     gui/netrainsimmainwindow.cpp \
     gui/settingswindow.cpp \
     gui/togglebutton.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
     gui/simulationworker.cpp \
     util/configurationmanager.cpp \
     util/errorhandler.cpp \
+    util/shapefilereader.cpp
 
 
 
@@ -77,6 +79,7 @@ HEADERS += \
     gui/customprogressbar.h \
     gui/customtablewidget.h \
     gui/disappearinglabel.h \
+    gui/importshpwindow.h \
     gui/intnumericdelegate.h \
     gui/netrainsimmainwindow.h \
     gui/nonemptydelegate.h \
@@ -89,12 +92,28 @@ HEADERS += \
     gui/togglebutton.h \
     util/configurationmanager.h \
     util/errorhandler.h \
+    util/shapefilereader.h
 
 
 FORMS += \
     gui/aboutwindow.ui \
+    gui/importshpwindow.ui \
     gui/netrainsimmainwindow.ui \
     gui/settingswindow.ui
+    gui/importshpwindow.ui
+
+
+
+
+win32{
+#   make sure you compile the dependencies first
+    INCLUDEPATH += ../dependencies/shpelib
+    LIBS += -L$$PWD/../dependencies/shpelib -lshapelib
+
+#   change the include path to the location of the PROJ library installation.
+    INCLUDEPATH += C:\OSGeo4W\include
+    LIBS += -LC:\OSGeo4W\lib -lproj
+}
 
 TRANSLATIONS += \
     NeTrainSimGUI_en_US.ts
@@ -136,8 +155,48 @@ unix:!macx {
     DESTDIR += $$PWD/../NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data
 }
 
-## Copy default INI file to the build directory
-#copy_cmd = $$QMAKE_COPY_DIR
-#copy_cmd += $$_PRO_FILE_PWD_/config.ini
-#copy_cmd += $$OUT_PWD
-#QMAKE_POST_LINK += $$copy_cmd
+# Determine if the configuration is debug or release and set the appropriate build subdirectory
+CONFIG(debug, debug|release) {
+    build_subdir = debug
+
+    # Append _d to the DLL filename if it's a debug build
+    proj_dll_suffix =
+} else {
+    build_subdir = release
+    proj_dll_suffix =
+}
+
+# Define the PROJ DLL file paths and copy command
+proj_dll_dir = $$PWD/../dependencies/PROJ/bin/proj_9_3$$join(proj_dll_suffix,,,).dll
+proj_dll_outdir = $$OUT_PWD/$$build_subdir/proj_9_3$$join(proj_dll_suffix,,,).dll
+message($$proj_dll_dir)
+# Define the PROJ Share folder paths and copy command
+proj_share_dir = $$PWD/../dependencies/PROJ/share
+proj_share_outdir = $$OUT_PWD/$$build_subdir/share
+
+# Windows-specific path transformations and copy command
+win32 {
+    proj_dll_dir ~= s,/,\\,g
+    proj_dll_outdir ~= s,/,\\,g
+    proj_share_dir ~= s,/,\\,g
+    proj_share_outdir ~= s,/,\\,g
+}
+
+# Define the Config file paths and copy command
+config_dir = $$PWD/config.ini
+config_out = $$OUT_PWD/$$build_subdir/config.ini
+
+# Windows-specific path transformations for the Config file
+win32 {
+    config_dir ~= s,/,\\,g
+    config_out ~= s,/,\\,g
+}
+
+win32: copyprojdata.commands = xcopy /E /I /Y $$shell_quote($$proj_share_dir) $$shell_quote($$proj_share_outdir)
+unix: copyprojdata.commands = cp -r $$shell_quote($$proj_share_dir) $$shell_quote($$proj_share_outdir)
+copyprojdll.commands = $(COPY_FILE) $$shell_quote($$proj_dll_dir) $$shell_quote($$proj_dll_outdir)
+copydata.commands = $(COPY_FILE) $$shell_quote($$config_dir) $$shell_quote($$config_out)
+
+# Add the copy commands to the extra targets so they will be executed as part of the build
+QMAKE_EXTRA_TARGETS += copyprojdll copyprojdata copydata
+PRE_TARGETDEPS += copyprojdll copyprojdata copydata

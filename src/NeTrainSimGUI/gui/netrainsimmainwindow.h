@@ -6,6 +6,7 @@
 #ifndef NETRAINSIMMAINWINDOW_H
 #define NETRAINSIMMAINWINDOW_H
 
+#include "gui/importshpwindow.h"
 #include "qtrpt.h"
 #include "qlineedit.h"
 #include "gui/aboutwindow.h"
@@ -294,6 +295,17 @@ public:
     void loadTrainsDataToTables(
         Vector<Map<std::string, std::any>> trainsRecords);
 
+    /**
+    * Opens a file browser dialog and returns the selected file name.
+    *
+    * @param theLineEdit The QLineEdit widget to update with the selected file name.
+    * @param theFileName The default file name or filter for the file browser dialog.
+    * @return The selected file name.
+    */
+    QString browseFiles(QLineEdit* theLineEdit,
+                        const QString& theFileName,
+                        QString fileFilterString = "DAT Files (*.DAT)");
+
 private:
     // The user interface
     Ui::NeTrainSim *ui;
@@ -332,6 +344,8 @@ private:
     std::shared_ptr<AboutWindow> aboutWindow = nullptr;
 
     std::shared_ptr<settingsWindow> theSettingsWindow = nullptr;
+
+    std::shared_ptr<ImportSHPWindow> theimportSHPWindow = nullptr;
 
     // String to store the project name.
     QString projectName;
@@ -539,15 +553,6 @@ private:
     * @param endNodeIDs The end node IDs of the links.
     */
     void updateLinksPlot(CustomPlot& plot, QVector<QString> startNodeIDs, QVector<QString> endNodeIDs);
-
-    /**
-    * Opens a file browser dialog and returns the selected file name.
-    *
-    * @param theLineEdit The QLineEdit widget to update with the selected file name.
-    * @param theFileName The default file name or filter for the file browser dialog.
-    * @return The selected file name.
-    */
-    QString browseFiles(QLineEdit* theLineEdit, const QString& theFileName);
 
     /**
     * Retrieves nodes data from a nodes file.
