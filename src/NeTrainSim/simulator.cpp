@@ -627,24 +627,25 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 		}
 		// write the trajectory step data
 		if (this->exportTrajectory) {
-			std::stringstream exportLine;
-			exportLine << train->trainUserID << ","
-				<< this->simulationTime << ","
-				<< train->travelledDistance << ","
-				<< train->currentAcceleration << ","
-				<< train->currentSpeed << ","
-				<< currentFreeFlowSpeed << ","
-				<< train->energyStat << ","
-				<< train->maxDelayTimeStat << ","
-				<< train->delayTimeStat << ","
-				<< train->stoppedStat << ","
-				<< train->currentTractiveForce << ","
-				<< train->currentResistanceForces << ","
-				<< train->currentUsedTractivePower << ","
-				<< grades[0] << ","
-				<< curvatures[0] << ","
-                << train->locomotives[0]->currentLocNotch
-				<< std::endl;
+            std::stringstream exportLine;
+            exportLine << train->trainUserID << ","
+                       << this->simulationTime << ","
+                       << train->travelledDistance << ","
+                       << train->currentAcceleration << ","
+                       << train->currentSpeed << ","
+                       << currentFreeFlowSpeed << ","
+                       << train->energyStat << ","
+                       << train->maxDelayTimeStat << ","
+                       << train->delayTimeStat << ","
+                       << train->stoppedStat << ","
+                       << train->currentTractiveForce << ","
+                       << train->currentResistanceForces << ","
+                       << train->currentUsedTractivePower << ","
+                       << grades[0] << ","
+                       << curvatures[0] << ","
+                       << train->locomotives[0]->currentLocNotch << ","
+                       << train->optimize
+                       << std::endl;
 
 			// write the step trajectory data to the file
 			this->trajectoryFile << exportLine.str();
@@ -1005,7 +1006,7 @@ void Simulator::runSimulation() {
                    << "Stoppings,tractiveForce_N,"
                    << "ResistanceForces_N,CurrentUsedTractivePower_kw,"
                    << "GradeAtTip_Perc,CurvatureAtTip_Perc,"
-                   << "FirstLocoNotchPosition\n";
+                   << "FirstLocoNotchPosition,optimizationEnabled\n";
 		this->trajectoryFile << exportLine.str();
 	}
 
@@ -1087,6 +1088,10 @@ void Simulator::runSimulation() {
         << "  |_ Total Signals                                                              \x1D : " << Utils::thousandSeparator(this->network->networkSignals.size()) << "\n"
         << "  |_ Total Number of Trains on Network                                          \x1D : " << Utils::thousandSeparator(this->trains.size()) << "\n"
         << "  |_ Percentage of Links with Catenaries to All Links (%)                       \x1D : " << Utils::thousandSeparator(std::get<0>(networkStats)) << "\n"
+        << "  |_ Number of Trains with Enabled Trajectory Optimization                      \x1D : " << std::accumulate(this->trains.begin(), this->trains.end(), 0,
+                                                                                                                               [](int total, const auto& train) {
+                                                                                                                                   return total + (int)train->optimize;
+                                                                                                                               }) << "\n"
         << "  |_ Catenary Total Energy Consumed (KW.h)                                      \x1D : " << Utils::thousandSeparator(std::get<1>(networkStats) - std::get<2>(networkStats)) << "\n"
         << "        |_ Average Catenary Energy Consumption per Net Weight (KW.h/ton)        \x1D : " << Utils::thousandSeparator( (std::get<1>(networkStats) - std::get<2>(networkStats)) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,

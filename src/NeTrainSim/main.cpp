@@ -114,6 +114,21 @@ int main(int argc, char *argv[])
                                             QCoreApplication::translate("main", "[Optional] the simulator time step. \nDefault is '1.0'."), "simulatorTimeStep", "1.0");
     parser.addOption(timeStepOption);
 
+    const QCommandLineOption enableOptimization(QStringList() << "z" << "optimization",
+                                                QCoreApplication::translate("main", "[Optional] bool to enable single train trajectory optimization. \nDefault is 'false'"), "optimization", "false");
+    parser.addOption(enableOptimization);
+
+    const QCommandLineOption optimizationEvery(QStringList() << "y" << "optimizeEvery",
+                                               QCoreApplication::translate("main", "[Optional] the optimization frequency. \nDefault is '1'."), "optimizeEvery", "1");
+    parser.addOption(optimizationEvery);
+
+    const QCommandLineOption optimizationLookahead(QStringList() << "d" << "optimizerLookahead",
+                                                   QCoreApplication::translate("main", "[Optional] the forward lookahead distance for the optimizer. \nDefault is '1'."), "optimizerLookahead", "1");
+    parser.addOption(optimizationLookahead);
+
+    const QCommandLineOption optimizationSpeedPriorityFactor(QStringList() << "k" << "OptimizationSpeedFactor",
+                                                             QCoreApplication::translate("main", "[Optional] the speed priority factor in case of optimization. \n Default is '0.0'."), "OptimizationSpeedFactor", "0.0");
+    parser.addOption(optimizationSpeedPriorityFactor);
 
     // process all the arguments
     parser.process(app);
@@ -136,6 +151,10 @@ int main(int argc, char *argv[])
     std::string nodesFile, linksFile, trainsFile, exportLocation, summaryFilename, instaTrajFilename;
     bool exportInstaTraj = false;
     double timeStep = 1.0;
+    bool optimize = false;
+    double optimize_speedfactor = 0.0;
+    int optimizerFrequency = 0;
+    int lookahead = 0;
 
     // read values from the cmd
     // read required values
@@ -174,13 +193,35 @@ int main(int argc, char *argv[])
     if (checkParserValue(parser, timeStepOption, "", false)) { timeStep = parser.value(timeStepOption).toDouble(); }
     else { timeStep = 1.0; }
 
+    if (checkParserValue(parser, enableOptimization, "", false)){
+        stringstream ss(parser.value(enableOptimization).toStdString());
+        ss >> std::boolalpha >> optimize;
+    }
+    else { optimize = false; }
+
+    if (checkParserValue(parser, optimizationEvery, "", false)) { optimizerFrequency = parser.value(optimizationEvery).toInt(); }
+    else { optimizerFrequency = 1.0; }
+    if (checkParserValue(parser, optimizationLookahead, "", false)) { lookahead = parser.value(optimizationLookahead).toInt(); }
+    else { lookahead = 1.0; }
+
+    if (checkParserValue(parser, optimizationSpeedPriorityFactor, "", 0.0)) {optimize_speedfactor = parser.value(optimizationSpeedPriorityFactor).toDouble(); }
+    else { optimize_speedfactor = 0.0;}
+
+    qDebug() << "Optimize?: " << optimize
+             << ", Optimizer Frequency: " << optimizerFrequency
+             << ", Lookahead: " << lookahead
+             << ", Optimize SpeedFactor: " << optimize_speedfactor
+             << "\n";
+
+//    exit(0);
+
     Network* net;
     try {
         std::cout << "Reading Trains!                 \r";
         Vector<std::shared_ptr<Train>> trains = TrainsList::ReadAndGenerateTrains(trainsFile);
 
         if (trains.empty()) {
-            ErrorHandler::showError("No Trains Found!");
+            ErrorHandler::showError("No Trains Found!                    ");
             return -1;
         }
         for (auto &t: trains) {
@@ -191,6 +232,9 @@ int main(int argc, char *argv[])
             QEventLoop::connect(t.get(), &Train::suddenAccelerationOccurred,
                     [](const auto &msg){
                 ErrorHandler::showWarning(msg);});
+
+            t->setOptimization(optimize, optimize_speedfactor,
+                               optimizerFrequency, lookahead);
         }
         std::cout << "Reading Network!                \r";
         net = new Network(nodesFile, linksFile);

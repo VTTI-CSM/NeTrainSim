@@ -147,6 +147,11 @@ public:
     /** holds the waited time at any depot */
     double waitedTimeAtNode;
 
+    /** holds the weight of speed priority*/
+    double optimizeForSpeedNormalizedWeight;
+    /** holds the optimum throttle levels*/
+    Vector<double> optimumThrottleLevels;
+
     /** Holds the current coordinates of the tip of the train */
     pair<double, double> currentCoordinates;
 
@@ -220,8 +225,10 @@ public:
     int NoPowerCountStep;
     /** The number of steps ahead the train is looking aheaf for optimization */
     int lookAheadStepCounter;
+    int mem_lookAheadStepCounter;
     /** The number of steps ahead the train should update its optimization at */
     int lookAheadCounterToUpdate;
+    int mem_lookAheadCounterToUpdate;
 
 
     /** Change this to true if you want the train to stop if it runs out of energy */
@@ -265,9 +272,22 @@ public:
           double desiredDecelerationRate_mPs = DefaultDesiredDecelerationRate,
           double operatorReactionTime_s = DefaultOperatorReactionTime,
           bool stopIfNoEnergy = DefaultStopIfNoEnergy,
-          double maxAllowedJerk_mPcs = DefaultMaxAllowedJerk);
+          double maxAllowedJerk_mPcs = DefaultMaxAllowedJerk,
+          double optimization_k = 0.0,
+          int runOptimizationEvery = DefaultLookAheadCounterToUpdate,
+          int optimizationLookaheadSteps = DefaultLookAheadCounter);
 
     ~Train();
+
+    /**
+     * @brief setOptimization   enable or disable the single train trajectory optimization
+     * @param enable    bool value to enable optimization if true, false O.W.
+     * @param optimizationSpeedImportanceNormalizedWeight double value to set the importance of speed compared to the energy consumption [0,1].
+     */
+    void setOptimization(bool enable = false,
+                         double optimizationSpeedImportanceNormalizedWeight = 1.0,
+                         int runOptimizationEvery = DefaultLookAheadCounterToUpdate,
+                         int optimizationLookaheadSteps = DefaultLookAheadCounter);
 
     void setTrainSimulatorID(int newID);
 
