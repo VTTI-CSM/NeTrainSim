@@ -80,9 +80,9 @@ Once the file is downloaded on your hard drive. Double click the downloaded file
 2. Presented below is the primary user interface for the NeTrainSim application.
 
 <p align = 'center'>
-<img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3" width="500" alt ="main NeTrainSim window">
+<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/da8537c8-d2c9-43f9-a090-db0507609ce0" width="500" alt ="main NeTrainSim window">
 </p>
-                                                                                                                                                   
+
 3. For a comprehensive understanding of the application and its functionalities, please refer to the relevant documentation available within the 'Help' section of the menu.
                           
                           
