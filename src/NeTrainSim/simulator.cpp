@@ -580,8 +580,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             double stepSpd = train->speedUpDown(train->previousSpeed, stepAcc, this->timeStep, currentFreeFlowSpeed);
             // calculate approximate power required
             pair<Vector<double>, double> out = train->getTractivePower(stepSpd, stepAcc, train->currentResistanceForces);
+            double averageSpd = (stepSpd + train->previousSpeed) / ((double)2.0);
             // calculate approximate energy required
-            double stepEC = train->getTotalEnergyConsumption(this->timeStep, out.first);
+            double stepEC = train->getTotalEnergyConsumption(this->timeStep, averageSpd, stepAcc, out.first);
             // calculate approximate max energy supplied at this time step
             double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
             // If the stepEC is larger than what the train can consume in a time step,
@@ -730,6 +731,7 @@ void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> tr
 									  std::get<1>(linksData), std::get<0>(linksData),
 									  CurrentFreeSpeed_ms, timeStep, oAheadSpeed, oDistanceToNextStationTrain);
 			speed = std::get<0>(out);
+            prevSpeed = speed;
 			accel = std::get<1>(out);
 			throttleLevel = std::get<2>(out);
 			throttleLevelVec.push_back(throttleLevel);
@@ -1092,6 +1094,9 @@ void Simulator::runSimulation() {
                                                                                                                                [](int total, const auto& train) {
                                                                                                                                    return total + (int)train->optimize;
                                                                                                                                }) << "\n"
+        << "        |_ Foward Steps                                                         \x1D : " << this->trains.front()->mem_lookAheadStepCounter << "\n"
+        << "        |_ Update Optimization Every # Steps                                    \x1D : " << this->trains.front()->mem_lookAheadCounterToUpdate << "\n"
+        << "        |_ Speed Importance (%)                                                 \x1D : " << this->trains.front()->optimizeForSpeedNormalizedWeight * 100<< "\n"
         << "  |_ Catenary Total Energy Consumed (KW.h)                                      \x1D : " << Utils::thousandSeparator(std::get<1>(networkStats) - std::get<2>(networkStats)) << "\n"
         << "        |_ Average Catenary Energy Consumption per Net Weight (KW.h/ton)        \x1D : " << Utils::thousandSeparator( (std::get<1>(networkStats) - std::get<2>(networkStats)) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
@@ -1342,6 +1347,8 @@ void Simulator::runSimulation() {
             << "    |_ Travelled Distance (km)                                                  \x1D : " << Utils::thousandSeparator(t->travelledDistance/ (double)1000.0) << "\n"
             << "    |_ Consumed and Regenerated Energy:\n"
             << "        |_ Single-Train Trajectory Optimization Enabled                         \x1D : " << (t->optimize? "true": "false") << "\n"
+            << "            |_ Foward Steps                                                     \x1D : " << t->mem_lookAheadStepCounter << "\n"
+            << "            |_ Update Optimization Every # Steps                                \x1D : " << t->mem_lookAheadCounterToUpdate << "\n"
             << "        |_ Total Net Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(t->cumEnergyStat) << "\n"
             << "            |_ Total Energy Consumed (KW.h)                                     \x1D : " << Utils::thousandSeparator(t->totalEConsumed) << "\n"
             << "            |_ Total Energy Regenerated (KW.h)                                  \x1D : " << Utils::thousandSeparator(t->totalERegenerated) << "\n"
