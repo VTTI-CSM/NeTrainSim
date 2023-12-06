@@ -17,6 +17,8 @@
 #include "qdir.h"
 #include "util/errorhandler.h"
 
+const std::string compilation_date = __DATE__;
+const std::string compilation_time = __TIME__;
 /**
  * @brief checkParserValue
  * @param parser
@@ -53,7 +55,7 @@ int main(int argc, char *argv[])
     // ####################################################
     std::string Institution =
         "(C) 2022-2023 Virginia Tech Transportation Institute - Center for Sustainable Mobility.";
-    std::string GithubLink = " ";
+    std::string GithubLink = "https://github.com/VTTI-CSM/NeTrainSim";
 
     QCoreApplication app(argc, argv);
     QTranslator translator;
@@ -140,7 +142,7 @@ int main(int argc, char *argv[])
 
     // show app details
     std::stringstream hellos;
-    hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << "]" << endl;
+    hellos << MYAPP_TARGET << " [Version " << MYAPP_VERSION << ", "  << compilation_date << " " << compilation_time << " Build" <<  "]" << endl;
     hellos << Institution << endl;
     hellos << GithubLink << endl;
     std::cout << hellos.str() << "\n";
@@ -207,11 +209,11 @@ int main(int argc, char *argv[])
     if (checkParserValue(parser, optimizationSpeedPriorityFactor, "", 0.0)) {optimize_speedfactor = parser.value(optimizationSpeedPriorityFactor).toDouble(); }
     else { optimize_speedfactor = 0.0;}
 
-    qDebug() << "Optimize?: " << optimize
-             << ", Optimizer Frequency: " << optimizerFrequency
-             << ", Lookahead: " << lookahead
-             << ", Optimize SpeedFactor: " << optimize_speedfactor
-             << "\n";
+//    qDebug() << "Optimize?: " << optimize
+//             << ", Optimizer Frequency: " << optimizerFrequency
+//             << ", Lookahead: " << lookahead
+//             << ", Optimize SpeedFactor: " << optimize_speedfactor
+//             << "\n";
 
 //    exit(0);
 
