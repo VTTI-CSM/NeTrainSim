@@ -822,11 +822,13 @@ public:
      * @date	2/28/2023
      *
      * @param [in,out]	timeStep		 	The time step.
+     * @param [in,out]  StepSpeed           The train speed.
+     * @param [in,out]  stepAcceleration    The train acceleration.
      * @param [in,out]	usedTractivePower	The used tractive power.
      *
      * @returns	The total energy consumption.
      */
-    double getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTractivePower);
+    double getTotalEnergyConsumption(double& timeStep, double& stepSpeed, double& stepAcceleration, Vector<double>& usedTractivePower);
 
     /**
      * \brief Consume energy
@@ -941,7 +943,7 @@ public:
      * @returns	A double.
      */
     double heuristicFunction(double distanceToEnd, double stepAcceleration, double stepSpeed,
-                                    double timeStep, double resistance, double currentSpeed);
+                                    double timeStep, double resistance, double currentSpeed, double prevSpeed);
 
     /**
      * \brief Picks the optimal throttle level considering the A-Star optimization

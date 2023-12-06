@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../util/vector.h"
+#include "qdebug.h"
 #include "train.h"
 #include "../network//netnode.h"
 #include "../network/netlink.h"
@@ -84,6 +85,9 @@ void Train::setOptimization(bool enable,
     optimizeForSpeedNormalizedWeight =
         optimizationSpeedImportanceNormalizedWeight;
 
+    // make sure the throttle levels are empty first before
+    // populating it
+    if (throttleLevels.size() > 0 ) { throttleLevels.clear(); }
     for (int n = 0; n <= this->locomotives.front()->Nmax ; n++){
         this->throttleLevels.push_back(
             std::pow( ( ((double)n) / this->locomotives.front()->Nmax),
@@ -793,13 +797,13 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
                                                     Vector<double> vector_grade, Vector<double> vector_curvature,
                                                     double freeSpeed_ms, double timeStep, Vector<double> u_leader,
                                                     Vector<double> gapToNextCriticalPoint) {
-
     this->updateGradesCurvatures(vector_grade, vector_curvature);
     double resistance = this->getTotalResistance(currentSpeed);
     Vector<double> speedVec = Vector<double>();
     Vector<double> throttleVec = Vector<double>();
     Vector<double> energyVec = Vector<double>();
     Vector<double> accelerationVec = Vector<double>();
+
 
     // loop over all possible throttleLevels
     for (auto throttleLevel: this->throttleLevels){
@@ -818,14 +822,14 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
                 // loop through all the gaps to next train/station
                 for (int i = 0; i < gapToNextCriticalPoint.size(); i ++){
                     // get all accelerations and append them to the acceleration vector
-                    allAcc.push_back(this->accelerate(gapToNextCriticalPoint[i], 0, currentSpeed, currentAcceleration,
+                    allAcc.push_back(this->accelerate(gapToNextCriticalPoint[i], 0.0, currentSpeed, currentAcceleration,
                                                       u_leader[i],freeSpeed_ms, timeStep, true, throttleLevel));
                 }
                 // get the min acceleration
                 stepAcceleration = allAcc.min();
             }
             else{
-                stepAcceleration = this->accelerate(std::numeric_limits<double>::infinity(), 0, currentSpeed, currentAcceleration,
+                stepAcceleration = this->accelerate(std::numeric_limits<double>::infinity(), 0.0, currentSpeed, currentAcceleration,
                                          0.0, freeSpeed_ms, timeStep, true, throttleLevel);
             }
             // get speed after acceleration, jerk is not considered here, since it will be automatically considered
@@ -833,7 +837,7 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
             double stepSpeed = this->speedUpDown(prevSpeed, stepAcceleration, timeStep, freeSpeed_ms);
             // get the energy for the train if that particular throttle level is used till the end of the look ahead
             double energy = this->heuristicFunction(gapToNextCriticalPoint.back(), stepAcceleration, stepSpeed,
-                                                    timeStep, resistance, currentSpeed);
+                                                    timeStep, resistance, currentSpeed, prevSpeed);
 
             // append the step values to their corresponding vectors
             accelerationVec.push_back(stepAcceleration);
@@ -843,23 +847,38 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
         }
     }
 
+    // if there is no throttle consider (wont happen), return the previous recommendation
     if (energyVec.size() == 0){
         return std::make_tuple(currentSpeed, currentAcceleration, prevThrottle);
     }
 
     // Normalize energy and speed
-    double max_energy = energyVec.min();
-    double min_energy = energyVec.max();
+    double max_energy = energyVec.max();
+    double min_energy = energyVec.min();
+
+    // if both the min and max energy are equal, return the previous recommendation
+    if (min_energy == max_energy) {
+        return std::make_tuple(currentSpeed, currentAcceleration, prevThrottle);
+    }
 
     double max_speed = speedVec.max();
     double min_speed = speedVec.min();
+
+    // define the normalize function
     auto normalize = [](double value, double min_value, double max_value) -> double {
-        return max_value != min_value ? (value - min_value) / (max_value - min_value) : 0.5;
+        //return max_value != min_value ? (value - min_value) / (max_value - min_value) : 0.5;
+        if (max_value != min_value) {
+            double normalized = (value - min_value) / (max_value - min_value);
+            return 0.1 + 0.9 * normalized;  // Scale to range [0.1, 1]
+        }
+        return 0.5;
     };
 
+    // define the normalize energy and speed lists
     Vector<double> energyLN;
     std::vector<double> speedLN;
 
+    // normalize the energy and speed
     std::transform(energyVec.begin(), energyVec.end(), std::back_inserter(energyLN),
                    [&normalize, &max_energy, &min_energy](double energy) {
                        return normalize(energy, min_energy, max_energy);
@@ -870,17 +889,22 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
                        return normalize(speed, min_speed, max_speed);
                    });
 
-    double weight_energy = 1.0 - optimizeForSpeedNormalizedWeight;
-    double weight_speed = 1 - weight_energy;
+    //get the weighting
+    double weight_energy = (double)1.0 - optimizeForSpeedNormalizedWeight;
+    double weight_speed = optimizeForSpeedNormalizedWeight;
 
-    std::vector<double> weighted_sums;
+    // calculate the weighted normalize energy consumption (goal programming)
+    Vector<double> weighted_sums;
     for (size_t i = 0; i < energyLN.size(); ++i) {
         double weighted_sum = weight_energy * energyLN[i] - weight_speed * std::log(speedLN[i] + 1e-6);
         weighted_sums.push_back(weighted_sum);
     }
 
-    int idx_optimum = std::distance(weighted_sums.begin(), std::min_element(weighted_sums.begin(), weighted_sums.end()));
 
+    // get the minimum weighted value index
+    int idx_optimum = weighted_sums.index(weighted_sums.min());
+
+    // return the corresponding low combined energy consumption data
     return std::make_tuple(speedVec[idx_optimum], accelerationVec[idx_optimum], throttleVec[idx_optimum]);
 
 //    // get the minimum heuristic energy and the corresponding throttle level
@@ -891,15 +915,16 @@ tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double 
 
 
 double Train::heuristicFunction(double distanceToEnd, double stepAcceleration, double stepSpeed,
-                                double timeStep, double resistance, double currentSpeed) {
+                                double timeStep, double resistance, double currentSpeed, double prevSpeed) {
     if (distanceToEnd == 0) {
         distanceToEnd = this->lookAheadStepCounter * timeStep * currentSpeed;
     }
-    double stepTime = distanceToEnd / max(stepSpeed, 0.0001);
-
+    // predict time needed to travel the segment
+    double timeInterval = distanceToEnd / max(stepSpeed, 0.0001);
+    // get the tractive power to travel a step forward
     pair<Vector<double>, double> out = this->getTractivePower(stepSpeed, stepAcceleration, resistance);
-
-    return this->getTotalEnergyConsumption(stepTime, out.first);
+    // get the energy consumption given the timeInterval
+    return this->getTotalEnergyConsumption(timeInterval, stepSpeed, stepAcceleration, out.first);
 }
 
 double Train::pickOptimalThrottleLevelAStar(Vector<double> throttleLevels, int lookAheadCounterToUpdate) {
@@ -933,7 +958,7 @@ pair<Vector<double>, double> Train::getTractivePower(double speed, double accele
         double virtualPower = 0.0;
         if (!this->ActiveLocos.empty()) {
             for (const auto& loco : this->ActiveLocos) {
-                virtualPower = loco->getSharedVirtualTractivePower(this->currentSpeed, this->currentAcceleration,
+                virtualPower = loco->getSharedVirtualTractivePower(speed, acceleration,
                                                                     oneLocoWeight, oneLocoResistance);
                 currentVirtualTractivePowerList.push_back(virtualPower);
             }
@@ -949,13 +974,13 @@ void Train::resetTrainEnergyConsumption() {
     }   
 }
 
-double Train::getTotalEnergyConsumption(double& timeStep, Vector<double>& usedTractivePower) {
+double Train::getTotalEnergyConsumption(double& timeStep, double& trainSpeed, double& acceleration, Vector<double>& usedTractivePower) {
     if (usedTractivePower.empty()){ return 0.0; }
     double energy = 0.0;
-    double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
+//    double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
     for (int i =0; i < this->ActiveLocos.size(); i++){
         energy += this->ActiveLocos.at(i)->getEnergyConsumption(usedTractivePower.at(i),
-                                             this->currentAcceleration, averageSpeed, timeStep);
+                                             acceleration, trainSpeed, timeStep);
     }
     return energy;
 }
