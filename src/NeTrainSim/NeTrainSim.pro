@@ -4,7 +4,6 @@
 include(../mainconfig.pri)
 include(config.pri)
 
-
 QT += core xml
 
 #CONFIG += c++20 cmdline
