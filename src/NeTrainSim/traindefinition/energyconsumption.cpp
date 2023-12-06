@@ -12,7 +12,6 @@ namespace EC {
 
         double wheelToDCBusEff = getWheelToDCBusEff(trainSpeed);
         double DCBusToTank = getDCBusToTankEff(powerAtWheelProportion, powerType, hybridMethod);
-
         return wheelToDCBusEff * DCBusToTank;
     }
 
