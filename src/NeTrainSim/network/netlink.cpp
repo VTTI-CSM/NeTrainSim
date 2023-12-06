@@ -57,6 +57,9 @@ NetLink::NetLink(int simulatorID, int linkID,
     this->catenaryCumRegeneratedEnergy = 0.0;
     this->catenaryCumConsumedEnergy = 0.0;
     this->updateSimulatorLength();
+    if (length == 0.0) {
+        simulatorLength = length;
+    }
 	NetLink::NumberOfLinksInSimulator++;
 }
 
