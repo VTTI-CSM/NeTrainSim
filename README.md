@@ -179,3 +179,7 @@ If you are interested in contributing to NeTrainSim, please read the CONTRIBUTIN
 ## License
 
 This program is distributed under the terms of the [GNU General Public License (GPL) version 3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see the `LICENSE` file for more information.
+
+## Publications
+
+Aredah, A., Du, J., Hegazi, M., List, G., & Rakha, H. A. (2024). Comparative analysis of alternative powertrain technologies in freight trains: A numerical examination towards sustainable rail transport. Applied Energy, 356, 122411.
