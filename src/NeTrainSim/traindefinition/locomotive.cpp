@@ -10,6 +10,7 @@
 #include <algorithm> 
 #include "../util/vector.h"
 #include "energyconsumption.h"
+#include "qdebug.h"
 #include "traintypes.h"
 #include <cstdlib>
 #include "../util/utils.h"
@@ -220,12 +221,12 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
 
 double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed)
 {
-	double dv, um;
-    // ratio of current train speed by the max loco speed
-	dv = trainSpeed / this->maxSpeed;
-    double lambda = (double)1.0 / (1.0 + exp(-7.82605 * (dv - 0.42606)));
+    double dv = 0.0, um;
 
-    //double lambda = 1.0 - (1.0 / (-2.5576+(3.5637/(1.0-dv))-3.7146*dv));
+
+    // ratio of current train speed by the max loco speed
+    dv = trainSpeed / this->maxSpeed;
+    double lambda = (double)1.0 / (1.0 + exp(-7.82605 * (dv - 0.42606)));
 
     if (lambda < 0.0){
         return 0.0;
@@ -236,6 +237,19 @@ double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed)
 
     return lambda;
 
+
+//    um = 0.05 * this->maxSpeed;
+//    if (dv >= 1.0) {
+//        return 1.0;
+//    }
+
+//    if (trainSpeed <= um )
+//    {
+//        return abs((dv)/((0.001)+(0.05/(1-dv))+(0.030*(dv))));
+//    }
+//    else {
+//        return 1.0;
+//    }
 };
 
 double Locomotive::getlamdaDiscretized(double &lamda)
@@ -330,8 +344,9 @@ void Locomotive::reducePower(double &reductionFactor)
     // the max power supplied/ current demand power
     this->locPowerReductionFactor = reductionFactor;
     //restrict the reduction to the lower notch only.
-    int lowerNotch = this->currentLocNotch - 1;
-    double lowerNotchLambda = this->discritizedLamda[lowerNotch];
+    int lowerNotch = this->currentLocNotch - 2; // get index of previous notch
+    lowerNotch = max(lowerNotch, 0);
+    double lowerNotchLambda = this->throttleLevels[lowerNotch];
     if (lowerNotchLambda > this->locPowerReductionFactor) {
         this->locPowerReductionFactor = lowerNotchLambda;
     }
@@ -372,6 +387,7 @@ double Locomotive::getTractiveForce(double &frictionCoef,
 		return f1;
 	}
     else {
+
         f = min((this->locPowerReductionFactor * 1000.0 *
                  this->transmissionEfficiency *
                  this->getThrottleLevel(trainSpeed, optimize,
