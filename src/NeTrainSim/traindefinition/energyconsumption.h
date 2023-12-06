@@ -21,7 +21,7 @@ namespace EC {
 	static constexpr double DefaultLocomotiveAuxiliaryPower = 0.0;
     /** The default electric locomotive battery maximum charge in kWh.
 	 Battery capacity of up to 2.5 megawatt hours. */
-    static double DefaultLocomotiveBatteryMaxCharge_Electric = 4000.0;
+    static double DefaultLocomotiveBatteryMaxCharge_Electric = 5000.0;
     /** The default diesel-hybrid locomotive battery maximum charge in kWh.
      Battery capacity of up to 2.5 megawatt hours. */
     static double DefaultLocomotiveBatteryMaxCharge_DieselHybrid = 4000.0;
@@ -96,7 +96,13 @@ namespace EC {
 
 	/** The default car tender maximum capacity in litters.
 	 a tender has a capacity of 23000 Gallons. */
-	static double DefaultCarTenderMaxCapacity = 87064.471;
+    static double DefaultCarTenderMaxCapacity = 87064.471;
+
+    /** The default car tender maximum capacity in liters.
+     *  a tender has a capacity of 4500.0 kg.
+     *  1 liter has 0.071 kg */
+    static double DefaultCarTenderMaxCapacityForHydrogen = 63584.048;
+
 	/** The default car tender initial capacity */
 	static double DefaultCarTenderInitialCapacity = 0.9;
 
