@@ -62,7 +62,7 @@ public:
         int carType, double auxiliaryPower_kw = EC::DefaultCarAuxiliaryPower,
         double batteryMaxCapacity_kWh = EC::DefaultCarBatteryMaxCapacity,
         double batteryInitialCharge_perc = EC::DefaultCarBatteryInitialCharge,
-        double tenderMaxCapacity_kg_l = EC::DefaultCarTenderMaxCapacity,
+        double tenderMaxCapacity_kg_l = std::numeric_limits<double>::quiet_NaN(),
         double tenderInitialCapacity_perc = EC::DefaultCarTenderInitialCapacity,
         std::string carName = DefaultCarName);
 

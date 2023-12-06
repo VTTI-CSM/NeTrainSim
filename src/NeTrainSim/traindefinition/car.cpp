@@ -48,6 +48,16 @@ Car::Car(double carLength_m, double carDragCoef,
     else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType) &&
              this->carType != TrainTypes::CarType::cargo) {
         this->setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
+        if (this->carType == TrainTypes::CarType::hydrogenFuelCell &&
+            std::isnan(tenderMaxCapacity_l))
+        {
+            tenderMaxCapacity_l = EC::DefaultCarTenderMaxCapacityForHydrogen;
+        }
+        else if (this->carType != TrainTypes::CarType::hydrogenFuelCell &&
+                   std::isnan(tenderMaxCapacity_l))
+        {
+            tenderMaxCapacity_l = EC::DefaultCarTenderMaxCapacity;
+        }
         this->SetTank(tenderMaxCapacity_l, tenderInitialCapacity_perc, EC::DefaultCarMinTankDOD);
         double fuelWeight = 0.0; // in ton
         // if the tender is for diesel
