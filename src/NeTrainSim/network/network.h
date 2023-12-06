@@ -696,13 +696,13 @@ public:
                                                  int &previousNodeID) {
         int nextI = -1;
         for (int i = train->trainPath.index(previousNodeID);
-                                            train->trainPath.size(); i++) {
+             i < train->trainPath.size(); i++) {
             if (train->linksCumLengths.at(i) > travelledDistance) {
                 nextI = i;
                 break;
             }
         }
-        if (nextI == -1) { nextI = train->trainPath.size(); }
+        if (nextI == -1) { nextI = train->trainPath.size() - 1; }
         int prevI = nextI - 1;
         return this->getLinkByStartandEndNodeID(train,
                                                 train->trainPath.at(prevI),
