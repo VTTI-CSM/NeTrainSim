@@ -63,6 +63,9 @@ NeTrainSim is an open-source train simulation software that allows users to simu
     
 - **Energy optimization**: NeTrainSim includes an energy optimization module for optimizing individual or grouped trains (under development).
 
+<p align = 'center'>
+<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/aaa0a970-84d8-435f-bcfc-dbf740546d76" width="500" alt ="main NeTrainSim window">
+</p>
 
 ## Getting Started
 To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/VTTI-CSM/NeTrainSim/releases).
@@ -80,7 +83,7 @@ Once the file is downloaded on your hard drive. Double click the downloaded file
 2. Presented below is the primary user interface for the NeTrainSim application.
 
 <p align = 'center'>
-<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/da8537c8-d2c9-43f9-a090-db0507609ce0" width="500" alt ="main NeTrainSim window">
+<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/ffee71c7-972a-472a-b886-9fd128cefbf6" width="500" alt ="main NeTrainSim window">
 </p>
 
 3. For a comprehensive understanding of the application and its functionalities, please refer to the relevant documentation available within the 'Help' section of the menu.
