@@ -25,6 +25,7 @@
 
 <p align="center">
   <a href="https://github.com/VTTI-CSM/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
+  <a href="https://youtu.be/bbvnPn9zMsQ" target="_blank">How to Install and Quick Overview</a> |
   <a href="https://VTTI-CSM.github.io/NeTrainSim/" target="_blank">Documentation</a> |
   <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-2913nksde-mmvbGCdz8k8GgjdfeQBXZQ" target="_blank">Slack</a>
 </p>
