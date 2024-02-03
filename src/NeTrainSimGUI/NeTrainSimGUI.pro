@@ -18,6 +18,7 @@ include($$PWD/../dependencies/QtRptProject/QtRPT/QtRPT.pri)
 
 
 SOURCES += \
+    gui/clickablelabel.cpp \
     gui/netrainsimmainwindow.cpp \
     gui/settingswindow.cpp \
     gui/togglebutton.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
     gui/simulationworker.cpp \
     util/configurationmanager.cpp \
     util/errorhandler.cpp \
+    ../NeTrainSim/util/updatechecker.cpp
 
 
 
@@ -73,6 +75,7 @@ HEADERS += \
     ../NeTrainSim/network/netsignalgroupcontroller.h \
     ../NeTrainSim/network/netsignalgroupcontrollerwithqueuing.h \
     gui/checkboxdelegate.h \
+    gui/clickablelabel.h \
     gui/comboboxdelegate.h \
     gui/customprogressbar.h \
     gui/customtablewidget.h \
@@ -89,6 +92,7 @@ HEADERS += \
     gui/togglebutton.h \
     util/configurationmanager.h \
     util/errorhandler.h \
+    ../NeTrainSim/util/updatechecker.h
 
 
 FORMS += \

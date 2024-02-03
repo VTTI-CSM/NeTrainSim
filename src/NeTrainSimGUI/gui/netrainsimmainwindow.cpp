@@ -4,6 +4,7 @@
  * Implements the netrainsim class
  */
 #include "netrainsimmainwindow.h"
+#include "gui/clickablelabel.h"
 #include "gui/comboboxdelegate.h"
 #include "gui/settingswindow.h"
 #include "gui/textboxdelegate.h"
@@ -24,6 +25,7 @@
 #include "util/configurationmanager.h"
 #include "util/errorhandler.h"
 #include "../NeTrainSim/network/readwritenetwork.h"
+#include "../NeTrainSim/util/updatechecker.h"
 
 
 NeTrainSim::NeTrainSim(QWidget *parent)
@@ -32,6 +34,12 @@ NeTrainSim::NeTrainSim(QWidget *parent)
 {
     // set up the layout
     ui->setupUi(this);
+
+    connect(&updateChecker, &UpdateChecker::updateAvailable,
+            this, &NeTrainSim::handleUpdateAvailability);
+
+    // Start checking for updates
+    updateChecker.checkForUpdates();
 
     // load the defaut settings
     loadDefaults();
@@ -45,8 +53,40 @@ NeTrainSim::NeTrainSim(QWidget *parent)
     setupPage4();
 }
 
+void NeTrainSim::handleUpdateAvailability(bool isAvailable) {
+    if (isAvailable)
+    {
+        rightAlignedMenu->setHidden(false);
+    }
+}
 
 void NeTrainSim::setupGenerals(){
+    // Create a widget that will contain the right-aligned menu
+    rightAlignedWidget = new QWidget(this);
+    layout = new QHBoxLayout(rightAlignedWidget);
+
+    // Adjust layout margins and spacing
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+
+    // Add a horizontal spacer
+    layout->addSpacerItem(new QSpacerItem(40, 20,
+                                          QSizePolicy::Expanding,
+                                          QSizePolicy::Minimum));
+
+    // Create the right-aligned menu item (e.g., a QLabel for demonstration)
+    rightAlignedMenu =
+        new ClickableLabel("New Release is Available! Click to Download!",
+                           QUrl("https://github.com/VTTI-CSM/"
+                                "NeTrainSim/releases"),
+                           QColor("red"),
+                           rightAlignedWidget);
+    layout->addWidget(rightAlignedMenu);
+
+    rightAlignedMenu->setHidden(true);
+
+    // Add the widget to the menu bar
+    ui->menubar->setCornerWidget(rightAlignedWidget, Qt::TopRightCorner);
 
     ui->progressBar->setTextVisible(true);
     ui->progressBar->setAlignment(Qt::AlignCenter);
@@ -416,7 +456,7 @@ void NeTrainSim::setupPage1(){
                      &NeTrainSim::addRowToNewNode);
 
     connect(ui->table_newNodes, &CustomTableWidget::tableCleared,
-            [=](){
+            [=, this](){
                 this->addRowToNewNode();
                 ui->lineEdit_nodes->setText("");
                 nodesFilename = "";
@@ -444,7 +484,7 @@ void NeTrainSim::setupPage1(){
                      this, &NeTrainSim::updateTheLinksPlotData);
 
     QObject::connect(ui->table_newLinks, &CustomTableWidget::tableCleared,
-            [=](){
+                     [=, this](){
                 this->addRowToNewLinks();
                 ui->lineEdit_links->setText("");
                 linksFilename = "";
@@ -573,7 +613,7 @@ void NeTrainSim::setupPage2(){
     });
 
     connect(ui->lineEdit_trains, &QLineEdit::textChanged,
-            [=](const QString& file)
+            [=, this](const QString& file)
             {
                 std::string filename = file.toStdString();
                 auto out = TrainsList::readTrainsFile(filename);
@@ -619,7 +659,7 @@ void NeTrainSim::setupPage2(){
 
 
     // create a slot to add a new row to the QTableWidget
-    auto addRowToNewLocomotives = [=]() {
+    auto addRowToNewLocomotives = [=, this]() {
         // check if the last row has been edited
         if (ui->table_newLocomotive->currentRow() ==
             ui->table_newLocomotive->rowCount() - 1) {
@@ -654,7 +694,7 @@ void NeTrainSim::setupPage2(){
     this->setupCarsTable();
 
     // create a slot to add a new row to the QTableWidget
-    auto addRowToNewCars = [=]() {
+    auto addRowToNewCars = [=, this]() {
         // check if the last row has been edited
         if (ui->table_newCar->currentRow() ==
             ui->table_newCar->rowCount() - 1) {
@@ -685,7 +725,7 @@ void NeTrainSim::setupPage2(){
     this->setupConfigurationsTable();
 
     // create a slot to add a new row to the QTableWidget
-    auto addRowToNewConfig = [=]() {
+    auto addRowToNewConfig = [=, this]() {
         // check if the last row has been edited
         if (ui->table_newConfiguration->currentRow() ==
             ui->table_newConfiguration->rowCount() - 1) {
@@ -720,7 +760,7 @@ void NeTrainSim::setupPage2(){
     this->setupTrainsTable();
 
     // create a slot to add a new row to the QTableWidget
-    auto addRowToNewTrain = [=]() {
+    auto addRowToNewTrain = [=, this]() {
         // check if the last row has been edited
         if (ui->table_newTrain->currentRow() ==
             ui->table_newTrain->rowCount() - 1) {
@@ -2336,7 +2376,7 @@ void NeTrainSim::simulate() {
         worker->moveToThread(thread);
 
         // disable the simulate button
-        connect(thread, &QThread::started, this, [=]() {
+        connect(thread, &QThread::started, this, [=, this]() {
             this->ui->pushButton_projectNext->setEnabled(false);
         });
         // connect the do work to thread start
@@ -2535,7 +2575,7 @@ void NeTrainSim::showReport() {
     connect(ui->widget_SummaryReport, SIGNAL(paintRequested(QPrinter*)),
             this->report, SLOT(printPreview(QPrinter*)));
 
-    auto popup = [=]() {
+    auto popup = [=, this]() {
         this->report->printExec();
     };
 
@@ -2932,6 +2972,24 @@ NeTrainSim::~NeTrainSim()
     }
 
     labelsVector.clear();
+
+    if (rightAlignedWidget)
+    {
+        delete rightAlignedWidget;
+    }
+
+    layout = nullptr;
+    rightAlignedMenu = nullptr;
+
+    // if (layout)
+    // {
+    //     delete layout;
+    // }
+
+    // if (rightAlignedMenu)
+    // {
+    //     delete rightAlignedMenu;
+    // }
 
 }
 

@@ -18,6 +18,7 @@
 #include "simulationworker.h"
 #include "util/configurationmanager.h"
 #include "settingswindow.h"
+#include "../NeTrainSim/util/updatechecker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class NeTrainSim; }
@@ -354,6 +355,13 @@ private:
     // String to store the filename of the project file.
     QString projectFileName;
 
+    UpdateChecker updateChecker = UpdateChecker(this);
+
+    QWidget *rightAlignedWidget = nullptr;
+    QHBoxLayout *layout = nullptr;
+    QLabel *rightAlignedMenu = nullptr;
+
+
     // Vector of pairs to store the summary data of the trains after simulation.
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
     Vector<std::pair<std::string, std::string>> trainsSummaryData;
@@ -372,7 +380,7 @@ private:
                        const QVector<double> &yData, QString xLabel,
                        QString yLabel, QString graphName, int plotIndex);
 
-
+    void handleUpdateAvailability(bool isAvailable);
 
     void saveProjectFile(bool saveAs = false);
 
