@@ -629,6 +629,255 @@ void Locomotive::rechargeBatteryByMaxFlow(double timeStep, double trainSpeed,
     }
 }
 
+double Locomotive::computeCost(double timeStep,
+                               double powerPortion,
+                               double EC_kwh,
+                               bool rechargeBatteryAction,
+                               double generatorConsumptionPortion,
+                               double routeProgress)
+{
+    // growing function: sqrt(x)
+    // decaying function: 1 - sqrt(x)
+
+    double generatorECPortion_kwh =
+        EC_kwh * generatorConsumptionPortion *
+        EC::getBatteryEff(this->powerType) /
+        EC::getGeneratorEff(this->powerType, powerPortion);
+
+    double batteryECPortion_kwh =
+        EC_kwh * (1.0 - generatorConsumptionPortion);
+
+
+    // as the train progress, give more priority to battery being charged
+    // the cost increases as the train progress,
+    // meaning the battery needs to be recharged asap
+    double cost =
+        (std::sqrt(routeProgress)) *
+        (this->getBatteryInitialCharge() -
+         this->getBatteryCurrentCharge());
+
+    // in case, the battery will be recharged, reduce the cost
+    if (rechargeBatteryAction)
+    {
+        double generatorPowerPortionForEC =
+            (generatorECPortion_kwh) /
+            (this->maxPower * (timeStep/3600.0));
+
+        double generatorPowerPortionForBattery =
+            (getBatteryMaxRecharge(timeStep)) /
+            (this->maxPower * (timeStep/3600.0));
+
+        double consumedEnergyPortionFromBattery =
+            batteryECPortion_kwh / getBatteryMaxCharge();
+
+        cost +=
+            generatorPowerPortionForEC *
+            EC::getGeneratorEff(this->powerType,
+                                generatorPowerPortionForEC +
+                                    generatorPowerPortionForBattery);
+
+        cost += consumedEnergyPortionFromBattery;
+
+        // cost is reduced if the battery is recharged
+        cost -=
+            generatorPowerPortionForBattery *
+                EC::getBatteryEff(this->powerType);
+
+    }
+    else
+    {
+        double generatorPowerPortionForEC =
+            (generatorECPortion_kwh) /
+            (this->maxPower * (timeStep/3600.0));
+
+        double consumedEnergyPortionFromBattery =
+            batteryECPortion_kwh / getBatteryMaxCharge();
+
+        cost +=
+            generatorPowerPortionForEC *
+            EC::getGeneratorEff(this->powerType,
+                                generatorPowerPortionForEC);
+
+        cost += consumedEnergyPortionFromBattery;
+    }
+
+}
+
+double Locomotive::computeCost(double timeStep,
+                               double powerPortion,
+                               double EC_kwh,
+                               bool rechargeBatteryAction,
+                               double generatorConsumptionPortion,
+                               double routeProgress)
+{
+
+    const double penaltyBase = 1.0; // Base penalty for SoC deficit
+    const double penaltyProgressFactor = 2.0; // Scales penalty with route progress
+
+    // Calculate energy portions for generator and battery
+    double generatorEnergy_kWh =
+        EC_kwh * generatorConsumptionPortion;
+    double batteryEnergy_kWh =
+        EC_kwh * (1.0 - generatorConsumptionPortion);
+
+    double generatorEnergy_kWh_atTank =
+        generatorEnergy_kWh *
+        EC::getBatteryEff(this->powerType) /
+        EC::getGeneratorEff(this->powerType, powerPortion);
+
+    // Initial cost based on energy consumption
+    // prefer using battery so reduce the battery energy by a factor of
+    // its efficiency
+    double cost = generatorEnergy_kWh_atTank +
+                  batteryEnergy_kWh *
+                      EC::getBatteryEff(this->powerType);
+
+    // either recharge or skip recharging
+    if (rechargeBatteryAction)
+    {
+        // calculate how much of power portion needed
+        // if recharging the battery
+        double generatorPowerPortionForEC =
+            (generatorEnergy_kWh) /
+            (this->maxPower * (timeStep/3600.0));
+        double generatorPowerPortionForBattery =
+            (getBatteryMaxRecharge(timeStep)) /
+            (this->maxPower * (timeStep/3600.0));
+
+        // calculate the efficiency of the generator when providing
+        // energy to both battery and driveline
+        double generatorEffWhenCharging =
+            EC::getGeneratorEff(this->powerType,
+                                generatorPowerPortionForEC +
+                                    generatorPowerPortionForBattery);
+        cost +=
+            generatorPowerPortionForEC * generatorEffWhenCharging;
+
+        double consumedEnergyPortionFromBattery =
+            batteryEnergy_kWh / getBatteryMaxCharge();
+        cost += consumedEnergyPortionFromBattery;
+
+        double rechargeBenefits =
+            generatorPowerPortionForBattery *
+            EC::getBatteryEff(this->powerType);
+
+        // cost is reduced if the battery is recharged
+        cost -= rechargeBenefits;
+
+    }
+    else
+    {
+        // Adjust cost based on route progress and the
+        // action to recharge the battery
+        double socPenaltyFactor =
+            penaltyBase *
+            std::pow(routeProgress, penaltyProgressFactor);
+
+        // Include a dynamic penalty that increases as the route
+        // progresses to ensure battery is recharged
+        double penaltyForNotRecharging =
+            (socPenaltyFactor) *
+            (1.0 - this->getBatteryCurrentCharge() /
+                       this->getBatteryInitialCharge());
+        cost += penaltyForNotRecharging;
+
+        double generatorPowerPortionForEC =
+            (generatorEnergy_kWh) /
+            (this->maxPower * (timeStep/3600.0));
+        cost +=
+            generatorPowerPortionForEC *
+            EC::getGeneratorEff(this->powerType,
+                                generatorPowerPortionForEC);
+
+        double consumedEnergyPortionFromBattery =
+            batteryEnergy_kWh / getBatteryMaxCharge();
+        cost += consumedEnergyPortionFromBattery;
+    }
+
+    return cost;
+}
+
+
+
+std::pair<bool, double>
+Locomotive::consumeEnergyFromHydridTechnologyOptimizationEnabled(
+                      double timeStep,
+                      double trainSpeed,
+                      double powerPortion,
+                      double EC_kwh,
+                      double fuelConversionFactor,
+                      double fuelDensity,
+                      double LocomotiveVirtualTractivePower,
+                      double routeProgress,
+                      std::function<
+                        std::pair<bool,
+                                double>(double,
+                                        double,
+                                        double)>
+                      ConsumeFuelFunc)
+{
+    // discritize the amount of energy consumed from the generator
+    int discritizationActionSteps = 20;
+
+
+    double minCost = std::numeric_limits<double>::max();
+    double generatorEnergyPortion = 0.0;
+    bool bestRechargeBatteryAction;
+
+    // true means recharging the battery,
+    // false means do not recharge the battery now
+    array<bool,2> rechargeBatteryActions = {true, false};
+
+    for (bool a: rechargeBatteryActions)
+    {
+        // action is amount of energy consumed from generator
+        for (int m = 0; m <= 1.0; m+= 1.0/discritizationActionSteps)
+        {
+            // compute the cost giving priority to
+            // 1. keeping the battery charged to its initial state
+            // 2.
+            double cost = computeCost(timeStep, powerPortion, EC_kwh, a, m, routeProgress);
+            if (cost < minCost)
+            {
+                minCost = cost;
+                generatorEnergyPortion = m;
+                bestRechargeBatteryAction = a;
+            }
+
+        }
+    }
+
+    std::pair<bool, double> consumptionResult;
+
+    // consume fuel, result in form of <bool, double>,
+    //                                  bool: all energy is consumed,
+    //                                  double: rest of energy to consume
+    //                                          from other sources
+    if (generatorEnergyPortion > 0)
+    {
+        if (bestRechargeBatteryAction)
+        {
+
+        }
+        else
+        {
+
+        }
+        consumptionResult =
+            ConsumeFuelFunc(EC_kwh *
+                                EC::getBatteryEff(this->powerType) /
+                                EC::getGeneratorEff(this->powerType, powerPortion),
+                            fuelConversionFactor, fuelDensity);
+    }
+    else
+    {
+        // consume electricity from the battery
+        consumptionResult = this->consumeElectricity(timeStep, EC_kwh);
+    }
+
+
+
+}
 std::pair<bool, double>
     Locomotive::consumeEnergyFromHybridTechnology(
                       double timeStep,
@@ -740,7 +989,7 @@ std::pair<bool, double>
 std::pair<bool, double> Locomotive::consumeFuel(
                             double timeStep,
                             double trainSpeed,
-                            double EC_kwh,
+                            double EC_kwh, // at the tank
                             double LocomotiveVirtualTractivePower,
                             double dieselConversionFactor,
                             double bioDieselConversionFactor,
