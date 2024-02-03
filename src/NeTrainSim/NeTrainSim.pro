@@ -4,7 +4,7 @@
 include(../mainconfig.pri)
 include(config.pri)
 
-QT += core xml
+QT += core xml network
 
 #CONFIG += c++20 cmdline
 CONFIG += c++20 console
@@ -34,6 +34,7 @@ SOURCES += \
         util/logger.cpp \
         util/xmlmanager.cpp \
         util/csvmanager.cpp \
+        util/updatechecker.cpp
 
 
 # Add the header files to the project.
@@ -65,7 +66,8 @@ HEADERS += \
         util/utils.h \
         util/vector.h \
         util/xmlmanager.h \
-        util/csvmanager.h
+        util/csvmanager.h \
+        util/updatechecker.h
 
 
 TRANSLATIONS += \

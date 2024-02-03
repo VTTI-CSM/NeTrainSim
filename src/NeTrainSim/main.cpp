@@ -16,6 +16,7 @@
 #include <filesystem>
 #include "qdir.h"
 #include "util/errorhandler.h"
+#include "util/updatechecker.h"
 
 const std::string compilation_date = __DATE__;
 const std::string compilation_time = __TIME__;
@@ -139,6 +140,28 @@ int main(int argc, char *argv[])
     if (parser.isSet(helpOption)) {
         parser.showHelp(0);
     }
+
+    UpdateChecker updateChecker;
+    QEventLoop loop;
+
+    // Connect the updateAvailable signal to a lambda that handles the result
+    QObject::connect(&updateChecker, &UpdateChecker::updateAvailable,
+                     [&](bool available) {
+                         if (available) {
+                             qDebug() << "An Update is Available! \n"
+                                         "Download from: https://github.com/VTTI-CSM/NeTrainSim/releases\n\n";
+                         }
+                         loop.quit();
+                     });
+
+    // Start checking for updates
+    updateChecker.checkForUpdates();
+
+    // Start the event loop and wait for the update check to complete
+    loop.exec();
+
+    // Start checking for updates
+    updateChecker.checkForUpdates();
 
     // show app details
     std::stringstream hellos;
