@@ -546,6 +546,48 @@ namespace Utils {
         return closestMatch;
     }
 
+    // Function to recursively generate all combinations
+    inline void generateProductCombinations(
+        const Vector<Vector<double>>& iterable, int depth, int steps,
+        Vector<Vector<double>>& current_combination,
+        Vector<Vector<Vector<double>>>& all_combinations)
+    {
+        if (depth == steps)
+        {
+            // If the current depth equals the number of steps,
+            // we've built a complete sequence
+            all_combinations.push_back(current_combination);
+            return;
+        }
+
+        for (const auto& action : iterable)
+        {
+            // Add the current action to the combination
+            current_combination.push_back(action);
+
+            // Recurse to the next depth
+            generateProductCombinations(iterable, depth + 1,
+                                        steps, current_combination,
+                                        all_combinations);
+
+            // Backtrack: remove the last action added to try the next one
+            current_combination.pop_back();
+        }
+    }
+
+    // Wrapper function to simplify usage
+    inline Vector<Vector<Vector<double>>> generateProduct(
+        const Vector<Vector<double>>& iterable, int steps)
+    {
+        Vector<Vector<Vector<double>>> all_combinations;
+        Vector<Vector<double>> current_combination;
+
+        generateProductCombinations(iterable, 0, steps,
+                                    current_combination, all_combinations);
+
+        return all_combinations;
+    }
+
 }
 
 
