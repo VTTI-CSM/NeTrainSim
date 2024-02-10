@@ -63,6 +63,7 @@ HEADERS += \
         util/list.h \
         util/logger.h \
         util/map.h \
+        util/tree.h \
         util/utils.h \
         util/vector.h \
         util/xmlmanager.h \
