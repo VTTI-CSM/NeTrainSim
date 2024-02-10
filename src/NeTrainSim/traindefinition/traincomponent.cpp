@@ -24,7 +24,7 @@ void TrainComponent::setCurrentWeight(double newCurrentWeight) {
 
 // consume the fuel required by the locomotive
 std::pair<bool,double> TrainComponent::consumeFuel(double timeStep, double trainSpeed,
-                                                   double EC_kwh,
+                                                   double EC_kwh, double routeProgress,
                                                    double LocomotiveVirtualTractivePower,
                                                    double dieselConversionFactor,
                                                    double biodieselConversionFactor,
@@ -42,12 +42,12 @@ std::pair<bool, double> TrainComponent::consumeFuelDiesel(double EC_kwh, double 
 	// tenderCurrentCapacity is in liters in that case
 	double consumedQuantity = (EC_kwh * dieselConversionFactor); //convert to liters
     // check if the vehicle still has fuel to consume from
-	if (this->isTankDrainable(consumedQuantity)) {
+    if (tank.isTankDrainable(consumedQuantity)) {
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
 
-        this->consumeTank(consumedQuantity); // consume the vehicle tank if available
+        tank.consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * dieselDensity; // reduce vehicle weight
 		this->setCurrentWeight(newWeight);
 		return std::make_pair(true, 0.0); // returns the tender still has fuel and can provide it to the locomotive
@@ -60,12 +60,12 @@ std::pair<bool, double> TrainComponent::consumeFuelBioDiesel(double EC_kwh, doub
 	// tenderCurrentCapacity is in liters in that case
 	double consumedQuantity = (EC_kwh * bioDieselConversionFactor); //convert to liters
     // check if the vehicle still has fuel to consume from
-	if (this->isTankDrainable(consumedQuantity)) {
+    if (tank.isTankDrainable(consumedQuantity)) {
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
 
-        this->consumeTank(consumedQuantity); // consume the vehicle tank if available
+        tank.consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * bioDieselDensity;  // reduce vehicle weight
 		this->setCurrentWeight(newWeight);
 		return std::make_pair(true, 0.0); // returns the tender still has fuel and can provide it to the locomotive
@@ -77,7 +77,7 @@ std::pair<bool, double> TrainComponent::consumeElectricity(double timeStep, doub
     // if the link the vehicle is on does not have catenary, consume electricity from the battery
 	if (! this->hostLink->hasCatenary){
         // consume electricity and return its results
-        auto out = this->consumeBattery(timeStep, EC_kwh); // true if it could consume electricity, false otherwise
+        auto out = battery.consumeBattery(timeStep, EC_kwh); // true if it could consume electricity, false otherwise
         // if it could consume all electricity
         if (out.first && out.second == 0.0){
             // update stats
@@ -110,13 +110,13 @@ std::pair<bool, double> TrainComponent::consumeFuelHydrogen(double EC_kwh, doubl
     // tenderCurrentCapacity is in liters in that case
 	double consumedQuantity = (EC_kwh * hydrogenConversionFactor); //converts to litters
     // check if the vehicle still has fuel to consume from
-	if (this->isTankDrainable(consumedQuantity)) {
+    if (tank.isTankDrainable(consumedQuantity)) {
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
 
         // consume the vehicle tank if available
-		this->consumeTank(consumedQuantity);
+        tank.consumeTank(consumedQuantity);
         double newWeight = this->currentWeight - consumedQuantity * hydrogenDensity; // reduce vehicle weight
 		this->setCurrentWeight(newWeight);
 		return std::make_pair(true, 0.0); // returns the tender still has fuel and can provide it to the locomotive
@@ -128,7 +128,7 @@ double TrainComponent::refillBattery(double timeStep, double EC_kwh) {
 	double ER = std::abs(EC_kwh);   // because the passed EC_kwh is negative when it is recharge value
 	// get how much regenerated energy and pushed to the battery,
     // 0.0 means no energy was pushed to the battery
-    this->energyRegenerated = this->rechargeBatteryByRegeneratedEnergy(timeStep, ER);
+    this->energyRegenerated = battery.rechargeBatteryByRegeneratedEnergy(timeStep, ER);
     this->cumEnergyRegenerated += this->energyRegenerated;
     // if the battery is full, it will return 0.0 recharged to the battery.
     // if the battery recharge all/part of the energy, it will return any other valye

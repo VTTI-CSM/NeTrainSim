@@ -21,7 +21,7 @@ using namespace std;
  * @author	Ahmed
  * @date	2/14/2023
  */
-class TrainComponent : public Battery, public Tank{
+class TrainComponent {
 public:
 
     /***********************************************
@@ -59,6 +59,10 @@ public:
 
 	/** Holds the current link this vehicle is on. */
 	std::shared_ptr<NetLink> hostLink;
+
+    Battery battery;
+
+    Tank tank;
 
 
     /***********************************************
@@ -244,7 +248,7 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
 	virtual std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
-                                               double EC_kwh,
+                                               double EC_kwh, double routeProgress,
                                                double LocomotiveVirtualTractivePower = std::numeric_limits<double>::quiet_NaN(),
 											   double dieselConversionFactor = EC::DefaultDieselConversionFactor,
 											   double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,
