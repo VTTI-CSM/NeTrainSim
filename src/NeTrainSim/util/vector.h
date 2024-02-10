@@ -94,11 +94,24 @@ public:
      * @author	Ahmed Aredah
      * @date	2/28/2023
      *
-     * @returns	A T.
+     * @returns	The sum value of the vector.
      */
     [[nodiscard]] T sum() const
     {
         return std::accumulate(std::cbegin(*this), std::cend(*this), T{});
+    }
+
+    /**
+     * Average function returns the average of all elements in the vector
+     *
+     * @author	Ahmed Aredah
+     * @date	2/5/2024
+     *
+     * @returns	The average value of the vector.
+     */
+    [[nodiscard]] T average() const
+    {
+        return sum() / this->size();
     }
 
     /**
