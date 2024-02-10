@@ -441,6 +441,20 @@ public:
      */
     double getNotLoadedTrainsMinStartTime();
 
+    /**
+     * @brief Get the forward virtual steps track data with
+     * constant current train speed.
+     * @param train The subject train as a shared pointer
+     * @param timeStep The time step in seconds
+     * @return a vector of tuples that holds the track data.
+     * Track Data are: 1) curvatures, 2) grades, 3)freeFlowSpeeds, 4)links
+     * The track data are vectors for each car/loco
+     */
+    Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                      Vector<std::shared_ptr<NetLink>>>>
+    getForwardVirtualStepsTrackDataWithConstantCurrentSpeed(
+        std::shared_ptr<Train> train, double timeStep, int lookAheadStep);
+
 	/**
 	 * Play train virtual steps a star optimization
 	 *
