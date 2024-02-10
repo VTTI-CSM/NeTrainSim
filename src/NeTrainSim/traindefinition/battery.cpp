@@ -104,21 +104,27 @@ void Battery::setBatteryCRate(double newBatteryCRate) {
 }
 
 bool Battery::isBatteryDrainable(double requiredCharge) {
-    // check if the battery reaches the low level of charge, enable the recharge request
+    // check if the battery reaches the low level of charge,
+    // enable the recharge request
     this->IsBatteryExceedingThresholds();
     return (requiredCharge <= this->batteryCurrentCharge && batteryStateOfCharge > (1.0- batteryDOD));
 }
 
 bool Battery::isBatteryRechargable() {
-    // check if the battery reaches the max level of charge, disable the recharge request
+    // check if the battery reaches the max level of charge,
+    // disable the recharge request
     this->IsBatteryExceedingThresholds();
-    return (batteryStateOfCharge < batteryRechargeSOCUpperBound);
+    return (batteryStateOfCharge <= batteryRechargeSOCUpperBound);
 }
 
 
 bool Battery::IsBatteryExceedingThresholds(){
-    if (this->batteryStateOfCharge >= this->batteryRechargeSOCUpperBound) { this->enableRecharge = false; }
-    else if (this->batteryStateOfCharge < this->batteryRechargeSOCLowerBound) { this->enableRecharge = true; }
+    if (this->batteryStateOfCharge >= this->batteryRechargeSOCUpperBound) {
+        this->enableRecharge = false;
+    }
+    else if (this->batteryStateOfCharge <= this->batteryRechargeSOCLowerBound) {
+        this->enableRecharge = true;
+    }
     return this->enableRecharge;
 }
 
