@@ -111,7 +111,7 @@ public:
      * @param hydrogenDensity           (Optional) The hydrogen density.
      * @returns A std::pair<bool, double>.
      */
-    std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh,
+    std::pair<bool, double> consumeFuel(double timeStep, double trainSpeed, double EC_kwh, double routeProgress,
                                         double carVirtualTractivePower = std::numeric_limits<double>::quiet_NaN(),
                                         double dieselConversionFactor = EC::DefaultDieselConversionFactor,
                                         double biodieselConversionFactor = EC::DefaultBiodieselConversionFactor,

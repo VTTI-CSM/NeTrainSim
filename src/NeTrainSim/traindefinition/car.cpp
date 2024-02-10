@@ -34,20 +34,20 @@ Car::Car(double carLength_m, double carDragCoef,
 
     // if the car is assigned to cargo, set the battery and the tank to zeros
     if (this->carType == TrainTypes::CarType::cargo){
-        this->setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
-        this->SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
+        battery.setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
+        tank.SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
     } //end if
     // if it is in rechargable technologies, only assign a battery capacity and discard the tank
     else if (TrainTypes::carRechargableTechnologies.exist(this->carType) &&
              this->carType != TrainTypes::CarType::cargo) {
-        this->setBattery(batteryMaxCapacity_kwh, batteryInitialCharge_perc,
+        battery.setBattery(batteryMaxCapacity_kwh, batteryInitialCharge_perc,
                          EC::DefaultCarBatteryDOD, EC::DefaultCarBatteryCRate);
-        this->SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
+        tank.SetTank(0.0, 0.0, EC::DefaultCarMinTankDOD);
     } // end else if
     // if it is non-recharable technology, add tank capacity only and discard the battery
     else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType) &&
              this->carType != TrainTypes::CarType::cargo) {
-        this->setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
+        battery.setBattery(0.0, 0.0, 1.0, EC::DefaultCarBatteryCRate);
         if (this->carType == TrainTypes::CarType::hydrogenFuelCell &&
             std::isnan(tenderMaxCapacity_l))
         {
@@ -58,18 +58,18 @@ Car::Car(double carLength_m, double carDragCoef,
         {
             tenderMaxCapacity_l = EC::DefaultCarTenderMaxCapacity;
         }
-        this->SetTank(tenderMaxCapacity_l, tenderInitialCapacity_perc, EC::DefaultCarMinTankDOD);
+        tank.SetTank(tenderMaxCapacity_l, tenderInitialCapacity_perc, EC::DefaultCarMinTankDOD);
         double fuelWeight = 0.0; // in ton
         // if the tender is for diesel
         if (this->carType == TrainTypes::CarType::dieselTender) {
-            fuelWeight = this->getTankInitialCapacity() * EC::DefaultDieselDensity;
+            fuelWeight = tank.getTankInitialCapacity() * EC::DefaultDieselDensity;
         }
         // if the tender is for biodiesel
         else if (this->carType == TrainTypes::CarType::biodieselTender) {
-            fuelWeight = this->getTankInitialCapacity() * EC::DefaultBioDieselDensity;
+            fuelWeight = tank.getTankInitialCapacity() * EC::DefaultBioDieselDensity;
         }
         else if (this->carType == TrainTypes::CarType::hydrogenFuelCell) {
-            fuelWeight = this->getTankInitialCapacity() * EC::DefaultHydrogenDensity;
+            fuelWeight = tank.getTankInitialCapacity() * EC::DefaultHydrogenDensity;
         }
         // update the weight to account for the fuel weight
         this->currentWeight = this->emptyWeight + fuelWeight;
@@ -121,7 +121,7 @@ double Car::getEnergyConsumption(double &timeStep) {
 
 
 std::pair<bool, double> Car::consumeFuel(double timeStep, double trainSpeed,
-                                         double EC_kwh,
+                                         double EC_kwh, double routeProgress,
                                          double carVirtualTractivePower,
                                          double dieselConversionFactor,
                                          double biodieselConversionFactor,
@@ -158,10 +158,10 @@ double Car::getMaxProvidedEnergy(double &timeStep) {
         if (this->hostLink->hasCatenary) {
             return std::numeric_limits<double>::infinity();
         }
-        return this->getBatteryMaxDischarge(timeStep);
+        return battery.getBatteryMaxDischarge(timeStep);
     }
     else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType)) {
-        if (! this->tankHasFuel()) {
+        if (! tank.tankHasFuel()) {
             return 0.0;
         }
     }
@@ -171,12 +171,12 @@ double Car::getMaxProvidedEnergy(double &timeStep) {
 bool Car::canProvideEnergy(double &EC, double &timeStep) {
     if (EC < 0.0) {return true; }
     if (TrainTypes::carRechargableTechnologies.exist(this->carType)) {
-        if (EC <= this->getBatteryMaxDischarge(timeStep) && this->isBatteryDrainable(EC)) {
+        if (EC <= battery.getBatteryMaxDischarge(timeStep) && battery.isBatteryDrainable(EC)) {
             return true; // the car type cannot provide energy
         }
     }
     else if (TrainTypes::carNonRechargableTechnologies.exist(this->carType)) {
-        if (this->isTankDrainable(EC)) {
+        if (tank.isTankDrainable(EC)) {
             return true;
         }
     }
