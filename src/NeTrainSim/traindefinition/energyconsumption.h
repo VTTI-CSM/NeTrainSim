@@ -64,12 +64,18 @@ namespace EC {
 	/** (Immutable) the default locomotive battery max state of charge in
 	rechage state for any generator other than diesel.*/
     static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.65;
+    /** (Immutable) the default locomotive battery max state of charge in
+     *  recharge state for hybrid locos in MPC and step optimizations.*/
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_HybridOpt = 0.9;
+    /** (Immutable) the default locomotive battery min state of charge in
+     *  recharge state for hybrid locos in MPC and step optimizations.*/
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_HybridOpt = 0.1;
 	/** (Immutable) the default locomotive battery min state of charge in which 
 	it requires recharge once reached state for diesel generator.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.20;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.55;
 	/** (Immutable) the default locomotive battery min state of charge in which
 	it requires recharge once reached state for any generator except diesel.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.50;//0.5
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.55;//0.5
 
     /** required generator power percentage. */
     static constexpr double requiredGeneratorPower[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
