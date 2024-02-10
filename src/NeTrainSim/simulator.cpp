@@ -595,17 +595,41 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 			train->moveTrain(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
 		}
+
+        Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                          Vector<std::shared_ptr<NetLink>>>> forwardTrackDataForLocoOpt;
+
+        if (train->isMPCOptimizationNeeded())
+        {
+            forwardTrackDataForLocoOpt =
+                getForwardVirtualStepsTrackDataWithConstantCurrentSpeed(
+                train, timeStep, train->forwardHorizonStepsInMPC);
+        }
 		// handle when the train reaches its destinations
 		if ((std::round(train->trainTotalPathLength * 1000.0) / 1000.0) <= (std::round(train->travelledDistance * 1000.0) / 1000.0)) {
 			train->travelledDistance = train->trainTotalPathLength;
 			train->reachedDestination = true;
-			train->calcTrainStats(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            if (train->isMPCOptimizationNeeded())
+            {
+                train->calcTrainStatsWithHybridLocosOptimizationOn(forwardTrackDataForLocoOpt, freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            }
+            else
+            {
+                train->calcTrainStatsAndConsumeEnergy(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            }
 		}
 		// handles when the train still has distance to travel
 		else {
 			train->currentCoordinates = this->network->getPositionbyTravelledDistance(train, train->travelledDistance);
 			train->startEndPoints = this->getStartEndPoints(train, train->currentCoordinates);
-			train->calcTrainStats(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            if (train->isMPCOptimizationNeeded())
+            {
+                train->calcTrainStatsWithHybridLocosOptimizationOn(forwardTrackDataForLocoOpt, freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            }
+            else
+            {
+                train->calcTrainStatsAndConsumeEnergy(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
+            }
 
 			// holds track data and speed
             tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
@@ -641,10 +665,12 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
                        << train->stoppedStat << ","
                        << train->currentTractiveForce << ","
                        << train->currentResistanceForces << ","
-                       << train->currentUsedTractivePower << ","
+                       << train->currentUsedTractivePower_W / (1000.0) << ","
                        << grades[0] << ","
                        << curvatures[0] << ","
                        << train->locomotives[0]->currentLocNotch << ","
+                       << train->getAverageLocomotiveTankStatus() * (double)100.0 << ","
+                       << train->getAverageLocomotivesBatteryStatus() * (double)100.0 << ","
                        << train->optimize
                        << std::endl;
 
@@ -681,6 +707,31 @@ double Simulator::getNotLoadedTrainsMinStartTime() {
     }
     if (st.empty()) { return -1.0; }
     return st.min();
+}
+
+Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                  Vector<std::shared_ptr<NetLink>>>>
+Simulator::getForwardVirtualStepsTrackDataWithConstantCurrentSpeed(
+    std::shared_ptr<Train> train, double timeStep, int lookAheadStep)
+{
+    Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                      Vector<std::shared_ptr<NetLink>>>> forwardStepsLinksData;
+
+    if (train->trainStartTime <= this->simulationTime){
+
+        train->virtualTravelledDistance = train->travelledDistance;
+        double speed = train->currentSpeed;
+
+        for (int i = 0; i <= lookAheadStep; i++)
+        {
+            auto linksData = this->loadTrainLinksData(train, true);
+            train->virtualTravelledDistance += speed * timeStep;
+
+            forwardStepsLinksData.push_back(linksData);
+        }
+
+    }
+    return forwardStepsLinksData;
 }
 
 void Simulator::PlayTrainVirtualStepsAStarOptimization(std::shared_ptr<Train> train, double timeStep){
@@ -1008,7 +1059,8 @@ void Simulator::runSimulation() {
                    << "Stoppings,tractiveForce_N,"
                    << "ResistanceForces_N,CurrentUsedTractivePower_kw,"
                    << "GradeAtTip_Perc,CurvatureAtTip_Perc,"
-                   << "FirstLocoNotchPosition,optimizationEnabled\n";
+                   << "FirstLocoNotchPosition,AverageCurrentLocomotivesTankStatus,"
+                   << "AverageCurrentLocomotivesBatteryStates,optimizationEnabled\n";
 		this->trajectoryFile << exportLine.str();
 	}
 
@@ -1023,6 +1075,10 @@ void Simulator::runSimulation() {
         if (pauseFlag) pauseCond.wait(&mutex);
         mutex.unlock();
 
+        if (simulationTime > 1158.0)
+        {
+            double ss = 0.0;
+        }
 		if (this->checkAllTrainsReachedDestination()) {
 			break;
 		}
@@ -1395,21 +1451,21 @@ void Simulator::runSimulation() {
                                << "        |_ Power Type                                                            \x1D : " << TrainTypes::PowerTypeToStr(loc->powerType) << "\n";
 					if (TrainTypes::locomotiveBatteryOnly.exist(loc->powerType) ||
 							TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        trainStat << "        |_ Battery Initial Charge (KW.h)                                         \x1D : " << Utils::thousandSeparator(loc->getBatteryInitialCharge()) << "\n"
-                                   << "        |_ Battery Current Charge  at End of Trip (KW.h)                         \x1D : " << Utils::thousandSeparator(loc->getBatteryCurrentCharge()) << "\n"
-                                   << "        |_ Battery Initial State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(loc->getBatteryInitialCharge() / loc->getBatteryMaxCharge() * 100.0) << "\n"
-                                   << "        |_ Battery Current State of Charge  at End of Trip (%)                   \x1D : " << Utils::thousandSeparator(loc->getBatteryStateOfCharge() * 100.0) << "\n"
-                                   << "        |_ Battery Cumulative Consumed Energy (kW.h)                             \x1D : " << Utils::thousandSeparator(loc->getBatteryCumEnergyConsumption()) << "\n"
-                                   << "        |_ Battery Cumulative Regenerated Energy (kW.h)                          \x1D : " << Utils::thousandSeparator(loc->getBatteryCumEnergyRegenerated()) << "\n"
-                                   << "        |_ Battery Cumulative Net Consumed Energy (kW.h)                         \x1D : " << Utils::thousandSeparator(loc->getBatteryCumNetEnergyConsumption()) << "\n";
+                        trainStat << "        |_ Battery Initial Charge (KW.h)                                         \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryInitialCharge()) << "\n"
+                                   << "        |_ Battery Current Charge  at End of Trip (KW.h)                         \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryCurrentCharge()) << "\n"
+                                   << "        |_ Battery Initial State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryInitialCharge() / loc->battery.getBatteryMaxCharge() * 100.0) << "\n"
+                                   << "        |_ Battery Current State of Charge  at End of Trip (%)                   \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryStateOfCharge() * 100.0) << "\n"
+                                   << "        |_ Battery Cumulative Consumed Energy (kW.h)                             \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryCumEnergyConsumption()) << "\n"
+                                   << "        |_ Battery Cumulative Regenerated Energy (kW.h)                          \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryCumEnergyRegenerated()) << "\n"
+                                   << "        |_ Battery Cumulative Net Consumed Energy (kW.h)                         \x1D : " << Utils::thousandSeparator(loc->battery.getBatteryCumNetEnergyConsumption()) << "\n";
 					}
 					else if (TrainTypes::locomotiveTankOnly.exist(loc->powerType) ||
 							 TrainTypes::locomotiveHybrid.exist(loc->powerType)) {
-                        trainStat << "        |_ Tank Initial Capacity (liters)                                        \x1D : " << Utils::thousandSeparator(loc->getTankInitialCapacity()) << "\n"
-                                   << "        |_ Tank Current Capacity at End of Trip (liters)                         \x1D : " << Utils::thousandSeparator(loc->getTankCurrentCapacity()) << "\n"
-                                   << "        |_ Tank Initial State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(loc->getTankInitialCapacity() / loc->getTankMaxCapacity() * 100.0) << "\n"
-                                   << "        |_ Tank Current State of Capacity at End of Trip (%)                     \x1D : " << Utils::thousandSeparator(loc->getTankStateOfCapacity() * 100.0) << "\n"
-                                   << "        |_ Tank Cumulative Consumed Fuel (liters)                                \x1D : " << Utils::thousandSeparator(loc->getTankCumConsumedFuel()) << "\n";
+                        trainStat << "        |_ Tank Initial Capacity (liters)                                        \x1D : " << Utils::thousandSeparator(loc->tank.getTankInitialCapacity()) << "\n"
+                                   << "        |_ Tank Current Capacity at End of Trip (liters)                         \x1D : " << Utils::thousandSeparator(loc->tank.getTankCurrentCapacity()) << "\n"
+                                   << "        |_ Tank Initial State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(loc->tank.getTankInitialCapacity() / loc->tank.getTankMaxCapacity() * 100.0) << "\n"
+                                   << "        |_ Tank Current State of Capacity at End of Trip (%)                     \x1D : " << Utils::thousandSeparator(loc->tank.getTankStateOfCapacity() * 100.0) << "\n"
+                                   << "        |_ Tank Cumulative Consumed Fuel (liters)                                \x1D : " << Utils::thousandSeparator(loc->tank.getTankCumConsumedFuel()) << "\n";
 					}
 					locI ++;
 				}
@@ -1422,14 +1478,14 @@ void Simulator::runSimulation() {
                             trainStat << "      |_ Tender Number                                                           \x1D : " << tenderI << "\n"
                                        << "        |_ Tender Type                                                           \x1D : " << TrainTypes::carTypeToStr(car->carType) << "\n";
 							if (car->carType == TrainTypes::CarType::batteryTender){
-                                trainStat << "        |_ Battery Initial Charge                                                \x1D : " << Utils::thousandSeparator(car->getBatteryInitialCharge()) << "\n"
-                                           << "        |_ Battery Current Charge                                                \x1D : " << Utils::thousandSeparator(car->getBatteryCurrentCharge()) << "\n"
-                                           << "        |_ Battery Current State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(car->getBatteryStateOfCharge()) << "\n";
+                                trainStat << "        |_ Battery Initial Charge                                                \x1D : " << Utils::thousandSeparator(car->battery.getBatteryInitialCharge()) << "\n"
+                                           << "        |_ Battery Current Charge                                                \x1D : " << Utils::thousandSeparator(car->battery.getBatteryCurrentCharge()) << "\n"
+                                           << "        |_ Battery Current State of Charge (%)                                   \x1D : " << Utils::thousandSeparator(car->battery.getBatteryStateOfCharge()) << "\n";
 							}
 							else {
-                                trainStat << "        |_ Tank Initial Capacity                                                 \x1D : " << Utils::thousandSeparator(car->getTankInitialCapacity()) << "\n"
-                                           << "        |_ Tank Current Capacity                                                 \x1D : " << Utils::thousandSeparator(car->getTankCurrentCapacity()) << "\n"
-                                           << "        |_ Tank Current State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(car->getTankStateOfCapacity()) << "\n";
+                                trainStat << "        |_ Tank Initial Capacity                                                 \x1D : " << Utils::thousandSeparator(car->tank.getTankInitialCapacity()) << "\n"
+                                           << "        |_ Tank Current Capacity                                                 \x1D : " << Utils::thousandSeparator(car->tank.getTankCurrentCapacity()) << "\n"
+                                           << "        |_ Tank Current State of Capacity (%)                                    \x1D : " << Utils::thousandSeparator(car->tank.getTankStateOfCapacity()) << "\n";
 							}
 							tenderI ++;
 						}
