@@ -119,9 +119,9 @@ public:
     /** The current resistance forces on the train in Newton*/
     double currentResistanceForces;
     /** The current used tractive power that the locomotives provides in kw*/
-    double currentUsedTractivePower;
+    double currentUsedTractivePower_W;
     /** The cummulative used tractive power (work) that the locomotives provide in kw*/
-    double cumUsedTractivePower;
+    double cumUsedTractivePower_W;
     /** The optimum throttle level that the train should go by to minimize its energy use */
     double optimumThrottleLevel;
     /** Total energy consumption (consumed + regenerated) at time step t */
@@ -197,7 +197,7 @@ public:
     /** Maps the train active locomotives types */
     Vector<std::shared_ptr<Locomotive>> ActiveLocos;
     /** The current used tractive power list */
-    Vector<double> currentUsedTractivePowerList;
+    Vector<double> currentUsedTractivePowerList_W;
     /** The throttle levels that the train will go by. */
     Vector<double> throttleLevels;
 
@@ -229,6 +229,17 @@ public:
     /** The number of steps ahead the train should update its optimization at */
     int lookAheadCounterToUpdate;
     int mem_lookAheadCounterToUpdate;
+
+    // **************************************************************
+    // ************** For hybrid locomotives only *******************
+    // **************************************************************
+    TrainTypes::HybridCalculationMethod defaultHybridLocoType =
+        TrainTypes::HybridCalculationMethod::fast;
+    int forwardHorizonStepsInMPC = 3; // # steps forward in the MPC optimization
+    int discritizationCount = 20;
+    // **************************************************************
+    // **************************************************************
+    // **************************************************************
 
 
     /** Change this to true if you want the train to stop if it runs out of energy */
@@ -830,6 +841,25 @@ public:
      */
     double getTotalEnergyConsumption(double& timeStep, double& stepSpeed, double& stepAcceleration, Vector<double>& usedTractivePower);
 
+    bool isMPCOptimizationNeeded();
+
+    void
+    whatCostIfConsumeEnergyWithHeuristic(
+        double& timeStep, double trainSpeed,
+        Vector<double>& usedTractivePower,
+        int stepCounter);
+
+    /**
+     * @brief Calculates the cost if we consume energy consumption at this time step.
+     * @param timeStep The time step in seconds
+     * @param trainSpeed the current train speed
+     * @param usedTractivePower the used tractive power of all the train
+     * @param stepCounter is the forward step counter [int]
+     * @return the min cost associated with the current hybrid configuration.
+     */
+    // void whatCostIfConsumeEnergy(double& timeStep, double trainSpeed,
+    //                     Vector<double>& usedTractivePower,
+    //                     int stepCounter);
     /**
      * \brief Consume energy
      *
@@ -837,11 +867,11 @@ public:
      * @date	2/28/2023
      *
      * @param [in,out]	timeStep		 	The time step.
-     * @param [in,out]	usedTractivePower	The used tractive power.
+     * @param [in,out]	usedTractivePower	The used tractive power in Watt.
      *
      * @returns	True if it succeeds, false if it fails.
      */
-    bool consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& usedTractivePower);
+    bool consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& usedTractivePower_W);
 
     /**
      * \brief Resets the train energy consumption
@@ -902,6 +932,7 @@ public:
      */
     int getRechargableLocsNumber();
 
+    double getRouteProgress();
     /**
      * \brief This function adopts the A Star optimization to get the optimum throttle level.
      *
@@ -961,7 +992,23 @@ public:
 // ##################################################################
 // #                  start: statistics calculations                #
 // ##################################################################
-
+    /**
+     * \brief Calculates the train statistics
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param   forwardLinksData            The list of ahead topography of the train.
+     * @param 	listOfLinksFreeFlowSpeeds	The list of links free flow speeds.
+     * @param 	MinFreeFlow				 	The minimum free flow.
+     * @param 	timeStep				 	The time step.
+     * @param 	currentRegion			 	The current region.
+     */
+    void calcTrainStatsWithHybridLocosOptimizationOn(
+        Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                          Vector<std::shared_ptr<NetLink>>>> forwardLinksData,
+        Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow,
+        double timeStep, std::string currentRegion);
     /**
      * \brief Calculates the train statistics
      *
@@ -973,7 +1020,7 @@ public:
      * @param 	timeStep				 	The time step.
      * @param 	currentRegion			 	The current region.
      */
-    void calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow, double timeStep, std::string currentRegion);
+    void calcTrainStatsAndConsumeEnergy(Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow, double timeStep, std::string currentRegion);
 
     /**
      * \brief Finds the average of the given arguments

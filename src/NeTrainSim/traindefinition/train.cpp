@@ -66,6 +66,12 @@ Train::Train(int simulatorID, string id, Vector<int> trainPath,
     }
     for (auto& loco : this->locomotives) {
         this->ActiveLocos.push_back(loco);
+        if (TrainTypes::locomotiveHybrid.exist(loco->powerType))
+        {
+            // set the hybrid locomotives optimization method
+            loco->setLocomotiveHybridParameters(defaultHybridLocoType,
+                                                forwardHorizonStepsInMPC);
+        }
     }
 
     setOptimization(optimize, optimization_k,
@@ -134,7 +140,7 @@ double Train::getMinFollowingTrainGap() {
 double Train::getBatteryEnergyConsumed() {
     double total = 0.0;
     for (auto &vehicle:this->trainVehicles) {
-        total += vehicle->getBatteryCumEnergyConsumption();
+        total += vehicle->battery.getBatteryCumEnergyConsumption();
     }
     return total;
 }
@@ -142,7 +148,7 @@ double Train::getBatteryEnergyConsumed() {
 double Train::getBatteryEnergyRegenerated() {
     double total = 0.0;
     for (auto &vehicle:this->trainVehicles) {
-        total += vehicle->getBatteryCumEnergyRegenerated();
+        total += vehicle->battery.getBatteryCumEnergyRegenerated();
     }
     return total;
 }
@@ -150,7 +156,7 @@ double Train::getBatteryEnergyRegenerated() {
 double Train::getBatteryNetEnergyConsumed() {
     double total = 0.0;
     for (auto &vehicle:this->trainVehicles) {
-        total += vehicle->getBatteryCumNetEnergyConsumption();
+        total += vehicle->battery.getBatteryCumNetEnergyConsumption();
     }
     return total;
 }
@@ -158,7 +164,7 @@ double Train::getBatteryNetEnergyConsumed() {
 double Train::getAverageLocomotivesBatteryStatus() {
     double sum = 0;
     for (auto& loco : this->locomotives) {
-        sum += loco->getBatteryStateOfCharge();
+        sum += loco->battery.getBatteryStateOfCharge();
     }
     return sum / (double)this->nlocs;
 }
@@ -166,7 +172,7 @@ double Train::getAverageLocomotivesBatteryStatus() {
 double Train::getAverageLocomotiveTankStatus() {
     double sum = 0;
     for (auto& loco : this->locomotives) {
-        sum += loco->getTankStateOfCapacity();
+        sum += loco->tank.getTankStateOfCapacity();
     }
     return sum / (double)this->nlocs;
 }
@@ -176,7 +182,7 @@ double Train::getAverageTendersTankStatus() {
     int count = 0;
     for (auto& car : this->cars) {
         if (TrainTypes::carNonRechargableTechnologies.exist(car->carType)) {
-            sum += car->getTankStateOfCapacity();
+            sum += car->tank.getTankStateOfCapacity();
             count ++;
         }
     }
@@ -191,7 +197,7 @@ double Train::getAverageTendersBatteryStatus() {
     int count = 0;
     for (auto& car : this->cars) {
         if (TrainTypes::carRechargableTechnologies.exist(car->carType)) {
-            sum += car->getBatteryStateOfCharge();
+            sum += car->battery.getBatteryStateOfCharge();
             count ++;
         }
     }
@@ -215,10 +221,10 @@ Map<std::string, double> Train::getTrainConsumedTank() {
         }
         // add the consumed fuel amount
         if (consumption.is_key(TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType)))) {
-            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] += loco->getTankCumConsumedFuel();
+            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] += loco->tank.getTankCumConsumedFuel();
         }
         else {
-            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] = loco->getTankCumConsumedFuel();
+            consumption[TrainTypes::fuelTypeToStr(TrainTypes::getFuelTypeFromPowerType(loco->powerType))] = loco->tank.getTankCumConsumedFuel();
         }
     }
     return consumption;
@@ -383,7 +389,7 @@ Vector<std::shared_ptr<Car>> Train::getActiveTanksOfType(TrainTypes::CarType car
     Vector<std::shared_ptr<Car>> filteredCars;
     if (!this->carsTypes[cartype].empty()) {
         for (auto& car : this->carsTypes[cartype]) {
-            if (car->getBatteryStateOfCharge() > 0.0 || car->getTankCurrentCapacity() > 0.0) {
+            if (car->battery.getBatteryStateOfCharge() > 0.0 || car->tank.getTankCurrentCapacity() > 0.0) {
                 filteredCars.push_back(car);
             }
         }
@@ -712,15 +718,102 @@ void Train::kickForwardADistance(double& distance) {
 // #                 start: train statistics                        #
 // ##################################################################
 
-void Train::calcTrainStats(Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow, double timeStep, 
-        std::string currentRegion) {
-    std::pair<Vector<double>, double> pwr = this->getTractivePower(this->currentSpeed, this->currentAcceleration,
-                                                                    this->currentResistanceForces);
-    this->currentUsedTractivePowerList = pwr.first;
-    this->currentUsedTractivePower = pwr.second;
-    this->cumUsedTractivePower += this->currentUsedTractivePower;
+void Train::calcTrainStatsWithHybridLocosOptimizationOn(
+    Vector<std::tuple<Vector<double>, Vector<double>, Vector<double>,
+                      Vector<std::shared_ptr<NetLink>>>> forwardLinksData,
+    Vector<double> listOfLinksFreeFlowSpeeds, double MinFreeFlow,
+    double timeStep, std::string currentRegion)
+{
 
-    this->isOn = this->consumeEnergy(timeStep, this->currentSpeed, currentUsedTractivePowerList);
+    std::pair<Vector<double>, double> pwr;
+
+    // iterate over all the active locomotives
+    for (int loco_i = 0; loco_i < this->ActiveLocos.size(); loco_i++)
+    {
+        // hold the future steps estimates
+        Vector<double> future_kWh = Vector<double>(); //< estimate of the future EC
+        Vector<double> future_routeProgress = Vector<double>(); //< estimate of the future steps progress
+
+        // iterate over all forward distance horizon
+        for (int i = 1; i < forwardLinksData.size(); i++)
+        {
+            // update the grades and curvatures for all the train once
+            if (loco_i == 0)
+            {
+                updateGradesCurvatures(std::get<0>(forwardLinksData[i]),
+                                       std::get<1>(forwardLinksData[i]));
+            }
+
+            // get the new energy consumption as per the new curvature and grades
+            getTotalResistance(currentSpeed); // calculate new resistance
+            pwr = this->getTractivePower(this->currentSpeed,
+                                         this->currentAcceleration,
+                                         this->currentResistanceForces);
+
+            auto newCurrentUsedTractivePowerList = pwr.first;
+
+
+            // if the locomotive is on, compute the energy consumption
+            if (this->ActiveLocos.at(loco_i)->isLocOn) {
+                // calculate the amount of energy consumption
+                double averageSpeed =                           // < get average speed for better estimate
+                    (this->currentSpeed + this->previousSpeed) / (double)2.0;
+                double UsedTractiveP =                          //< the power for this locomotive
+                    newCurrentUsedTractivePowerList.at(loco_i);
+
+                double EC_kwh =         //< the estimated EC with current resistance estimate
+                    this->ActiveLocos.at(loco_i)->getEnergyConsumption(
+                        UsedTractiveP, this->currentAcceleration,
+                        averageSpeed, timeStep);
+
+                future_kWh.push_back(EC_kwh); //< push to the estimates vector
+            }
+
+            double currentTravelledDistance =
+                this->travelledDistance + averageSpeed * ((double)i - 1.0); // get corrected counter
+
+            double routeProgress =                  //< calc estimated route progress
+                std::max(0.0, currentTravelledDistance / this->trainTotalPathLength);
+
+            future_routeProgress.push_back(routeProgress); //< push to the estimates vector
+
+        }
+
+        // get the cheapest control action for the next step
+        // this is applied as per the MPC (Model Predictive Control)
+        this->ActiveLocos.at(loco_i)->hybridControlAction =
+            this->ActiveLocos.at(loco_i)->
+            getCheapestHeuristicHybridCost(timeStep,
+                                           future_kWh,
+                                           this->ActiveLocos.at(loco_i)->
+                                           hybridControlActionsCombination,
+                                           future_routeProgress);
+
+
+    }
+
+    // return back to the current grade and curvature
+    updateGradesCurvatures(std::get<0>(forwardLinksData[0]),
+                           std::get<1>(forwardLinksData[0]));
+    getTotalResistance(currentSpeed);
+
+    // consume energy based on the calculated split logic parameters
+    calcTrainStatsAndConsumeEnergy(listOfLinksFreeFlowSpeeds, MinFreeFlow, timeStep, currentRegion);
+
+}
+
+void Train::calcTrainStatsAndConsumeEnergy(Vector<double> listOfLinksFreeFlowSpeeds,
+                                           double MinFreeFlow, double timeStep,
+                                           std::string currentRegion)
+{
+    std::pair<Vector<double>, double> pwr =
+        this->getTractivePower(this->currentSpeed, this->currentAcceleration,
+                               this->currentResistanceForces);
+    this->currentUsedTractivePowerList_W = pwr.first;
+    this->currentUsedTractivePower_W = pwr.second;
+    this->cumUsedTractivePower_W += this->currentUsedTractivePower_W;
+
+    this->isOn = this->consumeEnergy(timeStep, this->currentSpeed, currentUsedTractivePowerList_W);
     this->calculateEnergyConsumption(timeStep, currentRegion);
 
     this->tripTime += timeStep;
@@ -793,6 +886,10 @@ int Train::getRechargableLocsNumber() {
     return count;
 }
 
+double Train::getRouteProgress()
+{
+    return this->travelledDistance / trainTotalPathLength;
+}
 tuple<double, double, double> Train::AStarOptimization(double prevSpeed, double currentSpeed, double currentAcceleration,double prevThrottle,
                                                     Vector<double> vector_grade, Vector<double> vector_curvature,
                                                     double freeSpeed_ms, double timeStep, Vector<double> u_leader,
@@ -1016,7 +1113,198 @@ void Train::setTrainsCurrentLinks(Vector<std::shared_ptr<NetLink>> newLinks) {
     this->currentFirstLink = newLinks.at(0);
 }
 
-bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& usedTractivePower) {
+void
+Train::whatCostIfConsumeEnergyWithHeuristic(
+    double& timeStep, double trainSpeed,
+    Vector<double>& usedTractivePower,
+    int stepCounter)
+{
+    // if the train is off, return
+    if (!this->isOn) {
+        return;
+    }
+
+    double EC_kwh = 0;  // locomotive Energy consumption
+
+    // if the train is not moving and it does not consume power, skip.
+    if (usedTractivePower.empty()) { return; }
+    // loop over all locomotives
+    for(int i =0; i < this->ActiveLocos.size(); i++) {
+        int treeDepth = stepCounter; // keep track of which depth is required
+
+        //for (auto& loco : this->ActiveLocos) {
+        // if the locomotive is on, compute the energy consumption
+        if (this->ActiveLocos.at(i)->isLocOn) {
+            // calculate the amount of energy consumption
+            double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
+            double UsedTractiveP = usedTractivePower.at(i);
+
+            EC_kwh =
+                this->ActiveLocos.at(i)->getEnergyConsumption(
+                    UsedTractiveP, this->currentAcceleration,
+                    averageSpeed, timeStep);
+
+            double routeProgressChange = trainSpeed / this->trainTotalPathLength;
+
+            double currentTravelledDistance =
+                this->travelledDistance + trainSpeed * stepCounter;
+
+            double routeProgress =
+                currentTravelledDistance / this->trainTotalPathLength;
+
+            // TreeNode<Vector<double>>* parentNode =
+            //     this->ActiveLocos.at(i)->hybridControlActions->getRoot();
+
+            // // if it is the first step, clear the previous calculations
+            // if (stepCounter == 0)
+            // {
+            //     this->ActiveLocos.at(i)->hybridControlActions->clearCosts();
+            //     this->ActiveLocos.at(i)->hybridControlActions->getRoot()->cost = 0.0; // set the cost to zero
+            // }
+
+            // while(parentNode && treeDepth >= 0)
+            // {
+            //     if (parentNode->children.size() == 0)
+            //     {
+            //         this->ActiveLocos.at(i)->
+            //             generateHybridControlActionsNewLevelForParent(
+            //                 parentNode,
+            //                 this->ActiveLocos.at(i)->hybridControlActionsCombination);
+            //     }
+            //     else if (parentNode->children[0]->cost ==
+            //                std::numeric_limits<double>::max())
+            //     {
+            //         break;
+            //     }
+            //     else
+            //     {
+            //         TreeNode<Vector<double>>* newParent =
+            //             this->ActiveLocos.at(i)->hybridControlActions->
+            //             getMinCostNodeOfParent(parentNode);
+            //         if (newParent != nullptr)
+            //         {
+            //             parentNode = newParent;
+            //             treeDepth --;
+            //         }
+            //     }
+            // }
+
+
+
+            // auto allPossibleNodes = parentNode->children;
+
+            // for (const auto &node: allPossibleNodes)
+            // {
+            //     double generatorPorportion = node->value[0];
+            //     double rechargePorportion = node->value[1];
+
+            //     double sequenceCost =
+            //         this->ActiveLocos.at(i)->computeHeuristicHybridCost(
+            //             timeStep,
+            //             EC_kwh,
+            //             generatorPorportion,
+            //             rechargePorportion,
+            //             routeProgress,
+            //             this->ActiveLocos.at(i)->hybridControlActions->getDepth() - stepCounter,
+            //             routeProgressChange);
+
+            //     if (node->parent != nullptr)
+            //     {
+            //         node->cost = node->parent->cost + sequenceCost;
+            //     }
+            //     else
+            //     {
+            //         node->cost = sequenceCost;
+            //     }
+            // }
+
+        }
+    }
+
+}
+
+
+// void
+// Train::whatCostIfConsumeEnergy(double& timeStep, double trainSpeed,
+//                                Vector<double>& usedTractivePower,
+//                                int stepCounter)
+// {
+//     // if the train is off, return
+//     if (!this->isOn) {
+//         return;
+//     }
+
+//     double EC_kwh = 0;  // locomotive Energy consumption
+
+//     // if the train is not moving and it does not consume power, skip.
+//     if (usedTractivePower.empty()) { return; }
+//     // loop over all locomotives
+//     for(int i =0; i < this->ActiveLocos.size(); i++){
+//         //for (auto& loco : this->ActiveLocos) {
+//         // if the locomotive is on, compute the energy consumption
+//         if (this->ActiveLocos.at(i)->isLocOn) {
+//             // calculate the amount of energy consumption
+//             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
+//             double UsedTractiveP = usedTractivePower.at(i);
+
+//             EC_kwh =
+//                 this->ActiveLocos.at(i)->getEnergyConsumption(
+//                     UsedTractiveP, this->currentAcceleration,
+//                     averageSpeed, timeStep);
+
+//             double currentTravelledDistance =
+//                 this->travelledDistance + trainSpeed * stepCounter;
+
+//             double routeProgress =
+//                 currentTravelledDistance / this->trainTotalPathLength;
+
+//             int d = std::min(stepCounter,
+//                              this->ActiveLocos.at(i)->hybridControlActions->getDepth());
+
+//             auto allPossibleNodes =
+//                 this->ActiveLocos.at(i)->hybridControlActions->getNodesAtLevel(d);
+
+//             for (const auto &node: allPossibleNodes)
+//             {
+//                 double generatorPorportion = node->value[0];
+//                 double rechargePorportion = node->value[1];
+
+//                 double sequenceCost =
+//                     this->ActiveLocos.at(i)->computeHybridsCost(
+//                         timeStep,
+//                         EC_kwh,
+//                         generatorPorportion,
+//                         rechargePorportion,
+//                         routeProgress);
+
+//                 if (node->parent != nullptr)
+//                 {
+//                     node->cost = node->parent->cost + sequenceCost;
+//                 }
+//                 else
+//                 {
+//                     node->cost = sequenceCost;
+//                 }
+//             }
+
+//         }
+//     }
+
+// }
+
+bool Train::isMPCOptimizationNeeded()
+{
+    for (const auto &loc: ActiveLocos)
+    {
+        if (loc->hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& usedTractivePower_W) {
     this->resetTrainEnergyConsumption();
     // if the train is off, return
     if (!this->isOn) { return false; }
@@ -1024,7 +1312,7 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
     double EC_kwh = 0;  // locomotive Energy consumption
     
     // if the train is not moving and it does not consume power, skip.
-    if (usedTractivePower.empty()) { return true; }
+    if (usedTractivePower_W.empty()) { return true; }
 
     // loop over all locomotives
     for(int i =0; i < this->ActiveLocos.size(); i++){
@@ -1033,12 +1321,12 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
         if (this->ActiveLocos.at(i)->isLocOn) {
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
-            double UsedTractiveP = usedTractivePower.at(i);
+            double UsedTractiveP = usedTractivePower_W.at(i);
             EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumption(UsedTractiveP,
                                                         this->currentAcceleration, averageSpeed, timeStep);
 
             // consume/recharge fuel from/to the locomotive if it still has fuel or can be rechargable
-            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, UsedTractiveP);
+            auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, getRouteProgress(), UsedTractiveP);
             //bool fuelConsumed = out.first;
             double restEC = out.second;
 
@@ -1083,9 +1371,9 @@ std::pair<bool, double> Train::consumeTendersEnergy(double timeStep, double trai
 
     for (auto& car : this->ActiveCarsTypes[TrainTypes::powerToCarMap.at(powerType)]) {
         // if the tender/battery still has energy to draw from, consume it
-        if (car->getBatteryCurrentCharge() > 0 || car->getTankCurrentCapacity() > 0) {
+        if (car->battery.getBatteryCurrentCharge() > 0 || car->tank.getTankCurrentCapacity() > 0) {
             std::pair<bool, double> out = car->consumeFuel(timeStep, trainSpeed,
-                                                                 ECD, 0.0 ,dieselConversionFactor,
+                                                                 ECD, getRouteProgress(), 0.0 ,dieselConversionFactor,
                                                                  hydrogenConversionFactor, dieselDensity);
             notConsumed += out.second;
             // consumed = true;
@@ -1275,8 +1563,8 @@ void Train::resetTrain() {
     this->currentSpeed = 0.0;
     this->previousSpeed = 0.0;
     this->currentTractiveForce = 0.0;
-    this->cumUsedTractivePower = 0.0;
-    this->currentUsedTractivePower = 0.0;
+    this->cumUsedTractivePower_W = 0.0;
+    this->currentUsedTractivePower_W = 0.0;
     this->delayTimeStat = 0.0;
     this->trainTotalPathLength = 0.0;
     this->currentCoordinates = { 0.0, 0.0 };
