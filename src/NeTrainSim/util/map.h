@@ -127,6 +127,19 @@ public:
         return total;
     }
 
+    /**
+     *  Calculates the average of all keys in the map.
+     *
+     *  @return The average of all keys.
+     */
+    key_type averageKeys() const {
+        key_type total = 0;
+        for (const auto& pair : *this) {
+            total += pair.first;
+        }
+        return total / this->size();
+    }
+
 
     /**
      * Prints this object
