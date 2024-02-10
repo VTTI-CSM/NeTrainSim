@@ -15,6 +15,49 @@
 /** . */
 namespace TrainTypes {
 
+    static const int HybridCalculationMethodN = 3;
+
+    enum class _hybridCalculationMethod
+    {
+        fast,
+        timeStepIndependent,
+        MPC
+    };
+    static const std::string HybridCalculationMethodStrings[] = {
+        "fast",
+        "timeStepIndependent",
+        "MPC"
+    };
+
+    using HybridCalculationMethod = _hybridCalculationMethod;
+
+    static const HybridCalculationMethod HybridCalculationMethodArray[] = {
+        HybridCalculationMethod::fast,
+        HybridCalculationMethod::timeStepIndependent,
+        HybridCalculationMethod::MPC
+    };
+
+    inline HybridCalculationMethod itoHybridCalculationMethod(int calcMethod) {
+        if (calcMethod < 0 || calcMethod >= HybridCalculationMethodN) {
+            throw std::invalid_argument("Error: " +
+                                        std::to_string(
+                                            static_cast<int>(
+                                                Error::trainWrongCarType)) +
+                                        "\nInvalid calculation method!");
+        }
+        return HybridCalculationMethodArray[calcMethod];
+    }
+
+    inline int hybridCalculationMethodToi(std::string calcMethod) {
+        // TODO: get closest match instead of exact match
+        for (int i = 0; i < HybridCalculationMethodN; i++) {
+            if (HybridCalculationMethodStrings[i] == calcMethod) {
+                return i;
+            }
+        }
+        return -1;  // returns -1 if the target string is not found
+    }
+
     /** The car type n */
     static const int carTypeN = 5;
 

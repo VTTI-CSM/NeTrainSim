@@ -174,17 +174,16 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
                                      std::string>>>(trainRecord["Locomotives"]);
         for (auto& locoRecord: locoRecords) {
             for (int i = 0; i < std::stoi(locoRecord["Count"]); i++) {
-                Locomotive loco =
-                    Locomotive(
-                        stod(locoRecord["Power"]), // Power
-                        stod(locoRecord["TransmissionEff"]), // trans eff
-                        stod(locoRecord["Length"]), // length
-                        stod(locoRecord["AirDragCoeff"]), // drag
-                        stod(locoRecord["FrontalArea"]), // area
-                        stod(locoRecord["GrossWeight"]), // weight
-                        stoi(locoRecord["NoOfAxles"]), // axles
-                        stoi(locoRecord["Type"])); //power type
-                locomotives.push_back(std::make_shared<Locomotive>(loco));
+                locomotives.push_back(std::make_shared<Locomotive>(
+                    std::stod(locoRecord["Power"]), // Power
+                    std::stod(locoRecord["TransmissionEff"]), // trans eff
+                    std::stod(locoRecord["Length"]), // length
+                    std::stod(locoRecord["AirDragCoeff"]), // drag
+                    std::stod(locoRecord["FrontalArea"]), // area
+                    std::stod(locoRecord["GrossWeight"]), // weight
+                    std::stoi(locoRecord["NoOfAxles"]), // axles
+                    std::stoi(locoRecord["Type"]) // power type
+                    ));
             }
         }
 
@@ -194,14 +193,15 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
                                      std::string>>>(trainRecord["Cars"]);
         for (auto& carRecord: carRecords) {
             for (int i = 0; i < std::stoi(carRecord["Count"]); i++) {
-                Car car = Car(std::stod(carRecord["Length"]), //length
-                              std::stod(carRecord["AirDragCoeff"]), //drag
-                              std::stod(carRecord["FrontalArea"]), //area
-                              std::stod(carRecord["TareWeight"]), //empty weight
-                              std::stod(carRecord["GrossWeight"]), //full weight
-                              std::stoi(carRecord["NoOfAxles"]), //axles
-                              std::stoi(carRecord["Type"]));//type
-                cars.push_back(std::make_shared<Car>(car));
+                cars.push_back(std::make_shared<Car>(
+                    std::stod(carRecord["Length"]), // Length
+                    std::stod(carRecord["AirDragCoeff"]), // Drag
+                    std::stod(carRecord["FrontalArea"]), // Area
+                    std::stod(carRecord["TareWeight"]), // Empty weight
+                    std::stod(carRecord["GrossWeight"]), // Full weight
+                    std::stoi(carRecord["NoOfAxles"]), // Axles
+                    std::stoi(carRecord["Type"]) // Type
+                    ));
             }
         }
 
@@ -212,8 +212,8 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
             std::any_cast<Vector<int>>(trainRecord["TrainPathOnNodeIDs"]),//path
             std::any_cast<double>(trainRecord["LoadTime"]), // time
             std::any_cast<double>(trainRecord["FrictionCoef"]), // friction coef
-            locomotives,              // locomotives
-            cars,                     // cars
+            std::move(locomotives),              // locomotives
+            std::move(cars),                     // cars
             std::any_cast<bool>(trainRecord["Optimize"])  // no optimization
             ));
 
