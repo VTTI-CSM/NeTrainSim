@@ -36,6 +36,7 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
         double tankMaxCapacity_,
         double tankInitialCapacity_perc,
         double batteryCRate,
+        TrainTypes::HybridCalculationMethod hybridCalculationMethod,
         TrainTypes::LocomotivePowerMethod theHybridMethod)
 {
     // assign the values to the variables
@@ -59,6 +60,18 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
     this->Nmax = totalNotches; // count
     this->maxLocNotch = locomotiveMaxAchievableNotch; //count
     this->auxiliaryPower = locomotiveAuxiliaryPower_kw; // in kw
+
+    // set the calculation method of the hybrid
+    if (TrainTypes::locomotiveHybrid.exist(this->powerType))
+    {
+        hybridCalcMethod = hybridCalculationMethod;
+
+        if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC)
+        {
+            // create the combinations
+            generateHybridControlActions(discritizationActionStepInIndependentAndMPC, forwardHorizonStepsInMPC);
+        }
+    }
 
     // set the battery initial charge percentage if no value is passed
     if (std::isnan(batteryInitialCharge_perc)) {
@@ -138,34 +151,42 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
 
     // electric locomotives has only battery
 	if (TrainTypes::locomotiveBatteryOnly.exist(this->powerType)) {
-        this->setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
+        battery.setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
                          EC::DefaultLocomotiveBatteryDOD, batteryCRate);
-        this->SetTank(0.0, 0.0, EC::DefaultLocomotiveMinTankDOD);
+        tank.SetTank(0.0, 0.0, EC::DefaultLocomotiveMinTankDOD);
 
     }//end if battery tech
 	// diesel and hydrogen have only tanks
 	else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
-        this->setBattery(0.0, 0.0, 1.0, batteryCRate);
-        this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc,
+        battery.setBattery(0.0, 0.0, 1.0, batteryCRate);
+        tank.SetTank(tankMaxCapacity_, tankInitialCapacity_perc,
                       EC::DefaultLocomotiveMinTankDOD);
     } // end else if tank tech
 	// hybrid locomotives have both source of energy
 	else {
 		double maxRSOC = 0.0;
 		double minRSOC = 0.0;
-        if (this->powerType == TrainTypes::PowerType::dieselHybrid ||
-                this->powerType == TrainTypes::PowerType::biodieselHybrid) {
-			maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Diesel;
-			minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Diesel;
-        } //end if diesel or biodiesel
-		else {
-			maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Other;
-			minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Other;
-        } // end else technologies
-        this->setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
+        if (this->hybridCalcMethod == TrainTypes::HybridCalculationMethod::fast)
+        {
+            if (this->powerType == TrainTypes::PowerType::dieselHybrid ||
+                    this->powerType == TrainTypes::PowerType::biodieselHybrid) {
+                maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Diesel;
+                minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Diesel;
+            } //end if diesel or biodiesel
+            else { // hydrogen technology
+                maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_Other;
+                minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_Other;
+            } // end else technologies (hydrogen technology)
+        }
+        else
+        {
+            maxRSOC = EC::DefaultLocomotiveBatteryRechargeMaxSOC_HybridOpt;
+            minRSOC = EC::DefaultLocomotiveBatteryRechargeMinSOC_HybridOpt;
+        }
+        battery.setBattery(batteryMaxCharge_kwh, batteryInitialCharge_perc,
                          EC::DefaultLocomotiveBatteryDOD,
                          batteryCRate, maxRSOC, minRSOC);
-        this->SetTank(tankMaxCapacity_, tankInitialCapacity_perc,
+        tank.SetTank(tankMaxCapacity_, tankInitialCapacity_perc,
                       EC::DefaultLocomotiveMinTankDOD);
     } //end else
 
@@ -177,17 +198,17 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
         if (this->powerType == TrainTypes::PowerType::diesel ||
                 this->powerType == TrainTypes::PowerType::dieselElectric ||
                 this->powerType == TrainTypes::PowerType::dieselHybrid) {
-            fuelWeight = this->getTankInitialCapacity() *
+            fuelWeight = tank.getTankInitialCapacity() *
                          EC::DefaultDieselDensity;
         }
         // if the tender is for biodiesel
         else if (this->powerType == TrainTypes::PowerType::biodiesel ||
                  this->powerType == TrainTypes::PowerType::biodieselHybrid) {
-            fuelWeight = this->getTankInitialCapacity() *
+            fuelWeight = tank.getTankInitialCapacity() *
                          EC::DefaultBioDieselDensity;
         }
         else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-            fuelWeight = this->getTankInitialCapacity() *
+            fuelWeight = tank.getTankInitialCapacity() *
                          EC::DefaultHydrogenDensity;
         }
         // check if the fuel weight provided is not correct, update it.
@@ -216,12 +237,42 @@ Locomotive::Locomotive(double locomotiveMaxPower_kw,
         this->hybridMethod = TrainTypes::LocomotivePowerMethod::notApplicable;
     }
 
-};	
+};
 
+Locomotive::~Locomotive()
+{
+    // if (hybridControlActions)
+    // {
+    //     delete hybridControlActions;
+    // }
+}
+
+void Locomotive::setLocomotiveHybridParameters(
+    TrainTypes::HybridCalculationMethod method,
+    int discitizationCount,
+    int forwardsteps)
+{
+    hybridCalcMethod = method;
+    forwardHorizonStepsInMPC = forwardsteps;
+    discritizationActionStepInIndependentAndMPC = discitizationCount;
+
+    if (TrainTypes::locomotiveHybrid.exist(this->powerType))
+    {
+        hybridCalcMethod = method;
+
+        if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC)
+        {
+
+            // create the tree
+            generateHybridControlActions(discritizationActionStepInIndependentAndMPC,
+                                         forwardHorizonStepsInMPC);
+        }
+    }
+}
 
 double Locomotive::getHyperbolicThrottleCoef(double & trainSpeed)
 {
-    double dv = 0.0, um;
+    double dv = 0.0; //, um;
 
 
     // ratio of current train speed by the max loco speed
@@ -510,7 +561,7 @@ double Locomotive::getEnergyConsumptionAtTank(
 
 
 
-double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
+double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower_W,
                                         double& trainAcceleration,
                                         double &trainSpeed,
                                         double &timeStep)
@@ -520,14 +571,14 @@ double Locomotive::getEnergyConsumption(double& LocomotiveVirtualTractivePower,
 		return 0.0;
 	}
 	// else calculate how much to consume in watt (kg * m^3/s^3)
-	double tractivePower = LocomotiveVirtualTractivePower;
+    double tractivePower = LocomotiveVirtualTractivePower_W;
 
-    // the conversion from KW to kwh
+    // the conversion from W to kwh
     double unitConversionFactor = timeStep / (double)(3600.0 * 1000.0);
 
     double powerPortion =
         this->getUsedPowerPortion(trainSpeed,
-                                  LocomotiveVirtualTractivePower);
+                                  LocomotiveVirtualTractivePower_W);
 
 	if (tractivePower == 0) {
 		return this->auxiliaryPower * unitConversionFactor;
@@ -573,7 +624,7 @@ double Locomotive::getMaxRechargeEnergy(double timeStep, double trainSpeed,
 {
     // get locomotive power portion required to recharge the locomotive
     double generatorMaxRequired =
-        EC::getRequiredGeneratorPowerForRecharge(getBatteryStateOfCharge());
+        EC::getRequiredGeneratorPowerForRecharge(battery.getBatteryStateOfCharge());
 
     // get the actual power portion used at this time step
     double locomotiveUsedPower =
@@ -581,303 +632,492 @@ double Locomotive::getMaxRechargeEnergy(double timeStep, double trainSpeed,
                                   LocomotiveVirtualTractivePower);
     // get the feasible range of the locomotive power portion that
     // could be used to recharge the battery
-    double locomotiveFeasiblePower = min(1.0 - locomotiveUsedPower,
-                                         generatorMaxRequired);
+    double locomotiveFeasiblePower = 1.0 - locomotiveUsedPower;
+        // min(1.0 - locomotiveUsedPower,
+        //     generatorMaxRequired);
     // portion of the max locomotive power
     return (this->maxTractiveForce * trainSpeed * timeStep / ((double)3600.0)) *
             locomotiveFeasiblePower;
 }
 
-void Locomotive::rechargeBatteryByMaxFlow(double timeStep, double trainSpeed,
-                                          double powerPortion,
-                                          double fuelConversionFactor,
-                                          double fuelDensity,
-                                          double LocomotiveVirtualTractivePower,
-                                          std::function<
-                                              std::pair<bool, double>(double,
-                                                                      double,
-                                                                      double)>
-                                                              ConsumeFuelFunc)
+double Locomotive::getMaxRechargeBatteryEnergy(
+    double timeStep,
+    double trainSpeed,
+    double rechargePortion,
+    double LocomotiveVirtualTractivePower)
 {
-
+    if (rechargePortion <= 0.0)
+    {
+        return 0.0;
+    }
     // the max Energy the locomotive can regenerate
     double maxLocoRecharge =
         this->getMaxRechargeEnergy(timeStep, trainSpeed,
                                    LocomotiveVirtualTractivePower);
     // get the max recharge current that the battery can take
-    double requiredE = this->getBatteryMaxRecharge(timeStep);
+    double requiredE =
+        rechargePortion * battery.getBatteryMaxRecharge(timeStep);
     // the amount that should be recharged to the battery
-    double minE = std::max(std::min(maxLocoRecharge, requiredE), 0.0);
+    return std::max(std::min(maxLocoRecharge, requiredE), 0.0);
+}
+
+double Locomotive::getRequiredEnergyForRechargeFromGenerator(
+    double timeStep,
+    double trainSpeed,
+    double powerPortion,
+    double rechargePortion,
+    double LocomotiveVirtualTractivePower)
+{
+    double minE = getMaxRechargeBatteryEnergy(
+        timeStep, trainSpeed, rechargePortion, LocomotiveVirtualTractivePower);
+
     if (minE > 0.0) {
         // get the fuel consumption
         // E/ Generator EFF/ Battery EFF
         double minEC =
             minE / EC::getGeneratorEff(this->powerType, powerPortion) /
-                       EC::getBatteryEff(this->powerType);
+            EC::getBatteryEff(this->powerType);
+        return minEC;
+    }
+    return 0.0;
+}
+
+void Locomotive::rechargeBatteryByFlowPortion(double timeStep,
+                                              double trainSpeed,
+                                              double powerPortion,
+                                              double rechargePortion,
+                                              double fuelConversionFactor,
+                                              double fuelDensity,
+                                              double LocomotiveVirtualTractivePower,
+                                              std::function<
+                                                  std::pair<bool, double>(double,
+                                                                          double,
+                                                                          double)>
+                                                  ConsumeFuelFunc)
+{
+
+    double ec = getRequiredEnergyForRechargeFromGenerator(
+        timeStep, trainSpeed,
+        powerPortion, rechargePortion,
+        LocomotiveVirtualTractivePower);
+
+    if (ec > 0.0) {
 
         // if the locomotive has fuel, consume the required amound of energy
         // from Diesel
         // --> since portion of the energy will be lost when stored in the
         //     battery, use the effeciency of the generator
-        if (ConsumeFuelFunc(minEC,
+        if (ConsumeFuelFunc(ec,
                             fuelConversionFactor,
                             fuelDensity).first) {
-            this->cumEnergyConsumed -= minE;
+            this->cumEnergyConsumed -= ec;
             // recharge battery
-            this->rechargeBatteryForHybrids(timeStep, minE);
+            battery.rechargeBatteryForHybrids(timeStep, ec);
         }
     }
 }
 
-double Locomotive::computeCost(double timeStep,
-                               double powerPortion,
-                               double EC_kwh,
-                               bool rechargeBatteryAction,
-                               double generatorConsumptionPortion,
-                               double routeProgress)
+Vector<double> Locomotive::getCheapestHeuristicHybridCost(
+    double timeStep,
+    Vector<double> EC_kwh,
+    Vector<Vector<double>> combinations,
+    Vector<double> routeProgress)
 {
-    // growing function: sqrt(x)
-    // decaying function: 1 - sqrt(x)
-
-    double generatorECPortion_kwh =
-        EC_kwh * generatorConsumptionPortion *
-        EC::getBatteryEff(this->powerType) /
-        EC::getGeneratorEff(this->powerType, powerPortion);
-
-    double batteryECPortion_kwh =
-        EC_kwh * (1.0 - generatorConsumptionPortion);
+    double cheapestCost = std::numeric_limits<double>::max();
+    Vector<double> cheapestComb;
 
 
-    // as the train progress, give more priority to battery being charged
-    // the cost increases as the train progress,
-    // meaning the battery needs to be recharged asap
-    double cost =
-        (std::sqrt(routeProgress)) *
-        (this->getBatteryInitialCharge() -
-         this->getBatteryCurrentCharge());
-
-    // in case, the battery will be recharged, reduce the cost
-    if (rechargeBatteryAction)
+    // loop over the combinations to check which is cheaper
+    for (int ci = 0; ci < combinations.size(); ci++)
     {
-        double generatorPowerPortionForEC =
-            (generatorECPortion_kwh) /
-            (this->maxPower * (timeStep/3600.0));
+        double batterySOCDeviation = (battery.getBatteryInitialCharge() -
+                                      battery.getBatteryCurrentCharge()) /
+                                     battery.getBatteryMaxCharge();
 
-        double generatorPowerPortionForBattery =
-            (getBatteryMaxRecharge(timeStep)) /
-            (this->maxPower * (timeStep/3600.0));
+        double cost = 0;
 
-        double consumedEnergyPortionFromBattery =
-            batteryECPortion_kwh / getBatteryMaxCharge();
+        // loop over the horizon to get a heuristic cost
+        for (int hS = 0; hS < EC_kwh.size(); hS++)
+        {
+            cost += computeEfficiencyFocusedCost(timeStep, EC_kwh[hS], combinations[ci].at(0), combinations[ci].at(1), routeProgress[hS], batterySOCDeviation);
+            // cost += computeHybridsCost(timeStep, EC_kwh[hS], combinations[ci].at(0), combinations[ci].at(1), routeProgress[hS], batterySOCDeviation);
+            batterySOCDeviation -= ((1.0 - combinations[ci].at(0)) * EC_kwh[hS] / battery.getBatteryMaxCharge());
+        }
 
-        cost +=
-            generatorPowerPortionForEC *
-            EC::getGeneratorEff(this->powerType,
-                                generatorPowerPortionForEC +
-                                    generatorPowerPortionForBattery);
-
-        cost += consumedEnergyPortionFromBattery;
-
-        // cost is reduced if the battery is recharged
-        cost -=
-            generatorPowerPortionForBattery *
-                EC::getBatteryEff(this->powerType);
-
-    }
-    else
-    {
-        double generatorPowerPortionForEC =
-            (generatorECPortion_kwh) /
-            (this->maxPower * (timeStep/3600.0));
-
-        double consumedEnergyPortionFromBattery =
-            batteryECPortion_kwh / getBatteryMaxCharge();
-
-        cost +=
-            generatorPowerPortionForEC *
-            EC::getGeneratorEff(this->powerType,
-                                generatorPowerPortionForEC);
-
-        cost += consumedEnergyPortionFromBattery;
+        if (cost < cheapestCost)
+        {
+            cheapestCost = cost;
+            cheapestComb = {combinations[ci].at(0), combinations[ci].at(1)};
+        }
     }
 
+    return cheapestComb;
 }
 
-double Locomotive::computeCost(double timeStep,
-                               double powerPortion,
-                               double EC_kwh,
-                               bool rechargeBatteryAction,
-                               double generatorConsumptionPortion,
-                               double routeProgress)
-{
+double Locomotive::computeEfficiencyFocusedCost(double timeStep,
+                                                double EC_kwh,
+                                                double generatorConsumptionPortion,
+                                                double rechargePortion,
+                                                double routeProgress,
+                                                double batterySOCDeviation) {
+    // Efficiency-focused parameters
+    double efficiencyPenaltyScalingFactor = 100.0; // Adjust based on system sensitivity
+    double efficiencyRewardFactor = -10.0; // Negative value to represent a reward
 
-    const double penaltyBase = 1.0; // Base penalty for SoC deficit
-    const double penaltyProgressFactor = 2.0; // Scales penalty with route progress
+    // Retrieve efficiency ranges and current efficiencies
+    std::pair<double, double> maxEffRange = EC::getMaxEffeciencyRange(this->powerType);
+    double currentGeneratorEfficiency = EC::getGeneratorEff(this->powerType, generatorConsumptionPortion);
+    double currentBatteryEfficiency = EC::getBatteryEff(this->powerType); // Assuming constant for simplification
 
-    // Calculate energy portions for generator and battery
-    double generatorEnergy_kWh =
-        EC_kwh * generatorConsumptionPortion;
-    double batteryEnergy_kWh =
-        EC_kwh * (1.0 - generatorConsumptionPortion);
+    // Calculate energy components
+    double generatorEnergy_kWh = EC_kwh * generatorConsumptionPortion;
+    double batteryEnergy_kWh = EC_kwh * (1.0 - generatorConsumptionPortion);
+    double batteryRecharge_kWh = rechargePortion * battery.getBatteryMaxRecharge(timeStep);
 
-    double generatorEnergy_kWh_atTank =
-        generatorEnergy_kWh *
-        EC::getBatteryEff(this->powerType) /
-        EC::getGeneratorEff(this->powerType, powerPortion);
+    // Calculate energy efficiency for using the generator and recharging the battery
+    double generatorEfficiencyForRecharge = EC::getGeneratorEff(this->powerType, generatorConsumptionPortion + rechargePortion);
+    double effectiveGeneratorEfficiency = (generatorEnergy_kWh * currentGeneratorEfficiency + batteryRecharge_kWh * generatorEfficiencyForRecharge) /
+                                          (generatorEnergy_kWh + batteryRecharge_kWh);
+    double effectiveBatteryUsageEfficiency = batteryEnergy_kWh * currentBatteryEfficiency / (batteryEnergy_kWh + batteryRecharge_kWh);
 
-    // Initial cost based on energy consumption
-    // prefer using battery so reduce the battery energy by a factor of
-    // its efficiency
-    double cost = generatorEnergy_kWh_atTank +
-                  batteryEnergy_kWh *
-                      EC::getBatteryEff(this->powerType);
+    // Calculate efficiency deviation from optimal
+    double optimalEfficiency = (maxEffRange.first + maxEffRange.second) / 2.0;
+    double efficiencyDeviation = std::abs(optimalEfficiency - effectiveGeneratorEfficiency) +
+                                 std::abs(optimalEfficiency - effectiveBatteryUsageEfficiency);
 
-    // either recharge or skip recharging
-    if (rechargeBatteryAction)
-    {
-        // calculate how much of power portion needed
-        // if recharging the battery
-        double generatorPowerPortionForEC =
-            (generatorEnergy_kWh) /
-            (this->maxPower * (timeStep/3600.0));
-        double generatorPowerPortionForBattery =
-            (getBatteryMaxRecharge(timeStep)) /
-            (this->maxPower * (timeStep/3600.0));
+    // Initial cost calculation focusing on efficiency
+    double cost = efficiencyPenaltyScalingFactor * efficiencyDeviation;
 
-        // calculate the efficiency of the generator when providing
-        // energy to both battery and driveline
-        double generatorEffWhenCharging =
-            EC::getGeneratorEff(this->powerType,
-                                generatorPowerPortionForEC +
-                                    generatorPowerPortionForBattery);
-        cost +=
-            generatorPowerPortionForEC * generatorEffWhenCharging;
-
-        double consumedEnergyPortionFromBattery =
-            batteryEnergy_kWh / getBatteryMaxCharge();
-        cost += consumedEnergyPortionFromBattery;
-
-        double rechargeBenefits =
-            generatorPowerPortionForBattery *
-            EC::getBatteryEff(this->powerType);
-
-        // cost is reduced if the battery is recharged
-        cost -= rechargeBenefits;
-
+    // Adjust cost based on efficiency rewards and penalties
+    if (generatorConsumptionPortion > 0.5) { // Example condition to adjust based on system needs
+        cost += efficiencyRewardFactor * currentGeneratorEfficiency;
     }
-    else
-    {
-        // Adjust cost based on route progress and the
-        // action to recharge the battery
-        double socPenaltyFactor =
-            penaltyBase *
-            std::pow(routeProgress, penaltyProgressFactor);
-
-        // Include a dynamic penalty that increases as the route
-        // progresses to ensure battery is recharged
-        double penaltyForNotRecharging =
-            (socPenaltyFactor) *
-            (1.0 - this->getBatteryCurrentCharge() /
-                       this->getBatteryInitialCharge());
-        cost += penaltyForNotRecharging;
-
-        double generatorPowerPortionForEC =
-            (generatorEnergy_kWh) /
-            (this->maxPower * (timeStep/3600.0));
-        cost +=
-            generatorPowerPortionForEC *
-            EC::getGeneratorEff(this->powerType,
-                                generatorPowerPortionForEC);
-
-        double consumedEnergyPortionFromBattery =
-            batteryEnergy_kWh / getBatteryMaxCharge();
-        cost += consumedEnergyPortionFromBattery;
+    if (rechargePortion > 0.5) { // Encourage battery recharging when efficient
+        cost += efficiencyRewardFactor * currentBatteryEfficiency;
     }
+
+    // Apply a dynamic penalty based on battery SOC deviation
+    double batteryDeviationPenalty = 50.0; // Adjust based on system sensitivity
+    double batteryDeviation = std::max(0.0, batterySOCDeviation);
+    cost += batteryDeviation * batteryDeviationPenalty;
+
+    // Incorporate route progress to dynamically adjust the priority of efficiency
+    cost += std::sqrt(routeProgress) * efficiencyPenaltyScalingFactor * efficiencyDeviation;
 
     return cost;
 }
 
 
-
-std::pair<bool, double>
-Locomotive::consumeEnergyFromHydridTechnologyOptimizationEnabled(
-                      double timeStep,
-                      double trainSpeed,
-                      double powerPortion,
-                      double EC_kwh,
-                      double fuelConversionFactor,
-                      double fuelDensity,
-                      double LocomotiveVirtualTractivePower,
-                      double routeProgress,
-                      std::function<
-                        std::pair<bool,
-                                double>(double,
-                                        double,
-                                        double)>
-                      ConsumeFuelFunc)
+double Locomotive::computeHybridsCost(double timeStep,
+                                      double EC_kwh,
+                                      double generatorConsumptionPortion,
+                                      double rechargePortion,
+                                      double routeProgress,
+                                      double batterySOCDeviation)
 {
-    // discritize the amount of energy consumed from the generator
-    int discritizationActionSteps = 20;
+    double notChargingBasePenalty = 10.0;
+    double batteryDiviationPenalty = 5.0;
+    double efficiencyDeviationPenalty = 100.0;
 
+    // Calculate the efficiency of the generator at the current power portion
+    std::pair<double, double> maxEffRange =
+        EC::getMaxEffeciencyRange(this->powerType);
+    double maxEfficientPowerPortion =
+        (maxEffRange.first + maxEffRange.second) / 2.0;
+
+    // Calculate energy for generator, battery, and recharge
+    double generatorEnergy_kWh =
+        EC_kwh * generatorConsumptionPortion;
+    double batteryEnergy_kWh =
+        EC_kwh * (1.0 - generatorConsumptionPortion);
+    bool isBattery_kwh_overMaxOutput =
+        (batteryEnergy_kWh > battery.getBatteryMaxDischarge(timeStep) ||
+         !battery.isBatteryDrainable(batteryEnergy_kWh));
+    double batteryRecharge_kWh =
+        rechargePortion * battery.getBatteryMaxRecharge(timeStep);
+
+    // Calculate energy portion for generator and recharge at the wheel
+    double consumedEnergyPortionFromGenerator =
+        (generatorEnergy_kWh) /
+        (this->maxPower * (timeStep/3600.0));
+    double generatorPowerPortionForRecharge =
+        (batteryRecharge_kWh) /
+        (this->maxPower * (timeStep/3600.0));
+
+    // calculate the efficiency of the generator when providing
+    // energy to both battery and driveline
+    double totalPowerPortionAtGenerator = std::min(1.0 , consumedEnergyPortionFromGenerator +
+                                                            generatorPowerPortionForRecharge);
+    double generatorEffWhenCharging =
+        EC::getGeneratorEff(this->powerType, totalPowerPortionAtGenerator);
+
+    // Calculate the generator energy as a main source
+    // and generator energy for recharge
+    double generatorEnergy_kWh_atTank =
+        generatorEnergy_kWh *
+        EC::getBatteryEff(this->powerType) / generatorEffWhenCharging;
+    double generatorEnergy_kWh_forRecharge =
+        batteryRecharge_kWh / generatorEffWhenCharging;
+
+    // Calculate the normalize generator energy consumption
+    // and the normalized battery consumption at the tank
+    double generatorEnergyPortionAtTank =
+        generatorEnergy_kWh_atTank / (this->maxPower * (timeStep/3600.0));
+    // the battery effeciency here is only to
+    // give higher priority since it will reduce the EC
+    double rechargeEneryPortionAtTank =
+        generatorEnergy_kWh_forRecharge *
+        EC::getBatteryEff(this->powerType) /
+        (this->maxPower * (timeStep/3600.0));
+    double batteryEnergyPortion =
+        (batteryEnergy_kWh * EC::getBatteryEff(this->powerType)) /
+        battery.getBatteryMaxDischarge(timeStep);
+
+    // Calculate the deviation from the max efficiency power portion
+    double efficiencyDeviation =
+        std::abs(totalPowerPortionAtGenerator - maxEfficientPowerPortion);
+
+    // Initial cost based on energy consumption
+    // prefer using battery so reduce the battery energy by a factor of
+    // its efficiency
+    double cost =
+        2.0 * generatorEnergyPortionAtTank +                                    // energy at the generator with double cost
+        batteryEnergyPortion -                                                  // energy at the battery
+        rechargeEneryPortionAtTank +                                            // energy for recharge
+        efficiencyDeviationPenalty * std::pow(efficiencyDeviation * 10.0 , 2.0);
+
+    // Apply Penalties if the energy required from the battery is larger
+    // than what the battery can provide.
+    if (isBattery_kwh_overMaxOutput)
+    {
+        cost += 1000.0; // very high cost
+    }
+
+    // Apply penalties based on recharge strategy and progress along the route
+    if (rechargePortion < 1.0) {
+        cost += (1.0 - rechargePortion) * notChargingBasePenalty;               // Apply penalty if not fully recharging
+    }
+
+    double batteryDeviation = 0.0;
+    if (std::isnan(batterySOCDeviation))
+    {
+        batteryDeviation =
+            std::max(0.0, battery.getBatteryInitialCharge() -
+                              battery.getBatteryCurrentCharge() /
+                                  battery.getBatteryMaxCharge());
+    }
+    else
+    {
+        batteryDeviation = std::max(0.0, batterySOCDeviation);
+    }
+    // Incorporate the dynamic priority for recharging as the journey progresses
+    cost += std::sqrt(routeProgress) * batteryDeviation * batteryDiviationPenalty;
+
+    return cost;
+}
+
+
+// void Locomotive::generateHybridControlActionsNewLevelForParent(
+//     TreeNode<Vector<double>>* parent,
+//     const Vector<Vector<double>>& combinations)
+// {
+//     // add all the combinations to the tree node
+//     for (const auto& comb : combinations)
+//     {
+//         // create a new node that is a child to the current parent
+//         // the childNode is owned by the tree so dont worry about managing it
+//         TreeNode<Vector<double>>* childNode =
+//             new TreeNode<Vector<double>>({comb[0], comb[1]});
+
+//         bool isAdded = hybridControlActions->insertChild(parent, childNode);
+
+//         if (!isAdded) {
+//             delete childNode;
+//         }
+//     }
+
+// }
+
+void
+Locomotive::generateHybridControlActions(int discritizationActionSteps,
+                                         int forwardHorizon)
+{
+    // clear the old vector from all its content before generating new data
+    hybridControlActionsCombination.clear();
+
+    // hybridControlActions->clear(); // clear any old tree
+
+    // hybridControlActions->setRoot(posteriorHybridControlAction);
+
+    for(int i = discritizationActionSteps; i >= 0; i--)
+    {
+        // fraction of energy consumed from generator.
+        // The rest is from the battery.
+        double m = i * (1.0/discritizationActionSteps);
+
+        for(int j = 0; j <= discritizationActionSteps; j++)
+        {
+            // fraction of battery recharge as a portion of the max recharge
+            double r = j * (1.0/discritizationActionSteps);
+
+            hybridControlActionsCombination.push_back(Vector<double>{m, r});
+        }
+    }
+
+}
+
+
+
+
+std::tuple<double, double, double>
+Locomotive::getHybridParametersForLowerCost(
+    double timeStep,
+    double EC_kwh,
+    double routeProgress)
+{
 
     double minCost = std::numeric_limits<double>::max();
     double generatorEnergyPortion = 0.0;
-    bool bestRechargeBatteryAction;
+    double bestRechargePortion = 0.0;
 
-    // true means recharging the battery,
-    // false means do not recharge the battery now
-    array<bool,2> rechargeBatteryActions = {true, false};
-
-    for (bool a: rechargeBatteryActions)
+    for(int i = discritizationActionStepInIndependentAndMPC; i >= 0; i--)
     {
-        // action is amount of energy consumed from generator
-        for (int m = 0; m <= 1.0; m+= 1.0/discritizationActionSteps)
+        // fraction of energy consumed from generator.
+        // The rest is from the battery.
+        double m = i * (1.0/discritizationActionStepInIndependentAndMPC);
+
+        for(int j = 0; j <= discritizationActionStepInIndependentAndMPC; j++)
         {
+            // fraction of battery recharge as a portion of the max recharge
+            double r = j * (1.0/discritizationActionStepInIndependentAndMPC);
+
             // compute the cost giving priority to
             // 1. keeping the battery charged to its initial state
-            // 2.
-            double cost = computeCost(timeStep, powerPortion, EC_kwh, a, m, routeProgress);
+            // 2. balancing consumption from generator or battery
+            double cost = computeHybridsCost(timeStep, EC_kwh,
+                                             m, r, routeProgress);
             if (cost < minCost)
             {
                 minCost = cost;
                 generatorEnergyPortion = m;
-                bestRechargeBatteryAction = a;
+                bestRechargePortion = r;
             }
-
         }
     }
 
-    std::pair<bool, double> consumptionResult;
+    return std::tuple<double, double, double>(minCost,
+                                              generatorEnergyPortion,
+                                              bestRechargePortion);
+}
+
+std::pair<bool, double>
+Locomotive::consumeEnergyFromHydridTechnologyOptimizationEnabled(
+    double timeStep,
+    double trainSpeed,
+    double powerPortion,
+    double EC_kwh,
+    double routeProgress,
+    double fuelConversionFactor,
+    double fuelDensity,
+    double LocomotiveVirtualTractivePower,
+    std::function<
+        std::pair<bool,
+                  double>(double,
+                          double,
+                          double)>
+        ConsumeFuelFunc)
+{
+    double cost, generatorEnergyPortion, bestRechargePortion;
+
+    if (hybridCalcMethodinit == TrainTypes::HybridCalculationMethod::timeStepIndependent)
+    {
+        auto optimizeOutput =
+            getHybridParametersForLowerCost( timeStep, EC_kwh, routeProgress);
+        std::tie(cost, generatorEnergyPortion, bestRechargePortion) = optimizeOutput;
+    }
+    else if (hybridCalcMethodinit == TrainTypes::HybridCalculationMethod::MPC)
+    {
+
+        // auto optimizedActionCost =
+        //     hybridControlActions->getShortestPathAndCost();
+
+        // cost = optimizedActionCost.second;
+        generatorEnergyPortion = hybridControlAction[0];
+        bestRechargePortion = hybridControlAction[1];
+
+        // posteriorHybridControlAction = optimizedActionCost.first.at(1)->value;
+
+        // hybridControlActions->getRoot()->value =
+        //     {posteriorHybridControlAction[0], posteriorHybridControlAction[1]};
+    }
+
 
     // consume fuel, result in form of <bool, double>,
     //                                  bool: all energy is consumed,
     //                                  double: rest of energy to consume
     //                                          from other sources
-    if (generatorEnergyPortion > 0)
-    {
-        if (bestRechargeBatteryAction)
-        {
+    std::pair<bool, double> consumptionResult;
 
+    double ECFromBattery_kwh = (1.0 - generatorEnergyPortion) * EC_kwh;
+    double ECFromGenerator_kwh = generatorEnergyPortion * EC_kwh;
+
+    double consumedEnergyPortionFromGenerator =
+        (ECFromGenerator_kwh) /
+        (this->maxPower * (timeStep/3600.0));
+    double generatorPowerPortionForRecharge =
+        (ECFromBattery_kwh) /
+        (this->maxPower * (timeStep/3600.0));
+
+    double totalPowerPortion =
+        consumedEnergyPortionFromGenerator +
+        generatorPowerPortionForRecharge;
+    totalPowerPortion =
+        (totalPowerPortion > 1.0) ?
+            1.0 : totalPowerPortion;
+
+    // recharge the battery by the optimized amount
+    rechargeBatteryByFlowPortion(timeStep, trainSpeed, totalPowerPortion ,
+                                 bestRechargePortion, fuelConversionFactor,
+                                 fuelDensity, LocomotiveVirtualTractivePower,
+                                 ConsumeFuelFunc);
+
+    // consume electricity from the battery first
+    consumptionResult =
+        this->consumeElectricity(timeStep,
+                                 ECFromBattery_kwh *
+                                     EC::getBatteryEff(this->powerType));
+
+    consumptionResult.second += ECFromGenerator_kwh; // add generator required energy
+
+    // consume fuel liquid
+    consumptionResult =
+        ConsumeFuelFunc(consumptionResult.second *
+                            EC::getBatteryEff(this->powerType) /
+                            EC::getGeneratorEff(this->powerType,
+                                                totalPowerPortion),
+                        fuelConversionFactor, fuelDensity);
+
+    if (consumptionResult.second > 0.0){
+        // if battery can be drained
+        if (battery.isBatteryDrainable(consumptionResult.second)) {
+            // consume electricity from the battery only
+            return this->consumeElectricity(timeStep,
+                                            consumptionResult.second *
+                                                EC::getGeneratorEff(
+                                                    this->powerType,
+                                                    totalPowerPortion));
         }
-        else
-        {
-
+        // require a recharge if the battery cannot be drained
+        else {
+            return consumptionResult;
         }
-        consumptionResult =
-            ConsumeFuelFunc(EC_kwh *
-                                EC::getBatteryEff(this->powerType) /
-                                EC::getGeneratorEff(this->powerType, powerPortion),
-                            fuelConversionFactor, fuelDensity);
-    }
-    else
-    {
-        // consume electricity from the battery
-        consumptionResult = this->consumeElectricity(timeStep, EC_kwh);
     }
 
-
+    return consumptionResult;
 
 }
+
+
 std::pair<bool, double>
     Locomotive::consumeEnergyFromHybridTechnology(
                       double timeStep,
@@ -910,78 +1150,151 @@ std::pair<bool, double>
         //                                  bool: all energy is consumed,
         //                                  double: rest of energy to consume
         //                                          from other sources
-        consumptionResult =
-            ConsumeFuelFunc(EC_kwh *
-                             EC::getBatteryEff(this->powerType) /
-                             EC::getGeneratorEff(this->powerType, powerPortion),
-                                            fuelConversionFactor, fuelDensity);
-        // if all energy required is consumed, recharge the battery
-        // for later use.
-        if (consumptionResult.first && consumptionResult.second == 0.0) {
-            if (this->isBatteryRechargable()) {
-                // recharge battery with power
-                this->rechargeBatteryByMaxFlow(timeStep, trainSpeed,
-                                               powerPortion,
+        if (battery.isBatteryRechargable() && battery.isRechargeRequired())
+        {
+            double targetEff = (maxEffRange.first + maxEffRange.second) / 2.0;
+            double generatorForBatPortion;
+            if (powerPortion < targetEff)
+            {
+                generatorForBatPortion = targetEff - powerPortion;
+            }
+            else
+            {
+                generatorForBatPortion = maxEffRange.second - powerPortion;
+            }
+
+            double totalPortion = generatorForBatPortion + powerPortion;
+            consumptionResult =
+                ConsumeFuelFunc(EC_kwh *
+                                    EC::getBatteryEff(this->powerType) /
+                                    EC::getGeneratorEff(this->powerType, totalPortion),
+                                fuelConversionFactor, fuelDensity);
+            // if there is some energy could not be consumed from the diesel
+            if (consumptionResult.second > 0.0)
+            {
+                // if battery can be drained
+                if (battery.isBatteryDrainable(consumptionResult.second)) {
+                    // consume electricity from the battery only
+                    return this->consumeElectricity(timeStep,
+                                                    consumptionResult.second *
+                                                        EC::getGeneratorEff(
+                                                            this->powerType,
+                                                            totalPortion));
+                }
+                // require a recharge if the battery cannot be drained
+                else {
+                    return consumptionResult;
+                }
+            }
+
+            // recharge battery with power generator
+            this->rechargeBatteryByFlowPortion(timeStep, trainSpeed,
+                                               totalPortion,
+                                               generatorForBatPortion,
                                                fuelConversionFactor,
                                                fuelDensity,
                                                LocomotiveVirtualTractivePower,
                                                ConsumeFuelFunc);
-            }
-            return std::make_pair(true, 0.0);
         }
-        // if there is some energy could not be consumed from the diesel
-        else if (consumptionResult.second > 0.0){
-            // if battery can be drained
-            if (this->isBatteryDrainable(consumptionResult.second)) {
-                // consume electricity from the battery only
-                return this->consumeElectricity(timeStep,
-                                                consumptionResult.second *
-                                                    EC::getGeneratorEff(
-                                                        this->powerType,
-                                                          powerPortion));
-            }
-            // require a recharge if the battery cannot be drained
-            else {
-                return consumptionResult;
+        else
+        {
+            consumptionResult =
+                ConsumeFuelFunc(EC_kwh *
+                                    EC::getBatteryEff(this->powerType) /
+                                    EC::getGeneratorEff(this->powerType, powerPortion),
+                                fuelConversionFactor, fuelDensity);
+            // if there is some energy could not be consumed from the diesel
+            if (consumptionResult.second > 0.0){
+                // if battery can be drained
+                if (battery.isBatteryDrainable(consumptionResult.second)) {
+                    // consume electricity from the battery only
+                    return this->consumeElectricity(timeStep,
+                                                    consumptionResult.second *
+                                                        EC::getGeneratorEff(
+                                                            this->powerType,
+                                                            powerPortion));
+                }
+                // require a recharge if the battery cannot be drained
+                else {
+                    return consumptionResult;
+                }
             }
         }
 
     }
     // if the locomotive is operating outside the max eff range, consume battery
-    else {
+    else
+    {
         // consume electricity from the battery
         consumptionResult = this->consumeElectricity(timeStep, EC_kwh);
 
-        // if it did not consume any energy from the battery or portion of
-        // the energy is consumed,
-        // get rest of energy from the generator
-        if (consumptionResult.second > 0.0) {
-            // if hybrid locomotive, convert energy to battery first
-            // before consuming it
-            double EC_kwh_hybrid =
-                consumptionResult.second *
-                                   EC::getBatteryEff(this->powerType)/
-                                   EC::getGeneratorEff(this->powerType,
-                                                       powerPortion);
 
-            // if no fuel, return <false, EC_kwh_hybrid>
-            // the locomotive will be turned off in this case
-            consumptionResult = ConsumeFuelFunc(EC_kwh_hybrid,
-                                   fuelConversionFactor,
-                                   fuelDensity);
+        // check if recharge is required
+        if (battery.isBatteryRechargable() && battery.isRechargeRequired())
+        {
+            double maxRecharge =
+                getMaxRechargeBatteryEnergy(timeStep, trainSpeed,
+                                            1.0, LocomotiveVirtualTractivePower);
+            double maxRechargePortion =
+                std::min(1.0, maxRecharge / (this->maxPower/3600.0));
+            double newPowerPortion =
+                std::min(1.0, maxRechargePortion + powerPortion);
+            // if it did not consume any energy from the battery or portion of
+            // the energy is consumed,
+            // get rest of energy from the generator
+            if (consumptionResult.second > 0.0) {
+                // if hybrid locomotive, convert energy to battery first
+                // before consuming it
+                double EC_kwh_hybrid =
+                    consumptionResult.second *
+                    EC::getBatteryEff(this->powerType)/
+                    EC::getGeneratorEff(this->powerType,
+                                        newPowerPortion);
+
+                // if no fuel, return <false, EC_kwh_hybrid>
+                // the locomotive will be turned off in this case
+                consumptionResult = ConsumeFuelFunc(EC_kwh_hybrid,
+                                                    fuelConversionFactor,
+                                                    fuelDensity);
+            }
+            // if no further energy is required
+            else {
+                consumptionResult = std::make_pair(true, 0.0);
+            }
+            this->rechargeBatteryByFlowPortion(timeStep, trainSpeed,
+                                               powerPortion,
+                                               maxRechargePortion,
+                                               fuelConversionFactor,
+                                               fuelDensity,
+                                               LocomotiveVirtualTractivePower,
+                                               ConsumeFuelFunc);
         }
-        // if no further energy is required
-        else {
-            consumptionResult = std::make_pair(true, 0.0);
+        else
+        {
+            // if it did not consume any energy from the battery or portion of
+            // the energy is consumed,
+            // get rest of energy from the generator
+            if (consumptionResult.second > 0.0) {
+                // if hybrid locomotive, convert energy to battery first
+                // before consuming it
+                double EC_kwh_hybrid =
+                    consumptionResult.second *
+                    EC::getBatteryEff(this->powerType)/
+                    EC::getGeneratorEff(this->powerType,
+                                        powerPortion);
+
+                // if no fuel, return <false, EC_kwh_hybrid>
+                // the locomotive will be turned off in this case
+                consumptionResult = ConsumeFuelFunc(EC_kwh_hybrid,
+                                                    fuelConversionFactor,
+                                                    fuelDensity);
+            }
+            // if no further energy is required
+            else {
+                consumptionResult = std::make_pair(true, 0.0);
+            }
         }
-    }
-    // check if recharge is required
-    if (this->IsBatteryExceedingThresholds()) {
-        this->rechargeBatteryByMaxFlow(timeStep, trainSpeed,
-                                       powerPortion, fuelConversionFactor,
-                                       fuelDensity,
-                                       LocomotiveVirtualTractivePower,
-                                       ConsumeFuelFunc);
+
     }
     return consumptionResult;
 }
@@ -990,6 +1303,7 @@ std::pair<bool, double> Locomotive::consumeFuel(
                             double timeStep,
                             double trainSpeed,
                             double EC_kwh, // at the tank
+                            double routeProgress,
                             double LocomotiveVirtualTractivePower,
                             double dieselConversionFactor,
                             double bioDieselConversionFactor,
@@ -1032,42 +1346,96 @@ std::pair<bool, double> Locomotive::consumeFuel(
                                                dieselDensity);
 		}
 		else if (this->powerType == TrainTypes::PowerType::dieselHybrid) {
-            return
-                this->consumeEnergyFromHybridTechnology(
-                                        timeStep,
-                                        trainSpeed,powerPortion,
-                                        EC_kwh,
-                                        dieselConversionFactor,
-                                        dieselDensity,
-                                        LocomotiveVirtualTractivePower,
-                                        std::bind(
-                                               &Locomotive::consumeFuelDiesel,
-                                               this, std::placeholders::_1,
-                                               std::placeholders::_2,
-                                               std::placeholders::_3));
+            if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC ||
+                hybridCalcMethod == TrainTypes::HybridCalculationMethod::timeStepIndependent)
+            {
+                return
+                    this->consumeEnergyFromHydridTechnologyOptimizationEnabled(
+                        timeStep,
+                        trainSpeed,powerPortion,
+                        EC_kwh,
+                        routeProgress,
+                        dieselConversionFactor,
+                        dieselDensity,
+                        LocomotiveVirtualTractivePower,
+                        std::bind(
+                            &Locomotive::consumeFuelDiesel,
+                            this, std::placeholders::_1,
+                            std::placeholders::_2,
+                            std::placeholders::_3));
+            }
+            else if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::fast)
+            {
+                return
+                    this->consumeEnergyFromHybridTechnology(
+                        timeStep,
+                        trainSpeed,powerPortion,
+                        EC_kwh,
+                        dieselConversionFactor,
+                        dieselDensity,
+                        LocomotiveVirtualTractivePower,
+                        std::bind(
+                            &Locomotive::consumeFuelDiesel,
+                            this, std::placeholders::_1,
+                            std::placeholders::_2,
+                            std::placeholders::_3));
+            }
 		}
         else if (this->powerType == TrainTypes::PowerType::biodieselHybrid) {
-            return
-                this->consumeEnergyFromHybridTechnology(
-                           timeStep, trainSpeed,powerPortion, EC_kwh,
-                           bioDieselConversionFactor,bioDieselDensity,
-                           LocomotiveVirtualTractivePower,
-                           std::bind(&Locomotive::consumeFuelBioDiesel,
-                                     this, std::placeholders::_1,
-                                     std::placeholders::_2,
-                                     std::placeholders::_3));
+            if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC ||
+                hybridCalcMethod == TrainTypes::HybridCalculationMethod::timeStepIndependent)
+            {
+                return
+                    this->consumeEnergyFromHydridTechnologyOptimizationEnabled(
+                        timeStep, trainSpeed,powerPortion, EC_kwh,
+                        routeProgress, bioDieselConversionFactor,
+                        bioDieselDensity, LocomotiveVirtualTractivePower,
+                        std::bind(&Locomotive::consumeFuelBioDiesel,
+                                  this, std::placeholders::_1,
+                                  std::placeholders::_2,
+                                  std::placeholders::_3));
+            }
+            else if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::fast)
+            {
+                return
+                    this->consumeEnergyFromHybridTechnology(
+                        timeStep, trainSpeed,powerPortion, EC_kwh,
+                        bioDieselConversionFactor,
+                        bioDieselDensity, LocomotiveVirtualTractivePower,
+                        std::bind(&Locomotive::consumeFuelBioDiesel,
+                                  this, std::placeholders::_1,
+                                  std::placeholders::_2,
+                                  std::placeholders::_3));
+            }
         }
 		else if (this->powerType == TrainTypes::PowerType::hydrogenHybrid) {
-            return
-                this->consumeEnergyFromHybridTechnology(
-                            timeStep, trainSpeed,
-                            powerPortion, EC_kwh,
-                            hydrogenConversionFactor,hydrogenDensity,
-                            LocomotiveVirtualTractivePower,
-                            std::bind(&Locomotive::consumeFuelHydrogen,
-                                     this, std::placeholders::_1,
-                                     std::placeholders::_2,
-                                     std::placeholders::_3));
+            if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::MPC ||
+                hybridCalcMethod == TrainTypes::HybridCalculationMethod::timeStepIndependent)
+            {
+                return
+                    this->consumeEnergyFromHydridTechnologyOptimizationEnabled(
+                        timeStep, trainSpeed,
+                        powerPortion, EC_kwh, routeProgress,
+                        hydrogenConversionFactor,hydrogenDensity,
+                        LocomotiveVirtualTractivePower,
+                        std::bind(&Locomotive::consumeFuelHydrogen,
+                                  this, std::placeholders::_1,
+                                  std::placeholders::_2,
+                                  std::placeholders::_3));
+            }
+            else if (hybridCalcMethod == TrainTypes::HybridCalculationMethod::fast)
+            {
+                return
+                    this->consumeEnergyFromHybridTechnology(
+                        timeStep, trainSpeed,
+                        powerPortion, EC_kwh,
+                        hydrogenConversionFactor,hydrogenDensity,
+                        LocomotiveVirtualTractivePower,
+                        std::bind(&Locomotive::consumeFuelHydrogen,
+                                  this, std::placeholders::_1,
+                                  std::placeholders::_2,
+                                  std::placeholders::_3));
+            }
 		}
 
 		// if it is something else
@@ -1131,19 +1499,19 @@ double Locomotive::getMaxProvidedEnergy(double &timeStep)
         if (this->hostLink->hasCatenary) {
             return std::numeric_limits<double>::infinity();
         }
-        if (this->batteryHasCharge()) {
-            return this->getBatteryMaxDischarge(timeStep);
+        if (battery.batteryHasCharge()) {
+            return battery.getBatteryMaxDischarge(timeStep);
         }
         return 0.0;
 
     }
     else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
-        if (!this->tankHasFuel()) {
+        if (!tank.tankHasFuel()) {
             return 0.0;
         }
     }
     else if (TrainTypes::locomotiveHybrid.exist(this->powerType)) {
-        if (!this->tankHasFuel() && !this->batteryHasCharge()) {
+        if (!tank.tankHasFuel() && !battery.batteryHasCharge()) {
             return 0.0;
         }
     }
@@ -1160,11 +1528,11 @@ double Locomotive::canProvideEnergy(double &EC_kwh, double &timeStep)
             return 0.0;
         }
 
-        if (!isBatteryDrainable(EC_kwh)) {
+        if (!battery.isBatteryDrainable(EC_kwh)) {
             return EC_kwh;
         }
 
-        double restEC = EC_kwh - this->getBatteryMaxDischarge(timeStep);
+        double restEC = EC_kwh - battery.getBatteryMaxDischarge(timeStep);
         if (restEC >= 0.0) {
             return restEC;
         } else {
@@ -1172,13 +1540,13 @@ double Locomotive::canProvideEnergy(double &EC_kwh, double &timeStep)
         }
     }
     else if (TrainTypes::locomotiveTankOnly.exist(this->powerType)) {
-        if (!isTankDrainable(EC::getFuelFromEC(this->powerType, EC_kwh))) {
+        if (!tank.isTankDrainable(EC::getFuelFromEC(this->powerType, EC_kwh))) {
             return EC_kwh;
         }
     }
     else if (TrainTypes::locomotiveHybrid.exist(this->powerType)) {
-        if ( ! (this->isBatteryDrainable(EC_kwh) ||
-              this->isTankDrainable(EC::getFuelFromEC(this->powerType,
+        if ( ! (battery.isBatteryDrainable(EC_kwh) ||
+              tank.isTankDrainable(EC::getFuelFromEC(this->powerType,
                                                       EC_kwh)) ) ) {
             return EC_kwh;
         }
@@ -1198,9 +1566,9 @@ ostream& operator<<(std::ostream& ostr, const Locomotive& loco)
         ", no axles: " << loco.noOfAxiles <<
         ", max speed: " << loco.maxSpeed <<
         ", locomotive type: " << TrainTypes::PowerTypeToStr(loco.powerType) <<
-        ", battery capacity: " << loco.getBatteryMaxCharge() <<
-        ", current battery status: " << loco.getBatteryStateOfCharge() <<
-        ", tank capacity: " << loco.getTankMaxCapacity() <<
-        ", current tank status: " << loco.getTankStateOfCapacity() << std::endl;
+        ", battery capacity: " << loco.battery.getBatteryMaxCharge() <<
+        ", current battery status: " << loco.battery.getBatteryStateOfCharge() <<
+        ", tank capacity: " << loco.tank.getTankMaxCapacity() <<
+        ", current tank status: " << loco.tank.getTankStateOfCapacity() << std::endl;
 	return ostr;
 }

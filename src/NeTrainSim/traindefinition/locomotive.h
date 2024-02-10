@@ -13,6 +13,8 @@
 #include "traintypes.h"
 #include "energyconsumption.h"
 #include "traincomponent.h"
+#include "../util/tree.h"
+#include <cmath>
 
 using namespace std;
 
@@ -54,9 +56,15 @@ private:
 	/** (Immutable) the default locomotive minimum weight. */
 	static constexpr double DefaultLocomotiveEmptyWeight = 180;
 
+    static constexpr TrainTypes::HybridCalculationMethod hybridCalcMethodinit =
+        TrainTypes::HybridCalculationMethod::fast;
+
 private:
     /** */
 	double maxTractiveForce = 0.0;
+
+
+
 public:
 	/** The max power of the locomotive in kw. */
 	double maxPower;
@@ -94,8 +102,24 @@ public:
 
     double usedPowerPortion = 0.0;
 
+    // **************************************************************
+    // ************** For hybrid locomotives only *******************
+    // **************************************************************
+    TrainTypes::HybridCalculationMethod hybridCalcMethod = hybridCalcMethodinit;
 
-	/**
+    int forwardHorizonStepsInMPC = 3; // # steps forward in the MPC optimization
+
+    // discritize the amount of energy consumed from the generator
+    int discritizationActionStepInIndependentAndMPC = 20;// the more it is, the more accurate the result is
+    Vector<Vector<double>> hybridControlActionsCombination;
+    Vector<double> hybridControlAction = {1.0, 0.0};
+
+    // std::shared_ptr<Tree<Vector<double>>> hybridControlActions = std::make_shared<Tree<Vector<double>>>();
+    // Vector<double> posteriorHybridControlAction = Vector<double>(2, 0.0);
+    // **************************************************************
+    // **************************************************************
+    // **************************************************************
+    /**
 	 * !
 	 * \brief the constructor for the locomotive class
 	 * 
@@ -163,9 +187,17 @@ public:
                                 EC::DefaultLocomotiveTankInitialCapacity,
                double batteryCRate =
                                 EC::DefaultLocomotiveBatteryCRate,
+               TrainTypes::HybridCalculationMethod hybridCalculationMethod =
+                                hybridCalcMethodinit,
                TrainTypes::LocomotivePowerMethod theHybridMethod =
                                 TrainTypes::LocomotivePowerMethod::notApplicable);
 
+    ~Locomotive();
+
+    void setLocomotiveHybridParameters(TrainTypes::HybridCalculationMethod method =
+        TrainTypes::HybridCalculationMethod::fast,
+        int forwardsteps = 3,
+        int discitizationCount = 4);
 
 	/**
      * Gets power type as a string
@@ -392,7 +424,7 @@ public:
 	 * @date	2/28/2023
 	 *
      * @param [in,out]	LocomotiveVirtualTractivePower  The locomotive virtual
-     *                                                  tractive power.
+     *                                                  tractive power in Watt.
      * @param [in,out]	speed							The train speed in m/s.
      * @param [in,out]	acceleration					The train
      *                                                  acceleration in m/s^2.
@@ -401,7 +433,7 @@ public:
 	 *
      * @returns	The energy consumption in KWh.
 	 */
-    double getEnergyConsumption(double& LocomotiveVirtualTractivePower,
+    double getEnergyConsumption(double& LocomotiveVirtualTractivePower_W,
                                 double& acceleration, double& speed,
 		double& timeStep);
 
@@ -440,7 +472,7 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
     std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
-                                       double EC_kwh,
+                                       double EC_kwh, double routeProgress,
                                        double LocomotiveVirtualTractivePower =
                                         std::numeric_limits<double>::quiet_NaN(),
                                        double dieselConversionFactor =
@@ -481,14 +513,78 @@ public:
     double getUsedPowerPortion(double trainSpeed,
                                double LocomotiveVirtualTractivePower);
 
-    void rechargeBatteryByMaxFlow(double timeStep, double trainSpeed,
-                                  double powerPortion,
-                                  double fuelConversionFactor,
-                                  double fuelDensity,
-                                  double LocomotiveVirtualTractivePower,
-                                  std::function<std::pair<bool, double>(
-                                           double, double, double)>
-                                                    ConsumeFuelFunc);
+    double getMaxRechargeBatteryEnergy(
+        double timeStep,
+        double trainSpeed,
+        double rechargePortion,
+        double LocomotiveVirtualTractivePower);
+
+    double getRequiredEnergyForRechargeFromGenerator(
+        double timeStep,
+        double trainSpeed,
+        double powerPortion,
+        double rechargePortion,
+        double LocomotiveVirtualTractivePower);
+
+    void rechargeBatteryByFlowPortion(double timeStep, double trainSpeed,
+                                      double powerPortion,
+                                      double rechargePortion,
+                                      double fuelConversionFactor,
+                                      double fuelDensity,
+                                      double LocomotiveVirtualTractivePower,
+                                      std::function<std::pair<bool, double>(
+                                          double, double, double)>
+                                          ConsumeFuelFunc);
+
+    Vector<double> getCheapestHeuristicHybridCost(
+        double timeStep,
+        Vector<double> EC_kwh,
+        Vector<Vector<double>> combinations,
+        Vector<double> routeProgress);
+
+    double computeEfficiencyFocusedCost(double timeStep,
+                                        double EC_kwh,
+                                        double generatorConsumptionPortion,
+                                        double rechargePortion,
+                                        double routeProgress,
+                                        double batterySOCDeviation);
+
+    double computeHybridsCost(double timeStep,
+                              double EC_kwh,
+                              double generatorConsumptionPortion,
+                              double rechargePortion,
+                              double routeProgress,
+                              double batterySOCDeviation = std::nan("noValue"));
+
+    // void generateHybridControlActionsNewLevelForParent(TreeNode<Vector<double> > *parent,
+    //                                           const Vector<Vector<double>> &combinations);
+
+    void generateHybridControlActions(
+        int discritizationActionSteps,
+        int forwardHorizon);
+
+    std::tuple<double, double, double>
+    getHybridParametersForLowerCost(
+        double timeStep,
+        double EC_kwh,
+        double routeProgress);
+
+    std::pair<bool, double>
+    consumeEnergyFromHydridTechnologyOptimizationEnabled(
+        double timeStep,
+        double trainSpeed,
+        double powerPortion,
+        double EC_kwh,
+        double routeProgress,
+        double fuelConversionFactor,
+        double fuelDensity,
+        double LocomotiveVirtualTractivePower,
+        std::function<
+            std::pair<bool,
+                      double>(double,
+                              double,
+                              double)>
+            ConsumeFuelFunc);
 
     std::pair<bool, double> consumeEnergyFromHybridTechnology(
                                 double timeStep,
