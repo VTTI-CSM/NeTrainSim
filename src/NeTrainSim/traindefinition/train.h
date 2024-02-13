@@ -79,9 +79,9 @@ public:
     /** Total length of the train */
     double totalLength;
     /** The total weight of the train in kg*/
-    double totalMass;
+    double totalMass_kg;
     /** The total empty weight of the train */
-    double totalEmptyMass = 0;
+    double totalEmptyMass_kg = 0;
 
     /** Coefficient of fricition between the trains' wheels and the track */
     double coefficientOfFriction = 0.9;
@@ -117,7 +117,7 @@ public:
     /** The current tractive forces the train is using in Newton.*/
     double currentTractiveForce;
     /** The current resistance forces on the train in Newton*/
-    double currentResistanceForces;
+    double currentResistanceForces_N;
     /** The current used tractive power that the locomotives provides in kw*/
     double currentUsedTractivePower_W;
     /** The cummulative used tractive power (work) that the locomotives provide in kw*/
@@ -289,6 +289,10 @@ public:
           int optimizationLookaheadSteps = DefaultLookAheadCounter);
 
     ~Train();
+
+    Vector<double> getAverageHybridGeneratorBatteryUsage();
+
+    double getAverageHybridUsedGeneratorPowerPortion();
 
     /**
      * @brief setOptimization   enable or disable the single train trajectory optimization
@@ -562,7 +566,7 @@ public:
      *
      * @returns	The total tractive force.
      */
-    double getTotalTractiveForce(double speed, double acceleration, bool optimize, double optimumThrottleLevel);
+    double getTotalTractiveForce_N(double speed, double acceleration, bool optimize, double optimumThrottleLevel, bool testOnly);
 
     /**
      * \brief Gets total resistance
@@ -570,11 +574,12 @@ public:
      * @author	Ahmed Aredah
      * @date	2/28/2023
      *
-     * @param 	speed	The speed.
+     * @param 	speed	 The speed.
+     * @param   testonly (optional) do not memorize the tractive or resistance forces if true.
      *
      * @returns	The total resistance.
      */
-    double getTotalResistance(double speed);
+    double getTotalResistance_N(double speed, bool testOnly);
 
     /**
      * \brief Gets acceleration upper bound.
@@ -587,11 +592,12 @@ public:
      * @param 	freeFlowSpeed			The free flow speed.
      * @param 	optimize				True to optimize.
      * @param 	optimumThrottleLevel	The optimum throttle level.
+     * @param   testonly                (optional) do not memorize the tractive or resistance forces if true.
      *
      * @returns	The acceleration upper bound.
      */
-    double getAccelerationUpperBound(double speed, double acceleration, double freeFlowSpeed, 
-        bool optimize, double optimumThrottleLevel);
+    double getAccelerationUpperBound(double speed, double acceleration, double freeFlowSpeed,
+        bool optimize, double optimumThrottleLevel, bool testOnly);
 
     /**
      * \brief Gets safe gap.
@@ -658,11 +664,12 @@ public:
      * @param 	deltaT		 	The delta t.
      * @param 	optimize	 	True to optimize.
      * @param 	throttleLevel	(Optional) The throttle level.
+     * @param   testonly        (optional) do not memorize the tractive or resistance forces if true.
      *
      * @returns	A double.
      */
     double accelerate(double gap, double mingap, double speed, double acceleration, double leaderSpeed,
-        double freeFlowSpeed, double deltaT, bool optimize, double throttleLevel = -1);
+        double freeFlowSpeed, double deltaT, bool optimize, double throttleLevel = -1, bool testOnly = true);
 
     /**
      * \brief Accelerate considering jerk
@@ -706,7 +713,7 @@ public:
      *
      * @returns	A double.
      */
-    double speedUpDown(double previousSpeed, double acceleration, double deltaT, double freeFlowSpeed);
+    double speedUpDown(double previousSpeed, double acceleration, double deltaT, double freeFlowSpeed, double maxAcceleration);
 
     /**
      * \brief Adjust acceleration
@@ -773,7 +780,7 @@ public:
      *
      * @returns	The tractive power.
      */
-    pair<Vector<double>, double> getTractivePower(double speed, double acceleration, double resistanceForces);
+    pair<Vector<double>, double> getTractivePower_W(double speed, double acceleration, double resistanceForces);
 
     /**
      * \brief Updates the location notch
