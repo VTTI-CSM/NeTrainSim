@@ -78,7 +78,8 @@ namespace EC {
     static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Other  = 0.55;//0.5
 
     /** required generator power percentage. */
-    static constexpr double requiredGeneratorPower[] = {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
+    static constexpr double requiredGeneratorPowerPortionToRechargeBattery[] =
+        {1,1,0.8,0.6,0.4,0.2,0.1,0.0};
 
     static constexpr double DefaultLocomotivePowerReduction_DieselHybrid = 0.8;
 
@@ -249,7 +250,7 @@ namespace EC {
      *
      * @returns The required generator power percentage.
      */
-	double getRequiredGeneratorPowerForRecharge(double batterySOC);
+    double getRequiredGeneratorPowerPortionForBatteryRecharge(double batterySOC);
 
 
     /**
