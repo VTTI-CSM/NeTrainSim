@@ -86,7 +86,7 @@ public:
      * @param trainSpeed The train speed in m/s.
      * @returns The car's resistance in Newton.
      */
-    double getResistance(double trainSpeed) override;
+    double getResistance_N(double trainSpeed) override;
 
     /**
      * Gets the energy consumption of the car (in case there is auxiliary power). Otherwise, it returns 0.0.

@@ -99,7 +99,7 @@ double Car::getCargoNetWeight() {
 	return 0.0;
 }
 
-double Car::getResistance(double trainSpeed) {
+double Car::getResistance_N(double trainSpeed) {
 	// these calculations depend of US units, so these are the conversions factors from meteric system
     // They are listed this way and not converted outside for a better tracing/changing
 
