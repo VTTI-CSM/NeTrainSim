@@ -90,7 +90,7 @@ public:
 	 *
 	 * @returns	The resistance.
 	 */
-	virtual double getResistance(double trainSpeed);
+    virtual double getResistance_N(double trainSpeed);
 
 	/**
 	 * \brief Resets the energy consumptions data for the current time step

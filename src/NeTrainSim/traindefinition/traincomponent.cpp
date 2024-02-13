@@ -1,8 +1,8 @@
 #include "traincomponent.h"
 using namespace std;
 
-// if the get getResistance is not implemented in the derived class, return 0.0
-double TrainComponent::getResistance(double trainSpeed) {
+// if the get getResistance_N is not implemented in the derived class, return 0.0
+double TrainComponent::getResistance_N(double trainSpeed) {
 	return 0.0;
 }
 
