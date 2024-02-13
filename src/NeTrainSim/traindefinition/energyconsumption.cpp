@@ -106,12 +106,13 @@ namespace EC {
         }
     }
 
-    double getRequiredGeneratorPowerForRecharge(double batterySOC) {
-        // get the battery SOC index 
-        int ind = min(static_cast<int>(ceil(batterySOC * 10.0)) , 8);
+    double getRequiredGeneratorPowerPortionForBatteryRecharge(double batterySOC) {
+        // get the battery SOC index
+        int ind = std::min(static_cast<size_t>(ceil(batterySOC * 10.0)) ,
+                           std::size(requiredGeneratorPowerPortionToRechargeBattery) - 1);
         // find the appropiate required power percentage
         // by index
-        return requiredGeneratorPower[ind];
+        return requiredGeneratorPowerPortionToRechargeBattery[ind];
     }
 
     double getEmissions(double fuelConsumption) {
