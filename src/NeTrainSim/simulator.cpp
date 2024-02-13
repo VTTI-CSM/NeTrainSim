@@ -577,9 +577,15 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             // calculate the accelerations and speed
             double stepAcc = train->getStepAcceleration(this->timeStep, currentFreeFlowSpeed, std::get<0>(criticalPointsDefinition),
                                              std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
-            double stepSpd = train->speedUpDown(train->previousSpeed, stepAcc, this->timeStep, currentFreeFlowSpeed);
+			// make sure the maximum acceleration is not exceeding what the locomotives can provide
+            double maxAcceleration =
+                train->getAccelerationUpperBound(
+                    train->currentSpeed, train->currentAcceleration,
+                    currentFreeFlowSpeed, train->optimize,
+                    train->optimumThrottleLevel, true);
+            double stepSpd = train->speedUpDown(train->previousSpeed, stepAcc, this->timeStep, currentFreeFlowSpeed, maxAcceleration);
             // calculate approximate power required
-            pair<Vector<double>, double> out = train->getTractivePower(stepSpd, stepAcc, train->currentResistanceForces);
+            pair<Vector<double>, double> out = train->getTractivePower_W(stepSpd, stepAcc, train->currentResistanceForces_N);
             double averageSpd = (stepSpd + train->previousSpeed) / ((double)2.0);
             // calculate approximate energy required
             double stepEC = train->getTotalEnergyConsumption(this->timeStep, averageSpd, stepAcc, out.first);
@@ -664,14 +670,16 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
                        << train->delayTimeStat << ","
                        << train->stoppedStat << ","
                        << train->currentTractiveForce << ","
-                       << train->currentResistanceForces << ","
+                       << train->currentResistanceForces_N << ","
                        << train->currentUsedTractivePower_W / (1000.0) << ","
                        << grades[0] << ","
                        << curvatures[0] << ","
                        << train->locomotives[0]->currentLocNotch << ","
                        << train->getAverageLocomotiveTankStatus() * (double)100.0 << ","
                        << train->getAverageLocomotivesBatteryStatus() * (double)100.0 << ","
-                       << train->optimize
+                       << train->optimize << ","
+                       << train->getAverageHybridGeneratorBatteryUsage().toString() << ","
+                       << train->getAverageHybridUsedGeneratorPowerPortion()
                        << std::endl;
 
 			// write the step trajectory data to the file
