@@ -3,7 +3,7 @@
     <DisplayName>NeTrainSimGUI</DisplayName>
     <Description>NeTrainSimGUI Setup</Description>
     <Version>0.1.3</Version>
-    <ReleaseDate>2024-02-09</ReleaseDate>
+    <ReleaseDate>2024-02-12</ReleaseDate>
     <Licenses>
         <License name="GPL-3.0 License" file="LICENSE" />
     </Licenses>
