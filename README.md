@@ -189,4 +189,10 @@ This program is distributed under the terms of the [GNU General Public License (
 
 ## Publications
 
-Aredah, A., Du, J., Hegazi, M., List, G., & Rakha, H. A. (2024). Comparative analysis of alternative powertrain technologies in freight trains: A numerical examination towards sustainable rail transport. Applied Energy, 356, 122411.
+Aredah, A.S., Fadhloun, K. & Rakha, H.A. (2024) NeTrainSim: a network-level simulator for modeling freight train longitudinal motion and energy consumption. Railw. Eng. Sci. https://doi.org/10.1007/s40534-024-00331-x
+
+Aredah, A., Fadhloun, K., & Rakha, H. A. (2024). Energy optimization in freight train operations: Algorithmic development and testing. Applied Energy, 364, 123111. https://doi.org/10.1016/j.apenergy.2024.123111
+
+Aredah, A., Du, J., Hegazi, M., List, G., & Rakha, H. A. (2024). Comparative analysis of alternative powertrain technologies in freight trains: A numerical examination towards sustainable rail transport. Applied Energy, 356, 122411. https://doi.org/10.1016/j.apenergy.2023.122411
+
+
