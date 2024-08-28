@@ -21,6 +21,7 @@ Vector<Map<std::string, std::any>> TrainsList::readTrainsFile(
 {
 
     Vector<Map<std::string, std::any>> trainsRecords;
+    if (fileName.empty()) { return trainsRecords; }
 
     // open the file of trains definitions
     std::ifstream file1(fileName);
