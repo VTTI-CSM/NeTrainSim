@@ -18,6 +18,11 @@
 
 using namespace std;
 
+struct hybridEnergyDistribution {
+    double engineConsumePortion; //< Portion of consuming energy from the engine. the rest is consumed from the battery
+    double rechargePortion;  //< Recharge portion as of the battery max recharge energy
+};
+
 /**
  * defines a rail locomotive. This class inherits the TrainComponent class.
  *
@@ -61,17 +66,18 @@ private:
 
 private:
     /** */
-	double maxTractiveForce = 0.0;
+    double maxTractiveForce_N = 0.0;
 
 
 
 public:
-	/** The max power of the locomotive in kw. */
+    /** The max power of the locomotive in kw at the wheel since
+     *  the rating of locomotives is always at the wheels. */
 	double maxPower;
     /** The tractive forces of this time step. */
     double currentTractiveForce = 0.0;
 	/** Transmission effeciency of the locomotive */
-	double transmissionEfficiency;
+    double engineMechanicalEfficiency;
 	/** The type of the car */
 	TrainTypes::PowerType powerType;
     /** the hybrid technology whether it is series or paralletl. */
@@ -100,7 +106,7 @@ public:
 	/** (Immutable) the gravitation acceleration */
 	const double g = 9.8067;
 
-    double usedPowerPortion = 0.0;
+    std::pair<double, double> usedPowerPortion = {0.0, 0.0};
 
     // **************************************************************
     // ************** For hybrid locomotives only *******************
@@ -111,8 +117,12 @@ public:
 
     // discritize the amount of energy consumed from the generator
     int discritizationActionStepInIndependentAndMPC = 20;// the more it is, the more accurate the result is
-    Vector<Vector<double>> hybridControlActionsCombination;
-    Vector<double> hybridControlAction = {1.0, 0.0};
+    Vector<hybridEnergyDistribution> hybridControlActionsCombination;
+    hybridEnergyDistribution hybridControlAction = {1.0, 0.0};
+    double hybridUsedGeneratorPowerPortion = 0;
+    double hybridCost;
+
+    int timeOut = 5; // 5 iterations for any while loop for accurate/faster results
 
     // std::shared_ptr<Tree<Vector<double>>> hybridControlActions = std::make_shared<Tree<Vector<double>>>();
     // Vector<double> posteriorHybridControlAction = Vector<double>(2, 0.0);
@@ -308,7 +318,7 @@ public:
 	 *
      * @returns	The resistance in Newton.
 	 */
-	double getResistance(double trainSpeed) override;
+    double getResistance_N(double trainSpeed) override;
 
 	/**
      * Gets tractive force that this locomotive can generate by the
@@ -326,7 +336,7 @@ public:
 	 *
      * @returns	The tractive force in Newton.
 	 */
-	double getTractiveForce(double &frictionCoef, double &trainSpeed,
+    double getTractiveForce_N(double &frictionCoef, double &trainSpeed,
 		bool &optimize, double &optimumThrottleLevel);
 
 	/**
@@ -347,8 +357,9 @@ public:
 		bool &optimize, double &optimumThrottleLevel);
 
 	/**
-     * Gets shared virtual tractive power. The virtual power is the power
-     * when the train is on a negative slope.
+     * Gets shared virtual tractive power at the wheels.
+     * The virtual power is anypower the train is using/generating
+     * even when the train is on a negative slope.
 	 *
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
@@ -367,10 +378,38 @@ public:
 	 *
      * @returns	The shared virtual tractive power in kW.
 	 */
-    double getSharedVirtualTractivePower(double& trainSpeed,
+    double getSharedVirtualTractivePower_W(double& trainSpeed,
                                          double& trainAcceleration,
                                          double& sharedWeight,
                                          double& sharedResistance);
+
+    /**
+     * Gets shared virtual tractive power at the engine.
+     * The virtual power is anypower the train is using/generating
+     * even when the train is on a negative slope.
+     *
+     * @author	Ahmed Aredah
+     * @date	2/28/2023
+     *
+     * @param [in,out]	trainSpeed		 	The train speed in m/s.
+     * @param [in,out]	trainAcceleration	The train acceleration in m/s^2.
+     * @param [in,out]	sharedWeight	 	The shared weight is the weight
+     *                                      this locomotive is pulling.
+     *                                      It includes the portion of the
+     *                                      train weight this locomotive is
+     *                                      responsible for.
+     * @param [in,out]	sharedResistance 	The shared resistance. This
+     *                                      includes the portion of the train
+     *                                      resistance, this locomotiv is
+     *                                      responsible for.
+     *
+     * @returns	The shared virtual tractive power in kW.
+     */
+    double
+    getSharedVirtualTractivePowerAtEngine_W(double &trainSpeed,
+                                            double& trainAcceleration,
+                                            double& sharedWeight,
+                                            double& sharedResistance);
 
     /**
      * @brief get the regenerative effeciency at that speed when decelerating
@@ -387,36 +426,81 @@ public:
                                      double &trainAcceleration,
                                      double &trainSpeed);
 
-    /**
-     * @brief get the Energy Consumption At DC Bus
-     *
-     * @author	Ahmed Aredah
-     * @date	4/28/2023
-     *
-     * @param LocomotiveVirtualTractivePower
-     * @param trainAcceleration
-     * @param trainSpeed
-     * @param timeStep
-     * @return
-     */
-    double getEnergyConsumptionAtDCBus(double &LocomotiveVirtualTractivePower,
-                                       double &trainAcceleration,
-                                       double &trainSpeed, double &timeStep);
+    // /**
+    //  * @brief get the Energy Consumption At DC Bus
+    //  *
+    //  * @author	Ahmed Aredah
+    //  * @date	4/28/2023
+    //  *
+    //  * @param LocomotiveVirtualTractivePower
+    //  * @param trainAcceleration
+    //  * @param trainSpeed
+    //  * @param timeStep
+    //  * @return
+    //  */
+    // double getEnergyConsumptionAtDCBus(double &LocomotiveVirtualTractivePower,
+    //                                    double &trainAcceleration,
+    //                                    double &trainSpeed, double &timeStep);
+
+    // /**
+    //  * @brief get the Energy Consumption At Tank
+    //  *
+    //  * @author	Ahmed Aredah
+    //  * @date	2/28/2023
+    //  *
+    //  * @param LocomotiveVirtualTractivePower
+    //  * @param trainSpeed
+    //  * @param EnergyConsumptionAtDCBus
+    //  * @return
+    //  */
+    // double getEnergyConsumptionAtTank(double &LocomotiveVirtualTractivePower,
+    //                                   double &trainSpeed,
+    //                                   double EnergyConsumptionAtDCBus);
 
     /**
-     * @brief get the Energy Consumption At Tank
-     *
-     * @author	Ahmed Aredah
-     * @date	2/28/2023
-     *
-     * @param LocomotiveVirtualTractivePower
-     * @param trainSpeed
-     * @param EnergyConsumptionAtDCBus
-     * @return
+     * @brief Gets the max energy the battery can be recharged by theoritically.
+     * @param [in]	timeStep    the time step of the simulator in seconds.
+     * @param [in]	trainSpeed  the train speed in meter / second.
+     * @param [in]	rechargePortion the portion of recharging the battery
+     * (portion of recharge of max allowable recharge).
+     * @param [in]	mainPowerPortion    the power portion that the engine
+     * is dedicating to moving forward excluding any battery recharge need.
+     * @param [in]	approximateLocomotivePowerAtWheels_W    the approximate
+     * virutal tractive power in Watt (the approx required power at the wheel).
+     * @return the theoritical max energy that could be recharged
+     * to the battery.
      */
-    double getEnergyConsumptionAtTank(double &LocomotiveVirtualTractivePower,
-                                      double &trainSpeed,
-                                      double EnergyConsumptionAtDCBus);
+    double getMaxTheoriticalBatteryRechargeEnergyAtBattery_kWh(
+        double timeStep,
+        double trainSpeed,
+        double rechargePortion,
+        double mainPowerPortion,
+        double approximateLocomotivePowerAtWheels_W);
+
+    /**
+     * @brief Gets the max energy the battery can be recharged by.
+     * @param [in]	timeStep    the time step of the simulator in seconds.
+     * @param [in]	trainSpeed  the train speed in meter / second.
+     * @param [in]	rechargePortion the portion of recharging the battery
+     * (portion of recharge of max allowable recharge).
+     * @param [in]	totalPowerPortion   the total power portion that the
+     * engine is operating by (the total power the engine will be running at
+     * with main required power and battery recharge power).
+     * @param [in]	rechargePowerPortion    the power portion that the engine
+     * is dedicating to the battery recharge (power portion of the reacharge
+     * power to the locomotive power).
+     * @param [in]	approximateLocomotivePowerAtWheels_W    the approximate
+     * virutal tractive power in Watt (the approx required power at the wheel).
+     * @return the max energy that could be recharged to the battery.
+     */
+    double getMaxRechargeBatteryEnergyAtBattery_kWh(
+        double timeStep,
+        double trainSpeed,
+        double rechargePortion,
+        double totalPowerPortion,
+        double rechargePowerPortion,
+        double approximateLocomotivePowerAtWheels_W);
+
 	/**
      * Gets energy consumption of this locomotive.
 	 *
@@ -431,9 +515,10 @@ public:
      * @param [in,out]	timeStep						The simulator time
      *                                                  step in seconds.
 	 *
-     * @returns	The energy consumption in KWh.
+     * @returns	pair of doubles The first entry is the energy consumption
+     * in KWh at the wheels, and the second entry is the auxilary energy.
 	 */
-    double getEnergyConsumption(double& LocomotiveVirtualTractivePower_W,
+    std::pair<double, double> getEnergyConsumptionAtWheels(double& LocomotiveVirtualTractivePower_W,
                                 double& acceleration, double& speed,
 		double& timeStep);
 
@@ -451,7 +536,7 @@ public:
 	 *
      * @param   timeStep                    The simulator time step in seconds.
      * @param   trainSpeed                  The speed of the train in m/s.
-     * @param 	EC_kwh						The energy consumption in kwh.
+     * @param 	EC_kwh_atWheels						The energy consumption in kwh.
 	 * @param 	isOffGrid					True if is off grid, false if not.
      * @param 	dieselConversionFactor  	(Optional) The diesel conversion
      *                                      factor that convert from kwh
@@ -472,7 +557,7 @@ public:
 	 * @returns	True if it succeeds, false if it fails.
 	 */
     std::pair<bool,double> consumeFuel(double timeStep, double trainSpeed,
-                                       double EC_kwh, double routeProgress,
+                                       double EC_kwh_atWheels, double routeProgress,
                                        double LocomotiveVirtualTractivePower =
                                         std::numeric_limits<double>::quiet_NaN(),
                                        double dieselConversionFactor =
@@ -488,58 +573,104 @@ public:
                                        double hydrogenDensity =
                                         EC::DefaultHydrogenDensity) override;
 
-	/**
-	 * @brief Get the max energy the locomotive can regenerate.
-     * @details this depends on the max power from the generator can produce.
-	 *
-	 * @author	Ahmed Aredah
-	 * @date	2/28/2023
-	 *
-	 * @param timeStep
-	 * @param trainSpeed
-     * @param LocomotiveVirtualTractivePower
-     *
-	 * @return
-	 */
-    double getMaxRechargeEnergy(double timeStep, double trainSpeed,
-                                double LocomotiveVirtualTractivePower);
+    // /**
+    //  * @brief Get the max energy the locomotive can regenerate.
+ //     * @details this depends on the max power from the generator can produce.
+    //  *
+    //  * @author	Ahmed Aredah
+    //  * @date	2/28/2023
+    //  *
+    //  * @param timeStep
+    //  * @param trainSpeed
+ //     * @param LocomotiveVirtualTractivePower
+ //     *
+    //  * @return
+    //  */
+ //    double getMaxRechargeEnergy(double timeStep, double trainSpeed,
+ //                                double LocomotiveVirtualTractivePower);
 
     /**
-     * @brief getUsedPowerPortion
-     * @param trainSpeed
+     * @brief get the max gross power at wheels in Watt.
+     *
+     * This power does not consider the efficiency of the engine.
+     * @return
+     */
+    double getMaxGrossPowerAtWheel_W();
+
+    /**
+     * @brief get power in Watt by the engine used power portion at the wheels
+     * @param powerPortion is the power portion used of the engine
+     * @return power in Watt
+     */
+    double getPowerOfPowerPortionAtWheels_W(double powerPortion);
+
+    /**
+     * @brief get power used at the engine by power portion in Watt.
+     * @details This function gets the power used at the engine by
+     * the engine power portion in Watt. The function calculated the
+     * power at the wheels first and then account for efficiency to
+     * transfer the power at the wheels to engine.
+     * @param powerPortion is the power portion used by the engine
+     * @param trainSpeed is the train speed in m/s
+     * @return power in watt at the engine
+     */
+    double getPowerOfPowerPortionAtEngine_W(
+        double powerPortion, double trainSpeed);
+
+    /**
+     * @brief getUsedEnginePowerPortion
      * @param LocomotiveVirtualTractivePower
      * @return
      */
-    double getUsedPowerPortion(double trainSpeed,
-                               double LocomotiveVirtualTractivePower);
+    double getUsedEnginePowerPortion(
+        double LocomotiveVirtualTractivePowerAtWheels_W);
 
-    double getMaxRechargeBatteryEnergy(
-        double timeStep,
-        double trainSpeed,
-        double rechargePortion,
-        double LocomotiveVirtualTractivePower);
+    // double getMaxRechargeBatteryEnergy(
+    //     double timeStep,
+    //     double trainSpeed,
+    //     double rechargePortion,
+    //     double LocomotiveVirtualTractivePower);
 
-    double getRequiredEnergyForRechargeFromGenerator(
-        double timeStep,
-        double trainSpeed,
-        double powerPortion,
-        double rechargePortion,
-        double LocomotiveVirtualTractivePower);
+    // double getRequiredEnergyForRechargeFromGenerator(
+    //     double timeStep,
+    //     double trainSpeed,
+    //     double powerPortion,
+    //     double rechargePortion,
+    //     double LocomotiveVirtualTractivePower);
 
-    void rechargeBatteryByFlowPortion(double timeStep, double trainSpeed,
-                                      double powerPortion,
-                                      double rechargePortion,
+    /**
+     * @brief rechargeBatteryByFlowPortion
+     * @param timeStep the time step of the simulation in seconds.
+     * @param trainSpeed the speed of the train in m/s.
+     * @param totalPowerPortion the total power portion the train is requiring
+     * for main drive and recharge.
+     * @param rechargePowerPortion the power portion that is dedicated to
+     * recharging the battery only.
+     * @param fuelConversionFactor the fuel conversion factor
+     * @param fuelDensity the fuel density
+     * @param LocomotiveVirtualTractivePower the estimated tractive power at
+     * the wheels.
+     * @param ConsumeFuelFunc the consumption function fuel
+     */
+    void rechargeBatteryByFlowPortion(double timeStep,
+                                      double trainSpeed,
+                                      double totalPowerPortion,
+                                      double rechargePowerPortion,
                                       double fuelConversionFactor,
                                       double fuelDensity,
                                       double LocomotiveVirtualTractivePower,
-                                      std::function<std::pair<bool, double>(
-                                          double, double, double)>
+                                      std::function<
+                                          std::pair<bool, double>(double,
+                                                                  double,
+                                                                  double)>
                                           ConsumeFuelFunc);
 
-    Vector<double> getCheapestHeuristicHybridCost(
+    hybridEnergyDistribution getCheapestHeuristicHybridCost(
         double timeStep,
+        double trainSpeed,
+        Vector<double> virtualPower_W,
         Vector<double> EC_kwh,
-        Vector<Vector<double>> combinations,
+        Vector<hybridEnergyDistribution> ECDistribution,
         Vector<double> routeProgress);
 
     double computeEfficiencyFocusedCost(double timeStep,
@@ -548,13 +679,29 @@ public:
                                         double rechargePortion,
                                         double routeProgress,
                                         double batterySOCDeviation);
+    double computeHybridsCost2(double timeStep, double trainSpeed,
+                               double virtualPower_W, double EC_kwh,
+                               hybridEnergyDistribution energyDistribution,
+                               double routeProgress,
+                               double batterySOCDeviation = std::nan("noValue"));
 
-    double computeHybridsCost(double timeStep,
-                              double EC_kwh,
-                              double generatorConsumptionPortion,
-                              double rechargePortion,
-                              double routeProgress,
-                              double batterySOCDeviation = std::nan("noValue"));
+    // double computeHybridsCost(double timeStep,
+    //                           double EC_kwh,
+    //                           double generatorConsumptionPortion,
+    //                           double rechargePortion,
+    //                           double routeProgress,
+    //                           double batterySOCDeviation = std::nan("noValue"));
+
+    double
+    getUsedEnginePowerPortionForHybrids(
+        double timeStep,
+        double trainSpeed,
+        double LocomotiveVirtualTractivePowerAtWheels_W,
+        double EC_kwh_atWheels,
+        double engineConsumePortion,
+        double batteryRechargePortion);
+
+
 
     // void generateHybridControlActionsNewLevelForParent(TreeNode<Vector<double> > *parent,
     //                                           const Vector<Vector<double>> &combinations);
@@ -566,15 +713,16 @@ public:
     std::tuple<double, double, double>
     getHybridParametersForLowerCost(
         double timeStep,
-        double EC_kwh,
+        double trainSpeed,
+        double virtualPower_kWh,
+        double EC_kwh_atWheels,
         double routeProgress);
 
     std::pair<bool, double>
     consumeEnergyFromHydridTechnologyOptimizationEnabled(
         double timeStep,
         double trainSpeed,
-        double powerPortion,
-        double EC_kwh,
+        double EC_kwh_atWheels,
         double routeProgress,
         double fuelConversionFactor,
         double fuelDensity,
@@ -585,6 +733,10 @@ public:
                               double,
                               double)>
             ConsumeFuelFunc);
+
+    double getMaxPowerPortionUsedForBatteryRecharge(
+        double timeStep, double trainSpeed,
+        double ECAtBattery, double approxLocomotiveVirtualPower_W);
 
     std::pair<bool, double> consumeEnergyFromHybridTechnology(
                                 double timeStep,
@@ -643,7 +795,7 @@ public:
      * @param timeStep
      * @return
      */
-    double getMaxProvidedEnergy(double &timeStep);
+    double getMaxProvidedEnergy(double &timeStep, double locomotiveVirtualPower, double trainSpeed);
 
     /**
      * @brief check if the locomotive can provide required energy
