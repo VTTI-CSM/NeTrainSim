@@ -92,9 +92,10 @@ public:
      * Gets the energy consumption of the car (in case there is auxiliary power). Otherwise, it returns 0.0.
      *
      * @param timeStep The time step of the simulator in seconds.
-     * @returns The energy consumption in kWh.
+     * @returns pair of doubles The first entry is the energy consumption
+     * in KWh at the wheels, and the second entry is the auxilary energy.
      */
-    double getEnergyConsumption(double& timeStep);
+    std::pair<double, double> getEnergyConsumptionAtWheels(double& timeStep);
 
     /**
      * Consumes fuel from the tender.

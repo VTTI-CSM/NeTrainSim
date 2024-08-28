@@ -103,20 +103,25 @@ double Car::getResistance_N(double trainSpeed) {
 	// these calculations depend of US units, so these are the conversions factors from meteric system
     // They are listed this way and not converted outside for a better tracing/changing
 
-
-    double rVal; // resistance value placeholder definition
-    trainSpeed *= 2.23694;  // convert m/s to mph
-	rVal = 1.5 + 18 / ((this->currentWeight * 1.10231) / this->noOfAxiles) + 0.03 * trainSpeed
-		+ (this->frontalArea * 10.7639) * this->dragCoef * (pow(trainSpeed, 2)) / (this->currentWeight * 1.10231);
-	rVal = (rVal) * ((this->currentWeight * 1.10231)) + 20 * (this->currentWeight * 1.10231) * (this->trackGrade);
-	rVal += abs(this->trackCurvature) * 20 * 0.04 * (this->currentWeight * 1.10231);
-    rVal *= (4.44822); // convert to N
+    double axialWeight = currentWeight / noOfAxiles;
+    double rVal = (4.44822f * 1.10231f / 1000.0f) * currentWeight *
+                  (1.5f + (16329.34f/axialWeight) +
+                   0.0671f * trainSpeed +
+                   ((48862.37f * this->frontalArea * this->dragCoef * (pow(trainSpeed, 2))) / currentWeight) +
+                   20.0f * (trackGrade + 0.04 * abs(this->trackCurvature)));
+ //    double rVal; // resistance value placeholder definition
+ //    trainSpeed *= 2.23694;  // convert m/s to mph
+    // rVal = 1.5 + 18 / ((this->currentWeight * 1.10231) / this->noOfAxiles) + 0.03 * trainSpeed
+    // 	+ (this->frontalArea * 10.7639) * this->dragCoef * (pow(trainSpeed, 2)) / (this->currentWeight * 1.10231);
+    // rVal = (rVal) * ((this->currentWeight * 1.10231)) + 20 * (this->currentWeight * 1.10231) * (this->trackGrade);
+    // rVal += abs(this->trackCurvature) * 20 * 0.04 * (this->currentWeight * 1.10231);
+ //    rVal *= (4.44822); // convert to N
 	return rVal;
 }
 
-double Car::getEnergyConsumption(double &timeStep) {
+std::pair<double, double> Car::getEnergyConsumptionAtWheels(double &timeStep) {
     // return the auxiliary energy consumption by the time step.
-    return this->auxiliaryPower* timeStep* (3600 / 1000); // time step is in seconds
+    return std::make_pair(0.0, this->auxiliaryPower * timeStep * (3600 / 1000)); // time step is in seconds
 }
 
 
