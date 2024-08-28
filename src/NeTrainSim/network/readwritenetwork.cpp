@@ -238,7 +238,11 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
             }
             linkRecord["LengthScale"] = lengthScale;
             linkRecord["FreeFlowSpeedScale"] = speedScale;
-
+            if (QString::fromStdString(linkRecord["SignalsAtNodes"]).
+                contains("NA"))
+            {
+                linkRecord["SignalsAtNodes"] = "";
+            }
             records.push_back(linkRecord);
         }
 
