@@ -29,12 +29,18 @@ NetLink::NetLink(int simulatorID, int linkID,
 	this->freeFlowSpeed = maxSpeed;
 	this->trafficSignalNo = trafficSignalID;
     this->direction = linkNoOfDirections;
+    if (QString::fromStdString(signalAtEnd).contains("NA") ||
+        signalAtEnd.find_first_of("0123456789") == std::string::npos) // dsnt have numbers
+    {
+        signalAtEnd = "";
+    }
+
     auto vec = Utils::split(signalAtEnd, ',');
     if (vec.empty() && this->direction == 2) {
         this->trafficSignalAtEnd.push_back(fromNode->userID);
         this->trafficSignalAtEnd.push_back(toLoc->userID);
     }
-    else if (!vec.empty() && this->direction == 2){
+    else if (!vec.empty() && this->direction == 2) {
         this->trafficSignalAtEnd = Utils::convertStringVectorToIntVector(vec);
     }
     else if (vec.empty() && this->direction == 1) {
@@ -43,6 +49,7 @@ NetLink::NetLink(int simulatorID, int linkID,
     else if (! vec.empty() && this->direction == 1) {
         this->trafficSignalAtEnd = Utils::convertStringVectorToIntVector(vec);
     }
+
 
 	this->grade = this->setGrade(linkGrade);
 	this->curvature = linkCurvature;
