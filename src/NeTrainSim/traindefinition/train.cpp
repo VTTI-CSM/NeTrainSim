@@ -70,6 +70,7 @@ Train::Train(int simulatorID, string id, Vector<int> trainPath,
         {
             // set the hybrid locomotives optimization method
             loco->setLocomotiveHybridParameters(defaultHybridLocoType,
+                                                discritizationCount,
                                                 forwardHorizonStepsInMPC);
         }
     }
@@ -100,8 +101,8 @@ Vector<double> Train::getAverageHybridGeneratorBatteryUsage()
 
     for (auto & loco: this->ActiveLocos)
     {
-        sumGenerator += loco->hybridControlAction[0];
-        sumBattery += loco->hybridControlAction[1];
+        sumGenerator += loco->hybridControlAction.engineConsumePortion;
+        sumBattery += loco->hybridControlAction.rechargePortion;
     }
 
     return {sumGenerator/ActiveLocos.size(),
@@ -765,7 +766,8 @@ void Train::calcTrainStatsWithHybridLocosOptimizationOn(
     for (int loco_i = 0; loco_i < this->ActiveLocos.size(); loco_i++)
     {
         // hold the future steps estimates
-        Vector<double> future_kWh = Vector<double>(); //< estimate of the future EC
+        Vector<double> future_power_W = Vector<double>(); //< estimate of the future power of this loco
+        Vector<double> future_kWh = Vector<double>(); //< estimate of the future EC of this loco
         Vector<double> future_routeProgress = Vector<double>(); //< estimate of the future steps progress
 
         // iterate over all forward distance horizon
@@ -789,16 +791,19 @@ void Train::calcTrainStatsWithHybridLocosOptimizationOn(
 
             // if the locomotive is on, compute the energy consumption
             if (this->ActiveLocos.at(loco_i)->isLocOn) {
+
                 // calculate the amount of energy consumption
                 double averageSpeed =                           // < get average speed for better estimate
                     (this->currentSpeed + this->previousSpeed) / (double)2.0;
                 double UsedTractiveP_W =                          //< the power for this locomotive
                     newCurrentUsedTractivePowerList.at(loco_i);
 
+                future_power_W.push_back(UsedTractiveP_W);
+
                 double EC_kwh =         //< the estimated EC with current resistance estimate
-                    this->ActiveLocos.at(loco_i)->getEnergyConsumption(
+                    this->ActiveLocos.at(loco_i)->getEnergyConsumptionAtWheels(
                         UsedTractiveP_W, this->currentAcceleration,
-                        averageSpeed, timeStep);
+                        averageSpeed, timeStep).first;
 
                 future_kWh.push_back(EC_kwh); //< push to the estimates vector
             }
@@ -818,6 +823,8 @@ void Train::calcTrainStatsWithHybridLocosOptimizationOn(
         this->ActiveLocos.at(loco_i)->hybridControlAction =
             this->ActiveLocos.at(loco_i)->
             getCheapestHeuristicHybridCost(timeStep,
+                                           this->currentSpeed,
+                                           future_power_W,
                                            future_kWh,
                                            this->ActiveLocos.at(loco_i)->
                                            hybridControlActionsCombination,
@@ -1056,7 +1063,7 @@ double Train::heuristicFunction(double distanceToEnd, double stepAcceleration, d
     // get the tractive power to travel a step forward
     pair<Vector<double>, double> out = this->getTractivePower_W(stepSpeed, stepAcceleration, resistance);
     // get the energy consumption given the timeInterval
-    return this->getTotalEnergyConsumption(timeInterval, stepSpeed, stepAcceleration, out.first);
+    return this->getTotalEnergyConsumptionAtWheel(timeInterval, stepSpeed, stepAcceleration, out.first);
 }
 
 double Train::pickOptimalThrottleLevelAStar(Vector<double> throttleLevels, int lookAheadCounterToUpdate) {
@@ -1100,19 +1107,51 @@ pair<Vector<double>, double> Train::getTractivePower_W(double speed, double acce
     }
 }
 
+// pair<Vector<double>, double> Train::getTractivePowerAtEngine_W(
+//     double speed, double acceleration, double resistanceForces) {
+//     Vector<double> currentVirtualTractivePowerList_W = {};
+//     double currentVirtualTractivePower_W = 0.0;
+
+//     // if no speed or acceleration is given, return zeros
+//     if (speed == 0.0 && acceleration == 0.0) {
+//         return { currentVirtualTractivePowerList_W, currentVirtualTractivePower_W };
+//     }
+//     else {
+//         // get the number of working locomotives
+//         int n = this->getActiveLocomotivesNumber();
+//         currentVirtualTractivePowerList_W.reserve(n);
+//         // divide the weight and resistance equally to all active locomotives
+//         double oneLocoWeight = this->totalMass_kg / (double)n;
+//         double oneLocoResistance = resistanceForces / (double)n;
+
+//         // loop over all locomotives
+//         double virtualPower = 0.0;
+//         if (!this->ActiveLocos.empty()) {
+//             for (const auto& loco : this->ActiveLocos) {
+//                 virtualPower = loco->getSharedVirtualTractivePower_W(speed, acceleration,
+//                                                                      oneLocoWeight, oneLocoResistance);
+//                 currentVirtualTractivePowerList_W.push_back(virtualPower);
+//             }
+//         }
+//         currentVirtualTractivePower_W = currentVirtualTractivePowerList_W.sum();
+//         return { currentVirtualTractivePowerList_W, currentVirtualTractivePower_W };
+//     }
+
+// }
+
 void Train::resetTrainEnergyConsumption() {
     for (std::shared_ptr<TrainComponent>& vehicle : this->trainVehicles) {
         vehicle->resetTimeStepConsumptions();
     }   
 }
 
-double Train::getTotalEnergyConsumption(double& timeStep, double& trainSpeed, double& acceleration, Vector<double>& usedTractivePower) {
+double Train::getTotalEnergyConsumptionAtWheel(double& timeStep, double& trainSpeed, double& acceleration, Vector<double>& usedTractivePower) {
     if (usedTractivePower.empty()){ return 0.0; }
     double energy = 0.0;
 //    double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
     for (int i =0; i < this->ActiveLocos.size(); i++){
-        energy += this->ActiveLocos.at(i)->getEnergyConsumption(usedTractivePower.at(i),
-                                             acceleration, trainSpeed, timeStep);
+        energy += this->ActiveLocos.at(i)->getEnergyConsumptionAtWheels(usedTractivePower.at(i),
+                                             acceleration, trainSpeed, timeStep).first;
     }
     return energy;
 }
@@ -1175,9 +1214,9 @@ Train::whatCostIfConsumeEnergyWithHeuristic(
             double UsedTractiveP = usedTractivePower.at(i);
 
             EC_kwh =
-                this->ActiveLocos.at(i)->getEnergyConsumption(
+                this->ActiveLocos.at(i)->getEnergyConsumptionAtWheels(
                     UsedTractiveP, this->currentAcceleration,
-                    averageSpeed, timeStep);
+                    averageSpeed, timeStep).first;
 
             double routeProgressChange = trainSpeed / this->trainTotalPathLength;
 
@@ -1357,8 +1396,8 @@ bool Train::consumeEnergy(double& timeStep, double trainSpeed, Vector<double>& u
             // calculate the amount of energy consumption 
             double averageSpeed = (this->currentSpeed + this->previousSpeed) / (double)2.0;
             double UsedTractiveP = usedTractivePower_W.at(i);
-            EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumption(UsedTractiveP,
-                                                        this->currentAcceleration, averageSpeed, timeStep);
+            EC_kwh = this->ActiveLocos.at(i)->getEnergyConsumptionAtWheels(UsedTractiveP,
+                                                        this->currentAcceleration, averageSpeed, timeStep).first;
 
             // consume/recharge fuel from/to the locomotive if it still has fuel or can be rechargable
             auto out = this->ActiveLocos.at(i)->consumeFuel(timeStep, trainSpeed, EC_kwh, getRouteProgress(), UsedTractiveP);
@@ -1470,14 +1509,14 @@ void Train::calculateEnergyConsumption(double timeStep, std::string currentRegio
     }
 }
 
-Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep) {
+Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep, Vector<double>powerList, double speed) {
     Map<TrainTypes::PowerType, double> trainAllEC;
     if (this->ActiveLocos.size() < 1) { return trainAllEC; }
-    for (auto& loco: this->ActiveLocos) {
-        double locoEC = loco->getMaxProvidedEnergy(timeStep);
+    for (size_t i = 0; i < this->ActiveLocos.size(); i++) {
+        double locoEC = this->ActiveLocos[i]->getMaxProvidedEnergy(timeStep, powerList[i], speed);
         // add value to locoRestEC
-        if (trainAllEC.is_key(loco->powerType)) { trainAllEC[loco->powerType] = locoEC; }
-        else { trainAllEC[loco->powerType] += locoEC; }
+        if (trainAllEC.is_key(this->ActiveLocos[i]->powerType)) { trainAllEC[this->ActiveLocos[i]->powerType] = locoEC; }
+        else { trainAllEC[this->ActiveLocos[i]->powerType] += locoEC; }
     }
     return trainAllEC;
 }
@@ -1494,9 +1533,9 @@ Map<TrainTypes::PowerType, double> Train::getMaxProvidedEnergyFromTendersOnly(Ma
     return EC;
 }
 
-std::pair<double, Map<TrainTypes::PowerType, double>> Train::getMaxProvidedEnergy(double &timeStep) {
+std::pair<double, Map<TrainTypes::PowerType, double>> Train::getMaxProvidedEnergy(double &timeStep, Vector<double>powerList, double speed) {
     // define a var to hold the result
-    Map<TrainTypes::PowerType, double> locoMaxEC = this->getMaxProvidedEnergyFromLocomotivesOnly(timeStep);
+    Map<TrainTypes::PowerType, double> locoMaxEC = this->getMaxProvidedEnergyFromLocomotivesOnly(timeStep, powerList, speed);
 
     if (locoMaxEC.get_keys().size() == 0) {
         return std::make_pair(0.0, Map<TrainTypes::PowerType, double>());

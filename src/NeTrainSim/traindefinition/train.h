@@ -846,7 +846,7 @@ public:
      *
      * @returns	The total energy consumption.
      */
-    double getTotalEnergyConsumption(double& timeStep, double& stepSpeed, double& stepAcceleration, Vector<double>& usedTractivePower);
+    double getTotalEnergyConsumptionAtWheel(double& timeStep, double& stepSpeed, double& stepAcceleration, Vector<double>& usedTractivePower);
 
     bool isMPCOptimizationNeeded();
 
@@ -1091,7 +1091,7 @@ public:
      * @param timeStep
      * @return
      */
-    std::pair<double, Map<TrainTypes::PowerType, double>> getMaxProvidedEnergy(double &timeStep);
+    std::pair<double, Map<TrainTypes::PowerType, double>> getMaxProvidedEnergy(double &timeStep, Vector<double>powerList, double speed);
 
     /**
      * @brief check if the train can provide the required energy to move forward
@@ -1244,7 +1244,7 @@ public:
          * @param timeStep
          * @return
          */
-        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep);
+        Map<TrainTypes::PowerType, double> getMaxProvidedEnergyFromLocomotivesOnly(double &timeStep, Vector<double>powerList, double speed);
 
         /**
          * @brief getMaxProvidedEnergyFromTendersOnly
