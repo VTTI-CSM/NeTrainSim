@@ -24,13 +24,13 @@ namespace EC {
     static double DefaultLocomotiveBatteryMaxCharge_Electric = 5000.0;
     /** The default diesel-hybrid locomotive battery maximum charge in kWh.
      Battery capacity of up to 2.5 megawatt hours. */
-    static double DefaultLocomotiveBatteryMaxCharge_DieselHybrid = 4000.0;
+    static double DefaultLocomotiveBatteryMaxCharge_DieselHybrid = 2400.0; //2400.0
     /** The default biodiesel-hybrid locomotive battery maximum charge in kWh.
      Battery capacity of up to 2.5 megawatt hours. */
-    static double DefaultLocomotiveBatteryMaxCharge_BioDieselHybrid = 4000.0;
+    static double DefaultLocomotiveBatteryMaxCharge_BioDieselHybrid = 2400.0;
     /** The default hydrogen-hybrid locomotive battery maximum charge in kWh.
      Battery capacity of up to 2.5 megawatt hours. */
-    static double DefaultLocomotiveBatteryMaxCharge_HydogenHybrid = 4000.0;
+    static double DefaultLocomotiveBatteryMaxCharge_HydogenHybrid = 2400.0;
 
     /** The default locomotive battery initial charge for the electric locomotive. */
     static double DefaultLocomotiveBatteryInitialCharge_Electric = 0.6;
@@ -56,20 +56,20 @@ namespace EC {
 
 	/** (Immutable) the default locomotive battery depth of discharge = 1 - (SOC/100) */
 	static constexpr double DefaultLocomotiveBatteryDOD = 0.9;
-	/** (Immutable) the default locomotive battery C-Rate */
+    /** (Immutable) the default locomotive battery C-Rate in xC form. */
 	static constexpr double DefaultLocomotiveBatteryCRate = 2.0;
 	/** (Immutable) the default locomotive battery max state of charge in 
 	rechage state for diesel generator.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.65;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Diesel = 0.61;
 	/** (Immutable) the default locomotive battery max state of charge in
 	rechage state for any generator other than diesel.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.65;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_Other  = 0.61;
     /** (Immutable) the default locomotive battery max state of charge in
      *  recharge state for hybrid locos in MPC and step optimizations.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_HybridOpt = 0.9;
+    static constexpr double DefaultLocomotiveBatteryRechargeMaxSOC_HybridOpt = 0.8;//0.9;
     /** (Immutable) the default locomotive battery min state of charge in
      *  recharge state for hybrid locos in MPC and step optimizations.*/
-    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_HybridOpt = 0.1;
+    static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_HybridOpt = 0.3;//0.1;
 	/** (Immutable) the default locomotive battery min state of charge in which 
 	it requires recharge once reached state for diesel generator.*/
     static constexpr double DefaultLocomotiveBatteryRechargeMinSOC_Diesel = 0.55;
@@ -181,14 +181,13 @@ namespace EC {
      * Gets the drive line efficiency based on train speed, notch number index, power proportion at wheel, power type, and hybrid method.
      *
      * @param trainSpeed                 The train speed in m/s.
-     * @param notchNumberIndex           Zero-based index of the notch number.
      * @param powerAtWheelProportion     The power required for the time step of the train at the wheel.
      * @param powerType                  Type of the power.
      * @param hybridMethod               The hybrid method used in the locomotive.
      *
      * @returns The drive line efficiency.
      */
-    double getDriveLineEff(double &trainSpeed, int notchNumberIndex, double powerAtWheelProportion,
+    double getDriveLineEff(double &trainSpeed, double powerAtWheelProportion,
                            TrainTypes::PowerType powerType,
                            TrainTypes::LocomotivePowerMethod hybridMethod);
 
@@ -234,6 +233,11 @@ namespace EC {
      */
     double getBatteryEff(TrainTypes::PowerType powerType);
 
+    struct maxEfficiencyRange {
+        double lowBoundary;
+        double highBoundary;
+        double highestPoint;
+    };
     /**
      * Gets the maximum efficiency range for a given power type.
      *
@@ -241,7 +245,8 @@ namespace EC {
      *
      * @returns The maximum efficiency range (pair of values).
      */
-    std::pair<double,double> getMaxEffeciencyRange(TrainTypes::PowerType powerType);
+    maxEfficiencyRange
+    getMaxEffeciencyRange(TrainTypes::PowerType powerType);
 
     /**
      * Gets the required generator power percentage for recharging the battery based on battery state of charge.
@@ -308,6 +313,197 @@ namespace EC {
      * @returns The fuel conversion factor.
      */
     double getFuelConversionFactor(TrainTypes::CarType carType);
+
+
+    /**
+     * @brief Converts the energy (in kWh) that is at the
+     * battery to energy at DC bus.
+     *
+     * @details This function converts the energy (kWh) that is at the
+     * battery to energy at DC bus.This works regardless of the
+     * battery connection (parallel or series). This function considers the
+     * battery efficiency only.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atBattery the energy at the
+     * battery (kWh).
+     * @param powerType is the power type of the locomotive.
+     * @return energy at the DC Bus in kWh
+     */
+    double convertECFromBatteryToDC(double& LocomotiveEC_kWh_atBattery,
+                                    TrainTypes::PowerType powerType);
+
+    /**
+     * @brief Converts the energy that is the output of the engine to energy at
+     * the battery.
+     *
+     * @details This function converts the energy (kWh) that is the output of
+     * the engine to energy at the battery. This works regardless of the
+     * battery connection (parallel or series). This function considers the
+     * battery efficiency only.
+     *
+     * @param [in,out]	EC_kWh_atEngine the energy at the engine (kWh).
+     * @param powerType is the power type of the locomotive.
+     * @return energy at the battery in kWh
+     */
+    double convertECFromEngineOutputToBattery_kWh(double& EC_kWh_atEngine,
+                                                  TrainTypes::PowerType powerType);
+
+    /**
+     * @brief Converts the energy that is at the engine to energy at
+     * the battery.
+     *
+     * @details This function converts the energy (kWh) that is at the engine
+     * to energy at the battery. This works regardless of the
+     * battery connection (parallel or series). This accounts for the
+     * efficiency of the battery and the engine.
+     *
+     * @param [in,out]	EC_kWh_atEngine the energy at the engine (kWh).
+     * @param [in,out]	engineUsedPowerPortion the used engine power portion.
+     * That is the power portion of the engine.
+     * @param powerType is the power type of the locomotive.
+     * @param hybridMethod is the battery connection method to the
+     * engine (parallel or series)
+     * @return energy at the battery in kWh
+     */
+    double convertECFromEngineToBattery_kWh(double& EC_kWh_atEngine,
+                                            double engineUsedPowerPortion,
+                                            TrainTypes::PowerType powerType,
+                                            TrainTypes::LocomotivePowerMethod hybridMethod);
+
+    /**
+     * @brief Converts the energy (kWh) from the battery to the energy the
+     * engine must provide.
+     *
+     * @details This function converts the energy from the battery to the
+     * energy the engine must provide. This accounts for the efficiency of
+     * the battery and the engine.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atBattery the energy at the
+     * battery (kWh).
+     * @param [in,out]	powerPortion the used engine power portion. That is
+     * the power portion of the engine.
+     * @param powerType is the power type of the locomotive.
+     * @return energy at the engine in kWh.
+     */
+    double convertECFromBatteryToEngine(double& LocomotiveEC_kWh_atBattery,
+                                        double &powerPortion,
+                                        TrainTypes::PowerType powerType);
+
+    /**
+     * @brief Converts the energy from DC bus to the battery.
+     *
+     * @details This function converts the energy from DC bus to the battery.
+     * This accounts for the efficiency of the battery only. This works
+     * regardless of the battery connection (parallel or series).
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atDC the energy at the DC Bus (kWh).
+     * @param powerType is the power type of the locomotive.
+     * @return energy at the battery in kWh.
+     */
+    double convertECFromDCToBattery(double& LocomotiveEC_kWh_atDC,
+                                    TrainTypes::PowerType powerType);
+
+    /**
+     * @brief Converts the energy from DC bus to engine.
+     *
+     * @details This function converts the energy from DC bus to engine.
+     * This accounts for the efficiency of the engine and battery
+     * if the locomotive has one.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atDCBus the energy at the DC Bus (kWh).
+     * @param [in,out]	enginePowerPortion the used engine power portion.
+     * That is the power portion of the engine.
+     * @param [in,out]	approxLocomotiveVirtualTractivePower_W the approximate
+     * virutal tractive power in Watt.
+     * @param powerType is the power type of the locomotive.
+     * @param hybridMethod is the battery connection method to the
+     * engine (parallel or series)
+     * @return energy at the engine kWh.
+     */
+    double convertECFromDCBusToEngine(double& LocomotiveEC_kWh_atDCBus,
+                                      double& enginePowerPortion,
+                                      double& approxLocomotiveVirtualTractivePower_W,
+                                      TrainTypes::PowerType powerType,
+                                      TrainTypes::LocomotivePowerMethod hybridMethod);
+
+    /**
+     * @brief Converts the energy from engine to the DC bus.
+     *
+     * @details This function converts the energy from engine to the DC bus.
+     * This accounts for the efficiency of the engine and battery
+     * if the locomotive has one.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atEngine the energy at the
+     * engine (kWh).
+     * @param [in,out]	enginePowerPortion the used engine power portion.
+     * That is the power portion of the engine.
+     * @param [in,out]	approxLocomotiveVirtualTractivePower_W the approximate
+     * virutal tractive power in Watt.
+     * @return energy at the DC Bus in kWh.
+     */
+    double convertECFromEnginToDCBus(
+        double& LocomotiveEC_kWh_atEngine,
+        double& enginePowerPortion,
+        double& approxLocomotiveVirtualTractivePower_W,
+        TrainTypes::PowerType powerType,
+        TrainTypes::LocomotivePowerMethod hybridMethod);
+
+    /**
+     * @brief Converts the energy from the DC bus to the wheels.
+     *
+     * @details This function converts the energy from the DC bus to the wheels.
+     * This accounts for the efficiency of the DC bus.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atDC the energy at the DC Bus (kWh).
+     * @param [in,out]	approxLocomotiveVirtualTractivePower_W the approximate
+     * used engine power in Watt.
+     * @param [in,out]	trainSpeed the speed of the train in meters.
+     * @return energy at the Wheels in kWh.
+     */
+    double convertECFromDCBusToWheels(double& LocomotiveEC_kWh_atDC,
+                                      double& approxLocomotiveVirtualTractivePower_W,
+                                      double& trainSpeed);
+
+    /**
+     * @brief Converts the energy from the wheels to the DC bus.
+     *
+     * @details This function converts the energy from the wheels to
+     * the DC bus. This accounts for the efficiency of the DC bus.
+     *
+     * @param [in,out]	LocomotiveEC_kWh_atWheels the energy at the
+     * wheels (kWh).
+     * @param [in,out]	approxLocomotiveVirtualTractivePowerAtWheel_W the
+     * approximate used engine power in Watt.
+     * @param [in,out]	trainSpeed is the train speed in meters.
+     * @return energy at the DC Bus in kWh.
+     */
+    double convertECFromWheelToDCBus(double& LocomotiveEC_kWh_atWheels,
+                                     double& approxLocomotiveVirtualTractivePowerAtWheel_W,
+                                     double &trainSpeed);
+
+    /**
+     * @brief Convert Energy Consumption from kWh to liters
+     * @param EC_kwh is the energy consumptio in kWh at the tank
+     * @param dieselConversionFactor is the conversion factor from kWh to liters
+     * @return fuel amount in liters
+     */
+    double convertECToFuel(double EC_kwh, double dieselConversionFactor);
+
+    /**
+     * @brief convert Energy (kWh) to Power (W)
+     * @param EC_kWh The energy to be converted in kWh
+     * @param timeStep the time step of the simulator
+     * @return power in watt
+     */
+    double convertE_kWh_ToPower_W(double EC_kWh, double timeStep);
+
+    /**
+     * @brief convert Power (W) to Energy (kWh)
+     * @param power the power to be converted in Watt
+     * @param timeStep the time step of the simulator
+     * @return energy in kWh
+     */
+    double convertPower_W_ToE_kWh(double power, double timeStep);
 }
 
 
