@@ -217,7 +217,9 @@ public:
      * @brief Checks if the battery exceeds certain thresholds.
      * @return True if the battery exceeds the thresholds, false otherwise.
      */
-    bool IsBatteryExceedingThresholds();
+    bool isBatteryExceedingThresholds();
+
+    bool isBatteryOutsideBoundingThresholds();
 };
 
 #endif // BATTERY_H

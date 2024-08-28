@@ -106,19 +106,19 @@ void Battery::setBatteryCRate(double newBatteryCRate) {
 bool Battery::isBatteryDrainable(double requiredCharge) {
     // check if the battery reaches the low level of charge,
     // enable the recharge request
-    this->IsBatteryExceedingThresholds();
+    this->isBatteryExceedingThresholds();
     return (requiredCharge <= this->batteryCurrentCharge && batteryStateOfCharge > (1.0- batteryDOD));
 }
 
 bool Battery::isBatteryRechargable() {
     // check if the battery reaches the max level of charge,
     // disable the recharge request
-    this->IsBatteryExceedingThresholds();
+    this->isBatteryExceedingThresholds();
     return (batteryStateOfCharge <= batteryRechargeSOCUpperBound);
 }
 
 
-bool Battery::IsBatteryExceedingThresholds(){
+bool Battery::isBatteryExceedingThresholds(){
     if (this->batteryStateOfCharge >= this->batteryRechargeSOCUpperBound) {
         this->enableRecharge = false;
     }
@@ -128,15 +128,20 @@ bool Battery::IsBatteryExceedingThresholds(){
     return this->enableRecharge;
 }
 
+bool Battery::isBatteryOutsideBoundingThresholds() {
+    return this->batteryStateOfCharge >= this->batteryRechargeSOCUpperBound ||
+           this->batteryStateOfCharge <= this->batteryRechargeSOCLowerBound;
+}
+
 
 double Battery::getBatteryMaxDischarge(double timeStep) {
     // returns the max discharge in kWh
-    return (batteryMaxCapacity / batteryDischargeCRate) * timeStep / (double)3600.0;
+    return (batteryMaxCapacity * batteryDischargeCRate) * timeStep / (double)3600.0;
 }
 
 double Battery::getBatteryMaxRecharge(double timeStep){
     // returns the max recharge in kWh
-    return (batteryMaxCapacity / batteryRechargeCRate) * timeStep / (double)3600.0;
+    return (batteryMaxCapacity * batteryRechargeCRate) * timeStep / (double)3600.0;
 }
 bool Battery::isRechargeRequired() const {
     return enableRecharge;
