@@ -169,7 +169,7 @@ void NeTrainSim::setupGenerals(){
 
     // define the next page and simulate buttons
     QObject::connect(ui->pushButton_projectNext,
-                     &QPushButton::clicked, [=]() {
+                     &QPushButton::clicked, [=, this]() {
         // switch to the next tab page if it is not the last page
         int nextIndex = ui->tabWidget_project->currentIndex() + 1;
         if (nextIndex < ui->tabWidget_project->count() - 1) {
@@ -180,7 +180,7 @@ void NeTrainSim::setupGenerals(){
         }
     });
 
-    QObject::connect(ui->pushButton_pauseResume, &QPushButton::clicked, [=]() {
+    QObject::connect(ui->pushButton_pauseResume, &QPushButton::clicked, [=, this]() {
         if (ui->pushButton_pauseResume->isToggled()) {
             this->pauseSimulation();
         }
@@ -192,7 +192,7 @@ void NeTrainSim::setupGenerals(){
 
     // change next page button text
     QObject::connect(ui->tabWidget_project,
-                     &QTabWidget::currentChanged, [=](int index) {
+                     &QTabWidget::currentChanged, [=, this](int index) {
         // check if the last tab page is focused and update the button text accordingly
         if (index == ui->tabWidget_project->count() - 2) {
             ui->pushButton_projectNext->setText("Simulate");
@@ -1266,10 +1266,31 @@ void NeTrainSim::setupLocomotivesTable() {
         axleToolTip);
 
 
+    // Get ridoff the diesel-battery option
+    const int originalSize = sizeof(TrainTypes::powerTypeStrings) /
+                             sizeof(TrainTypes::powerTypeStrings[0]);
+
+    // Calculate the new size (original size - 1 for the excluded element)
+    const int newSize = originalSize - 1;
+    std::string newPowerTypeStrings[newSize];
+    {
+        // Index for the new array
+        int newIndex = 0;
+
+        // Copy elements except "Diesel-Battery Locomotive"
+        for(int i = 0; i < originalSize; ++i) {
+            if(i != 3) {
+                if (newIndex < newSize) { // Check to avoid out-of-bounds error
+                    newPowerTypeStrings[newIndex++] = TrainTypes::powerTypeStrings[i];
+                }
+            }
+        }
+    }
+
     ui->table_newLocomotive->
         setItemDelegateForColumn(8,
                                  new ComboBoxDelegate(
-                                     TrainTypes::powerTypeStrings,
+                                     newPowerTypeStrings,
                                      this)); // power type
     QString typeToolTip = "The Locomotive power train type.";
     ui->table_newLocomotive->horizontalHeaderItem(8)->setToolTip(
@@ -1701,6 +1722,9 @@ Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksTable()
                     ? ui->table_newLinks->item(i, 12)->text().
                       trimmed().toStdString() : "";
 
+            // if the region is defined, signalsAt must be defined
+            if (! region.empty() && signalsAt.empty()) { signalsAt = "NA"; }
+
             double lengthScale =
                 ui->doubleSpinBox_LengthScale->value();
             double speedScale =
@@ -1842,7 +1866,7 @@ Vector<Map<std::string, std::any>> NeTrainSim::getTrainsDataFromTables() {
                                       ? ui->table_newLocomotive->
                                         item(i, 8)->text().
                                         trimmed().toStdString() :
-                                      "Diesel-Electric Locomotive";
+                                      TrainTypes::powerTypeStrings[0];
             int type = TrainTypes::powerTypestrToInt(theType);
 
             Map<std::string, std::string> loco =

@@ -469,7 +469,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 	// Continue if the train is loaded and its start time is past the current simulation time
 	if ((train->trainStartTime <= this->simulationTime) && train->loaded) {
 
-		// holds track data and speed
+        // holds track data and speed
         tuple<Vector<double>, Vector<double>, Vector<double>, Vector<std::shared_ptr<NetLink>>> linksdata;
 		// Load path geometric data for each vehicle in the train (at mass centroid of each)
 		linksdata = this->loadTrainLinksData(train, false);
@@ -588,9 +588,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
             pair<Vector<double>, double> out = train->getTractivePower_W(stepSpd, stepAcc, train->currentResistanceForces_N);
             double averageSpd = (stepSpd + train->previousSpeed) / ((double)2.0);
             // calculate approximate energy required
-            double stepEC = train->getTotalEnergyConsumption(this->timeStep, averageSpd, stepAcc, out.first);
+            double stepEC = train->getTotalEnergyConsumptionAtWheel(this->timeStep, averageSpd, stepAcc, out.first);
             // calculate approximate max energy supplied at this time step
-            double maxEC = train->getMaxProvidedEnergy(this->timeStep).first;
+            double maxEC = train->getMaxProvidedEnergy(this->timeStep, out.first, stepSpd).first;
             // If the stepEC is larger than what the train can consume in a time step,
             // reduce the locomotives power
             if (stepEC > maxEC) {
@@ -679,7 +679,9 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
                        << train->getAverageLocomotivesBatteryStatus() * (double)100.0 << ","
                        << train->optimize << ","
                        << train->getAverageHybridGeneratorBatteryUsage().toString() << ","
-                       << train->getAverageHybridUsedGeneratorPowerPortion()
+                       << train->getAverageHybridUsedGeneratorPowerPortion() << ","
+                       << train->ActiveLocos[0]->hybridCost << ", "
+                       << train->ActiveLocos[0]->usedPowerPortion.second
                        << std::endl;
 
 			// write the step trajectory data to the file
