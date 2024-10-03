@@ -1,3 +1,0 @@
-TARGET = NeTrainSim
-
-DEFINES += MYAPP_TARGET=\\\"$${TARGET}\\\"
