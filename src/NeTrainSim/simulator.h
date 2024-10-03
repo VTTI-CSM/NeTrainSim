@@ -6,6 +6,7 @@
 #ifndef NeTrainSim_Simulator_h
 #define NeTrainSim_Simulator_h
 
+#include "export.h"
 #include <QObject>
 #include "qmutex.h"
 #include "qwaitcondition.h"
@@ -13,6 +14,7 @@
 #include "network/network.h"
 #include "network/netsignalgroupcontroller.h"
 #include "network/netsignalgroupcontrollerwithqueuing.h"
+#include "traindefinition/trainscommon.h"
 #include "util/vector.h"
 #include <string>
 #include <iostream>
@@ -34,7 +36,7 @@
  * @author Ahmed Aredah
  * @date 2/28/2023
  */
-class Simulator : public QObject {
+class NETRAINSIMCORE_EXPORT Simulator : public QObject {
     Q_OBJECT
 private:
 	/** (Immutable) the default time step */
@@ -56,7 +58,7 @@ private:
 
 private:
 	/** The trains */
-	Vector<std::shared_ptr<Train>> trains;
+    Vector<std::shared_ptr<Train>> trains = Vector<std::shared_ptr<Train>>();
 	/** The simulation time */
 	double simulationTime;
 	/** The simulation end time */
@@ -74,7 +76,7 @@ private:
 	/** The network */
 	Network* network;
 	/** The progress */
-	double progress;
+    double progress = -1;
 	/** True to run simulation endlessly */
 	bool runSimulationEndlessly;
 	/** True to export trajectory */
@@ -88,10 +90,15 @@ private:
     Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupControllerWithQueuing>> signalsGroups;
 	/** export individualized trains summary in the summary file*/
 	bool exportIndividualizedTrainsSummary = false;
+    /** control the simulator from outsider server */
+    bool mIsExternallyControlled = false;
+
+    bool mIsSimulatorRunning = true;
 
 public:
 
-    Vector<std::pair<std::string, std::string>> trainsSummaryData;
+    std::stringstream summaryTextData;
+    QVector<QPair<QString, QString>> trainsSummaryData;
 
 	/**
 	 * @brief Simulator constructor
@@ -105,6 +112,13 @@ public:
 	 */
     explicit Simulator(Network *theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
                        double simulatorTimeStep = DefaultTimeStep, QObject *parent = nullptr);
+
+    void moveObjectToThread(QThread *thread);
+
+    /**
+     * @brief setup the Trains on the network and the signals groups
+     */
+    void setUpTrains();
 
 	/**
 	 * @brief set simulator time step
@@ -157,6 +171,12 @@ public:
 	 * @param newfilename           the new file name of the summary file.
 	 */
 	void setSummaryFilename(string newfilename = DefaultSummaryEmptyFilename);
+
+    void addTrainToSimulation(std::shared_ptr<Train> train);
+
+    void addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains);
+
+    QJsonObject getCurrentStateAsJson();
 
 	/**
 	 * @brief setExportInstantaneousTrajectory
@@ -258,7 +278,7 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-	bool checkTrainsCollision();
+    bool checkTrainsCollision(Vector<std::shared_ptr<Train> > trainsList);
 
 	/**
 	 * Play train one time step
@@ -427,7 +447,7 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-	void runSignalsforTrains();
+    void runSignalsforTrains(Vector<std::shared_ptr<Train>> trainsList);
 
     /**
      * @brief checkNoTrainIsOnNetwork
@@ -636,19 +656,29 @@ public: signals:
     /**
      * @brief Signals that the simulation has finished.
      *
-     * @param summaryData   A vector containing the summary data of the simulation.
-     * @param trajectoryFile The file path of the generated trajectory file.
+     * @param results   Trains results of summary and trajectory data.
      */
-    void finishedSimulation(
-        const Vector<std::pair<std::string,
-                               std::string>>& summaryData,
-        const std::string& trajectoryFile);
+    void resultDataAvailable(TrainsResults &results);
 
     /**
      * @brief reports trains collision
      * @param msg is the message of trains collision
      */
     void trainsCollided(std::string& msg);
+
+    void simulationTimeAdvanced(double currentSimulatorTime);
+
+    void simulatorInitialized();
+
+    void simulatorPaused();
+
+    void simulatorResumed();
+
+    void simulatorEnded();
+
+    void simulationFinished();
+
+    void allTrainsReachedDestination();
 
 public slots:
     /**
@@ -658,6 +688,16 @@ public slots:
      * @date	2/28/2023
      */
     void runSimulation();
+
+    void generateSummaryData();
+
+    void exportSummaryToTXTFile();
+
+    void finalizeSimulation();
+
+    void runOneTimeStep();
+
+    void initializeSimulator();
 
     /**
      * @brief pause the simulation
@@ -669,10 +709,14 @@ public slots:
      */
     void resumeSimulation();
 
+    void stopSimulation();
+
 private:
     QMutex mutex;
     QWaitCondition pauseCond;
     bool pauseFlag;
+
+    time_t init_time;
 
 };
 #endif // !NeTrainSim_Simulator_h

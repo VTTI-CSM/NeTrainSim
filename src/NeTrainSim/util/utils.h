@@ -447,18 +447,21 @@ namespace Utils {
         return result;
     }
 
-    inline Vector<std::pair<std::string, std::string>> splitStringStream(std::stringstream& ss, const std::string& delimiter = ":") {
-        Vector<std::pair<std::string, std::string>> result;
+    inline QVector<QPair<QString, QString>> splitStringStream(std::stringstream& ss, const std::string& delimiter = ":") {
+        QVector<QPair<QString, QString>> result;
         std::string line;
 
         while (std::getline(ss, line)) {
             std::size_t delimiterPos = line.find(delimiter);
             if (delimiterPos != std::string::npos) {
-                std::string first = line.substr(0, delimiterPos);
-                std::string second = line.substr(delimiterPos + delimiter.size());
-                result.emplace_back(first, second);
+                QString first =
+                    QString::fromStdString(line.substr(0, delimiterPos));
+                QString second =
+                    QString::fromStdString(line.substr(delimiterPos + delimiter.size()));
+                result.push_back(QPair<QString, QString>(first, second));
             } else {
-                result.emplace_back(line, "");  // If delimiter is not found, add the entire line with an empty second part
+                QString l = QString::fromStdString(line);
+                result.push_back(QPair<QString, QString>(l, ""));  // If delimiter is not found, add the entire line with an empty second part
             }
         }
 

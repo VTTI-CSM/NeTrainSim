@@ -155,15 +155,10 @@ Vector<Map<std::string, std::any>> TrainsList::readTrainsFile(
     return trainsRecords;
 }
 
-Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
-    Vector<Map<std::string, std::any>> &trainRecords)
+std::shared_ptr<Train>
+TrainsList::generateTrain(Map<std::string, std::any> &trainRecord)
 {
-    // a vector of trains
-    Vector<std::shared_ptr<Train>> trains;
-    int trainID = 0; // train id starting from 0
-
-    // iterate over all the records
-    for (auto & trainRecord: trainRecords) {
+    try {
         // vectors for locos and cars
         Vector<std::shared_ptr<Locomotive>> locomotives;
         Vector<std::shared_ptr<Car>> cars;
@@ -205,9 +200,11 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
             }
         }
 
+        trainID++;
+
         // create a new train and add it to the trains list
-        trains.push_back(std::make_shared<Train>(
-            trainID,
+        return std::make_shared<Train>(
+            trainID - 1,
             std::any_cast<std::string>(trainRecord["UserID"]), // user id
             std::any_cast<Vector<int>>(trainRecord["TrainPathOnNodeIDs"]),//path
             std::any_cast<double>(trainRecord["LoadTime"]), // time
@@ -215,10 +212,23 @@ Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
             locomotives,              // locomotives
             cars,                     // cars
             std::any_cast<bool>(trainRecord["Optimize"])  // no optimization
-            ));
+            );
 
-        trainID++;
+    } catch (std::exception &e) {
+        throw e;
+    }
+}
 
+Vector<std::shared_ptr<Train>> TrainsList::generateTrains(
+    Vector<Map<std::string, std::any>> &trainRecords)
+{
+    // a vector of trains
+    Vector<std::shared_ptr<Train>> trains;
+
+
+    // iterate over all the records
+    for (auto & trainRecord: trainRecords) {
+        trains.push_back(std::move(generateTrain(trainRecord)));
     }
     return trains;
 }
@@ -279,6 +289,77 @@ bool TrainsList::writeTrainsFile(
 }
 
 
+Vector<Map<std::string, std::any>>
+TrainsList::readTrainsFromJSON(const QJsonObject& jsonObject)
+{
+    Vector<Map<std::string, std::any>> trainsRecords;
+
+    // Extract the trains array from the JSON object
+    QJsonArray trainsArray = jsonObject["Trains"].toArray();
+
+    // Iterate over each train in the array
+    for (const QJsonValue& trainValue : trainsArray) {
+        QJsonObject trainObject = trainValue.toObject();
+
+        // Read locomotives
+        Vector<Map<std::string, std::string>> locomotiveRecords;
+        QJsonArray locomotivesArray = trainObject["Locomotives"].toArray();
+        for (const QJsonValue& locoValue : locomotivesArray) {
+            QJsonObject locoObject = locoValue.toObject();
+            Map<std::string, std::string> locomotiveRecord;
+            for (const auto& key : locomotiveFieldsOrder) {
+                locomotiveRecord[key] =
+                    locoObject[QString::fromStdString(key)].toString().
+                                        toStdString();
+            }
+            locomotiveRecords.push_back(locomotiveRecord);
+        }
+
+        // Read cars
+        Vector<Map<std::string, std::string>> carRecords;
+        QJsonArray carsArray = trainObject["Cars"].toArray();
+        for (const QJsonValue& carValue : carsArray) {
+            QJsonObject carObject = carValue.toObject();
+            Map<std::string, std::string> carRecord;
+            for (const auto& key : carFieldsOrder) {
+                carRecord[key] =
+                    carObject[QString::fromStdString(key)].toString().
+                                 toStdString();
+            }
+            carRecords.push_back(carRecord);
+        }
+
+        // Read train path (an array of integers)
+        Vector<int> trainPath;
+        QJsonArray pathArray = trainObject["TrainPathOnNodeIDs"].toArray();
+        for (const QJsonValue& pathValue : pathArray) {
+            trainPath.push_back(pathValue.toInt());
+        }
+
+        // Create the train record
+        Map<std::string, std::any> trainRecord = {
+            {"UserID", trainObject["UserID"].toString().toStdString()},
+            {"TrainPathOnNodeIDs", trainPath},
+            {"LoadTime", trainObject["LoadTime"].toDouble()},
+            {"FrictionCoef", trainObject["FrictionCoef"].toDouble()},
+            {"Locomotives", locomotiveRecords},
+            {"Cars", carRecords},
+            {"Optimize", trainObject["Optimize"].toBool()}
+        };
+
+        // Add the train record to the list
+        trainsRecords.push_back(trainRecord);
+    }
+
+    return trainsRecords;
+}
+
+Vector<std::shared_ptr<Train>>
+TrainsList::ReadAndGenerateTrainsFromJSON(const QJsonObject& jsonObject)
+{
+    auto trainRecords = TrainsList::readTrainsFromJSON(jsonObject);
+    return TrainsList::generateTrains(trainRecords);
+}
 
 
 

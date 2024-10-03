@@ -38,45 +38,52 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFile(
                                          Error::nodesFileDoesNotExist)) +
                                      "\nNodes file does not exist!\n");
         }
+        // Read the entire file content into a string
+        std::string fileContent((std::istreambuf_iterator<char>(file)),
+                                std::istreambuf_iterator<char>());
 
-        Vector<std::string> lines;
-        std::string line;
-        while (std::getline(file, line))
-        {
-            lines.push_back(line);
-        }
-        file.close();
+        file.close(); // Close the file as we no longer need it
 
-        if (lines.size() == 0) {
+        // Pass the file content to the readNodesFileContent function
+        return readNodesFileContent(fileContent);
+}
+
+Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFileContent(
+    const std::string& fileContent) {
+
+    // Split the file content into lines
+    Vector<std::string> lines = Utils::split(fileContent, '\n', true);
+
+    if (lines.empty()) {
+        throw std::runtime_error(std::string("Error: ") +
+                                 std::to_string(
+                                     static_cast<int>(
+                                         Error::emptyNodesFile)) +
+                                 "\nNodes File is empty!\n");
+    }
+
+    try {
+        std::vector<std::string> scales = Utils::split(lines[1],
+                                                       '\t',
+                                                       true);
+        if (scales.size() < 3) {
             throw std::runtime_error(std::string("Error: ") +
                                      std::to_string(
                                          static_cast<int>(
-                                         Error::emptyNodesFile)) +
-                                     "\nNodes File is empty!\n");
+                                             Error::wrongNodesFileStructure)) +
+                                     "\nBad nodes file structure!\n");
         }
-
-    try {
-            std::vector<std::string> scales = Utils::split(lines[1],
-                                                           '\t',
-                                                           true);
-            if (scales.size() < 3) {
-                throw std::runtime_error(std::string("Error: ") +
-                                         std::to_string(
-                                             static_cast<int>(
-                                                 Error::wrongNodesFileStructure)) +
-                                         "\nBad nodes file structure!\n");
-            }
-            std::string N = scales[0];
-            std::string scaleX = scales[1];
-            std::string scaleY = scales[2];
+        std::string N = scales[0];
+        std::string scaleX = scales[1];
+        std::string scaleY = scales[2];
 
         Vector<Map<std::string, std::string>> records;
 
-        for (int i = 2; i < lines.size(); i++)
+        for (unsigned long long i = 2; i < lines.size(); i++)
         {
             std::vector<std::string> vals = Utils::split(lines[i],
-                                                             '\t',
-                                                             true);
+                                                         '\t',
+                                                         true);
             // load all the values in order
             if (vals.size() <
                 nodeFilekeys.size() - nodeFileIgnoreRecordsWrite.size()) {
@@ -115,12 +122,11 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFile(
         throw std::runtime_error(std::string("Error: ") +
                                  std::to_string(
                                      static_cast<int>(
-                                     Error::wrongNodesFileStructure)) +
+                                         Error::wrongNodesFileStructure)) +
                                  "\nBad nodes file structure!\n");
 
     }
 }
-
 
 /**
  * Reads links file
@@ -146,35 +152,47 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFile(
  */
 Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
     const std::string& fileName) {
-        if (fileName.empty()) {
-            throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(
-                                     static_cast<int>(
-                                     Error::linksFileDoesNotExist)) +
-                                     "\nLinks File does not exist!");
-        }
-        std::ifstream file(fileName);
-        if (!file.good()) {
-            throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(
-                                         static_cast<int>(
-                                         Error::linksFileDoesNotExist)) +
-                                     "\nLinks File does not exist!");
-        }
-        std::string line;
-        Vector<std::string> lines;
-        while (std::getline(file, line)) {
-            lines.push_back(line);
-        }
-        file.close();
 
-        if (lines.size() == 0) {
-            throw std::runtime_error(std::string("Error: ") +
-                                     std::to_string(
-                                         static_cast<int>(
-                                         Error::emptyLinksFile)) +
-                                     "\nLinks File is empty!");
-        }
+    if (fileName.empty()) {
+        throw std::runtime_error(std::string("Error: ") +
+                                 std::to_string(
+                                     static_cast<int>(
+                                         Error::linksFileDoesNotExist)) +
+                                 "\nLinks File does not exist!");
+    }
+    // Open file to read
+    std::ifstream file(fileName);
+    if (!file.good()) {
+        throw std::runtime_error(std::string("Error: ") +
+                                 std::to_string(
+                                     static_cast<int>(
+                                         Error::linksFileDoesNotExist)) +
+                                 "\nLinks File does not exist!");
+    }
+    // Read the entire file content into a string
+    std::string fileContent((std::istreambuf_iterator<char>(file)),
+                            std::istreambuf_iterator<char>());
+
+    file.close(); // Close the file as we no longer need it
+
+    // Pass the file content to the readNodesFileContent function
+    return readLinksFileContent(fileContent);
+
+}
+
+Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFileContent(
+    const std::string& fileContent) {
+
+    // Split the file content into lines
+    Vector<std::string> lines = Utils::split(fileContent, '\n', true);
+
+    if (lines.empty()) {
+        throw std::runtime_error(std::string("Error: ") +
+                                 std::to_string(
+                                     static_cast<int>(
+                                         Error::emptyNodesFile)) +
+                                 "\nLinks File is empty!\n");
+    }
 
     try {
         // Read Scale values
@@ -198,7 +216,7 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
         std::string speedScale = scales[2];
 
 
-        for (int i = 2; i < lines.size(); i++) {
+        for (unsigned long long i = 2; i < lines.size(); i++) {
             std::vector<std::string> vals = Utils::split(lines[i], '\t', true);
             // load all the values in order
 
@@ -222,8 +240,8 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
             {
                 throw std::runtime_error(std::string("Error: ") +
                                          std::to_string(
-                                            static_cast<int>(
-                                             Error::wrongNodesFileStructure)) +
+                                             static_cast<int>(
+                                                 Error::wrongNodesFileStructure)) +
                                          "\nBad nodes file structure!\n");
             }
 
@@ -248,7 +266,7 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
         throw std::runtime_error(std::string("Error: ") +
                                  std::to_string(
                                      static_cast<int>(
-                                     Error::wrongLinksFileStructure)) +
+                                         Error::wrongLinksFileStructure)) +
                                  "\nBad links file structure!\n");
     }
 }

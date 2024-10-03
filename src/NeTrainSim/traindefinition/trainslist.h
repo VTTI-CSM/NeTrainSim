@@ -1,13 +1,16 @@
 #ifndef NeTrainSim_trainsList_h
 #define NeTrainSim_trainsList_h
 
+#include "../export.h"
 #include <any>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include "../util/vector.h"
-#include <regex>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QFile>
+
 #include "train.h"
 
 namespace TrainsList {
@@ -29,6 +32,8 @@ static Vector<std::string> carFieldsOrder = {"Count",
                                              "GrossWeight",
                                              "TareWeight",
                                              "Type"};
+
+static int trainID = 0; // train id starting from 0
 /**
      * @file trainsList.h
      * @brief This file declares functions related to managing a list of trains.
@@ -51,16 +56,26 @@ static Vector<std::string> carFieldsOrder = {"Count",
      * @param fileName The filename of the trains file to read.
      * @returns A Vector of train records.
      */
-Vector<Map<std::string, std::any>> readTrainsFile(const std::string& fileName);
+Vector<Map<std::string, std::any>> NETRAINSIMCORE_EXPORT
+readTrainsFile(const std::string& fileName);
 
 /**
-     * Generates a Vector of trains from the given train records.
+     * Generate a train from the given train records.
      *
      * @param trainRecords The train records to generate trains from.
-     * @returns A Vector of shared pointers to Train objects.
+     * @returns A shared pointer to Train object.
      */
-Vector<std::shared_ptr<Train>> generateTrains(
-    Vector<Map<std::string, std::any>> &trainRecords);
+std::shared_ptr<Train> NETRAINSIMCORE_EXPORT
+generateTrain(Map<std::string, std::any> &trainRecord);
+
+/**
+ * Generates a Vector of trains from the given train records.
+ *
+ * @param trainRecords The train records to generate trains from.
+ * @returns A Vector of shared pointers to Train objects.
+ */
+Vector<std::shared_ptr<Train>> NETRAINSIMCORE_EXPORT
+generateTrains(Vector<Map<std::string, std::any>> &trainRecords);
 
 /**
      * Reads a trains file, generates trains from the train records,
@@ -69,8 +84,8 @@ Vector<std::shared_ptr<Train>> generateTrains(
      * @param fileName The filename of the trains file to read.
      * @returns A Vector of shared pointers to Train objects.
      */
-Vector<std::shared_ptr<Train>> ReadAndGenerateTrains(
-    const std::string& fileName);
+Vector<std::shared_ptr<Train>> NETRAINSIMCORE_EXPORT
+ReadAndGenerateTrains(const std::string& fileName);
 
 /**
      * Writes the train records to a trains file.
@@ -79,10 +94,16 @@ Vector<std::shared_ptr<Train>> ReadAndGenerateTrains(
      * @param fileName The filename of the trains file to write to.
      * @returns True if the write operation is successful, false otherwise.
      */
-bool writeTrainsFile(Vector<Map<std::string, std::any>> trains,
-                     const std::string& fileName);
+bool NETRAINSIMCORE_EXPORT
+writeTrainsFile(Vector<Map<std::string, std::any>> trains,
+                const std::string& fileName);
 
 
+Vector<Map<std::string, std::any>> NETRAINSIMCORE_EXPORT
+readTrainsFromJSON(const QJsonObject& jsonObject);
+
+Vector<std::shared_ptr<Train>> NETRAINSIMCORE_EXPORT
+ReadAndGenerateTrainsFromJSON(const QJsonObject& jsonObject);
 
 };
 

@@ -4,20 +4,16 @@
  * Implements the simulator class
  */
 #include "simulator.h"
-#include "QtCore/qstandardpaths.h"    // Include for standard path access
 #include "network/netsignalgroupcontroller.h" // Include for controlling network signal groups
 #include "network/netsignalgroupcontrollerwithqueuing.h"
-#include <filesystem> // Include for filesystem operations
-#include <cstdio>
-#include <thread>    // Include for multi-threading functionality
 #include <chrono>    // Include for time-related operations
 #include <ctime>
 #include <locale>
 #include "util/utils.h"
-#include <filesystem>
 #include <cmath>
 #include <memory>    // Include for smart pointers
 #include "util/error.h" // Include for error handling utilities
+#include "VersionConfig.h"
 
 // Function to get the path to the home directory.
 // If the path is not empty, it is returned, otherwise a runtime exception is thrown with an error message.
@@ -63,11 +59,7 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 
 	// Initialization of member variables
     this->network = theNetwork;
-	this->trains = networkTrains;
-	// Definition of train paths for the simulator
-	this->setTrainSimulatorPath();
-	this->setTrainsPathNodes();
-	this->setTrainPathLength();
+    trains = std::move(networkTrains);
 	// Setting simulation parameters
 	this->simulationEndTime = DefaultEndTime;
     this->timeStep = simulatorTimeStep;
@@ -80,6 +72,8 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 	else {
 		this->runSimulationEndlessly = false;
 	}
+
+    setUpTrains();
 
 	// Set output location to home directory
 	this->outputLocation = getHomeDirectory();
@@ -96,13 +90,33 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 
 	this->exportTrajectory = false;
 
-	// Define signals groups based on the length of the longest train
-	auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
-										  [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
-											  return t1->totalLength < t2->totalLength;
-										  });
+}
 
-	defineSignalsGroups((*max_train)->totalLength);
+void Simulator::moveObjectToThread(QThread *thread) {
+    // Move Simulator object itself to the thread
+    this->moveToThread(thread);
+
+    // Move each Ship in mShips to the new thread
+    for (auto& train : trains) {
+        if (train) {
+            train->moveObjectToThread(thread);
+        }
+    }
+}
+
+void Simulator::setUpTrains() {
+    // Definition of train paths for the simulator
+    this->setTrainSimulatorPath();
+    this->setTrainsPathNodes();
+    this->setTrainPathLength();
+
+    // Define signals groups based on the length of the longest train
+    auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
+                                      [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
+                                          return t1->totalLength < t2->totalLength;
+                                      });
+
+    defineSignalsGroups((*max_train)->totalLength);
 }
 
 // Setter for the time step of the simulation
@@ -123,6 +137,24 @@ void Simulator::setPlotFrequency(int newPlotFrequency) {
 // Setter for the output folder location
 void Simulator::setOutputFolderLocation(string newOutputFolderLocation) {
 	this->outputLocation = QString::fromStdString(newOutputFolderLocation);
+}
+
+void Simulator::addTrainToSimulation(std::shared_ptr<Train> train) {
+
+    // Lock the mutex to protect the mShips list
+    QMutexLocker locker(&mutex);
+
+    trains.push_back(train);
+}
+
+void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains)
+{
+    // Lock the mutex to protect the mShips list
+    QMutexLocker locker(&mutex);
+
+    for (auto &train: trains) {
+        trains.push_back(train);
+    }
 }
 
 // Setter for the summary file name
@@ -228,6 +260,13 @@ void Simulator::openSummaryFile() {
 // The checkAllTrainsReachedDestination function checks if all trains have reached their destinations.
 // If a train has not reached its destination, it returns false; otherwise, it returns true.
 bool Simulator::checkAllTrainsReachedDestination() {
+
+    // give an opportunity for the external controller to add trains
+    if (trains.empty() && mIsExternallyControlled) {
+        return false;
+    }
+
+
 	for (std::shared_ptr<Train>& t : (this->trains)) {
 		if (t->outOfEnergy) {
 			continue;
@@ -237,6 +276,26 @@ bool Simulator::checkAllTrainsReachedDestination() {
 		}
 	}
 	return true;
+}
+
+QJsonObject Simulator::getCurrentStateAsJson()
+{
+    QMutexLocker locker(&mutex);
+
+    QJsonObject json;
+    QJsonArray trainArray;
+
+    for (const auto& train : trains) {
+        if (train) {
+            trainArray.append(train->getCurrentStateAsJson());
+        }
+    }
+    json["Train"] = trainArray;
+
+    json["CurrentSimulationTime"] = simulationTime;
+    json["Progress"] = progress;
+
+    return json;
 }
 
 // The loadTrain function sets up a train for simulation by setting its starting point,
@@ -596,9 +655,7 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
 				std::get<1>(criticalPointsDefinition), std::get<2>(criticalPointsDefinition));
 		}
 		// handle when the train reaches its destinations
-		if ((std::round(train->trainTotalPathLength * 1000.0) / 1000.0) <= (std::round(train->travelledDistance * 1000.0) / 1000.0)) {
-			train->travelledDistance = train->trainTotalPathLength;
-			train->reachedDestination = true;
+        if (train->reachedDestination) {
 			train->calcTrainStats(freeFlowSpeed, currentFreeFlowSpeed, this->timeStep, train->currentFirstLink->region);
 		}
 		// handles when the train still has distance to travel
@@ -747,6 +804,7 @@ Vector<Vector<Vector < std::shared_ptr<NetNode>>>> Simulator::getConflictTrainsI
 	if (this->trains.size() < 2) {return trainSignalsGroups;}
 	vector<pair<std::shared_ptr<Train>, std::shared_ptr<Train>>> ts;
 	for (int i = 0; i < this->trains.size(); ++i) {
+        if (this->trains.at(i)->reachedDestination) { continue; }
 		// if the train has the same nodes as the previous train, skip it
 		if (i > 0){
 			int prevI = i - 1;
@@ -997,11 +1055,62 @@ Vector<std::pair<double, double>> Simulator::getStartEndPoints(std::shared_ptr<T
 	return startEndPoints;
 }
 
-void Simulator::runSimulation() {
-	// define trajectory file and set it up
-	if (this->exportTrajectory) {
-		this->openTrajectoryFile();
-		std::stringstream exportLine;
+void Simulator::runOneTimeStep() {
+
+    Vector<std::shared_ptr<Train>> trainsToSimulate;
+
+    // Lock the mutex only for the duration of accessing or modifying the trains list
+    {
+        QMutexLocker locker(&mutex);
+        trainsToSimulate = trains;
+    }
+
+    for (std::shared_ptr <Train>& t : (trainsToSimulate)) {
+        if (t->reachedDestination) { continue;  }
+
+        if (t->optimize){
+            if (t->lookAheadCounterToUpdate <= 0) {
+                t->resetTrainLookAhead();
+                this->PlayTrainVirtualStepsAStarOptimization(t, this->timeStep);
+            }
+        }
+
+        this->playTrainOneTimeStep(t);
+    }
+
+    if (plotFrequency > 0.0 && ((int(this->simulationTime) * 10) % (plotFrequency * 10)) == 0) {
+        Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints;
+        for (std::shared_ptr <Train>& t : (trainsToSimulate)) {
+            if (! t->loaded) { continue; }
+            trainsStartEndPoints.push_back(std::make_pair(t->trainUserID, t->startEndPoints));
+        }
+        emit this->plotTrainsUpdated(trainsStartEndPoints);
+    }
+
+
+    this->runSignalsforTrains(trainsToSimulate);
+
+    this->checkTrainsCollision(trainsToSimulate);
+
+    this->simulationTime += this->timeStep;
+
+    emit simulationTimeAdvanced(simulationTime);
+
+}
+
+void Simulator::initializeSimulator()
+{
+    connect(this, &Simulator::simulationFinished,
+            this, [this]() {
+        generateSummaryData();
+        exportSummaryToTXTFile();
+        finalizeSimulation();
+    });
+
+    // define trajectory file and set it up
+    if (this->exportTrajectory) {
+        this->openTrajectoryFile();
+        std::stringstream exportLine;
         exportLine << "TrainNo,TStep_s,TravelledDistance_m,Acceleration_mps2,"
                    << "Speed_mps,LinkMaxSpeed_mps,"
                    << "EnergyConsumption_KWH,DelayTimeToEach_s,DelayTime_s,"
@@ -1009,11 +1118,18 @@ void Simulator::runSimulation() {
                    << "ResistanceForces_N,CurrentUsedTractivePower_kw,"
                    << "GradeAtTip_Perc,CurvatureAtTip_Perc,"
                    << "FirstLocoNotchPosition,optimizationEnabled\n";
-		this->trajectoryFile << exportLine.str();
-	}
+        this->trajectoryFile << exportLine.str();
+    }
 
-    time_t init_time = std::chrono::system_clock::to_time_t(
+    init_time = std::chrono::system_clock::to_time_t(
         std::chrono::system_clock::now());
+
+    emit simulatorInitialized();
+}
+
+void Simulator::runSimulation() {
+
+    initializeSimulator();
 
     while (this->simulationTime <= this->simulationEndTime ||
            this->runSimulationEndlessly)
@@ -1023,62 +1139,60 @@ void Simulator::runSimulation() {
         if (pauseFlag) pauseCond.wait(&mutex);
         mutex.unlock();
 
+        // Check if the simulation should continue running
+        if (!mIsSimulatorRunning) {
+            break;
+        }
+
 		if (this->checkAllTrainsReachedDestination()) {
+
+            emit allTrainsReachedDestination();
+
+            if (mIsExternallyControlled) {
+                // Pause the simulation to wait for new ships to be added
+                qDebug() << "All ships have reached their "
+                            "destination, pausing simulation.";
+                this->pauseSimulation();
+                continue;
+            }
 			break;
 		}
-		for (std::shared_ptr <Train>& t : (this->trains)) {
-			if (t->reachedDestination) { continue;  }
 
-			if (t->optimize){
-				if (t->lookAheadCounterToUpdate <= 0) {
-					t->resetTrainLookAhead();
-					this->PlayTrainVirtualStepsAStarOptimization(t, this->timeStep);
-				}
-			}
+        runOneTimeStep();
 
-			this->playTrainOneTimeStep(t);
-		}
-
-        if (plotFrequency > 0.0 && ((int(this->simulationTime) * 10) % (plotFrequency * 10)) == 0) {
-            Vector<std::pair<std::string, Vector<std::pair<double,double>>>> trainsStartEndPoints;
-            for (std::shared_ptr <Train>& t : (this->trains)) {
-                if (! t->loaded) { continue; }
-                trainsStartEndPoints.push_back(std::make_pair(t->trainUserID, t->startEndPoints));
-            }
-            emit this->plotTrainsUpdated(trainsStartEndPoints);
+        // ##################################################################
+        // #             start: show progress on console                    #
+        // ##################################################################
+        Vector<double> trainPathLengths;
+        Vector<double> travelledDistances;
+        for (std::shared_ptr <Train>& t : this->trains) {
+            trainPathLengths.push_back(t->trainTotalPathLength);
+            travelledDistances.push_back(t->travelledDistance);
         }
-// ##################################################################
-// #             start: show progress on console                    #
-// ##################################################################
-		Vector<double> trainPathLengths;
-		Vector<double> travelledDistances;
-		for (std::shared_ptr <Train>& t : this->trains) {
-			trainPathLengths.push_back(t->trainTotalPathLength);
-			travelledDistances.push_back(t->travelledDistance);
-		}
-		this->runSignalsforTrains();
-		double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
-		double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
+        double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
+        double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
 
 		this->ProgressBar(trainsAv, totalTrainAv);
 
-		this->checkTrainsCollision();
-
-		this->simulationTime += this->timeStep;
-
 	}
+
+    emit simulationFinished();
+}
+
+void Simulator::generateSummaryData() {
+
 // ##################################################################
 // #                       start: summary file                      #
 // ##################################################################
 	time_t fin_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     double difTime = difftime(fin_time, init_time);
     trainsSummaryData.clear();
-	std::stringstream exportLine;
+    summaryTextData.clear();
     tuple<double, double, double, double, double> networkStats = this->network->getNetworkStats();
 
-	exportLine << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
+    summaryTextData << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n"
         << "NeTrainSim SIMULATION SUMMARY\n"
-        << "Version: " << MYAPP_VERSION << "\n"
+        << "Version: " << NeTrainSim_VERSION << "\n"
         << "Simulation Time: " << Utils::formatDuration(difTime) << " (dd:hh:mm:ss)\n"
         << "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n\n"
         << "+ NETWORK STATISTICS:\n"
@@ -1114,7 +1228,7 @@ void Simulator::runSimulation() {
         << "....................................................\n\n"
         << "\n";
 
-	exportLine
+    summaryTextData
         << "+ AGGREGATED/ACCUMULATED TRAINS STATISTICS:\n"
         << "  |-> Train Information:\n"
         << "    |-> Locomotives Summary:\n"
@@ -1237,11 +1351,11 @@ void Simulator::runSimulation() {
         }
         );
 
-    exportLine
+    summaryTextData
         << "            |_ Total Fuel Consumed (litters)                                    \x1D : " << (tankComp).toString() << "\n";
     if (tankComp.get_keys().size() == 1) {
 
-        exportLine
+        summaryTextData
         << "            |_ Average Fuel Consumed per Net Weight (litterx10^3/ton)           \x1D : " << Utils::thousandSeparator((tankComp.sumValues() * (double)1000.0) /
                                                                                                                             std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                             [](double total, const auto& train) {
@@ -1253,7 +1367,7 @@ void Simulator::runSimulation() {
                                                                                                                                                 return total + train->getTrainTotalTorque();
                                                                                                                                      })) << "\n";
     }
-    exportLine
+    summaryTextData
         << "        |_ Battery Consumption:\n"
         << "            |_ Total Energy Consumed (kW.h)                                     \x1D : " << Utils::thousandSeparator(std::accumulate(this->trains.begin(), this->trains.end(), 0.0,
                                                                                                                                                       [](double total, const auto& train) {
@@ -1435,40 +1549,56 @@ void Simulator::runSimulation() {
 						}
 					}
 				}
-                exportLine << trainStat.str();
-                exportLine << "..............\n";
+                summaryTextData << trainStat.str();
+                summaryTextData << "..............\n";
 
         }
 	}
 
-	exportLine.imbue(locale());
-	// setup the summary file
-    this->openSummaryFile();
-    this->summaryFile << Utils::replaceAll(exportLine.str(), "\x1D", " ");
-// ##################################################################
-// #                       end: summary file                      #
-// ##################################################################
-	this->summaryFile.close();
-	this->trajectoryFile.close();
 
-    trainsSummaryData = Utils::splitStringStream(exportLine, "\x1D :");
+
+    summaryTextData.imbue(locale());
+    trainsSummaryData = Utils::splitStringStream(summaryTextData, "\x1D :");
 
     std::string trajectoryFilePath = "";
     if (this->exportTrajectory) {
         trajectoryFilePath = QDir(this->outputLocation).filePath(QString::fromStdString(this->trajectoryFilename)).toStdString();
     }
 
-    emit this->finishedSimulation(trainsSummaryData, trajectoryFilePath);
+    QString sfp =
+        QDir(this->outputLocation).filePath(QString::fromStdString(this->summaryFileName));
+
+    TrainsResults tr =
+        TrainsResults(trainsSummaryData,
+                      sfp,
+                      QString::fromStdString(trajectoryFilePath));
+
+    emit this->resultDataAvailable(tr);
 
 }
 
-bool Simulator::checkTrainsCollision() {
+void Simulator::exportSummaryToTXTFile() {
+
+    // setup the summary file
+    this->openSummaryFile();
+    this->summaryFile << Utils::replaceAll(summaryTextData.str(), "\x1D", " ");
+    // ##################################################################
+    // #                       end: summary file                      #
+    // ##################################################################
+    this->summaryFile.close();
+}
+
+void Simulator::finalizeSimulation() {
+    this->trajectoryFile.close();
+}
+
+bool Simulator::checkTrainsCollision(Vector<std::shared_ptr<Train>> trainsList) {
 	Vector<std::pair<std::shared_ptr<Train>, std::shared_ptr<Train>>> comb;
-	for (int i = 0; i < this->trains.size() - 1; i++) {
-		for (int j = i + 1; j < this->trains.size(); j++) {
-			std::shared_ptr < Train> tt = this->trains.at(i);
-            comb.push_back( std::make_pair(this->trains.at(i),
-                                          this->trains.at(j)));
+    for (int i = 0; i < trainsList.size() - 1; i++) {
+        for (int j = i + 1; j < trainsList.size(); j++) {
+            std::shared_ptr < Train> tt = trainsList.at(i);
+            comb.push_back( std::make_pair(trainsList.at(i),
+                                          trainsList.at(j)));
 		}
 	}
 	for (auto &t : comb) {
@@ -1503,6 +1633,7 @@ bool Simulator::checkTrainsCollision() {
 
 void Simulator::setTrainSimulatorPath() {
 	for (std::shared_ptr <Train>& t : this->trains) {
+        if (t->loaded) { continue; }
 		// set the train path ids to the simulator ids instead of the users ids
 		t->trainPath = this->network->getSimulatorTrainPath(t->trainPath);
 
@@ -1535,6 +1666,7 @@ void Simulator::setTrainSimulatorPath() {
 
 void Simulator::setTrainsPathNodes() {
 	for (std::shared_ptr<Train>& t : this->trains) {
+        if (t->loaded) { continue; }
 		for (int tpn : t->trainPath) {
 			t->trainPathNodes.push_back(this->network->getNodeByID(tpn));
 		}
@@ -1542,6 +1674,7 @@ void Simulator::setTrainsPathNodes() {
 }
 void Simulator::setTrainPathLength() {
 	for (std::shared_ptr <Train>& t : this->trains) {
+        if (t->loaded) { continue; }
 		t->trainTotalPathLength = this->network->getFullPathLength(t);
 	}
 }
@@ -1553,14 +1686,14 @@ void Simulator::turnOnAllSignals() {
 }
 
 
-void Simulator::runSignalsforTrains() {
+void Simulator::runSignalsforTrains(Vector<std::shared_ptr<Train>> trainsList) {
     // turn on temporarly all signals in the network
     // the signals that should be turned off will be processed based on
     // the trains locations
 	this->turnOnAllSignals();
 
     // loop over all train in the simulator
-	for (auto& train : this->trains) {
+    for (auto& train : trainsList) {
         // if the train is not yet loaded or reached destination already, or
         // it ran out of fuel, skip this train
         if (!train->loaded || train->reachedDestination || train->offloaded)
@@ -1768,7 +1901,6 @@ void Simulator::ProgressBar(double current, double total, int bar_length) {
     int progressPercent = (int)(fraction * 100);
 
 
-//#ifdef AS_CMD
     std::stringstream bar;
     for (int i = 0; i < progressValue; i++) { bar << '-'; }
     bar << '>';
@@ -1776,10 +1908,9 @@ void Simulator::ProgressBar(double current, double total, int bar_length) {
 
     char ending = (current == total) ? '\n' : '\r';
 
-    std::cout << "Progress: [" << bar.str() << "] " << progressPercent << "%" << ending;
-//#endif
-
     if (progressPercent != this->progress) {
+        std::cout << "Progress: [" << bar.str() << "] " << progressPercent << "%" << ending;
+
         this->progress = progressPercent;
         emit this->progressUpdated(this->progress);
     }
@@ -1789,6 +1920,8 @@ void Simulator::pauseSimulation() {
     mutex.lock();
     pauseFlag = true;
     mutex.unlock();
+
+    emit simulatorPaused();
 }
 
 void Simulator::resumeSimulation() {
@@ -1796,4 +1929,16 @@ void Simulator::resumeSimulation() {
     pauseFlag = false;
     mutex.unlock();
     pauseCond.wakeAll(); // This will wake up the thread
+
+    emit simulatorResumed();
+}
+
+void Simulator::stopSimulation() {
+    mutex.lock();
+    mIsSimulatorRunning = false;  // Stop the simulation loop
+    pauseFlag = false; // Ensure the simulation is not paused
+    mutex.unlock();
+    pauseCond.wakeAll();  // Wake up any paused threads
+
+    emit simulatorEnded();
 }

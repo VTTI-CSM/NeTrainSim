@@ -76,6 +76,12 @@ Train::~Train(){
     Train::NumberOfTrainsInSimulator--;
 }
 
+void Train::moveObjectToThread(QThread *thread)
+{
+    // Move Simulator object itself to the thread
+    this->moveToThread(thread);
+}
+
 void Train::setOptimization(bool enable,
                             double optimizationSpeedImportanceNormalizedWeight,
                             int runOptimizationEvery,
@@ -686,6 +692,12 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
 
     // update the throttle level of the train
     this->updateLocNotch();
+
+    if ((std::round(trainTotalPathLength * 1000.0) / 1000.0) <= (std::round(travelledDistance * 1000.0) / 1000.0)) {
+        travelledDistance = trainTotalPathLength;
+        reachedDestination = true;
+        emit destinationReached();
+    }
 }
 
 void Train::immediateStop(double timestep){
@@ -765,6 +777,24 @@ double Train::getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds) {
         return 0.0;
     }
 }
+
+#ifdef BUILD_SERVER_ENABLED
+QVector<ContainerCore::Container *> Train::getLoadedContainers() const {
+    QVector<ContainerCore::Container*> containerList;
+    for (auto &container : mLoadedContainers.containers()) {
+        containerList.append(container);
+    }
+    return containerList;
+}
+
+void Train::addContainer(ContainerCore::Container* container) {
+    if (container) {
+        mLoadedContainers.addContainer(container->getContainerID(), container);
+    }
+}
+
+
+#endif
 // ##################################################################
 // #                   end: train statistics                        #
 // ##################################################################
@@ -1234,6 +1264,37 @@ bool Train::canProvideEnergy(double &EC, double &timeStep) {
     }
     return this->canProvideEnergyFromTendersOnly(locoRestEC, timeStep);
 
+}
+
+QJsonObject Train::getCurrentStateAsJson() const {
+    QJsonObject jsonState;
+
+    // Add basic information
+    jsonState["trainUserID"] = QString::fromStdString(trainUserID);
+    jsonState["totalLength"] = totalLength;
+    jsonState["totalMass"] = totalMass / 1000.0;  // Convert kg to tons
+    jsonState["travelledDistance"] = travelledDistance;
+    jsonState["cumEnergyStat"] = cumEnergyStat;
+    jsonState["isLoaded"] = loaded;
+    jsonState["isOn"] = isOn;
+    jsonState["outOfEnergy"] = outOfEnergy;
+    jsonState["reachedDestination"] = reachedDestination;
+
+    // Add cumulative statistics
+    jsonState["totalEnergyConsumed"] = totalEConsumed;
+    jsonState["totalEnergyRegenerated"] = totalERegenerated;
+    jsonState["cumulativeDelayTimeStat"] = cumDelayTimeStat;
+    jsonState["cumulativeMaxDelayTimeStat"] = cumMaxDelayTimeStat;
+    jsonState["cumulativeStoppedStat"] = cumStoppedStat;
+
+    // Add train state
+    jsonState["currentSpeed"] = currentSpeed;
+    jsonState["currentAcceleration"] = currentAcceleration;
+    jsonState["currentTractiveForce"] = currentTractiveForce;
+    jsonState["currentResistanceForces"] = currentResistanceForces;
+    jsonState["currentUsedTractivePower"] = currentUsedTractivePower;
+
+    return jsonState;
 }
 
 // ##################################################################
