@@ -48,6 +48,13 @@ public:
         : Base(initList.begin(), initList.end()) {}
 
     /**
+     * Constructor that takes a std::map.
+     *
+     * @param  map  The std::map to copy from.
+     */
+    Map(const map_type& map) : Base(map) {}
+
+    /**
      * Gets the keys
      *
      * @author	Ahmed Aredah
