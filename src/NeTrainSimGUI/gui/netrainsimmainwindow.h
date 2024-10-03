@@ -6,14 +6,13 @@
 #ifndef NETRAINSIMMAINWINDOW_H
 #define NETRAINSIMMAINWINDOW_H
 
-#include "qtrpt.h"
+#include "QtRPT/qtrpt.h"
 #include "qlineedit.h"
 #include "gui/aboutwindow.h"
 #include "gui/customplot.h"
 #include <QMainWindow>
 #include "../NeTrainSim/util/map.h"
 #include <any>
-#include <iostream>
 //#include "qtrpt/QtRPT/qtrpt.h"
 #include "simulationworker.h"
 #include "util/configurationmanager.h"
@@ -176,7 +175,7 @@ private slots:
      * @author	Ahmed Aredah
      * @date	6/7/2023
      */
-    void handleSimulationFinished(Vector<std::pair<string, string> > summaryData, std::string trajectoryFile);
+    void handleSimulationFinished(TrainsResults &results);
 
     /**
      * Slot for updating the 'visualize trains' combo box.
@@ -356,7 +355,7 @@ private:
 
     // Vector of pairs to store the summary data of the trains after simulation.
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
-    Vector<std::pair<std::string, std::string>> trainsSummaryData;
+    QVector<QPair<QString, QString>> trainsSummaryData;
 
     // holds the summary report
     QtRPT * report = nullptr;

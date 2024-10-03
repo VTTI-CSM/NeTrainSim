@@ -2356,22 +2356,20 @@ void NeTrainSim::simulate() {
 
 // Slot to handle the simulation finished signal
 void NeTrainSim::handleSimulationFinished(
-    Vector<std::pair<std::string,
-                     std::string>> summaryData,
-    std::string trajectoryFile)
+    TrainsResults &results)
 {
     // enable the results window
     ui->tabWidget_project->setTabEnabled(4, true);
     ui->pushButton_projectNext->setEnabled(true);
     this->ui->progressBar->setVisible(false);
     this->showNotification("Simulation finished Successfully!");
-    this->trainsSummaryData = summaryData;
+    this->trainsSummaryData = results.summaryData;
     this->thread->quit();
     this->thread = nullptr;
     delete this->worker;
     this->worker = nullptr;
     this->showReport();
-    this->showDetailedReport(QString::fromStdString(trajectoryFile));
+    this->showDetailedReport(results.trajectoryFileName);
     ui->tabWidget_project->setCurrentIndex(4);
     ui->pushButton_pauseResume->setVisible(false);
 }
@@ -2549,13 +2547,11 @@ void NeTrainSim::setValue(const int recNo, const QString paramName,
 {
     if (paramName == "Description") {
 //        if (reportPage == 0) {
-        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].
-                                            first);
+        paramValue = this->trainsSummaryData[recNo].first;
 //        }
     }
     if (paramName == "Value") {
-        paramValue = QString::fromStdString(this->trainsSummaryData[recNo].
-                                            second);
+        paramValue = this->trainsSummaryData[recNo].second;
     }
 
     if (paramName == "Project") {
