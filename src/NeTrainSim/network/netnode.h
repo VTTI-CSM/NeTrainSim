@@ -18,6 +18,7 @@
 #ifndef NeTrainSim_NetNode_h
 #define NeTrainSim_NetNode_h
 
+#include "../export.h"
 #include <string>
 #include <iostream>
 #include "../util/vector.h"
@@ -32,7 +33,7 @@ using namespace std;
  * @class NetNode
  * @brief The NetNode class represents a network node in a simulation.
  */
-class NetNode {
+class NETRAINSIMCORE_EXPORT NetNode {
 private:
     static unsigned int NumberOfNodesInSimulator; /**< The number of nodes in the simulator. */
 

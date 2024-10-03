@@ -3,13 +3,9 @@
 
 
 // Get all required libraries and files
+#include "../export.h"
 #include <cmath>
-#include <fstream>
-#include <sstream>
-#include <regex>
-#include <cstdlib>
 #include "../util/vector.h"
-#include <unordered_set>
 #include <set>
 #include "netnode.h"
 #include "netlink.h"
@@ -24,7 +20,7 @@
  * @author	Ahmed
  * @date	2/14/2023
  */
-class Network {
+class NETRAINSIMCORE_EXPORT Network {
 private:
     /** The file nodes */
     Vector<std::shared_ptr<NetNode>> theFileNodes;
@@ -165,7 +161,7 @@ public:
      */
     Vector<int> getSimulatorTrainPath(Vector<int> userDefinedTrainPath) {
         Vector<int> simulatorTrainPath;
-        for (int i = 0; i < userDefinedTrainPath.size(); i++) {
+        for (unsigned long long i = 0; i < userDefinedTrainPath.size(); i++) {
             simulatorTrainPath.push_back(getSimulatorNodeIDByUserID((
                 userDefinedTrainPath)[i]));
         }
@@ -382,13 +378,13 @@ public:
         }
 
         // Traverse the train path
-        for (int i = 0; i < train->trainPath.size() - 1; i++) {
+        for (unsigned long long i = 0; i < train->trainPath.size() - 1; i++) {
             // Check if travelled distance is between the cumulative
             // lengths of consecutive links
             if (travelledDistance > train->linksCumLengths[i] &&
                 (i == train->trainPath.size() - 2 ||
                       travelledDistance <= train->linksCumLengths[i+1])) {
-                int nextI = i + 1;
+                unsigned long long nextI = i + 1;
 
                 // Get the start node and the link on which the train is
                 // currently on
@@ -559,7 +555,7 @@ public:
     double getFullPathLength(std::shared_ptr <Train> train) {
         double l = 0.0;
         int prevI = 0;
-        for (int i = 1; i < train->trainPath.size(); i++) {
+        for (unsigned long long i = 1; i < train->trainPath.size(); i++) {
             prevI = i - 1;
             l += getLinkByStartandEndNodeID(train, train->trainPath.at(prevI),
                                             train->trainPath.at(i),
@@ -584,10 +580,10 @@ public:
     std::shared_ptr <NetLink> getLinkByStartNodeID(
                 const std::shared_ptr <Train> train,
                 int startNodeID) {
-        int i = train->trainPath.index(startNodeID);
+        unsigned long long i = train->trainPath.index(startNodeID);
         if (i < train->trainPath.size() - 1) {
-            int indx = i + 1;
-            int EndNodeID = train->trainPath.at(indx);
+            unsigned long long indx = i + 1;
+            unsigned long long EndNodeID = train->trainPath.at(indx);
             return getLinkByStartandEndNodeID(train, startNodeID, EndNodeID);
         }
         return nullptr;
@@ -634,9 +630,9 @@ public:
      *          links in the train's path.
      */
     Vector<double> generateCumLinksLengths(std::shared_ptr<Train> train) {
-        int n = train->trainPath.size();
+        auto n = train->trainPath.size();
         Vector<double> linksCumLengths(n, 0);
-        for (int i = 1; i < n; i++) {
+        for (unsigned long long i = 1; i < n; i++) {
             linksCumLengths[i] =
                 getDistanceToSpecificNodeFromStart(train,
                                                    train->trainPath.at(i));
@@ -695,7 +691,7 @@ public:
                                                  double &travelledDistance,
                                                  int &previousNodeID) {
         int nextI = -1;
-        for (int i = train->trainPath.index(previousNodeID);
+        for (unsigned long long i = train->trainPath.index(previousNodeID);
              i < train->trainPath.size(); i++) {
             if (train->linksCumLengths.at(i) > travelledDistance) {
                 nextI = i;
@@ -901,7 +897,7 @@ private:
      * @returns	The signals.
      */
     Vector<std::shared_ptr<NetSignal>> generateSignals() {
-        Vector<std::shared_ptr<NetSignal>> networkSignals;
+        Vector<std::shared_ptr<NetSignal>> netSignals;
         //signals.reserve(links.size());
         for (const std::shared_ptr<NetLink> &l : this->links) {
             if (l->trafficSignalNo != 0 && l->trafficSignalNo != 10001) {
@@ -915,7 +911,7 @@ private:
                         std::shared_ptr<NetSignal> sharedSignal =
                             std::make_shared<NetSignal>(networkSignal);
                         l->toLoc->addSignal(sharedSignal);
-                        networkSignals.push_back(sharedSignal);
+                        netSignals.push_back(sharedSignal);
                     }
                     // if the link should have a signal at start point
                     if (l->trafficSignalAtEnd.exist(l->fromLoc->userID)) {
@@ -926,7 +922,7 @@ private:
                         std::shared_ptr<NetSignal> sharedSignal =
                             std::make_shared<NetSignal>(networkSignal);
                         l->fromLoc->addSignal(sharedSignal);
-                        networkSignals.push_back(sharedSignal);
+                        netSignals.push_back(sharedSignal);
                     }
                 }
                 else {
@@ -939,7 +935,7 @@ private:
                         std::shared_ptr<NetSignal> sharedSignal1 =
                             std::make_shared<NetSignal>(networkSignal1);
                         l->toLoc->addSignal(sharedSignal1);
-                        networkSignals.push_back(sharedSignal1);
+                        netSignals.push_back(sharedSignal1);
                     }
                     // if the link should have a signal at start point
                     if (l->trafficSignalAtEnd.exist(l->fromLoc->userID)) {
@@ -950,7 +946,7 @@ private:
                         std::shared_ptr<NetSignal> sharedSignal2 =
                             std::make_shared<NetSignal>(networkSignal2);
                         l->fromLoc->addSignal(sharedSignal2);
-                        networkSignals.push_back(sharedSignal2);
+                        netSignals.push_back(sharedSignal2);
                         //networkSignals.push_back(sharedSignal2);
                     }
                 }
@@ -960,7 +956,7 @@ private:
                 l->toLoc->isDepot = true;
             }
         }
-        return networkSignals;
+        return netSignals;
     }
 
     /**
@@ -1049,7 +1045,7 @@ private:
     double getDistanceToSpecificNodeFromStart(std::shared_ptr<Train> train,
                                               int nodeID) {
         double l = 0;
-        for (int i = 1; i < train->trainPath.size(); i++) {
+        for (unsigned long long i = 1; i < train->trainPath.size(); i++) {
             int prevI = i - 1;
             l += getLinkByStartandEndNodeID(train,
                                             train->trainPath.at(prevI),

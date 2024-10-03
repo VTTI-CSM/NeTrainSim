@@ -6,7 +6,7 @@
 #ifndef NeTrainSim_Train_h
 #define NeTrainSim_Train_h
 
-
+#include "../export.h"
 #include <iostream>
 #include "../util/vector.h"
 #include "car.h"
@@ -14,7 +14,12 @@
 #include "../util/map.h"
 #include "qobject.h"
 #include <utility>
-#include <variant>
+#include <QJsonObject>
+#include <QJsonValue>
+
+#ifdef BUILD_SERVER_ENABLED
+#include "containermap.h"
+#endif
 
 /**
  * A net node.
@@ -39,7 +44,7 @@ using namespace std;
  * @author	Ahmed Aredah
  * @date	2/28/2023
  */
-class Train : public QObject {
+class NETRAINSIMCORE_EXPORT Train : public QObject {
     Q_OBJECT
     /***********************************************
     *              variables declaration           *
@@ -278,6 +283,8 @@ public:
           int optimizationLookaheadSteps = DefaultLookAheadCounter);
 
     ~Train();
+
+    void moveObjectToThread(QThread *thread);
 
     /**
      * @brief setOptimization   enable or disable the single train trajectory optimization
@@ -1058,6 +1065,14 @@ public:
      */
     void resetPowerRestriction();
 
+#ifdef BUILD_SERVER_ENABLED
+    QVector<ContainerCore::Container*> getLoadedContainers() const;
+    void addContainer(ContainerCore::Container* container);
+#endif
+
+    QJsonObject getCurrentStateAsJson() const;
+
+
 // ##################################################################
 // #                    end: statistics calculations                #
 // ##################################################################
@@ -1075,7 +1090,7 @@ public:
      */
     friend ostream& operator<<(ostream& ostr, Train& train);
 
-    private:
+private:
 
         /**
          * \brief Gets acceleration an 11
@@ -1231,7 +1246,11 @@ public:
          *
          * @returns	The acceleration an2.
          */
-        double get_acceleration_an2(double gap, double minGap, double speed, double leaderSpeed, double T_s, double frictionCoef);
+        double get_acceleration_an2(double gap, double minGap, double speed,
+                                    double leaderSpeed, double T_s,
+                                    double frictionCoef);
+
+
 
     public:
     signals:
@@ -1253,6 +1272,14 @@ public:
          */
         void slowSpeedOrStopped(std::string msg);
 
+        void destinationReached();
+
+    private:
+#ifdef BUILD_SERVER_ENABLED
+        ContainerCore::ContainerMap mLoadedContainers
+            = ContainerCore::ContainerMap(this);
+        double reachedDestinationTime = 0;
+#endif
 };
 
 #endif // !NeTrainSim_Train_h
