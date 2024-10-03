@@ -54,7 +54,7 @@ SimulationWorker::SimulationWorker(
     }
     this->sim->setExportIndividualizedTrainsSummary(exportAllTrainsSummary);
 
-    connect(this->sim, &Simulator::finishedSimulation, this,
+    connect(this->sim, &Simulator::resultDataAvailable, this,
             &SimulationWorker::onSimulationFinished);
     connect(this->sim, &Simulator::plotTrainsUpdated, this,
             &SimulationWorker::onTrainsCoordinatesUpdated);
@@ -74,11 +74,8 @@ void SimulationWorker::onTrainsCoordinatesUpdated(
     emit trainsCoordinatesUpdated(trainsStartEndPoints);
 }
 
-void SimulationWorker::onSimulationFinished(
-    const Vector<std::pair<std::string,
-                           std::string>>& summaryData,
-    const std::string& trajectoryFile) {
-    emit simulationFinished(summaryData, trajectoryFile);
+void SimulationWorker::onSimulationFinished(TrainsResults &results) {
+    emit simulationFinished(results);
 }
 
 void SimulationWorker::doWork() {

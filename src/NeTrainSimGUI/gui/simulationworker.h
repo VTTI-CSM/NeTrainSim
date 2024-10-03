@@ -67,9 +67,7 @@ signals:
      * @param summaryData The summary data of the simulation.
      * @param trajectoryFile The trajectory file path of the simulation.
      */
-    void simulationFinished(
-        const Vector<std::pair<std::string, std::string>>& summaryData,
-        const std::string& trajectoryFile);
+    void simulationFinished(TrainsResults &results);
 
     /**
      * @brief Signal emitted when the coordinates of trains are updated.
@@ -121,10 +119,7 @@ public slots:
      * @param summaryData The summary data of the simulation.
      * @param trajectoryFile The trajectory file path of the simulation.
      */
-    void onSimulationFinished(
-        const Vector<std::pair<std::string,
-                               std::string>> &summaryData,
-        const string &trajectoryFile);
+    void onSimulationFinished(TrainsResults &results);
 
     /**
      * @brief Slot called to start the simulation work.
