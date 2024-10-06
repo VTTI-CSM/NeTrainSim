@@ -12,6 +12,10 @@
 static const int MAX_RECONNECT_ATTEMPTS = 5;
 static const int RECONNECT_DELAY_SECONDS = 5;  // Delay between reconnection attempts
 
+static const std::string ExchangeName = "CargoNetSim.Exchange";
+static const std::string QueueName = "NeTrainSim.CommandQueue";
+static const std::string RecevingRoutingKey = "CargoNetSim.SimulationController.Command.NeTrainSim";
+static const std::string PublishingRoutingKey = "CargoNetSim.SimulationController.Response.NeTrainSim";
 
 SimulationServer::SimulationServer(QObject *parent)
     : QObject(parent), mWorkerBusy(false) {
@@ -91,6 +95,11 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
             retryCount++;
             std::this_thread::sleep_for(
                 std::chrono::seconds(RECONNECT_DELAY_SECONDS));
+
+            // Reset pointers before retry
+            mRabbitMQConnection = nullptr;
+            socket = nullptr;
+
             continue;  // Retry
         }
 
@@ -123,15 +132,46 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
             retryCount++;
             std::this_thread::sleep_for(
                 std::chrono::seconds(RECONNECT_DELAY_SECONDS));
+
+            // Reset pointers before retry
+            mRabbitMQConnection = nullptr;
+            socket = nullptr;
+
             continue;  // Retry
         }
 
+        // Declare the exchange for simulation
+        amqp_exchange_declare_ok_t *exchange_declare_res =
+            amqp_exchange_declare(
+                mRabbitMQConnection,
+                1,
+                amqp_cstring_bytes(ExchangeName.c_str()), // Exchange name
+                amqp_cstring_bytes("direct"),        // Exchange type
+                0,                                   // passive (false)
+                1,                                   // durable (true)
+                0,                                   // auto-delete (false)
+                0,                                   // internal (false)
+                amqp_empty_table                     // no additional arguments
+                );
+
+        if (!exchange_declare_res) {
+            qCritical() << "Error: Unable to declare exchange "
+                        << ExchangeName.c_str() << ". Retrying...";
+            retryCount++;
+            std::this_thread::sleep_for(
+                std::chrono::seconds(RECONNECT_DELAY_SECONDS));
+            continue;
+        }
+
         // Declare the queue to listen to commands
-        amqp_queue_declare(mRabbitMQConnection, 1,
-                           amqp_cstring_bytes("netrainsim_commands"), 0, 0, 0,
-                           1, amqp_empty_table);
-        amqp_rpc_reply_t queueRes = amqp_get_rpc_reply(mRabbitMQConnection);
-        if (queueRes.reply_type != AMQP_RESPONSE_NORMAL) {
+        amqp_queue_declare(
+            mRabbitMQConnection, 1,
+            amqp_cstring_bytes(QueueName.c_str()),
+            0, 0, 0, 1, amqp_empty_table);
+
+        if (amqp_get_rpc_reply(mRabbitMQConnection).reply_type
+            != AMQP_RESPONSE_NORMAL)
+        {
             qCritical() << "Error: Unable to declare RabbitMQ queue. "
                            "Retrying...";
             retryCount++;
@@ -140,10 +180,42 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
             continue;  // Retry
         }
 
+        // Bind the queue to the exchange with a routing key
+        amqp_queue_bind(
+            mRabbitMQConnection,
+            1,
+            amqp_cstring_bytes(QueueName.c_str()), // Queue name
+            amqp_cstring_bytes(ExchangeName.c_str()),        // Exchange name
+            amqp_cstring_bytes(RecevingRoutingKey.c_str()),  // Routing key
+            amqp_empty_table                                 // Arguments
+            );
+
+        amqp_rpc_reply_t queueRes = amqp_get_rpc_reply(mRabbitMQConnection);
+        if (queueRes.reply_type != AMQP_RESPONSE_NORMAL) {
+            qCritical() << "Error: Unable to bind queue to exchange.  "
+                           "Retrying...";
+            retryCount++;
+            std::this_thread::sleep_for(
+                std::chrono::seconds(RECONNECT_DELAY_SECONDS));
+            continue;  // Retry
+        }
+
         // Listen for messages
-        amqp_basic_consume(mRabbitMQConnection, 1,
-                           amqp_cstring_bytes("netrainsim_commands"),
-                           amqp_empty_bytes, 0, 0, 0, amqp_empty_table);
+        amqp_basic_consume(
+            mRabbitMQConnection, 1,
+            amqp_cstring_bytes(QueueName.c_str()),
+            amqp_empty_bytes, 0, 0, 0, amqp_empty_table);
+
+        if (amqp_get_rpc_reply(mRabbitMQConnection).reply_type
+            != AMQP_RESPONSE_NORMAL)
+        {
+            qCritical() << "Error: Failed to start consuming "
+                           "from the queue. Retrying...";
+            retryCount++;
+            std::this_thread::sleep_for(
+                std::chrono::seconds(RECONNECT_DELAY_SECONDS));
+            continue;  // Retry
+        }
 
         qInfo() << "Simulator initialized successfully. Awaiting commands from "
                 << hostname.c_str() << ":" << port
@@ -346,7 +418,7 @@ void SimulationServer::onWorkerReady() {
     }
 }
 
-void SimulationServer::sendRabbitMQMessage(const QString &queue,
+void SimulationServer::sendRabbitMQMessage(const QString &routingKey,
                                            const QJsonObject &message) {
     QByteArray messageData = QJsonDocument(message).toJson();
 
@@ -356,11 +428,13 @@ void SimulationServer::sendRabbitMQMessage(const QString &queue,
 
     int publishStatus =
         amqp_basic_publish(mRabbitMQConnection, 1, amqp_empty_bytes,
-                           amqp_cstring_bytes(queue.toUtf8().constData()),
+                           amqp_cstring_bytes(routingKey.toUtf8().constData()),
                            0, 0, nullptr, messageBytes);
 
     if (publishStatus != AMQP_STATUS_OK) {
-        qCritical() << "Failed to publish message to RabbitMQ queue:" << queue;
+        qCritical() << "Failed to publish message to "
+                       "RabbitMQ with routing key:"
+                    << routingKey;
     }
 }
 
@@ -370,7 +444,8 @@ void SimulationServer::onSimulationCreated(QString networkName) {
     jsonMessage["event"] = "simulationCreated";
     jsonMessage["host"] = "NeTrainSim";
     jsonMessage["network"] = networkName;
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 void SimulationServer::onSimulationsPaused(QVector<QString> networkNames) {
@@ -387,7 +462,8 @@ void SimulationServer::onSimulationsPaused(QVector<QString> networkNames) {
     // Add the network names to the JSON message
     jsonMessage["networkNames"] = jsonNetworkNames;
 
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 void SimulationServer::onSimulationsResumed(QVector<QString> networkNames) {
@@ -404,7 +480,8 @@ void SimulationServer::onSimulationsResumed(QVector<QString> networkNames) {
     // Add the network names to the JSON message
     jsonMessage["networkNames"] = jsonNetworkNames;
 
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
@@ -421,7 +498,8 @@ void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
     // Add the network names to the JSON message
     jsonMessage["networkNames"] = jsonNetworkNames;
 
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 // void SimulationServer::onTrainAddedToSimulator(const QString trainID) {
@@ -429,19 +507,25 @@ void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
 //     jsonMessage["event"] = "trainAddedToSimulator";
 //     jsonMessage["trainID"] = trainID;
 //     jsonMessage["host"] = "NeTrainSim";
-//     sendRabbitMQMessage("client_queue", jsonMessage);
+//     sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+//                         jsonMessage);
 // }
 
-void SimulationServer::onTrainReachedDestination(const QJsonObject trainStatus) {
+void SimulationServer::
+    onTrainReachedDestination(const QJsonObject trainStatus)
+{
     QJsonObject jsonMessage;
     jsonMessage["event"] = "trainReachedDestination";
     jsonMessage["state"] = trainStatus;
     jsonMessage["host"] = "NeTrainSim";
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 
-void SimulationServer::onSimulationResultsAvailable(QMap<QString, TrainsResults>& results) {
+void SimulationServer::
+    onSimulationResultsAvailable(QMap<QString, TrainsResults>& results)
+{
     QJsonObject jsonMessage;
     jsonMessage["event"] = "simulationResultsAvailable";
 
@@ -453,7 +537,8 @@ void SimulationServer::onSimulationResultsAvailable(QMap<QString, TrainsResults>
 
     jsonMessage["results"] = resultData;
     jsonMessage["host"] = "NeTrainSim";
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }
 
 void SimulationServer::onErrorOccurred(const QString &errorMessage) {
@@ -461,5 +546,6 @@ void SimulationServer::onErrorOccurred(const QString &errorMessage) {
     jsonMessage["event"] = "errorOccurred";
     jsonMessage["errorMessage"] = errorMessage;
     jsonMessage["host"] = "NeTrainSim";
-    sendRabbitMQMessage("client_queue", jsonMessage);
+    sendRabbitMQMessage(PublishingRoutingKey.c_str(),
+                        jsonMessage);
 }

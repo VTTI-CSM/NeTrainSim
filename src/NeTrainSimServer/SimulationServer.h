@@ -34,7 +34,7 @@ public:
     explicit SimulationServer(QObject *parent = nullptr);
     ~SimulationServer();
     void startRabbitMQServer(const std::string &hostname, int port);
-    void sendRabbitMQMessage(const QString &queue,
+    void sendRabbitMQMessage(const QString &routingKey,
                              const QJsonObject &message);
     void stopRabbitMQServer();  // stop RabbitMQ server cleanly
 
