@@ -12,6 +12,11 @@ void SimulatorAPI::
                                    double timeStep,
                                    Mode mode)
 {
+    // Set locale to US format (comma for thousands separator, dot for decimals)
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    std::locale::global(std::locale("en_US.UTF-8"));
+    std::cout.imbue(std::locale());
+
     if (mData.contains(networkName)) {
         emit errorOccurred("A network with name " + networkName + " exists!");
         return;
