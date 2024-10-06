@@ -37,11 +37,13 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 ## How to Cite
 
 ```bibtex
-@inproceedings{aredah2023netrainsim,
-  title={NeTrainSim: A Network Freight Train Simulator for Estimating Energy/Fuel Consumption},
-  author={Aredah, Ahmed and Fadhloun, Karim and Rakha, Hesham and List, George},
-  booktitle={102nd Transportation Research Board Annual Meeting},
-  year={2023}
+@article{aredah2024netrainsim,
+  title={NeTrainSim: a network-level simulator for modeling freight train longitudinal motion and energy consumption},
+  author={Aredah, Ahmed S and Fadhloun, Karim and Rakha, Hesham A},
+  journal={Railway Engineering Science},
+  pages={1--19},
+  year={2024},
+  publisher={Springer}
 }
 ```
 
