@@ -43,7 +43,8 @@ NeTrainSim is an open-source train simulation software that allows users to simu
   journal={Railway Engineering Science},
   pages={1--19},
   year={2024},
-  publisher={Springer}
+  publisher={Springer},
+  doi={https://doi.org/10.1007/s40534-024-00331-x}
 }
 ```
 
