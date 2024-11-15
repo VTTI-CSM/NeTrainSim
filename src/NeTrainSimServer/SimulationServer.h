@@ -2,6 +2,9 @@
 #ifndef SIMULATIONSERVER_H
 #define SIMULATIONSERVER_H
 
+#include "qmutex.h"
+#include "qwaitcondition.h"
+#include "traindefinition/trainscommon.h"
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QObject>
@@ -15,7 +18,14 @@
 #include <QQueue>
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
-#include "simulatorapi.h"
+#ifdef _WIN32
+struct timeval {
+    long tv_sec;  // seconds
+    long tv_usec; // microseconds
+};
+#else
+#include <sys/time.h>  // Unix-like systems
+#endif
 
 // Define a typedef for QMap<QString, QString>
 using TrainParamsMap = QMap<QString, QVariant>;
@@ -44,6 +54,7 @@ signals:
     void simulationResultsAvailable(
         const QVector<std::pair<QString, QString>>& summaryData,
         const QString& trajectoryFile);
+    void stopConsuming();
 
 private slots:
     void onDataReceivedFromRabbitMQ(const QJsonObject &message,
@@ -53,21 +64,29 @@ private slots:
     void onSimulationsPaused(QVector<QString> networkNames);
     void onSimulationsResumed(QVector<QString> networkNames);
     void onSimulationsEnded(QVector<QString> networkNames);
-    // void onTrainAddedToSimulator();
+    void onSimulationAdvanced(
+         QMap<QString, double> networkNamesSimulationTimePairs);
+    void onTrainsAddedToSimulator(const QString networkName,
+                                  const QVector<QString> trainIDs);
     void onTrainReachedDestination(QJsonObject networkTrainsPairs);
     void onSimulationResultsAvailable(QMap<QString, TrainsResults>& results);
+    void onContainersAddedToTrain(QString networkName, QString trainID);
     void onErrorOccurred(const QString &errorMessage);
 
 private:
     std::string mHostname;
     int mPort;
-
-    void processCommand(const QJsonObject &jsonMessage);
-
+    QMutex mMutex;  // Mutex for protecting access to mWorkerBusy
+    bool mWorkerBusy;  // To control the server run loop
+    QThread *mRabbitMQThread;
+    QWaitCondition mWaitCondition;
     amqp_connection_state_t mRabbitMQConnection;
 
-    bool mWorkerBusy;  // To control the server run loop
-    QQueue<QJsonObject> mCommandQueue;  // Queue to store incoming commands
+    void processCommand(const QJsonObject &jsonMessage);
+    void consumeFromRabbitMQ();  // Function for consuming RabbitMQ messages
+    void startConsumingMessages();
+    void reconnectToRabbitMQ();
+
 };
 
 #endif // SIMULATIONSERVER_H

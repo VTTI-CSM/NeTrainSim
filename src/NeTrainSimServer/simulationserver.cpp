@@ -7,16 +7,18 @@
 #include "qjsonarray.h"
 #include "qobjectdefs.h"
 #include <QNetworkInterface>
+#include <thread>
 #include "traindefinition/trainslist.h"
+#include "simulatorapi.h"
 
 static const int MAX_RECONNECT_ATTEMPTS = 5;
 static const int RECONNECT_DELAY_SECONDS = 5;  // Delay between reconnection attempts
 
 static const std::string EXCHANGE_NAME = "CargoNetSim.Exchange";
-static const std::string COMMAND_QUEUE_NAME = "NeTrainSim.CommandQueue";
-static const std::string RESPONSE_QUEUE_NAME = "NeTrainSim.ResponseQueue";
-static const std::string RECEIVING_ROUTING_KEY = "CargoNetSim.SimulationController.Command.NeTrainSim";
-static const std::string PUBLISHING_ROUTING_KEY = "CargoNetSim.SimulationController.Response.NeTrainSim";
+static const std::string COMMAND_QUEUE_NAME = "CargoNetSim.CommandQueue.NeTrainSim";
+static const std::string RESPONSE_QUEUE_NAME = "CargoNetSim.ResponseQueue.NeTrainSim";
+static const std::string RECEIVING_ROUTING_KEY = "CargoNetSim.Command.NeTrainSim";
+static const std::string PUBLISHING_ROUTING_KEY = "CargoNetSim.Response.NeTrainSim";
 
 SimulationServer::SimulationServer(QObject *parent)
     : QObject(parent), mWorkerBusy(false) {
@@ -24,19 +26,14 @@ SimulationServer::SimulationServer(QObject *parent)
     // Register the typedef with the meta-object system
     qRegisterMetaType<TrainParamsMap>("TrainParamsMap");
 
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
+    auto &simAPI = SimulatorAPI::InteractiveMode::getInstance();
+    connect(&simAPI,
             &SimulatorAPI::simulationCreated, this,
             &SimulationServer::onSimulationCreated);
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
-            &SimulatorAPI::simulationsPaused, this,
-            &SimulationServer::onSimulationsPaused);
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
-            &SimulatorAPI::simulationsResumed, this,
-            &SimulationServer::onSimulationsResumed);
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
-            &SimulatorAPI::simulationsEnded, this,
-            &SimulationServer::onSimulationsEnded);
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
+    connect(&simAPI,
+            &SimulatorAPI::simulationAdvanced, this,
+            &SimulationServer::onSimulationAdvanced);
+    connect(&simAPI,
             &SimulatorAPI::trainsReachedDestination, this,
             [this](QMap<QString, QVector<QString>> trainNetworkPair) {
                 QJsonObject nets;
@@ -55,21 +52,33 @@ SimulationServer::SimulationServer(QObject *parent)
                 }
                 onTrainReachedDestination(nets);
             });
-    connect(&SimulatorAPI::ContinuousMode::getInstance(),
+    connect(&simAPI,
             &SimulatorAPI::simulationResultsAvailable, this,
             &SimulationServer::onSimulationResultsAvailable);
+    connect(&simAPI,
+            &SimulatorAPI::trainAddedToSimulation, this,
+            &SimulationServer::onTrainsAddedToSimulator);
+    connect(&simAPI,
+            &SimulatorAPI::containersAddedToTrain, this,
+            &SimulationServer::onContainersAddedToTrain);
 }
 
 SimulationServer::~SimulationServer() {
     stopRabbitMQServer();  // Ensure server stops cleanly before destroying
+    if (mRabbitMQThread) {
+        mRabbitMQThread->quit();
+        mRabbitMQThread->wait();
+    }
 }
 
 void SimulationServer::startRabbitMQServer(const std::string &hostname,
                                            int port) {
     mHostname = hostname;
     mPort = port;
+    reconnectToRabbitMQ();
+}
 
-
+void SimulationServer::reconnectToRabbitMQ() {
     int retryCount = 0;
 
     // Show app details
@@ -104,10 +113,10 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
             continue;  // Retry
         }
 
-        int status = amqp_socket_open(socket, hostname.c_str(), port);
+        int status = amqp_socket_open(socket, mHostname.c_str(), mPort);
         if (status != AMQP_STATUS_OK) {
             qCritical() << "Error: Failed to open RabbitMQ socket on"
-                        << hostname.c_str() << ":" << port << ". Retrying...";
+                        << mHostname.c_str() << ":" << mPort << ". Retrying...";
             retryCount++;
             std::this_thread::sleep_for(
                 std::chrono::seconds(RECONNECT_DELAY_SECONDS));
@@ -147,7 +156,7 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
                 mRabbitMQConnection,
                 1,
                 amqp_cstring_bytes(EXCHANGE_NAME.c_str()), // Exchange name
-                amqp_cstring_bytes("direct"),        // Exchange type
+                amqp_cstring_bytes("topic"),         // Exchange type
                 0,                                   // passive (false)
                 1,                                   // durable (true)
                 0,                                   // auto-delete (false)
@@ -168,7 +177,7 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
         amqp_queue_declare(
             mRabbitMQConnection, 1,
             amqp_cstring_bytes(COMMAND_QUEUE_NAME.c_str()),
-            0, 0, 0, 1, amqp_empty_table);
+            0, 1, 0, 0, amqp_empty_table);
 
         if (amqp_get_rpc_reply(mRabbitMQConnection).reply_type
             != AMQP_RESPONSE_NORMAL)
@@ -201,11 +210,11 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
             continue;  // Retry
         }
 
-        // Declare the response queue to listen to commands
+        // Declare the response queue to send commands
         amqp_queue_declare(
             mRabbitMQConnection, 1,
             amqp_cstring_bytes(RESPONSE_QUEUE_NAME.c_str()),
-            0, 0, 0, 1, amqp_empty_table);
+            0, 1, 0, 0, amqp_empty_table);
 
         if (amqp_get_rpc_reply(mRabbitMQConnection).reply_type
             != AMQP_RESPONSE_NORMAL)
@@ -256,21 +265,24 @@ void SimulationServer::startRabbitMQServer(const std::string &hostname,
         }
 
         qInfo() << "Simulator initialized successfully. Awaiting commands from "
-                << hostname.c_str() << ":" << port
+                << mHostname.c_str() << ":" << mPort
                 << ". The system is now fully operational.";
-        break;  // Successful connection
+
+        startConsumingMessages(); // Start consuming
+
+
+        return;  // Successful connection
 
     }
 
-    if (retryCount == MAX_RECONNECT_ATTEMPTS) {
-        qCritical() << "Error: Failed to establish a connection to "
-                       "RabbitMQ after"
-                    << MAX_RECONNECT_ATTEMPTS
-                    << "attempts. Server initialization aborted.";
-    }
+    qCritical() << "Error: Failed to establish a connection to "
+                   "RabbitMQ after"
+                << MAX_RECONNECT_ATTEMPTS
+                << "attempts. Server initialization aborted.";
 }
 
 void SimulationServer::stopRabbitMQServer() {
+    emit stopConsuming();
     // If the connection is already closed, just return
     if (mRabbitMQConnection == nullptr) {
         qDebug() << "RabbitMQ connection already closed.";
@@ -291,44 +303,103 @@ void SimulationServer::stopRabbitMQServer() {
     qDebug() << "RabbitMQ server stopped cleanly.";
 }
 
+void SimulationServer::startConsumingMessages() {
+    if (mRabbitMQThread) {
+        mRabbitMQThread->quit();
+        mRabbitMQThread->wait();
+        mRabbitMQThread->deleteLater();  // Ensure proper deletion
+    }
+
+    // Move the consuming logic to a separate thread
+    mRabbitMQThread = new QThread(this);
+    connect(mRabbitMQThread , &QThread::started, this,
+            &SimulationServer::consumeFromRabbitMQ);
+    connect(this, &SimulationServer::stopConsuming,
+            mRabbitMQThread , &QThread::quit);
+    connect(mRabbitMQThread , &QThread::finished,
+            mRabbitMQThread , &QThread::deleteLater);
+    mRabbitMQThread->start();
+}
+
+void SimulationServer::consumeFromRabbitMQ() {
+    while (true) {
+        // Ensure the RabbitMQ connection is valid
+        if (!mRabbitMQConnection) {
+            qCritical() << "RabbitMQ connection is not valid. "
+                           "Exiting consume loop.";
+            break;
+        }
+
+        {
+            QMutexLocker locker(&mMutex);
+            if (mWorkerBusy) {
+                mWaitCondition.wait(&mMutex, 100);  // Wait for 100ms or until notified
+                continue;
+            }
+        }
+
+        amqp_rpc_reply_t res;
+        amqp_envelope_t envelope;
+
+        // Wait for a new message from RabbitMQ (with a short timeout
+        //                                       to avoid blocking)
+        amqp_maybe_release_buffers(mRabbitMQConnection);
+        struct timeval timeout;
+        timeout.tv_sec = 0;          // No blocking
+        timeout.tv_usec = 100000;    // 100ms timeout
+
+        res = amqp_consume_message(mRabbitMQConnection, &envelope, &timeout, 0);
+
+        if (res.reply_type == AMQP_RESPONSE_NORMAL) {
+            QByteArray messageData(
+                static_cast<char *>(envelope.message.body.bytes),
+                envelope.message.body.len);
+            QJsonDocument doc = QJsonDocument::fromJson(messageData);
+            QJsonObject jsonMessage = doc.object();
+
+            emit dataReceived(jsonMessage);
+            onDataReceivedFromRabbitMQ(jsonMessage, envelope);
+
+            // Clean up the envelope
+            amqp_destroy_envelope(&envelope);
+        } else if (res.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION &&
+                   res.library_error == AMQP_STATUS_TIMEOUT) {
+            // Timeout reached but no message available, continue to next iteration
+            // Sleep for 100ms before checking again to avoid a busy loop
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        } else {
+            qCritical() << "Error receiving message from RabbitMQ. Type:"
+                        << res.reply_type;
+            stopRabbitMQServer();
+            qDebug() << "Attempting to reconnect...";
+            reconnectToRabbitMQ();
+            break;
+        }
+
+        // Sleep for 100ms between each iteration to avoid busy-looping
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
 void SimulationServer::onDataReceivedFromRabbitMQ(
     const QJsonObject &message,
     const amqp_envelope_t &envelope) {
 
-    QString command = message["command"].toString();
-
-    if (command == "pauseSimulator") {
-        // Immediately process the pause command
-        qDebug() << "Received 'pauseSimulator' command, executing immediately.";
-
-        // Acknowledge the message only after it is
-        // successfully processed or queued
-        amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
-
-        processCommand(message);  // Prioritize pauseSimulator
-    }
-
-    if (mWorkerBusy) {
-        if (mCommandQueue.size() < 1) {
-            // Only queue one extra command while processing the current one
-            mCommandQueue.enqueue(message);
-
-            // Acknowledge the message only after it is
-            // successfully processed or queued
-            amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
-        } else {
-            qDebug() << "Command queue is full. Ignoring additional commands.";
+    {
+        QMutexLocker locker(&mMutex);
+        if (mWorkerBusy) {
+            qDebug() << "Simulator is busy, not consuming new messages.";
             return;
         }
-    } else {
-        // Acknowledge the message only after it is
-        // successfully processed or queued
-        amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
-
-        // If the worker is not busy, process the command directly
-        processCommand(message);
-        mWorkerBusy = true;  // Mark worker as busy
+        mWorkerBusy = true;
     }
+
+    processCommand(message);
+    // Acknowledge the message only after it is
+    // successfully processed
+    amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
+
 }
 
 void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
@@ -347,13 +418,15 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             qTrains.push_back(std::move(train));
         }
 
-        SimulatorAPI::ContinuousMode::
+        SimulatorAPI::InteractiveMode::
             createNewSimulationEnvironment(nodesContent, linksContent,
                                            netName, qTrains, timeStepValue);
+        SimulatorAPI::InteractiveMode::initSimulation({netName});
 
     } else if (command == "runSimulator") {
         // Extract the "network" array from jsonMessage
         QJsonArray networkArray = jsonMessage["network"].toArray();
+        double byTimeSteps = jsonMessage["byTimeSteps"].toDouble(60);
 
         // Convert the QJsonArray to QVector<QString>
         QVector<QString> networkNamesVector;
@@ -363,37 +436,18 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             }
         }
 
-        SimulatorAPI::ContinuousMode::runSimulation(networkNamesVector);
+        SimulatorAPI::InteractiveMode::runSimulation(networkNamesVector,
+                                                     byTimeSteps);
 
-    } else if (command == "pauseSimulator") {
+    } else if (command == "addTrainToSimulator") {
+        QString netName = jsonMessage["network"].toString();
+        auto trains = TrainsList::ReadAndGenerateTrainsFromJSON(jsonMessage);
 
-        // Extract the "network" array from jsonMessage
-        QJsonArray networkArray = jsonMessage["network"].toArray();
-
-        // Convert the QJsonArray to QVector<QString>
-        QVector<QString> networkNamesVector;
-        for (const QJsonValue &value : networkArray) {
-            if (value.isString()) {
-                networkNamesVector.append(value.toString());
-            }
+        QVector<std::shared_ptr<Train>> qTrains;
+        for (auto& train: trains) {
+            qTrains.push_back(std::move(train));
         }
-
-        SimulatorAPI::ContinuousMode::pauseSimulation(networkNamesVector);
-
-    } else if (command == "resumeSimulator") {
-
-        // Extract the "network" array from jsonMessage
-        QJsonArray networkArray = jsonMessage["network"].toArray();
-
-        // Convert the QJsonArray to QVector<QString>
-        QVector<QString> networkNamesVector;
-        for (const QJsonValue &value : networkArray) {
-            if (value.isString()) {
-                networkNamesVector.append(value.toString());
-            }
-        }
-
-        SimulatorAPI::ContinuousMode::resumeSimulation(networkNamesVector);
+        SimulatorAPI::InteractiveMode::addTrainToSimulation(netName, qTrains);
 
     } else if (command == "endSimulator") {
 
@@ -408,8 +462,15 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             }
         }
 
-        SimulatorAPI::ContinuousMode::endSimulation(networkNamesVector);
+        SimulatorAPI::InteractiveMode::endSimulation(networkNamesVector);
 
+    } else if (command == "addContainers") {
+        QString net =
+            jsonMessage["networkName"].toString();
+        QString trainID =
+            jsonMessage["trainID"].toString();
+        SimulatorAPI::InteractiveMode::addContainersToTrain(net, trainID,
+                                                            jsonMessage);
     } else {
         qWarning() << "Unrecognized command:" << command;
     }
@@ -418,42 +479,11 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
 
 void SimulationServer::onWorkerReady() {
     // Worker is now ready for the next command
+    QMutexLocker locker(&mMutex);
+
     mWorkerBusy = false;
 
-    if (!mCommandQueue.isEmpty()) {
-        // If there's a command in the queue, process it
-        QJsonObject nextCommand = mCommandQueue.dequeue();
-        processCommand(nextCommand);
-        mWorkerBusy = true;  // Mark worker as busy again
-    } else {
-        // Continue consuming messages from RabbitMQ
-        amqp_rpc_reply_t res;
-        amqp_envelope_t envelope;
-
-        // Wait for a new message from RabbitMQ
-        amqp_maybe_release_buffers(mRabbitMQConnection);
-        res = amqp_consume_message(mRabbitMQConnection, &envelope, nullptr, 0);
-
-        if (res.reply_type == AMQP_RESPONSE_NORMAL) {
-            QByteArray messageData(
-                static_cast<char *>(envelope.message.body.bytes),
-                envelope.message.body.len);
-            QJsonDocument doc = QJsonDocument::fromJson(messageData);
-            QJsonObject jsonMessage = doc.object();
-
-            emit dataReceived(jsonMessage);
-            onDataReceivedFromRabbitMQ(jsonMessage, envelope);  // Process the new message
-        }
-        else {
-            qCritical() << "Error receiving message from RabbitMQ. Type:"
-                        << res.reply_type;
-            stopRabbitMQServer();  // Close the connection first
-            qDebug() << "Attempting to reconnect...";
-            startRabbitMQServer(mHostname, mPort);  // Retry connection
-        }
-
-        amqp_destroy_envelope(&envelope);
-    }
+    mWaitCondition.wakeAll();  // Notify waiting consumers
 }
 
 void SimulationServer::sendRabbitMQMessage(const QString &routingKey,
@@ -485,6 +515,7 @@ void SimulationServer::onSimulationCreated(QString networkName) {
     jsonMessage["network"] = networkName;
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
 
 void SimulationServer::onSimulationsPaused(QVector<QString> networkNames) {
@@ -503,6 +534,7 @@ void SimulationServer::onSimulationsPaused(QVector<QString> networkNames) {
 
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
 
 void SimulationServer::onSimulationsResumed(QVector<QString> networkNames) {
@@ -521,6 +553,7 @@ void SimulationServer::onSimulationsResumed(QVector<QString> networkNames) {
 
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
 
 void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
@@ -539,16 +572,49 @@ void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
 
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
 
-// void SimulationServer::onTrainAddedToSimulator(const QString trainID) {
-//     QJsonObject jsonMessage;
-//     jsonMessage["event"] = "trainAddedToSimulator";
-//     jsonMessage["trainID"] = trainID;
-//     jsonMessage["host"] = "NeTrainSim";
-//     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
-//                         jsonMessage);
-// }
+void SimulationServer::onSimulationAdvanced(
+    QMap<QString, double> networkNamesSimulationTimePairs)
+{
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "simulationAdvanced";
+    jsonMessage["host"] = "NeTrainSim";
+
+    // Convert QVector<QString> to QJsonArray
+    QJsonObject jsonNetworkTimes;
+    for (auto it = networkNamesSimulationTimePairs.constBegin();
+         it != networkNamesSimulationTimePairs.constEnd(); ++it) {
+        // Add each network name (key) and its corresponding
+        // simulation time (value) to the jsonNetworkTimes object
+        jsonNetworkTimes[it.key()] = it.value();
+    }
+
+    // Add the network names to the JSON message
+    jsonMessage["networkNamesTimes"] = jsonNetworkTimes;
+
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
+}
+
+void SimulationServer::onTrainsAddedToSimulator(const QString networkName,
+                                                const QVector<QString> trainIDs)
+{
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "trainAddedToSimulator";
+    jsonMessage["network"] = networkName;
+    QJsonArray trainsJson;
+    for (const auto& trainID : trainIDs) {
+        trainsJson.append(trainID);
+    }
+    jsonMessage["trainIDs"] = trainsJson;
+    jsonMessage["host"] = "NeTrainSim";
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
+}
 
 void SimulationServer::
     onTrainReachedDestination(const QJsonObject trainStatus)
@@ -559,6 +625,7 @@ void SimulationServer::
     jsonMessage["host"] = "NeTrainSim";
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
 
 
@@ -578,6 +645,20 @@ void SimulationServer::
     jsonMessage["host"] = "NeTrainSim";
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
+}
+
+void SimulationServer::onContainersAddedToTrain(QString networkName,
+                                                QString trainID)
+{
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "containersAddedToTrain";
+    jsonMessage["networkName"] = networkName;
+    jsonMessage["trainID"] = trainID;
+
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
 }
 
 void SimulationServer::onErrorOccurred(const QString &errorMessage) {
@@ -587,4 +668,5 @@ void SimulationServer::onErrorOccurred(const QString &errorMessage) {
     jsonMessage["host"] = "NeTrainSim";
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
+    onWorkerReady();
 }
