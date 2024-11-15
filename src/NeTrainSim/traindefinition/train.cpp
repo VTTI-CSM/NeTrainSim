@@ -781,7 +781,7 @@ double Train::getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds) {
 #ifdef BUILD_SERVER_ENABLED
 QVector<ContainerCore::Container *> Train::getLoadedContainers() const {
     QVector<ContainerCore::Container*> containerList;
-    for (auto &container : mLoadedContainers.containers()) {
+    for (auto &container : mLoadedContainers.getAllContainers()) {
         containerList.append(container);
     }
     return containerList;
@@ -791,6 +791,10 @@ void Train::addContainer(ContainerCore::Container* container) {
     if (container) {
         mLoadedContainers.addContainer(container->getContainerID(), container);
     }
+}
+
+void Train::addContainers(QJsonObject json) {
+    mLoadedContainers.addContainers(json);
 }
 
 
