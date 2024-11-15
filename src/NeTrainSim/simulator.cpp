@@ -92,6 +92,10 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 
 }
 
+void Simulator::setControlSimulatorExternally(bool controlExternally) {
+    mIsExternallyControlled = controlExternally;
+}
+
 void Simulator::moveObjectToThread(QThread *thread) {
     // Move Simulator object itself to the thread
     this->moveToThread(thread);
@@ -1053,6 +1057,16 @@ Vector<std::pair<double, double>> Simulator::getStartEndPoints(std::shared_ptr<T
 	double endDistance = train->travelledDistance - train->totalLength;
 	startEndPoints.push_back(this->network->getPositionbyTravelledDistance(train, endDistance));
 	return startEndPoints;
+}
+
+void Simulator::runBy(double timeSteps) {
+    double initSimTime = simulationTime;
+
+    while (simulationTime - initSimTime <= timeSteps) {
+        runOneTimeStep();
+    }
+
+    emit simulationReachedReportingTime(simulationTime);
 }
 
 void Simulator::runOneTimeStep() {
