@@ -115,6 +115,8 @@ public:
 
     void moveObjectToThread(QThread *thread);
 
+    void setControlSimulatorExternally(bool controlExternally);
+
     /**
      * @brief setup the Trains on the network and the signals groups
      */
@@ -668,6 +670,8 @@ public: signals:
 
     void simulationTimeAdvanced(double currentSimulatorTime);
 
+    void simulationReachedReportingTime(double currentSimulatorTime);
+
     void simulatorInitialized();
 
     void simulatorPaused();
@@ -696,6 +700,8 @@ public slots:
     void finalizeSimulation();
 
     void runOneTimeStep();
+
+    void runBy(double timeSteps); // run till next reporting time
 
     void initializeSimulator();
 
