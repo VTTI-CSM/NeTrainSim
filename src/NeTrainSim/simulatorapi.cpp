@@ -55,6 +55,7 @@ void SimulatorAPI::
     Vector<std::shared_ptr<Train>> trains;
     for (const auto& train: trainList) {
         trains.push_back(std::move(train));
+        apiData.trains[train->trainUserID] = train;
     }
     apiData.simulator = new Simulator(apiData.network, trains, timeStep);
     apiData.workerThread = new QThread(this);
@@ -78,6 +79,12 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
             });
 
     connect(simulator, &Simulator::simulationTimeAdvanced, this,
+            [this, networkName, &mode](double currentSimulatorTime) {
+                handleOneTimeStepCompleted(networkName,
+                                           currentSimulatorTime, mode);
+            });
+
+    connect(simulator, &Simulator::simulationReachedReportingTime, this,
             [this, networkName, &mode](double currentSimulatorTime) {
                 handleOneTimeStepCompleted(networkName,
                                            currentSimulatorTime, mode);
@@ -189,7 +196,7 @@ void SimulatorAPI::requestSimulationCurrentResults(QVector<QString> networkNames
 }
 
 void SimulatorAPI::addTrainToSimulation(QString networkName,
-                                        QMap<QString, QVariant> trainRecords)
+                                        QVector<std::shared_ptr<Train>> trains)
 {
     if (!mData.contains(networkName)) {
         emit errorOccurred("A network with name " + networkName +
@@ -197,32 +204,25 @@ void SimulatorAPI::addTrainToSimulation(QString networkName,
         return;
     }
 
-    std::shared_ptr<Train> train;
-    try {
-        Map<std::string, std::any> trainRec =
-            Map<std::string, std::any>(convertQMapToStdMap(trainRecords));
+    QVector<QString> trainIDs;
+    for (auto train: trains) {
+        connect(train.get(), &Train::destinationReached,
+                [this, train, &networkName]() {
+                    QString trainID = QString::fromStdString(train->trainUserID);
 
-        train = TrainsList::generateTrain(trainRec);
+                    handleTrainReachedDestination(networkName, trainID, mMode);
+                });
 
-    } catch (std::exception &e) {
-        emit errorOccurred("Error during adding a train to the "
-                           "simulator with network " + networkName +
-                           ". Error: " + QString::fromStdString(e.what()));
-        return;
+        mData[networkName].trains.insert(train->trainUserID, train);
+
+        QMetaObject::invokeMethod(mData[networkName].simulator,
+                                  "addTrain", Qt::QueuedConnection,
+                                  Q_ARG(std::shared_ptr<Train>, train));
+
+        trainIDs.push_back(QString::fromStdString(train->trainUserID));
     }
 
-    connect(train.get(), &Train::destinationReached,
-            [this, train, &networkName]() {
-                QString trainID = QString::fromStdString(train->trainUserID);
-
-                handleTrainReachedDestination(networkName, trainID, mMode);
-            });
-
-    mData[networkName].trains.insert(train->trainUserID, train);
-
-    QMetaObject::invokeMethod(mData[networkName].simulator,
-                              "addTrain", Qt::QueuedConnection,
-                              Q_ARG(std::shared_ptr<Train>, train));
+    emit trainAddedToSimulation(networkName, trainIDs);
 }
 
 std::any SimulatorAPI::convertQVariantToAny(const QVariant& variant) {
@@ -294,6 +294,14 @@ QVector<std::shared_ptr<Train>> SimulatorAPI::getAllTrains(QString networkName)
     return QVector<std::shared_ptr<Train>>(
         mData[networkName].trains.values().begin(),
         mData[networkName].trains.values().end());
+}
+
+void SimulatorAPI::addContainersToTrain(QString networkName,
+                                        QString trainID,
+                                        QJsonObject json)
+{
+    getTrainByID(networkName, trainID)->addContainers(json);
+    emit containersAddedToTrain(networkName, trainID);
 }
 
 void SimulatorAPI::handleTrainReachedDestination(QString networkName,
@@ -423,6 +431,10 @@ void SimulatorAPI::checkAndEmitSignal(
 // ---------------------------- Interactive Mode -------------------------------
 // -----------------------------------------------------------------------------
 
+SimulatorAPI& SimulatorAPI::InteractiveMode::getInstance() {
+    return SimulatorAPI::getInstance();
+}
+
 void SimulatorAPI::InteractiveMode::createNewSimulationEnvironment(
     QString nodesFileContent, QString linksFileContent,
     QString networkName, QVector<std::shared_ptr<Train>> trainList,
@@ -439,9 +451,9 @@ void SimulatorAPI::InteractiveMode::createNewSimulationEnvironment(
 }
 
 void SimulatorAPI::InteractiveMode::addTrainToSimulation(
-    QString networkName, QMap<QString, QVariant> trainRecords)
+    QString networkName, QVector<std::shared_ptr<Train>> trains)
 {
-    getInstance().addTrainToSimulation(networkName, trainRecords);
+    getInstance().addTrainToSimulation(networkName, trains);
 }
 
 void SimulatorAPI::InteractiveMode::
@@ -462,6 +474,37 @@ void SimulatorAPI::InteractiveMode::
                 getInstance().mData[networkName].simulator,
                 "runOneTimeStep", Qt::QueuedConnection);
         }
+    }
+}
+
+void SimulatorAPI::InteractiveMode::
+    runSimulation(QVector<QString> networkNames, double timeSteps) {
+    if (networkNames.contains("*")) {
+        networkNames = getInstance().mData.keys();
+    }
+    for (const auto &networkName: networkNames) {
+        if (!getInstance().mData.contains(networkName)) {
+            emit getInstance().errorOccurred("A network with name "
+                                             + networkName +
+                                             " does not exist!");
+            return;
+        }
+        if (timeSteps < 0) {
+            if (getInstance().mData[networkName].simulator) {
+                QMetaObject::invokeMethod(
+                    getInstance().mData[networkName].simulator,
+                    "runSimulation", Qt::QueuedConnection);
+            }
+        }
+        else {
+            if (getInstance().mData[networkName].simulator) {
+                QMetaObject::invokeMethod(
+                    getInstance().mData[networkName].simulator,
+                    "runTillNextReportingTime", Qt::QueuedConnection,
+                    Q_ARG(double, timeSteps));
+            }
+        }
+
     }
 }
 
@@ -491,6 +534,31 @@ void SimulatorAPI::InteractiveMode::
     }
 }
 
+void SimulatorAPI::InteractiveMode::endSimulation(QVector<QString> networkNames)
+{
+    if (networkNames.contains("*")) {
+        networkNames = getInstance().mData.keys();
+    }
+
+    getInstance().m_completedSimulatorsEnded = 0;
+    getInstance().m_totalSimulatorEndRequested = networkNames;
+
+    for (const auto &networkName: networkNames) {
+        if (!getInstance().mData.contains(networkName)) {
+            emit getInstance().errorOccurred("A network with name "
+                                             + networkName +
+                                             " does not exist!");
+            return;
+        }
+        if (getInstance().mData[networkName].simulator) {
+            QMetaObject::invokeMethod(
+                getInstance().mData[networkName].simulator,
+                "finalizeSimulation",
+                Qt::QueuedConnection);
+        }
+    }
+}
+
 Simulator* SimulatorAPI::InteractiveMode::getSimulator(QString networkName) {
     return getInstance().getSimulator(networkName);
 }
@@ -510,6 +578,13 @@ QVector<std::shared_ptr<Train>>
 SimulatorAPI::InteractiveMode::getAllTrains(QString networkName)
 {
     return getInstance().getAllTrains(networkName);
+}
+
+void SimulatorAPI::InteractiveMode::addContainersToTrain(QString networkName,
+                                                         QString trainID,
+                                                         QJsonObject json)
+{
+    getInstance().addContainersToTrain(networkName, trainID, json);
 }
 
 // -----------------------------------------------------------------------------
@@ -645,4 +720,11 @@ Simulator* SimulatorAPI::ContinuousMode::getSimulator(QString networkName) {
 
 Network* SimulatorAPI::ContinuousMode::getNetwork(QString networkName) {
     return getInstance().getNetwork(networkName);
+}
+
+void SimulatorAPI::ContinuousMode::addContainersToTrain(QString networkName,
+                                                         QString trainID,
+                                                         QJsonObject json)
+{
+    getInstance().addContainersToTrain(networkName, trainID, json);
 }

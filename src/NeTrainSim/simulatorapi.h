@@ -32,7 +32,10 @@ signals:
                                 currentSimulorTimePairs);
     void trainsReachedDestination(
         const QMap<QString, QVector<QString>>& trainNetworkPairs);
+    void trainAddedToSimulation(const QString networkName,
+                                const QVector<QString> trainIDs);
     void simulationResultsAvailable(QMap<QString, TrainsResults>& results);
+    void containersAddedToTrain(QString networkName, QString trainID);
     void errorOccurred(QString error);
 
 protected:
@@ -64,7 +67,7 @@ protected:
 
     // Train control methods
     void addTrainToSimulation(QString networkName,
-                              QMap<QString, QVariant> trainRecords);
+                              QVector<std::shared_ptr<Train>> trains);
 
     // GETTERS
     Simulator* getSimulator(QString networkName);
@@ -72,7 +75,8 @@ protected:
     std::shared_ptr<Train> getTrainByID(QString networkName,
                                         QString& trainID);
     QVector<std::shared_ptr<Train>> getAllTrains(QString networkName);
-
+    void addContainersToTrain(QString networkName,
+                              QString trainID, QJsonObject json);
 
 
 
@@ -143,6 +147,7 @@ public:
 
     class NETRAINSIMCORE_EXPORT InteractiveMode {
     public:
+        static SimulatorAPI& getInstance();
         // Simulator control methods
         static void createNewSimulationEnvironment(
             QString nodesFileContent,
@@ -154,15 +159,20 @@ public:
             Mode mode = Mode::Async);
 
         static void addTrainToSimulation(QString networkName,
-                                         QMap<QString, QVariant> trainRecords);
+                                         QVector<std::shared_ptr<Train>> trains);
         static void initSimulation(QVector<QString> networkNames);
         static void runOneTimeStep(QVector<QString> networkNames);
+        static void runSimulation(QVector<QString> networkNames,
+                                  double timeSteps);
+        static void endSimulation(QVector<QString> networkNames);
         static Simulator* getSimulator(QString networkName);
         static Network* getNetwork(QString networkName);
         static std::shared_ptr<Train> getTrainByID(
             QString networkName, QString& trainID);
         static QVector<std::shared_ptr<Train>>
         getAllTrains(QString networkName);
+        static void addContainersToTrain(QString networkName,
+                                         QString trainID, QJsonObject json);
     };
 
     class NETRAINSIMCORE_EXPORT ContinuousMode {
@@ -186,6 +196,8 @@ public:
         static void endSimulation(QVector<QString> networkNames);
         static Simulator* getSimulator(QString networkName);
         static Network* getNetwork(QString networkName);
+        static void addContainersToTrain(QString networkName,
+                                         QString trainID, QJsonObject json);
     };
 };
 
