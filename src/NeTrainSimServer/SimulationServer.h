@@ -78,7 +78,7 @@ private:
     int mPort;
     QMutex mMutex;  // Mutex for protecting access to mWorkerBusy
     bool mWorkerBusy;  // To control the server run loop
-    QThread *mRabbitMQThread;
+    QThread *mRabbitMQThread = nullptr;
     QWaitCondition mWaitCondition;
     amqp_connection_state_t mRabbitMQConnection;
 
