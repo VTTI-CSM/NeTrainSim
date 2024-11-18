@@ -307,7 +307,7 @@ void SimulationServer::startConsumingMessages() {
     if (mRabbitMQThread) {
         mRabbitMQThread->quit();
         mRabbitMQThread->wait();
-        mRabbitMQThread->deleteLater();  // Ensure proper deletion
+        mRabbitMQThread->deleteLater();
     }
 
     // Move the consuming logic to a separate thread
@@ -319,6 +319,7 @@ void SimulationServer::startConsumingMessages() {
     connect(mRabbitMQThread , &QThread::finished,
             mRabbitMQThread , &QThread::deleteLater);
     mRabbitMQThread->start();
+    std::cout << "started!";
 }
 
 void SimulationServer::consumeFromRabbitMQ() {
@@ -351,6 +352,9 @@ void SimulationServer::consumeFromRabbitMQ() {
         res = amqp_consume_message(mRabbitMQConnection, &envelope, &timeout, 0);
 
         if (res.reply_type == AMQP_RESPONSE_NORMAL) {
+            // Acknowledge the message regardless of validity
+            amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
+
             QByteArray messageData(
                 static_cast<char *>(envelope.message.body.bytes),
                 envelope.message.body.len);
@@ -389,28 +393,44 @@ void SimulationServer::onDataReceivedFromRabbitMQ(
     {
         QMutexLocker locker(&mMutex);
         if (mWorkerBusy) {
-            qDebug() << "Simulator is busy, not consuming new messages.";
+            qInfo() << "Simulator is busy, not consuming new messages.";
             return;
         }
         mWorkerBusy = true;
     }
 
     processCommand(message);
-    // Acknowledge the message only after it is
-    // successfully processed
-    amqp_basic_ack(mRabbitMQConnection, 1, envelope.delivery_tag, 0);
-
 }
 
 void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
+
+    auto checkJsonField = [this](const QJsonObject &json,
+                             const QString &fieldName,
+                             const QString &command) -> bool {
+        if (!json.contains(fieldName)) {
+            qWarning() << "Missing parameter:" << fieldName
+                       << "in command:" << command;
+            mWorkerBusy = false;
+            return false;
+        }
+        return true;
+    };
+
     QString command = jsonMessage["command"].toString();
 
     if (command == "defineSimulator") {
+        if (!checkJsonField(jsonMessage, "nodesFileContent", command) ||
+            !checkJsonField(jsonMessage, "linksFileContent", command) ||
+            !checkJsonField(jsonMessage, "networkName", command) ||
+            !checkJsonField(jsonMessage, "timeStep", command)) {
+            return; // Skip processing this command
+        }
+
         QString nodesContent = jsonMessage["nodesFileContent"].toString();
         QString linksContent = jsonMessage["linksFileContent"].toString();
         QString netName = jsonMessage["networkName"].toString();
-
         double timeStepValue = jsonMessage["timeStep"].toDouble();
+
         auto trains = TrainsList::ReadAndGenerateTrainsFromJSON(jsonMessage);
 
         QVector<std::shared_ptr<Train>> qTrains;
@@ -424,6 +444,11 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         SimulatorAPI::InteractiveMode::initSimulation({netName});
 
     } else if (command == "runSimulator") {
+        if (!checkJsonField(jsonMessage, "network", command) ||
+            !checkJsonField(jsonMessage, "byTimeSteps", command)) {
+            return; // Skip processing this command
+        }
+
         // Extract the "network" array from jsonMessage
         QJsonArray networkArray = jsonMessage["network"].toArray();
         double byTimeSteps = jsonMessage["byTimeSteps"].toDouble(60);
@@ -440,6 +465,10 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
                                                      byTimeSteps);
 
     } else if (command == "addTrainToSimulator") {
+        if (!checkJsonField(jsonMessage, "network", command)) {
+            return; // Skip processing this command
+        }
+
         QString netName = jsonMessage["network"].toString();
         auto trains = TrainsList::ReadAndGenerateTrainsFromJSON(jsonMessage);
 
@@ -450,6 +479,9 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         SimulatorAPI::InteractiveMode::addTrainToSimulation(netName, qTrains);
 
     } else if (command == "endSimulator") {
+        if (!checkJsonField(jsonMessage, "network", command)) {
+            return; // Skip processing this command
+        }
 
         // Extract the "network" array from jsonMessage
         QJsonArray networkArray = jsonMessage["network"].toArray();
@@ -465,6 +497,11 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         SimulatorAPI::InteractiveMode::endSimulation(networkNamesVector);
 
     } else if (command == "addContainers") {
+        if (!checkJsonField(jsonMessage, "networkName", command) ||
+            !checkJsonField(jsonMessage, "trainID", command)) {
+            return; // Skip processing this command
+        }
+
         QString net =
             jsonMessage["networkName"].toString();
         QString trainID =
@@ -472,6 +509,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         SimulatorAPI::InteractiveMode::addContainersToTrain(net, trainID,
                                                             jsonMessage);
     } else {
+        mWorkerBusy = false;
         qWarning() << "Unrecognized command:" << command;
     }
 
