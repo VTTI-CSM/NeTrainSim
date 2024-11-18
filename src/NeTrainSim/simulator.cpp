@@ -13,6 +13,7 @@
 #include <cmath>
 #include <memory>    // Include for smart pointers
 #include "util/error.h" // Include for error handling utilities
+#include <QStandardPaths>
 #include "VersionConfig.h"
 
 // Function to get the path to the home directory.
