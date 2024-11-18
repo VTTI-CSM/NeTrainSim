@@ -19,7 +19,7 @@ configure_file(${CMAKE_SOURCE_DIR}/src/NeTrainSim/VersionConfig.h.in
 # Define the executable target for the project,
 # listing the required source and header files
 add_executable(${NeTrainSimConsole_NAME}
-    errorHandler.h errorhandler.cpp
+    errorhandler.h errorhandler.cpp
     main.cpp)
 
 # Ensure that NeTrainSimCore is built first by specifying it as a dependency
