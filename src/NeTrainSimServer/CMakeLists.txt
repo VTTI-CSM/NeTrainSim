@@ -20,7 +20,7 @@ configure_file(${CMAKE_SOURCE_DIR}/src/NeTrainSimServer/VersionConfig.h.in
 # Define the executable target for the project,
 # listing the required source and header files
 add_executable(${NETRAINSIM_SERVER_NAME}
-    simulationserver.h simulationserver.cpp
+    SimulationServer.h simulationserver.cpp
     main.cpp
 )
 
@@ -69,32 +69,35 @@ add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
 
 # Ensure the ShipNetSimCore DLL is copied to the output directory
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    # Copy container.dll only in Release mode
-    add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CONTAINER_BIN_DIR}/container.dll"
-            "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/container.dll"
-    )
-
-    add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${RABBITMQ_BIN_DIR}/rabbitmq.4.dll"
-            "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/rabbitmq.4.dll"
-    )
+    if(WIN32)
+        # Copy Windows DLLs in Release mode
+        add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CONTAINER_BIN_DIR}/container.dll"
+                "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/container.dll"
+        )
+        add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${RABBITMQ_BIN_DIR}/rabbitmq.4.dll"
+                "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/rabbitmq.4.dll"
+        )
+    endif()
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # Copy containerd.dll only in Debug mode
-    add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CONTAINER_BIN_DIR}/containerd.dll"
-            "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/containerd.dll"
-    )
-
-    add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${RABBITMQ_BIN_DIR}/rabbitmq.4.dll"
-            "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/rabbitmq.4.dll"
-    )
+    if(WIN32)
+        # Copy Windows debug DLLs
+        add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CONTAINER_BIN_DIR}/containerd.dll"
+                "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/containerd.dll"
+        )
+        add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${RABBITMQ_BIN_DIR}/rabbitmq.4.dll"
+                "$<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>/rabbitmq.4.dll"
+        )
+    endif()
 endif()
+
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
