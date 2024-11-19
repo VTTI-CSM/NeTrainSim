@@ -292,10 +292,24 @@ bool TrainsList::writeTrainsFile(
 Vector<Map<std::string, std::any>>
 TrainsList::readTrainsFromJSON(const QJsonObject& jsonObject)
 {
+    auto getStringOfValue = [](const QJsonValue& value) -> std::string {
+        if (value.isString()) {
+            return value.toString().toStdString();
+        } else if (value.isDouble()) {
+            return QString::number(value.toDouble(), 'f', 15).toStdString();
+        } else if (value.isBool()) {
+            return value.toBool() ? "true" : "false";
+        } else if (value.isNull()) {
+            return "null";
+        } else {
+            return "UnknownType";
+        }
+    };
+
     Vector<Map<std::string, std::any>> trainsRecords;
 
     // Extract the trains array from the JSON object
-    QJsonArray trainsArray = jsonObject["Trains"].toArray();
+    QJsonArray trainsArray = jsonObject["trains"].toArray();
 
     // Iterate over each train in the array
     for (const QJsonValue& trainValue : trainsArray) {
@@ -309,8 +323,7 @@ TrainsList::readTrainsFromJSON(const QJsonObject& jsonObject)
             Map<std::string, std::string> locomotiveRecord;
             for (const auto& key : locomotiveFieldsOrder) {
                 locomotiveRecord[key] =
-                    locoObject[QString::fromStdString(key)].toString().
-                                        toStdString();
+                    getStringOfValue(locoObject[QString::fromStdString(key)]);
             }
             locomotiveRecords.push_back(locomotiveRecord);
         }
@@ -323,8 +336,7 @@ TrainsList::readTrainsFromJSON(const QJsonObject& jsonObject)
             Map<std::string, std::string> carRecord;
             for (const auto& key : carFieldsOrder) {
                 carRecord[key] =
-                    carObject[QString::fromStdString(key)].toString().
-                                 toStdString();
+                    getStringOfValue(carObject[QString::fromStdString(key)]);
             }
             carRecords.push_back(carRecord);
         }
