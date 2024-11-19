@@ -54,7 +54,7 @@ void SimulatorAPI::
               << networkName.toStdString() << "!                          \r";
     Vector<std::shared_ptr<Train>> trains;
     for (const auto& train: trainList) {
-        trains.push_back(std::move(train));
+        trains.push_back(train); // Share ownership
         apiData.trains[train->trainUserID] = train;
     }
     apiData.simulator = new Simulator(apiData.network, trains, timeStep);
