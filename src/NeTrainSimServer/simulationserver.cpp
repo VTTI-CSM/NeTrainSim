@@ -438,9 +438,14 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             qTrains.push_back(std::move(train));
         }
 
-        SimulatorAPI::InteractiveMode::
-            createNewSimulationEnvironment(nodesContent, linksContent,
-                                           netName, qTrains, timeStepValue);
+        try {
+            SimulatorAPI::InteractiveMode::
+                createNewSimulationEnvironment(nodesContent, linksContent,
+                                               netName, qTrains, timeStepValue);
+        } catch (const std::exception &e) {
+            qWarning() << "Error while creating the environment: " << e.what();
+        }
+
         SimulatorAPI::InteractiveMode::initSimulation({netName});
 
     } else if (command == "runSimulator") {
@@ -554,6 +559,7 @@ void SimulationServer::onSimulationCreated(QString networkName) {
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+    qInfo() << "Environemnt created successfully for network: " << networkName;
 }
 
 void SimulationServer::onSimulationsPaused(QVector<QString> networkNames) {
@@ -611,6 +617,8 @@ void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+
+    qInfo() << "Simulation ended successfully for networks: " << networkNames.join(", ");
 }
 
 void SimulationServer::onSimulationAdvanced(
@@ -652,6 +660,9 @@ void SimulationServer::onTrainsAddedToSimulator(const QString networkName,
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+
+    qInfo() << "Train ID(s): " << trainIDs.join(", ") << " added successfully to network: " << networkName;
+
 }
 
 void SimulationServer::
