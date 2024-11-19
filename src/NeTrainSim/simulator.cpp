@@ -120,8 +120,9 @@ void Simulator::setUpTrains() {
                                       [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
                                           return t1->totalLength < t2->totalLength;
                                       });
-
-    defineSignalsGroups((*max_train)->totalLength);
+    if (*max_train) {
+        defineSignalsGroups((*max_train)->totalLength);
+    }
 }
 
 // Setter for the time step of the simulation
