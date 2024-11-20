@@ -248,6 +248,8 @@ public:
     bool outOfEnergy = false;
     /** True if the train is loaded to the simulator, false otherwise */
     bool loaded = false;
+    /** True if the train was setup already **/
+    bool isSetup = false;
     /** True if the train should optimize its energy consumption. train trajectory will vary here. */
     bool optimize;
 
