@@ -72,6 +72,7 @@ private slots:
     void onSimulationResultsAvailable(QMap<QString, TrainsResults>& results);
     void onContainersAddedToTrain(QString networkName, QString trainID);
     void onErrorOccurred(const QString &errorMessage);
+    void onServerReset();
 
 private:
     std::string mHostname;
