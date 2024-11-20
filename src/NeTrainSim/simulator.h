@@ -174,7 +174,7 @@ public:
 	 */
 	void setSummaryFilename(string newfilename = DefaultSummaryEmptyFilename);
 
-    void addTrainToSimulation(std::shared_ptr<Train> train);
+    Q_INVOKABLE void addTrainToSimulation(std::shared_ptr<Train> train);
 
     void addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains);
 

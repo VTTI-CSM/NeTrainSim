@@ -113,15 +113,18 @@ void Simulator::setUpTrains() {
     // Definition of train paths for the simulator
     this->setTrainSimulatorPath();
     this->setTrainsPathNodes();
-    this->setTrainPathLength();
+    this->setTrainPathLength();   // this will set the train as setup = true as well
 
-    // Define signals groups based on the length of the longest train
-    auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
-                                      [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
-                                          return t1->totalLength < t2->totalLength;
-                                      });
-    if (*max_train) {
-        defineSignalsGroups((*max_train)->totalLength);
+    // if the trains list is not empty, define the signals groups based on the longest train
+    if (!this->trains.empty()) {
+        // Define signals groups based on the length of the longest train
+        auto max_train = std::max_element(this->trains.begin(), this->trains.end(),
+                                          [](const std::shared_ptr<Train> t1, const std::shared_ptr<Train> t2) {
+                                              return t1->totalLength < t2->totalLength;
+                                          });
+        if (*max_train) {
+            defineSignalsGroups((*max_train)->totalLength);
+        }
     }
 }
 
@@ -147,10 +150,12 @@ void Simulator::setOutputFolderLocation(string newOutputFolderLocation) {
 
 void Simulator::addTrainToSimulation(std::shared_ptr<Train> train) {
 
-    // Lock the mutex to protect the mShips list
+    // Lock the mutex to protect the trains list
     QMutexLocker locker(&mutex);
 
     trains.push_back(train);
+
+    setUpTrains();
 }
 
 void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains)
@@ -161,6 +166,8 @@ void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains)
     for (auto &train: trains) {
         trains.push_back(train);
     }
+
+    setUpTrains();
 }
 
 // Setter for the summary file name
@@ -1649,7 +1656,7 @@ bool Simulator::checkTrainsCollision(Vector<std::shared_ptr<Train>> trainsList) 
 
 void Simulator::setTrainSimulatorPath() {
 	for (std::shared_ptr <Train>& t : this->trains) {
-        if (t->loaded) { continue; }
+        if (t->loaded || t->isSetup) { continue; }
 		// set the train path ids to the simulator ids instead of the users ids
 		t->trainPath = this->network->getSimulatorTrainPath(t->trainPath);
 
@@ -1682,7 +1689,7 @@ void Simulator::setTrainSimulatorPath() {
 
 void Simulator::setTrainsPathNodes() {
 	for (std::shared_ptr<Train>& t : this->trains) {
-        if (t->loaded) { continue; }
+        if (t->loaded || t->isSetup) { continue; }
 		for (int tpn : t->trainPath) {
 			t->trainPathNodes.push_back(this->network->getNodeByID(tpn));
 		}
@@ -1690,8 +1697,9 @@ void Simulator::setTrainsPathNodes() {
 }
 void Simulator::setTrainPathLength() {
 	for (std::shared_ptr <Train>& t : this->trains) {
-        if (t->loaded) { continue; }
+        if (t->loaded || t->isSetup) { continue; }
 		t->trainTotalPathLength = this->network->getFullPathLength(t);
+        t->isSetup = true;
 	}
 }
 
