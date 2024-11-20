@@ -469,8 +469,9 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         SimulatorAPI::InteractiveMode::runSimulation(networkNamesVector,
                                                      byTimeSteps);
 
-    } else if (command == "addTrainToSimulator") {
-        if (!checkJsonField(jsonMessage, "network", command)) {
+    } else if (command == "addTrainsToSimulator") {
+        if (!checkJsonField(jsonMessage, "network", command) ||
+            !checkJsonField(jsonMessage, "trains", command)) {
             return; // Skip processing this command
         }
 
@@ -513,6 +514,10 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             jsonMessage["trainID"].toString();
         SimulatorAPI::InteractiveMode::addContainersToTrain(net, trainID,
                                                             jsonMessage);
+    } else if (command == "restServer") {
+        SimulatorAPI::InteractiveMode::resetAPI();
+        onServerReset();
+        qInfo() << "Server reset Successfully!";
     } else {
         mWorkerBusy = false;
         qWarning() << "Unrecognized command:" << command;
@@ -714,6 +719,15 @@ void SimulationServer::onErrorOccurred(const QString &errorMessage) {
     QJsonObject jsonMessage;
     jsonMessage["event"] = "errorOccurred";
     jsonMessage["errorMessage"] = errorMessage;
+    jsonMessage["host"] = "NeTrainSim";
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
+}
+
+void SimulationServer::onServerReset() {
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "serverReset";
     jsonMessage["host"] = "NeTrainSim";
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
