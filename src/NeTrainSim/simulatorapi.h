@@ -14,7 +14,7 @@
 class NETRAINSIMCORE_EXPORT SimulatorAPI : public QObject
 {
     Q_OBJECT
-
+    friend struct std::default_delete<SimulatorAPI>; // Allow unique_ptr to delete
 public:
     enum class Mode {
         Async,
@@ -46,10 +46,8 @@ protected:
         QMap<std::string, std::shared_ptr<Train>> trains;
     };
 
-    static SimulatorAPI& getInstance() {
-        static SimulatorAPI instance;
-        return instance;
-    }
+    static SimulatorAPI& getInstance();
+    static void resetInstance() ;
 
     ~SimulatorAPI();
 
@@ -79,7 +77,8 @@ protected:
                               QString trainID, QJsonObject json);
 
 
-
+private:
+    static std::unique_ptr<SimulatorAPI> instance;
 
 protected slots:
     void handleTrainReachedDestination(QString networkName,
@@ -148,6 +147,7 @@ public:
     class NETRAINSIMCORE_EXPORT InteractiveMode {
     public:
         static SimulatorAPI& getInstance();
+        static void resetAPI();
         // Simulator control methods
         static void createNewSimulationEnvironment(
             QString nodesFileContent,
@@ -180,6 +180,7 @@ public:
 
 
         static SimulatorAPI& getInstance();
+        static void resetAPI();
         // Simulator control methods
         static void createNewSimulationEnvironment(
             QString nodesFileContent,

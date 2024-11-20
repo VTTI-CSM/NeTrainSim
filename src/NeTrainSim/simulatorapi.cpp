@@ -3,6 +3,42 @@
 #include <QThread>
 
 SimulatorAPI::Mode SimulatorAPI::mMode = Mode::Sync;
+std::unique_ptr<SimulatorAPI> SimulatorAPI::instance(new SimulatorAPI());
+
+SimulatorAPI& SimulatorAPI::getInstance() {
+    if (!instance) {
+        instance.reset(new SimulatorAPI());
+    }
+    return *instance;
+}
+
+void SimulatorAPI::resetInstance() {
+    if (instance) {
+        // Clean up existing resources
+        for (auto& data : instance->mData) {
+            if (data.simulator) {
+                data.simulator->deleteLater();
+            }
+            if (data.network) {
+                delete data.network;
+            }
+            if (data.workerThread) {
+                data.workerThread->quit();
+                data.workerThread->wait();
+                delete data.workerThread;
+            }
+        }
+        instance->mData.clear();
+
+        // Destroy the current instance
+        instance.reset();
+    }
+
+    // Create a new instance
+    instance.reset(new SimulatorAPI());
+}
+
+
 
 void SimulatorAPI::
     createNewSimulationEnvironment(QString nodesFileContent,
@@ -216,7 +252,7 @@ void SimulatorAPI::addTrainToSimulation(QString networkName,
         mData[networkName].trains.insert(train->trainUserID, train);
 
         QMetaObject::invokeMethod(mData[networkName].simulator,
-                                  "addTrain", Qt::QueuedConnection,
+                                  "addTrainToSimulation", Qt::QueuedConnection,
                                   Q_ARG(std::shared_ptr<Train>, train));
 
         trainIDs.push_back(QString::fromStdString(train->trainUserID));
@@ -435,6 +471,11 @@ SimulatorAPI& SimulatorAPI::InteractiveMode::getInstance() {
     return SimulatorAPI::getInstance();
 }
 
+void SimulatorAPI::InteractiveMode::resetAPI()
+{
+    SimulatorAPI::resetInstance();
+}
+
 void SimulatorAPI::InteractiveMode::createNewSimulationEnvironment(
     QString nodesFileContent, QString linksFileContent,
     QString networkName, QVector<std::shared_ptr<Train>> trainList,
@@ -593,6 +634,11 @@ void SimulatorAPI::InteractiveMode::addContainersToTrain(QString networkName,
 
 SimulatorAPI& SimulatorAPI::ContinuousMode::getInstance() {
     return SimulatorAPI::getInstance();
+}
+
+void SimulatorAPI::ContinuousMode::resetAPI()
+{
+    SimulatorAPI::resetInstance();
 }
 
 void SimulatorAPI::ContinuousMode::createNewSimulationEnvironment(
