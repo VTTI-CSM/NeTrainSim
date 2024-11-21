@@ -541,7 +541,7 @@ void SimulatorAPI::InteractiveMode::
             if (getInstance().mData[networkName].simulator) {
                 QMetaObject::invokeMethod(
                     getInstance().mData[networkName].simulator,
-                    "runTillNextReportingTime", Qt::QueuedConnection,
+                    "runBy", Qt::QueuedConnection,
                     Q_ARG(double, timeSteps));
             }
         }
