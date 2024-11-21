@@ -87,6 +87,7 @@ private:
     void consumeFromRabbitMQ();  // Function for consuming RabbitMQ messages
     void startConsumingMessages();
     void reconnectToRabbitMQ();
+    void setupServer();
 
 };
 

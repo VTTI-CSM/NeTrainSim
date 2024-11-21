@@ -21,8 +21,13 @@ static const std::string RECEIVING_ROUTING_KEY = "CargoNetSim.Command.NeTrainSim
 static const std::string PUBLISHING_ROUTING_KEY = "CargoNetSim.Response.NeTrainSim";
 
 SimulationServer::SimulationServer(QObject *parent)
-    : QObject(parent), mWorkerBusy(false) {
+    : QObject(parent), mWorkerBusy(false)
+{
 
+    setupServer();
+}
+
+void SimulationServer::setupServer() {
     // Register the typedef with the meta-object system
     qRegisterMetaType<TrainParamsMap>("TrainParamsMap");
 
@@ -61,6 +66,9 @@ SimulationServer::SimulationServer(QObject *parent)
     connect(&simAPI,
             &SimulatorAPI::containersAddedToTrain, this,
             &SimulationServer::onContainersAddedToTrain);
+    connect(&simAPI,
+            &SimulatorAPI::errorOccurred, this,
+            &SimulationServer::onErrorOccurred);
 }
 
 SimulationServer::~SimulationServer() {
@@ -468,6 +476,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
 
         SimulatorAPI::InteractiveMode::runSimulation(networkNamesVector,
                                                      byTimeSteps);
+        qInfo() << "Running Simulation by " << byTimeSteps << " steps";
 
     } else if (command == "addTrainsToSimulator") {
         if (!checkJsonField(jsonMessage, "network", command) ||
@@ -519,7 +528,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         onServerReset();
         qInfo() << "Server reset Successfully!";
     } else {
-        mWorkerBusy = false;
+        onWorkerReady();
         qWarning() << "Unrecognized command:" << command;
     }
 
@@ -726,6 +735,7 @@ void SimulationServer::onErrorOccurred(const QString &errorMessage) {
 }
 
 void SimulationServer::onServerReset() {
+    setupServer();
     QJsonObject jsonMessage;
     jsonMessage["event"] = "serverReset";
     jsonMessage["host"] = "NeTrainSim";
