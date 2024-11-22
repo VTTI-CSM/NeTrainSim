@@ -65,7 +65,7 @@ private slots:
     void onSimulationsResumed(QVector<QString> networkNames);
     void onSimulationsEnded(QVector<QString> networkNames);
     void onSimulationAdvanced(
-         QMap<QString, double> networkNamesSimulationTimePairs);
+         QMap<QString, QPair<double, double>> networkNamesSimulationTimePairs);
     void onTrainsAddedToSimulator(const QString networkName,
                                   const QVector<QString> trainIDs);
     void onTrainReachedDestination(QJsonObject networkTrainsPairs);
@@ -88,7 +88,6 @@ private:
     void startConsumingMessages();
     void reconnectToRabbitMQ();
     void setupServer();
-
 };
 
 #endif // SIMULATIONSERVER_H
