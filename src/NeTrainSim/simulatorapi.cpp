@@ -5,8 +5,24 @@
 SimulatorAPI::Mode SimulatorAPI::mMode = Mode::Sync;
 std::unique_ptr<SimulatorAPI> SimulatorAPI::instance(new SimulatorAPI());
 
+void SimulatorAPI::registerQMeta() {
+    // Register std::shared_ptr types
+    qRegisterMetaType<std::shared_ptr<Train>>("std::shared_ptr<Train>");
+
+    // Register custom structs/classes
+    qRegisterMetaType<TrainsResults>("TrainsResults");
+    qRegisterMetaType<Vector<Map<std::string, std::string>>>("Vector<Map<std::string, std::string>>");
+
+    // Register enums
+    qRegisterMetaType<SimulatorAPI::Mode>("SimulatorAPI::Mode");
+
+    // Register containers
+    qRegisterMetaType<std::map<std::string, std::any>>("std::map<std::string, std::any>");
+}
+
 SimulatorAPI& SimulatorAPI::getInstance() {
     if (!instance) {
+        registerQMeta();
         instance.reset(new SimulatorAPI());
     }
     return *instance;
@@ -34,6 +50,7 @@ void SimulatorAPI::resetInstance() {
         instance.reset();
     }
 
+    registerQMeta();
     // Create a new instance
     instance.reset(new SimulatorAPI());
 }
@@ -71,6 +88,34 @@ void SimulatorAPI::
 }
 
 void SimulatorAPI::
+    createNewSimulationEnvironmentFromFiles(
+        QString nodesFile, QString linksFile,
+        QString networkName, QVector<std::shared_ptr<Train>> trainList,
+        double timeStep, Mode mode)
+{
+    // Set locale to US format (comma for thousands separator, dot for decimals)
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    std::locale::global(std::locale("en_US.UTF-8"));
+    std::cout.imbue(std::locale());
+
+    if (mData.contains(networkName)) {
+        emit errorOccurred("A network with name " + networkName + " exists!");
+        return;
+    }
+    auto nodeRecords =
+        ReadWriteNetwork::readNodesFile(nodesFile.toStdString());
+
+    auto linkRecords =
+        ReadWriteNetwork::readLinksFile(linksFile.toStdString());
+
+    setupSimulator(networkName, nodeRecords, linkRecords,
+                   trainList, timeStep, mode);
+
+    emit simulationCreated(networkName);
+
+}
+
+void SimulatorAPI::
     setupSimulator(QString &networkName,
                    Vector<Map<std::string, std::string>> &nodeRecords,
                    Vector<Map<std::string, std::string>> &linkRecords,
@@ -95,14 +140,16 @@ void SimulatorAPI::
     }
     apiData.simulator = new Simulator(apiData.network, trains, timeStep);
     apiData.workerThread = new QThread(this);
+    // Move the simulator to the worker thread
+    apiData.simulator->moveToThread(apiData.workerThread);
+    // Start the worker thread (activates the event loop)
+    apiData.workerThread->start();
 
+    // Add to mData
     mData.insert(networkName, std::move(apiData));
 
     // Set up permanent connections for this network
     setupConnections(networkName, mode);
-
-    mData[networkName].simulator->moveToThread(mData[networkName].workerThread);
-    mData[networkName].workerThread->start();
 }
 
 void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
@@ -110,70 +157,83 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
     auto& simulator = mData[networkName].simulator;
 
     connect(simulator, &Simulator::resultDataAvailable, this,
-            [this, networkName, &mode](TrainsResults results) {
+            [this, networkName, mode](TrainsResults results) {
                 handleResultsAvailable(networkName, results, mode);
-            });
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulationTimeAdvanced, this,
-            [this, networkName, &mode](double currentSimulatorTime) {
+            [this, networkName, mode](double currentSimulatorTime, double simulatorProgress) {
                 handleOneTimeStepCompleted(networkName,
-                                           currentSimulatorTime, mode);
-            });
+                                           currentSimulatorTime,
+                                           simulatorProgress, mode);
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulationReachedReportingTime, this,
-            [this, networkName, &mode](double currentSimulatorTime) {
-                handleOneTimeStepCompleted(networkName,
-                                           currentSimulatorTime, mode);
-            });
+            [this, networkName, mode](double currentSimulatorTime, double simulatorProgress) {
+                handleReportingTimeReached(networkName,
+                                           currentSimulatorTime,
+                                           simulatorProgress, mode);
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulatorInitialized, this,
-            [this, networkName, &mode]() {
+            [this, networkName, mode]() {
                 m_completedSimulatorsInitialization++;
                 checkAndEmitSignal(m_completedSimulatorsInitialization,
                                    m_totalSimulatorsInitializationRequested.size(),
                                    m_totalSimulatorsInitializationRequested,
                                    &SimulatorAPI::simulationsInitialized,
                                    mode);
-            });
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulatorPaused, this,
-            [this, networkName, &mode]() {
+            [this, networkName, mode]() {
                 m_completedSimulatorsPaused++;
                 checkAndEmitSignal(m_completedSimulatorsPaused,
                                    m_totalSimulatorPauseRequested.size(),
                                    m_totalSimulatorPauseRequested,
                                    &SimulatorAPI::simulationsPaused,
                                    mode);
-            });
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulatorResumed, this,
-            [this, networkName, &mode]() {
+            [this, networkName, mode]() {
                 m_completedSimulatorsResumed++;
                 checkAndEmitSignal(m_completedSimulatorsResumed,
                                    m_totalSimulatorResumeRequested.size(),
                                    m_totalSimulatorResumeRequested,
                                    &SimulatorAPI::simulationsResumed,
                                    mode);
-            });
+            }, Qt::DirectConnection);
 
     connect(simulator, &Simulator::simulatorEnded, this,
-            [this, networkName, &mode]() {
+            [this, networkName, mode]() {
                 m_completedSimulatorsEnded++;
                 checkAndEmitSignal(m_completedSimulatorsEnded,
                                    m_totalSimulatorEndRequested.size(),
                                    m_totalSimulatorEndRequested,
                                    &SimulatorAPI::simulationsEnded,
                                    mode);
-            });
+            }, Qt::DirectConnection);
+
+    connect(simulator, &Simulator::errorOccurred, this,
+            [this, networkName](QString error) {
+        emit errorOccurred(QString("Error in Network ") + networkName +
+                           QString(": ") + error);
+    }, Qt::DirectConnection);
+
+    connect(simulator, &Simulator::trainsAddedToSimulation, this,
+            [this, networkName](QVector<QString> trainIDs) {
+        emit trainAddedToSimulation(networkName, trainIDs);
+    }, Qt::DirectConnection);
 
     for (const auto& train : mData[networkName].trains) {
         connect(train.get(), &Train::destinationReached, this,
-                [this, networkName, train, &mode]() {
+                [this, networkName, train, mode]() {
                     handleTrainReachedDestination(
                         networkName,
                         QString::fromStdString(train->trainUserID),
                         mode);
-                });
+                }, Qt::DirectConnection);
     }
 }
 
@@ -226,7 +286,7 @@ void SimulatorAPI::requestSimulationCurrentResults(QVector<QString> networkNames
         }
         if (mData[networkName].simulator) {
             QMetaObject::invokeMethod(mData[networkName].simulator,
-                                      "generateSummaryData", Qt::QueuedConnection);
+                                      "generateSummaryData");
         }
     }
 }
@@ -240,10 +300,9 @@ void SimulatorAPI::addTrainToSimulation(QString networkName,
         return;
     }
 
-    QVector<QString> trainIDs;
     for (auto train: trains) {
         connect(train.get(), &Train::destinationReached,
-                [this, train, &networkName]() {
+                [this, train, networkName]() {
                     QString trainID = QString::fromStdString(train->trainUserID);
 
                     handleTrainReachedDestination(networkName, trainID, mMode);
@@ -252,13 +311,11 @@ void SimulatorAPI::addTrainToSimulation(QString networkName,
         mData[networkName].trains.insert(train->trainUserID, train);
 
         QMetaObject::invokeMethod(mData[networkName].simulator,
-                                  "addTrainToSimulation", Qt::QueuedConnection,
+                                  "addTrainToSimulation",
                                   Q_ARG(std::shared_ptr<Train>, train));
 
-        trainIDs.push_back(QString::fromStdString(train->trainUserID));
     }
 
-    emit trainAddedToSimulation(networkName, trainIDs);
 }
 
 std::any SimulatorAPI::convertQVariantToAny(const QVariant& variant) {
@@ -354,9 +411,10 @@ void SimulatorAPI::handleTrainReachedDestination(QString networkName,
 
 void SimulatorAPI::handleOneTimeStepCompleted(QString networkName,
                                               double currentSimulatorTime,
+                                              double currentSimulatorProgress,
                                               Mode mode)
 {
-    m_timeStepData.insert(networkName, currentSimulatorTime);
+    m_timeStepData.insert(networkName, {currentSimulatorTime, currentSimulatorProgress});
 
     switch (mode) {
     case Mode::Async:
@@ -378,6 +436,42 @@ void SimulatorAPI::handleOneTimeStepCompleted(QString networkName,
     case Mode::Sync:
         // In sync mode, emit results immediately for each network
         emit simulationAdvanced(m_timeStepData);
+        break;
+
+    default:
+        // Handle unexpected mode
+        qWarning() << "Unexpected mode in handleResultsAvailable";
+        break;
+    }
+}
+
+void SimulatorAPI::handleReportingTimeReached(QString networkName,
+                                              double currentSimulatorTime,
+                                              double currentSimulatorProgress,
+                                              Mode mode)
+{
+    m_ReportingTimeData.insert(networkName, {currentSimulatorTime, currentSimulatorProgress});
+
+    switch (mode) {
+    case Mode::Async:
+        // Increment the number of completed simulators
+        m_completedSimulatorsTimeStep++;
+
+        // Check if all simulators have completed their time step
+        if (m_completedSimulatorsTimeStep == mData.size()) {
+            // Emit the aggregated signal
+            emit simulationReachedReportingTime(m_ReportingTimeData);
+
+            // Emit the aggregated signal
+            emitTrainsReachedDestination();
+
+            m_completedSimulatorsTimeStep = 0;  // Reset the counter for the next time step
+        }
+        break;
+
+    case Mode::Sync:
+        // In sync mode, emit results immediately for each network
+        emit simulationReachedReportingTime(m_ReportingTimeData);
         break;
 
     default:
@@ -491,6 +585,19 @@ void SimulatorAPI::InteractiveMode::createNewSimulationEnvironment(
                                                  mode);
 }
 
+void SimulatorAPI::InteractiveMode::createNewSimulationEnvironmentFromFiles(
+    QString nodesFile, QString linksFile,
+    QString networkName, QVector<std::shared_ptr<Train>> trainList,
+    double timeStep, Mode mode)
+{
+    mMode = mode;
+
+    getInstance().createNewSimulationEnvironmentFromFiles(
+        nodesFile, linksFile, networkName,
+        trainList, timeStep, mode);
+}
+
+
 void SimulatorAPI::InteractiveMode::addTrainToSimulation(
     QString networkName, QVector<std::shared_ptr<Train>> trains)
 {
@@ -513,7 +620,7 @@ void SimulatorAPI::InteractiveMode::
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "runOneTimeStep", Qt::QueuedConnection);
+                "runOneTimeStep");
         }
     }
 }
@@ -532,16 +639,22 @@ void SimulatorAPI::InteractiveMode::
         }
         if (timeSteps < 0) {
             if (getInstance().mData[networkName].simulator) {
+                if (getInstance().mData[networkName].workerThread->isRunning()){
+                    qDebug() << "RUNNIG";
+                }
+                else {
+                    qDebug() << "NOT RUNNIG";
+                }
                 QMetaObject::invokeMethod(
                     getInstance().mData[networkName].simulator,
-                    "runSimulation", Qt::QueuedConnection);
+                    "runSimulation");
             }
         }
         else {
             if (getInstance().mData[networkName].simulator) {
                 QMetaObject::invokeMethod(
                     getInstance().mData[networkName].simulator,
-                    "runBy", Qt::QueuedConnection,
+                    "runBy",
                     Q_ARG(double, timeSteps));
             }
         }
@@ -569,8 +682,7 @@ void SimulatorAPI::InteractiveMode::
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "initializeSimulator",
-                Qt::QueuedConnection);
+                "initializeSimulator");
         }
     }
 }
@@ -594,8 +706,7 @@ void SimulatorAPI::InteractiveMode::endSimulation(QVector<QString> networkNames)
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "finalizeSimulation",
-                Qt::QueuedConnection);
+                "finalizeSimulation");
         }
     }
 }
@@ -658,6 +769,19 @@ void SimulatorAPI::ContinuousMode::createNewSimulationEnvironment(
                                                  mode);
 }
 
+void SimulatorAPI::ContinuousMode::createNewSimulationEnvironmentFromFiles(
+    QString nodesFile,
+    QString linksFile,
+    QString networkName,
+    QVector<std::shared_ptr<Train>> trainList,
+    double timeStep,
+    Mode mode)
+{
+    mMode = mode;
+    getInstance().createNewSimulationEnvironmentFromFiles(
+        nodesFile, linksFile, networkName,
+        trainList, timeStep, mode);
+}
 
 void SimulatorAPI::ContinuousMode::runSimulation(
     QVector<QString> networkNames)
@@ -679,7 +803,7 @@ void SimulatorAPI::ContinuousMode::runSimulation(
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "runSimulation", Qt::QueuedConnection);
+                "runSimulation");
         }
     }
 
@@ -705,7 +829,7 @@ void SimulatorAPI::ContinuousMode::
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "pauseSimulation", Qt::QueuedConnection);
+                "pauseSimulation");
         }
     }
 }
@@ -730,7 +854,7 @@ void SimulatorAPI::ContinuousMode::
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "resumeSimulation", Qt::QueuedConnection);
+                "resumeSimulation");
         }
     }
 }
@@ -754,8 +878,7 @@ void SimulatorAPI::ContinuousMode::endSimulation(QVector<QString> networkNames)
         if (getInstance().mData[networkName].simulator) {
             QMetaObject::invokeMethod(
                 getInstance().mData[networkName].simulator,
-                "finalizeSimulation",
-                Qt::QueuedConnection);
+                "finalizeSimulation");
         }
     }
 }

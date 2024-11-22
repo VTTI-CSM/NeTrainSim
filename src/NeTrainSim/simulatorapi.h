@@ -28,8 +28,10 @@ signals:
     void simulationsPaused(QVector<QString> networkNames);
     void simulationsResumed(QVector<QString> networkNames);
     void simulationsEnded(QVector<QString> networkNames);
-    void simulationAdvanced(QMap<QString, double>
+    void simulationAdvanced(QMap<QString, QPair<double, double>>
                                 currentSimulorTimePairs);
+    void simulationReachedReportingTime(QMap<QString, QPair<double, double>>
+                                            currentSimulorTimeProgressPairs);
     void trainsReachedDestination(
         const QMap<QString, QVector<QString>>& trainNetworkPairs);
     void trainAddedToSimulation(const QString networkName,
@@ -61,6 +63,15 @@ protected:
         double timeStep = 1.0,
         Mode mode = Mode::Async);
 
+    void createNewSimulationEnvironmentFromFiles(
+        QString nodesFile,
+        QString linksFile,
+        QString networkName = "*",
+        QVector<std::shared_ptr<Train>> trainList =
+        QVector<std::shared_ptr<Train>>(),
+        double timeStep = 1.0,
+        Mode mode = Mode::Async);
+
     void requestSimulationCurrentResults(QVector<QString> networkNames);
 
     // Train control methods
@@ -79,6 +90,7 @@ protected:
 
 private:
     static std::unique_ptr<SimulatorAPI> instance;
+    static void registerQMeta();
 
 protected slots:
     void handleTrainReachedDestination(QString networkName,
@@ -86,6 +98,11 @@ protected slots:
                                        Mode mode);
     void handleOneTimeStepCompleted(QString networkName,
                                     double currentSimulatorTime,
+                                    double currentSimulatorProgress,
+                                    Mode mode);
+    void handleReportingTimeReached(QString networkName,
+                                    double currentSimulatorTime,
+                                    double currentSimulatorProgress,
                                     Mode mode);
     void handleResultsAvailable(QString networkName,
                                 TrainsResults result,
@@ -110,7 +127,8 @@ protected:
     QMap<QString, TrainsResults> m_simulationResultBuffer;
 
     int m_completedSimulatorsTimeStep = 0;  // Track the number of completed simulators
-    QMap<QString, double> m_timeStepData;
+    QMap<QString, QPair<double, double>> m_timeStepData;
+    QMap<QString, QPair<double, double>> m_ReportingTimeData;
     QMap<QString, QVector<QString>> m_trainsReachedBuffer;
 
     QVector<QString> m_totalSimulatorsRunRequested;
@@ -157,6 +175,14 @@ public:
             QVector<std::shared_ptr<Train>>(),
             double timeStep = 1.0,
             Mode mode = Mode::Async);
+        static void createNewSimulationEnvironmentFromFiles(
+            QString nodesFile,
+            QString linksFile,
+            QString networkName = "*",
+            QVector<std::shared_ptr<Train>> trainList =
+            QVector<std::shared_ptr<Train>>(),
+            double timeStep = 1.0,
+            Mode mode = Mode::Async);
 
         static void addTrainToSimulation(QString networkName,
                                          QVector<std::shared_ptr<Train>> trains);
@@ -185,6 +211,14 @@ public:
         static void createNewSimulationEnvironment(
             QString nodesFileContent,
             QString linksFileContent,
+            QString networkName = "*",
+            QVector<std::shared_ptr<Train>> trainList =
+            QVector<std::shared_ptr<Train>>(),
+            double timeStep = 1.0,
+            Mode mode = Mode::Async);
+        static void createNewSimulationEnvironmentFromFiles(
+            QString nodesFile,
+            QString linksFile,
             QString networkName = "*",
             QVector<std::shared_ptr<Train>> trainList =
             QVector<std::shared_ptr<Train>>(),
