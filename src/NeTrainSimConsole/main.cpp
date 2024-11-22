@@ -237,12 +237,12 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        SimulatorAPI::ContinuousMode::createNewSimulationEnvironment(
+        SimulatorAPI::ContinuousMode::createNewSimulationEnvironmentFromFiles(
             QString::fromStdString(nodesFile),
             QString::fromStdString(linksFile),
             networkName, qtrains, timeStep);
 
-        net = SimulatorAPI::ContinuousMode::getNetwork(networkName);
+        // net = SimulatorAPI::ContinuousMode::getNetwork(networkName);
         for (auto &t: trains) {
             QEventLoop::connect(t.get(), &Train::slowSpeedOrStopped,
                     [](const auto &msg){
