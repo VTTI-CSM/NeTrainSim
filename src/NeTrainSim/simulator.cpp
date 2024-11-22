@@ -93,10 +93,6 @@ Simulator::Simulator(Network* theNetwork, Vector<std::shared_ptr<Train>> network
 
 }
 
-void Simulator::setControlSimulatorExternally(bool controlExternally) {
-    mIsExternallyControlled = controlExternally;
-}
-
 void Simulator::moveObjectToThread(QThread *thread) {
     // Move Simulator object itself to the thread
     this->moveToThread(thread);
@@ -156,18 +152,25 @@ void Simulator::addTrainToSimulation(std::shared_ptr<Train> train) {
     trains.push_back(train);
 
     setUpTrains();
+
+    QVector<QString> trainsIDs = {QString::fromStdString(train->trainUserID)};
+    emit trainsAddedToSimulation(trainsIDs);
 }
 
-void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains)
+void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trainsList)
 {
     // Lock the mutex to protect the mShips list
     QMutexLocker locker(&mutex);
 
+    QVector<QString> trainsIDs;
     for (auto &train: trains) {
+        trainsIDs.push_back(QString::fromStdString(train->trainUserID));
         trains.push_back(train);
     }
 
     setUpTrains();
+
+    emit trainsAddedToSimulation(trainsIDs);
 }
 
 // Setter for the summary file name
@@ -275,7 +278,7 @@ void Simulator::openSummaryFile() {
 bool Simulator::checkAllTrainsReachedDestination() {
 
     // give an opportunity for the external controller to add trains
-    if (trains.empty() && mIsExternallyControlled) {
+    if (trains.empty()) {
         return false;
     }
 
@@ -1075,7 +1078,7 @@ void Simulator::runBy(double timeSteps) {
         runOneTimeStep();
     }
 
-    emit simulationReachedReportingTime(simulationTime);
+    emit simulationReachedReportingTime(simulationTime, this->progress);
 }
 
 void Simulator::runOneTimeStep() {
@@ -1117,7 +1120,7 @@ void Simulator::runOneTimeStep() {
 
     this->simulationTime += this->timeStep;
 
-    emit simulationTimeAdvanced(simulationTime);
+    emit simulationTimeAdvanced(simulationTime, this->progress);
 
 }
 
@@ -1171,13 +1174,6 @@ void Simulator::runSimulation() {
 
             emit allTrainsReachedDestination();
 
-            if (mIsExternallyControlled) {
-                // Pause the simulation to wait for new ships to be added
-                qDebug() << "All ships have reached their "
-                            "destination, pausing simulation.";
-                this->pauseSimulation();
-                continue;
-            }
 			break;
 		}
 
@@ -1942,19 +1938,35 @@ void Simulator::ProgressBar(double current, double total, int bar_length) {
 
 void Simulator::pauseSimulation() {
     mutex.lock();
-    pauseFlag = true;
+
+    if (pauseFlag) {
+        // Simulation is already paused; no action needed
+        mutex.unlock();
+        return;
+    }
+
+    pauseFlag = true; // Mark the simulation as paused
     mutex.unlock();
 
-    emit simulatorPaused();
+    emit simulatorPaused(); // Notify listeners that the simulation has been paused
 }
+
 
 void Simulator::resumeSimulation() {
     mutex.lock();
-    pauseFlag = false;
-    mutex.unlock();
-    pauseCond.wakeAll(); // This will wake up the thread
 
-    emit simulatorResumed();
+    if (!pauseFlag) {
+        // Simulation is not paused; no action needed
+        mutex.unlock();
+        return;
+    }
+
+    pauseFlag = false; // Mark the simulation as resumed
+    mutex.unlock();
+
+    pauseCond.wakeAll(); // Wake up the thread if it was waiting
+
+    emit simulatorResumed(); // Notify listeners that the simulation has resumed
 }
 
 void Simulator::stopSimulation() {

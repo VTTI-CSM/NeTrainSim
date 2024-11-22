@@ -90,8 +90,6 @@ private:
     Map<std::shared_ptr<NetNode>, std::shared_ptr<NetSignalGroupControllerWithQueuing>> signalsGroups;
 	/** export individualized trains summary in the summary file*/
 	bool exportIndividualizedTrainsSummary = false;
-    /** control the simulator from outsider server */
-    bool mIsExternallyControlled = false;
 
     bool mIsSimulatorRunning = true;
 
@@ -114,8 +112,6 @@ public:
                        double simulatorTimeStep = DefaultTimeStep, QObject *parent = nullptr);
 
     void moveObjectToThread(QThread *thread);
-
-    void setControlSimulatorExternally(bool controlExternally);
 
     /**
      * @brief setup the Trains on the network and the signals groups
@@ -176,7 +172,7 @@ public:
 
     Q_INVOKABLE void addTrainToSimulation(std::shared_ptr<Train> train);
 
-    void addTrainsToSimulation(QVector< std::shared_ptr<Train> > trains);
+    void addTrainsToSimulation(QVector< std::shared_ptr<Train> > trainsList);
 
     QJsonObject getCurrentStateAsJson();
 
@@ -668,9 +664,9 @@ public: signals:
      */
     void trainsCollided(std::string& msg);
 
-    void simulationTimeAdvanced(double currentSimulatorTime);
+    void simulationTimeAdvanced(double currentSimulatorTime, double simulatorProgress);
 
-    void simulationReachedReportingTime(double currentSimulatorTime);
+    void simulationReachedReportingTime(double currentSimulatorTime, double simulatorProgress);
 
     void simulatorInitialized();
 
@@ -683,6 +679,10 @@ public: signals:
     void simulationFinished();
 
     void allTrainsReachedDestination();
+
+    void trainsAddedToSimulation(QVector<QString> IDs);
+
+    void errorOccurred(QString error);
 
 public slots:
     /**
