@@ -34,10 +34,16 @@ void SimulationServer::setupServer() {
     auto &simAPI = SimulatorAPI::InteractiveMode::getInstance();
     connect(&simAPI,
             &SimulatorAPI::simulationCreated, this,
-            &SimulationServer::onSimulationCreated);
+            &SimulationServer::onSimulationCreated,
+            Qt::DirectConnection);
     connect(&simAPI,
-            &SimulatorAPI::simulationAdvanced, this,
-            &SimulationServer::onSimulationAdvanced);
+            &SimulatorAPI::simulationReachedReportingTime, this,
+            &SimulationServer::onSimulationAdvanced,
+            Qt::DirectConnection);
+    // connect(&simAPI,
+    //         &SimulatorAPI::simulationReachedReportingTime, this,
+    //         &SimulationServer::onSimulationReachedReportingTime,
+    //         Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::trainsReachedDestination, this,
             [this](QMap<QString, QVector<QString>> trainNetworkPair) {
@@ -56,19 +62,23 @@ void SimulationServer::setupServer() {
                     nets[networkKey] = trains;
                 }
                 onTrainReachedDestination(nets);
-            });
+            }, Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::simulationResultsAvailable, this,
-            &SimulationServer::onSimulationResultsAvailable);
+            &SimulationServer::onSimulationResultsAvailable,
+            Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::trainAddedToSimulation, this,
-            &SimulationServer::onTrainsAddedToSimulator);
+            &SimulationServer::onTrainsAddedToSimulator,
+            Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::containersAddedToTrain, this,
-            &SimulationServer::onContainersAddedToTrain);
+            &SimulationServer::onContainersAddedToTrain,
+            Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::errorOccurred, this,
-            &SimulationServer::onErrorOccurred);
+            &SimulationServer::onErrorOccurred,
+            Qt::DirectConnection);
 }
 
 SimulationServer::~SimulationServer() {
@@ -450,6 +460,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
             SimulatorAPI::InteractiveMode::
                 createNewSimulationEnvironment(nodesContent, linksContent,
                                                netName, qTrains, timeStepValue);
+
         } catch (const std::exception &e) {
             qWarning() << "Error while creating the environment: " << e.what();
         }
@@ -476,7 +487,11 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
 
         SimulatorAPI::InteractiveMode::runSimulation(networkNamesVector,
                                                      byTimeSteps);
-        qInfo() << "Running Simulation by " << byTimeSteps << " steps";
+        if (byTimeSteps < 0) {
+            qInfo() << "Running Simulation till the end.";
+        } else {
+            qInfo() << "Running Simulation by" << byTimeSteps << "steps.";
+        }
 
     } else if (command == "addTrainsToSimulator") {
         if (!checkJsonField(jsonMessage, "network", command) ||
@@ -526,7 +541,6 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     } else if (command == "restServer") {
         SimulatorAPI::InteractiveMode::resetAPI();
         onServerReset();
-        qInfo() << "Server reset Successfully!";
     } else {
         onWorkerReady();
         qWarning() << "Unrecognized command:" << command;
@@ -636,7 +650,7 @@ void SimulationServer::onSimulationsEnded(QVector<QString> networkNames) {
 }
 
 void SimulationServer::onSimulationAdvanced(
-    QMap<QString, double> networkNamesSimulationTimePairs)
+    QMap<QString, QPair<double, double>> networkNamesSimulationTimePairs)
 {
     QJsonObject jsonMessage;
     jsonMessage["event"] = "simulationAdvanced";
@@ -644,20 +658,24 @@ void SimulationServer::onSimulationAdvanced(
 
     // Convert QVector<QString> to QJsonArray
     QJsonObject jsonNetworkTimes;
+    QJsonObject jsonNetworkProgress;
     for (auto it = networkNamesSimulationTimePairs.constBegin();
          it != networkNamesSimulationTimePairs.constEnd(); ++it) {
         // Add each network name (key) and its corresponding
         // simulation time (value) to the jsonNetworkTimes object
-        jsonNetworkTimes[it.key()] = it.value();
+        jsonNetworkTimes[it.key()] = it.value().first;
+        jsonNetworkProgress[it.key()] = it.value().second;
     }
 
     // Add the network names to the JSON message
     jsonMessage["networkNamesTimes"] = jsonNetworkTimes;
+    jsonMessage["networkNamesProgress"] = jsonNetworkProgress;
 
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
 }
+
 
 void SimulationServer::onTrainsAddedToSimulator(const QString networkName,
                                                 const QVector<QString> trainIDs)
@@ -689,6 +707,8 @@ void SimulationServer::
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+
+    qInfo() << "Train reached destination";
 }
 
 
@@ -709,6 +729,8 @@ void SimulationServer::
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+
+    qInfo() << "Simulation results sent to consumers!";
 }
 
 void SimulationServer::onContainersAddedToTrain(QString networkName,
@@ -722,6 +744,9 @@ void SimulationServer::onContainersAddedToTrain(QString networkName,
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+
+    qInfo() << "Container successfully added to Train ID: "
+            << trainID << " of network: " << networkName << "!";
 }
 
 void SimulationServer::onErrorOccurred(const QString &errorMessage) {
@@ -732,6 +757,7 @@ void SimulationServer::onErrorOccurred(const QString &errorMessage) {
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+    qInfo() << "Error Occured: " << errorMessage;
 }
 
 void SimulationServer::onServerReset() {
@@ -742,4 +768,5 @@ void SimulationServer::onServerReset() {
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
     onWorkerReady();
+    qInfo() << "Server reset Successfully!";
 }
