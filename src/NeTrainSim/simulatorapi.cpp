@@ -228,10 +228,10 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
 
     for (const auto& train : mData[networkName].trains) {
         connect(train.get(), &Train::destinationReached, this,
-                [this, networkName, train, mode]() {
+                [this, networkName, train, mode](QJsonObject state) {
                     handleTrainReachedDestination(
                         networkName,
-                        QString::fromStdString(train->trainUserID),
+                        state,
                         mode);
                 }, Qt::DirectConnection);
     }
@@ -302,10 +302,8 @@ void SimulatorAPI::addTrainToSimulation(QString networkName,
 
     for (auto train: trains) {
         connect(train.get(), &Train::destinationReached,
-                [this, train, networkName]() {
-                    QString trainID = QString::fromStdString(train->trainUserID);
-
-                    handleTrainReachedDestination(networkName, trainID, mMode);
+                [this, train, networkName](QJsonObject state) {
+                    handleTrainReachedDestination(networkName, state, mMode);
                 });
 
         mData[networkName].trains.insert(train->trainUserID, train);
@@ -398,10 +396,10 @@ void SimulatorAPI::addContainersToTrain(QString networkName,
 }
 
 void SimulatorAPI::handleTrainReachedDestination(QString networkName,
-                                                 QString trainID,
+                                                 QJsonObject trainState,
                                                  Mode mode)
 {
-    m_trainsReachedBuffer[networkName].append(trainID);
+    m_trainsReachedBuffer[networkName].append(trainState);
 
     if (mode == Mode::Sync) {
         emit trainsReachedDestination(m_trainsReachedBuffer);
@@ -523,7 +521,7 @@ void SimulatorAPI::emitTrainsReachedDestination()
     }
 }
 
-void SimulatorAPI::emitSimulationResults(QMap<QString, TrainsResults> results)
+void SimulatorAPI::emitSimulationResults(QMap<QString, TrainsResults> &results)
 {
     if (!results.isEmpty()) {
         emit simulationResultsAvailable(results);

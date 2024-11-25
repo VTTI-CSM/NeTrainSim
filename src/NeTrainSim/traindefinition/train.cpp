@@ -696,7 +696,8 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
     if ((std::round(trainTotalPathLength * 1000.0) / 1000.0) <= (std::round(travelledDistance * 1000.0) / 1000.0)) {
         travelledDistance = trainTotalPathLength;
         reachedDestination = true;
-        emit destinationReached();
+        auto jsonState = getCurrentStateAsJson();
+        emit destinationReached(jsonState);
     }
 }
 
@@ -1270,8 +1271,14 @@ bool Train::canProvideEnergy(double &EC, double &timeStep) {
 
 }
 
-QJsonObject Train::getCurrentStateAsJson() const {
+QJsonObject Train::getCurrentStateAsJson() {
     QJsonObject jsonState;
+
+    Map<std::string, double> consumedTankACC;
+    const auto& consumedTank = getTrainConsumedTank();
+    for (const auto& kvp : consumedTank) {
+        consumedTankACC[kvp.first] += kvp.second;
+    }
 
     // Add basic information
     jsonState["trainUserID"] = QString::fromStdString(trainUserID);
@@ -1290,6 +1297,11 @@ QJsonObject Train::getCurrentStateAsJson() const {
     jsonState["cumulativeDelayTimeStat"] = cumDelayTimeStat;
     jsonState["cumulativeMaxDelayTimeStat"] = cumMaxDelayTimeStat;
     jsonState["cumulativeStoppedStat"] = cumStoppedStat;
+    QJsonObject fuel;
+    for (const auto& kvp : consumedTank) {
+        fuel.insert(QString::fromStdString(kvp.first), kvp.second);
+    }
+    jsonState["totalFuelConsumed"] = fuel;
 
     // Add train state
     jsonState["currentSpeed"] = currentSpeed;

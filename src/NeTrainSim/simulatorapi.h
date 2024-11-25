@@ -33,7 +33,7 @@ signals:
     void simulationReachedReportingTime(QMap<QString, QPair<double, double>>
                                             currentSimulorTimeProgressPairs);
     void trainsReachedDestination(
-        const QMap<QString, QVector<QString>>& trainNetworkPairs);
+        const QMap<QString, QVector<QJsonObject>>& trainNetworkPairs);
     void trainAddedToSimulation(const QString networkName,
                                 const QVector<QString> trainIDs);
     void simulationResultsAvailable(QMap<QString, TrainsResults>& results);
@@ -94,7 +94,7 @@ private:
 
 protected slots:
     void handleTrainReachedDestination(QString networkName,
-                                       QString trainID,
+                                       QJsonObject trainState,
                                        Mode mode);
     void handleOneTimeStepCompleted(QString networkName,
                                     double currentSimulatorTime,
@@ -109,7 +109,7 @@ protected slots:
                                 Mode mode);
 
     void emitTrainsReachedDestination();
-    void emitSimulationResults(QMap<QString, TrainsResults> results);
+    void emitSimulationResults(QMap<QString, TrainsResults> &results);
     // void handleSimulationResults(
     //     const QVector<SimulationResult>& results);
 
@@ -129,7 +129,7 @@ protected:
     int m_completedSimulatorsTimeStep = 0;  // Track the number of completed simulators
     QMap<QString, QPair<double, double>> m_timeStepData;
     QMap<QString, QPair<double, double>> m_ReportingTimeData;
-    QMap<QString, QVector<QString>> m_trainsReachedBuffer;
+    QMap<QString, QVector<QJsonObject>> m_trainsReachedBuffer;
 
     QVector<QString> m_totalSimulatorsRunRequested;
     int m_completedSimulatorsRun = 0;

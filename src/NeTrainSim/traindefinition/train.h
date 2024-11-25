@@ -1073,7 +1073,7 @@ public:
     void addContainers(QJsonObject json);
 #endif
 
-    QJsonObject getCurrentStateAsJson() const;
+    QJsonObject getCurrentStateAsJson();
 
 
 // ##################################################################
@@ -1275,7 +1275,7 @@ private:
          */
         void slowSpeedOrStopped(std::string msg);
 
-        void destinationReached();
+        void destinationReached(QJsonObject trainState);
 
     private:
 #ifdef BUILD_SERVER_ENABLED

@@ -46,18 +46,18 @@ void SimulationServer::setupServer() {
     //         Qt::DirectConnection);
     connect(&simAPI,
             &SimulatorAPI::trainsReachedDestination, this,
-            [this](QMap<QString, QVector<QString>> trainNetworkPair) {
+            [this](QMap<QString, QVector<QJsonObject>> trainNetworkPair) {
                 QJsonObject nets;
                 for (auto it = trainNetworkPair.begin();
                      it != trainNetworkPair.end(); ++it) {
                     const QString& networkKey = it.key();
-                    const QVector<QString>& trainsVector = it.value();
+                    const QVector<QJsonObject>& trainStateVector = it.value();
 
                     QJsonArray trains;
                     // Iterate through the QVector
-                    for (const QString& trainID : trainsVector) {
+                    for (const QJsonObject& trainState : trainStateVector) {
                         // Append each trainID to QJsonArray
-                        trains.append(trainID);
+                        trains.append(trainState);
                     }
                     nets[networkKey] = trains;
                 }
@@ -708,7 +708,7 @@ void SimulationServer::
                         jsonMessage);
     onWorkerReady();
 
-    qInfo() << "Train reached destination";
+    // qInfo() << "Train reached destination";
 }
 
 
