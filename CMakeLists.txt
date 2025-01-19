@@ -79,7 +79,7 @@ endif()
 # -------------------------------------------------------
 
 # Option to build GUI components
-option(BUILD_GUI "Build the GUI components" OFF)
+option(BUILD_GUI "Build the GUI components" ON)
 # Cache the option so it's stored between runs
 set(BUILD_GUI ${BUILD_GUI} CACHE BOOL "Build the GUI components" FORCE)
 
@@ -94,11 +94,16 @@ set(BUILD_SERVER ${BUILD_SERVER} CACHE BOOL "Build the SERVER components" FORCE)
 # -------------------------------------------------------
 
 if(BUILD_GUI)
-    set(QTRPT_INCLUDE_DIR "C:/Program Files/QtRPT/include" CACHE PATH "Path to QtRPT's include directory")
-    set(QTRPT_LIB_DIR "C:/Program Files/QtRPT/lib" CACHE PATH "Path to QtRPT's library directory")
+    if(WIN32)
+        set(KDREPORTS_DIR "C:/Program Files/KDAB/KDReports/cmake" CACHE PATH "Path to KDReports CMake directory")
+    elseif(APPLE)
+        set(KDREPORTS_DIR "/usr/local/KDAB/KDReports-2.3.95/lib/cmake/KDReports-qt6" CACHE PATH "Path to KDReports CMake directory")
+    elseif(UNIX)
+        set(KDREPORTS_DIR "/usr/local/KDAB/KDReports-2.3.95/lib/cmake/KDReports-qt6" CACHE PATH "Path to KDReports CMake directory")
+    endif()
 
-    # Add the include directory
-    include_directories(${QTRPT_INCLUDE_DIR})
+    # Use the KDReports CMake package
+    find_package(KDReports-qt6 REQUIRED CONFIG PATHS ${KDREPORTS_DIR})
 endif()
 
 if(BUILD_SERVER)
@@ -113,7 +118,7 @@ if(BUILD_SERVER)
     elseif(UNIX)
         # Linux-specific paths
         set(CONTAINER_CMAKE_DIR "/usr/local/cmake" CACHE PATH "Default path to container's library on Linux")
-        set(RABBITMQ_CMAKE_DIR "/usr/lib/rabbitmq-c/cmake" CACHE PATH "Default path to RabbitMQ-C library on Linux")
+        set(RABBITMQ_CMAKE_DIR "/usr/local/lib/cmake/rabbitmq-c" CACHE PATH "Default path to RabbitMQ-C library on Linux")
     else()
         message(FATAL_ERROR "Unsupported platform. Please set paths for CONTAINER_CMAKE_DIR and RABBITMQ_CMAKE_DIR manually.")
     endif()
@@ -150,7 +155,16 @@ if(BUILD_SERVER)
     endif()
 
     # Set and cache the path to the RabbitMQ bin directory using RABBITMQ_CMAKE_DIR
-    set(RABBITMQ_BIN_DIR "${RABBITMQ_CMAKE_DIR}/../../../bin" CACHE PATH "Path to the RabbitMQ-C library's bin directory")
+    if(WIN32)
+        # For Windows, use /bin
+        set(RABBITMQ_SHRD_LIB_DIR "${RABBITMQ_CMAKE_DIR}/../../../bin" CACHE PATH "Path to the RabbitMQ-C library's bin directory")
+    elseif(UNIX AND NOT APPLE)
+        # For Linux, use /lib or /lib64 (adjust based on your setup)
+        set(RABBITMQ_SHRD_LIB_DIR "${RABBITMQ_CMAKE_DIR}/../../" CACHE PATH "Path to the RabbitMQ-C library's bin directory")
+    elseif(APPLE)
+        # For macOS, use /lib or /lib64 (adjust based on your setup)
+        set(RABBITMQ_SHRD_LIB_DIR "${RABBITMQ_CMAKE_DIR}/../../" CACHE PATH "Path to the RabbitMQ-C library's bin directory")
+    endif()
 endif()
 
 
