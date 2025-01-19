@@ -289,10 +289,16 @@ Vector<std::shared_ptr<NetNode>> ReadWriteNetwork::generateNodes(
             double y = std::stod(record["YCoordinate"]);
             double scaleX = std::stod(record["XScale"]);
             double scaleY = std::stod(record["YScale"]);
+            double TerminalDwellTime = std::stod(record["TerminalDwellTime"]);
             std::string desc = record["Desc"];
+            bool IsTerminal;
+            stringstream ss(record["IsTerminal"]);
+            ss >> IsTerminal;
 
             NetNode node = NetNode(nodeSimID, userID, x,
                                    y, desc, scaleX, scaleY);
+            node.isTerminal = IsTerminal;
+            node.dwellTimeIfTerminal = TerminalDwellTime;
             _Nodes.push_back(std::make_shared<NetNode>(node));
             nodeSimID++;
         }
@@ -335,6 +341,10 @@ Vector<std::shared_ptr<NetLink>> ReadWriteNetwork::generateLinks(
 
             std::string linkInRegion = record["Region"];
             std::string signalsEnds = record["SignalsAtNodes"];
+            if (QString::fromStdString(signalsEnds).trimmed().toLower() ==
+                "not defined") {
+                signalsEnds = "";
+            }
 
             std::shared_ptr<NetNode> fromNodeNode =
                 getSimulatorNodeByUserID(theFileNodes, fromNode);
@@ -425,7 +435,7 @@ bool ReadWriteNetwork::writeNodesFile(
     string &filename)
 {
 
-    if (filename.empty()) {
+    if (filename.empty() || nodesRecords.empty()) {
         return false;
     }
 

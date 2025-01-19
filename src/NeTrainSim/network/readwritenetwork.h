@@ -32,6 +32,8 @@ namespace ReadWriteNetwork {
 static Vector<std::string> nodeFilekeys = {"UserID",
                                            "XCoordinate",
                                            "YCoordinate",
+                                           "IsTerminal",
+                                           "TerminalDwellTime",
                                            "Desc",
                                            "XScale",
                                            "YScale"};
