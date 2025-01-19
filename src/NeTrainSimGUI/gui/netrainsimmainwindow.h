@@ -6,15 +6,13 @@
 #ifndef NETRAINSIMMAINWINDOW_H
 #define NETRAINSIMMAINWINDOW_H
 
-// #include "QtRPT/qtrpt.h"
 #include "qlineedit.h"
 #include "gui/aboutwindow.h"
 #include "gui/customplot.h"
 #include <QMainWindow>
 #include "../NeTrainSim/util/map.h"
 #include <any>
-//#include "qtrpt/QtRPT/qtrpt.h"
-#include "simulationworker.h"
+#include "traindefinition/trainscommon.h"
 #include "util/configurationmanager.h"
 #include "settingswindow.h"
 
@@ -467,7 +465,7 @@ private:
     * @return A vector of tuples representing the nodes' data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<Map<string, string> > getNodesDataFromNodesTable();
+    Vector<Map<std::string, std::string> > getNodesDataFromNodesTable();
 
     /**
     * Converts nodes data to plottable format.
@@ -574,7 +572,7 @@ private:
     * @return A vector of tuples representing the trains data. Each tuple contains the train ID, route nodes, start time,
     *         end time, speed profile, acceleration profile, and whether the train is enabled.
     */
-    Vector<Map<string, std::any>> getTrainsDataFromTables();
+    Vector<Map<std::string, std::any>> getTrainsDataFromTables();
 
     /**
     * Initiates the simulation process.
