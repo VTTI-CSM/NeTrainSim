@@ -3,21 +3,24 @@
  *
  * Implements the netrainsim class
  */
-#include "netrainsimmainwindow.h"
+// #include "netrainsimmainwindow.h"
+#include "gui/netrainsimmainwindow.h"
 #include "gui/comboboxdelegate.h"
 #include "gui/settingswindow.h"
 #include "gui/textboxdelegate.h"
+#include "gui/ui_netrainsimmainwindow.h"
 #include "nonemptydelegate.h"
 #include "simulationworker.h"
 #include "../NeTrainSim/util/csvmanager.h"
-#include "ui_netrainsimmainwindow.h"
+// #include "ui_netrainsimmainwindow.h"
 #include <iostream>
 #include <QtAlgorithms>
 #include "numericdelegate.h"
 #include "intnumericdelegate.h"
 #include "checkboxdelegate.h"
-#include <qtrpt.h>
+// #include <qtrpt.h>
 #include <fstream>
+#include <simulatorapi.h>
 #include "../NeTrainSim/traindefinition/trainslist.h"
 #include "aboutwindow.h"
 #include "../NeTrainSim/util/xmlmanager.h"
@@ -25,6 +28,7 @@
 #include "util/errorhandler.h"
 #include "../NeTrainSim/network/readwritenetwork.h"
 
+static const QString NETWORK_NAME = "MainNetwork";
 
 NeTrainSim::NeTrainSim(QWidget *parent)
     : QMainWindow(parent)
@@ -1037,8 +1041,24 @@ void NeTrainSim::setupNodesTable() {
         new QTableWidgetItem(QString::number(1)));
     ui->table_newNodes->setItem(0, 0, newItemID.release());
 
+    ui->table_newNodes->
+        setItemDelegateForColumn(3,
+                                 new CheckboxDelegate(this));
+    QString termToolTip = "Represents a terminal point where all "
+                         "trains stop for a dwell time";
+    ui->table_newNodes->horizontalHeaderItem(3)->setToolTip(termToolTip);
+
+    ui->table_newNodes->
+        setItemDelegateForColumn(4,
+                                 new NumericDelegate(this,
+                                                     999999999999999999999999.0,
+                                                     0, 0, 1, 60.0));
+    QString dwellToolTip = "Indicates the dwell time any train passing "
+                               "through has to stop.";
+    ui->table_newNodes->horizontalHeaderItem(4)->setToolTip(dwellToolTip);
+
     ui->table_newNodes->setItemDelegateForColumn(
-        3, new TextBoxDelegate(this, "Not Defined"));
+        5, new TextBoxDelegate(this, "Not Defined"));
 
     QString descToolTip = "A brief overview or explanation "
                           "regarding the specific Node.";
@@ -1409,31 +1429,42 @@ Vector<Map<std::string, std::string>> NeTrainSim::getNodesDataFromNodesTable()
     Vector<Map<std::string, std::string>> nodesRecords;
     // get the data from the QTableWidget
     for (int i = 0; i < ui->table_newNodes->rowCount(); i++) {
-        if (ui->table_newNodes->isRowEmpty(i, {0,3})) {
+        if (ui->table_newNodes->isRowEmpty(i, {0,3,4,5})) {
             continue;
         }
         // get the item at row 0 and column 0 of the table widget
         QTableWidgetItem* xItem = ui->table_newNodes->item(i, 1);
         QTableWidgetItem* yItem = ui->table_newNodes->item(i, 2);
         QTableWidgetItem* labelItem = ui->table_newNodes->item(i, 0);
-        QTableWidgetItem* descItem = ui->table_newNodes->item(i, 3);
-        double xCoord, yCoord, xScale, yScale;
+        QTableWidgetItem* dwellTimeItem = ui->table_newNodes->item(i, 4);
+        QTableWidgetItem* descItem = ui->table_newNodes->item(i, 5);
+        double xCoord, yCoord, xScale, yScale, dwellTime;
         std::string desc;
         QString label;
         if (labelItem && xItem && yItem && !xItem->text().isEmpty() &&
-            !yItem->text().isEmpty() && !labelItem->text().isEmpty()){
+            !yItem->text().isEmpty() && !labelItem->text().isEmpty()) {
             label  = labelItem->text().trimmed();
             xCoord = xItem->text().toDouble();
             yCoord = yItem->text().toDouble();
+            dwellTime = (dwellTimeItem && !dwellTimeItem->text().isEmpty()) ?
+                            dwellTimeItem->text().toDouble() : 0.0;
             xScale = ui->doubleSpinBox_xCoordinate->value();
             yScale = ui->doubleSpinBox_yCoordinate->value();
             desc   = descItem? descItem->text().trimmed().toStdString() : "";
+
+            QAbstractItemModel *model =
+                ui->table_newNodes->model();
+            QModelIndex isTerminalIndex = model->index(i,3);
+            int isTerminal =
+                (isTerminalIndex.data(Qt::CheckStateRole).toInt() == Qt::Checked) ? 1 : 0;
 
 
             nodesRecords.push_back({
                 {"UserID", std::to_string(label.toInt())},
                 {"XCoordinate", std::to_string(xCoord)},
                 {"YCoordinate", std::to_string(yCoord)},
+                {"IsTerminal", std::to_string(isTerminal)},
+                {"TerminalDwellTime", std::to_string(dwellTime)},
                 {"Desc", desc},
                 {"XScale", std::to_string(xScale)},
                 {"YScale", std::to_string(yScale)}
@@ -1632,6 +1663,11 @@ Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksTable()
                 ui->table_newLinks->item(i, 6)
                     ? ui->table_newLinks->item(i, 6)->text().
                       trimmed().toStdString(): "";
+            if (QString::fromStdString(signalsAt).toLower().trimmed()
+                == "not defined")
+            {
+                signalsAt = "";
+            }
 
             double grade =
                 ui->table_newLinks->item(i, 7)
@@ -1645,7 +1681,7 @@ Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksTable()
 
             QModelIndex directionIndex = model->index(i, 9);
             direction = (directionIndex.
-                         data(Qt::CheckStateRole).toBool())? 2: 1;
+                         data(Qt::CheckStateRole).toInt() == Qt::Checked)? 2: 1;
 
             double variation =
                 ui->table_newLinks->item(i, 10)
@@ -1654,7 +1690,7 @@ Vector<Map<std::string, std::string>> NeTrainSim::getLinkesDataFromLinksTable()
 
             QModelIndex catenaryIndex = model->index(i,11);
             hasCaten = (catenaryIndex.
-                        data(Qt::CheckStateRole).toBool()) ? 1 : 0;
+                        data(Qt::CheckStateRole).toInt() == Qt::Checked) ? 1 : 0;
 
             std::string region =
                 ui->table_newLinks->item(i, 12)
@@ -2274,77 +2310,83 @@ void NeTrainSim::simulate() {
         double timeStep = ui->doubleSpinBox_timeStep->value();
         int plotFreq = ui->spinBox_plotEvery->value();
 
-        if (this->thread == nullptr) {
-            this->thread = new QThread(this);
-        }
-
-        if (this->thread->isRunning()) {
-            this->showNotification("Simulation is still running!");
-            return;
-        }
-
         ui->progressBar->setVisible(true);
-        worker = new SimulationWorker(nodeRecords, linkRecords, trainRecords,
-                                      netName, endTime, timeStep, plotFreq,
-                                      exportDir, summaryFilename, exportInta,
-                                      instaFilename, exportAllTrainsSummary);
 
-        if (worker == nullptr) {
-            ErrorHandler::showError("Error!");
-            return;
-        }
+        auto nodeRecordsf = Utils::convertToQVectorString(nodeRecords);
+        auto linkRecordsf = Utils::convertToQVectorString(linkRecords);
+        auto trainRecordsf = Utils::convertToQVector(trainRecords);
+        SimulatorAPI::ContinuousMode::createNewSimulationEnvironment(
+            NETWORK_NAME, nodeRecordsf, linkRecordsf, trainRecordsf, timeStep);
 
-//        connect(worker, &SimulationWorker::trainSlowSpeed,
-//                [this](const std::string &msg){
-//            this->showWarning(
-//                QString::fromStdString(msg));
-//            });
+        // Configure the simulator
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setEndTime(endTime);
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setPlotFrequency(plotFreq);
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setExportIndividualizedTrainsSummary(exportAllTrainsSummary);
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setOutputFolderLocation(exportDir);
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setSummaryFilename(summaryFilename);
+        SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME)->setExportInstantaneousTrajectory(exportInta, instaFilename);
 
-//        connect(worker, &SimulationWorker::trainSuddenAcceleration,
-//                [this](const std::string &msg){
-//                    this->showWarning(
-//                        QString::fromStdString(msg));
-//                });
-
-        // handle any error that arise from the simulator
-        connect(worker, &SimulationWorker::errorOccurred, this,
-                &NeTrainSim::handleError);
+        auto &simAPI = SimulatorAPI::ContinuousMode::getInstance();
 
         // update the progress bar
-        connect(worker, &SimulationWorker::simulaionProgressUpdated,
-                ui->progressBar, &QProgressBar::setValue);
+        connect(&simAPI, &SimulatorAPI::simulationProgressUpdated, this,
+                [this]
+                (QPair<QString, QPair<double, int>> currentSimulorTimePairs)
+                {
+            if (currentSimulorTimePairs.first == NETWORK_NAME) {
+                ui->progressBar->setValue(
+                    currentSimulorTimePairs.second.second);
+            }
+        });
 
-        // Connect the operationCompleted signal to a slot in your GUI class
-        connect(worker, &SimulationWorker::simulationFinished, this,
-                &NeTrainSim::handleSimulationFinished);
+        connect(&simAPI, &SimulatorAPI::simulationResultsAvailable, this,
+                [this](QMap<QString, TrainsResults> results) {
+            handleSimulationFinished(results[NETWORK_NAME]);
+            ui->tabWidget_project->setTabEnabled(4, true);
+            ui->pushButton_projectNext->setEnabled(true);
+            this->ui->progressBar->setVisible(false);
+            this->showNotification("Simulation finished Successfully!");
+            ui->tabWidget_project->setCurrentIndex(4);
+            ui->pushButton_pauseResume->setVisible(false);
+        });
+
+        // handle any error that arise from the simulator
+        connect(&simAPI, &SimulatorAPI::errorOccurred, this,
+                [this](QString error) {
+                    this->showWarning(error);
+        });
+
+        connect(&simAPI, &SimulatorAPI::simulationsFinished, this, [this](){
+            ui->tabWidget_project->setTabEnabled(4, true);
+            ui->pushButton_projectNext->setEnabled(true);
+            this->ui->progressBar->setVisible(false);
+            this->showNotification("Simulation finished Successfully!");
+            ui->tabWidget_project->setCurrentIndex(4);
+            ui->pushButton_pauseResume->setVisible(false);
+        });
 
         // replot the trains coordinates
-        connect(worker, &SimulationWorker::trainsCoordinatesUpdated, this,
-                [this](Vector<
-                       std::pair<std::string,
-                                 Vector<std::pair<double,
-                                                  double>>>>
-                                                    trainsStartEndPoints)
+        connect(&simAPI, &SimulatorAPI::trainsCoordinatesUpdated, this,
+                [this](const QMap<QString,
+                                  QVector<
+                                      QPair<QString,
+                                            QVector<
+                                                QPair<double,
+                                                      double>>>>> trainsCoord)
                 {
+            auto trainsStartEndPoints =
+                Utils::convertFromQtTrainsCoords(trainsCoord[NETWORK_NAME]);
                     updateTrainsPlot(trainsStartEndPoints);
                 });
 
         // hide the pause button
         ui->pushButton_pauseResume->setVisible(true);
 
-        // move the worker to the new thread
-        worker->moveToThread(thread);
+        SimulatorAPI::ContinuousMode::runSimulation({NETWORK_NAME});
+
 
         // disable the simulate button
-        connect(thread, &QThread::started, this, [=]() {
-            this->ui->pushButton_projectNext->setEnabled(false);
-        });
-        // connect the do work to thread start
-        connect(thread, &QThread::started, worker, &SimulationWorker::doWork);
-
-        // start the simulation
-        thread->start();
-
+        this->ui->pushButton_projectNext->setEnabled(false);
 
     } catch (const std::exception& e) {
         ErrorHandler::showError(e.what());
@@ -2356,22 +2398,11 @@ void NeTrainSim::simulate() {
 
 // Slot to handle the simulation finished signal
 void NeTrainSim::handleSimulationFinished(
-    TrainsResults &results)
+    TrainsResults results)
 {
-    // enable the results window
-    ui->tabWidget_project->setTabEnabled(4, true);
-    ui->pushButton_projectNext->setEnabled(true);
-    this->ui->progressBar->setVisible(false);
-    this->showNotification("Simulation finished Successfully!");
     this->trainsSummaryData = results.summaryData;
-    this->thread->quit();
-    this->thread = nullptr;
-    delete this->worker;
-    this->worker = nullptr;
     this->showReport();
     this->showDetailedReport(results.trajectoryFileName);
-    ui->tabWidget_project->setCurrentIndex(4);
-    ui->pushButton_pauseResume->setVisible(false);
 }
 
 void NeTrainSim::saveProjectFile(bool saveAs) {
@@ -2510,35 +2541,7 @@ void NeTrainSim::updateTrainsPlot(
 
 void NeTrainSim::showReport() {
 
-    if (this->report == nullptr) {
-        this->report = new QtRPT(this);
-    }
-
-    QObject::connect(this->report, SIGNAL(setValue(int,QString,QVariant&,int)),
-                     this, SLOT(setValue(int,QString,QVariant&,int)));
-    QObject::connect(this->report, &QtRPT::setDSInfo, this,
-                     &NeTrainSim::setDSInfo);
-
-    this->report->loadReport(":/resources/report.xml");
-
-    this->printer = new QPrinter(QPrinter::PrinterResolution);
-    this->printer->setOutputFormat(QPrinter::PdfFormat);
-
-    QPageLayout pageLayout(QPageSize(QPageSize::A4),
-                           QPageLayout::Portrait, QMarginsF(0, 0, 0, 0));
-    this->printer->setPageLayout(pageLayout);
-    this->printer->setFullPage(true);
-
-    // connect the print preview to the report
-    connect(ui->widget_SummaryReport, SIGNAL(paintRequested(QPrinter*)),
-            this->report, SLOT(printPreview(QPrinter*)));
-
-    auto popup = [=]() {
-        this->report->printExec();
-    };
-
-    QObject::connect(ui->pushButton_popoutPreview,
-                     &QPushButton::clicked, popup);
+    ui->widget_SummaryReport->createReport(this->trainsSummaryData);
 }
 
 
@@ -2574,11 +2577,11 @@ void NeTrainSim::setValue(const int recNo, const QString paramName,
     }
 }
 
-void NeTrainSim::setDSInfo(DataSetInfo &dsInfo)
-{
-    if (dsInfo.reportPage == 0)
-        dsInfo.recordCount = trainsSummaryData.size();
-}
+// void NeTrainSim::setDSInfo(DataSetInfo &dsInfo)
+// {
+//     if (dsInfo.reportPage == 0)
+//         dsInfo.recordCount = trainsSummaryData.size();
+// }
 
 
 
@@ -2728,15 +2731,6 @@ void NeTrainSim::handleError(std::string error) {
 
 
 void NeTrainSim::closeEvent(QCloseEvent* event) {
-    // Stop the thread and perform any necessary cleanup
-    if (this->thread != nullptr) {
-        thread->terminate();
-        thread->wait();
-    }
-    if (this->worker != nullptr) {
-        worker->deleteLater();
-    }
-
     // Call the base class implementation to close the form
     QWidget::closeEvent(event);
 }
@@ -2901,25 +2895,10 @@ NeTrainSim::~NeTrainSim()
         ui = nullptr;
     }
 
-    if (worker) {
-        delete worker;
-        worker = nullptr;
-    }
-
-    if (thread) {
-        delete thread;
-        thread = nullptr;
-    }
-
-    if (report) {
-        delete report;
-        report = nullptr;
-    }
-
-    if (printer) {
-        delete printer;
-        printer = nullptr;
-    }
+    // if (printer) {
+    //     delete printer;
+    //     printer = nullptr;
+    // }
 
     // Delete the labels
     for (auto label : labelsVector)
@@ -2933,13 +2912,11 @@ NeTrainSim::~NeTrainSim()
 
 
 void NeTrainSim::pauseSimulation() {
-    QMetaObject::invokeMethod(
-        worker->sim, "pauseSimulation", Qt::QueuedConnection);
+    SimulatorAPI::ContinuousMode::pauseSimulation({NETWORK_NAME});
 }
 
 void NeTrainSim::resumeSimulation() {
-    QMetaObject::invokeMethod(
-        worker->sim, "resumeSimulation", Qt::QueuedConnection);
+    SimulatorAPI::ContinuousMode::resumeSimulation({NETWORK_NAME});
 }
 
 void NeTrainSim::loadNodesDataToTable(
@@ -2973,6 +2950,9 @@ void NeTrainSim::loadNodesDataToTable(
             // get the item at row 0 and column 0 of the table widget
             double xCoord = std::stod(nodesRecords[i]["XCoordinate"]);
             double yCoord = std::stod(nodesRecords[i]["YCoordinate"]);
+            double dwellTime = std::stod(nodesRecords[i]["TerminalDwellTime"]);
+            int isTerminal = std::stoi(nodesRecords[i]["IsTerminal"]);
+            bool isterm = (isTerminal == 0) ? false : true;
             std::string desc = nodesRecords[i]["Desc"];
             QString label = QString::fromStdString(nodesRecords[i]["UserID"]);
 
@@ -2987,9 +2967,17 @@ void NeTrainSim::loadNodesDataToTable(
             // Y Coordinate
             index = ui->table_newNodes->model()->index(i, 2);
             ui->table_newNodes->model()->setData(index, yCoord, Qt::EditRole);
+            
+            // Is Terminal
+            index = ui->table_newNodes->model()->index(i, 3);
+            ui->table_newNodes->model()->setData(index, isterm ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+
+            // Dwell Time
+            index = ui->table_newNodes->model()->index(i, 4);
+            ui->table_newNodes->model()->setData(index, dwellTime, Qt::EditRole);
 
             // Describtion
-            index = ui->table_newNodes->model()->index(i, 3);
+            index = ui->table_newNodes->model()->index(i, 5);
             ui->table_newNodes->model()->
                 setData(index, QString::fromStdString(desc), Qt::EditRole);
 
@@ -3113,7 +3101,7 @@ void NeTrainSim::loadLinksDataToTable(
 
             index = ui->table_newLinks->model()->index(i, 9);
             ui->table_newLinks->model()->
-                setData(index, dir, Qt::CheckStateRole);
+                setData(index, dir? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
 
             index = ui->table_newLinks->model()->index(i, 10);
             ui->table_newLinks->model()->
@@ -3121,7 +3109,7 @@ void NeTrainSim::loadLinksDataToTable(
 
             index = ui->table_newLinks->model()->index(i, 11);
             ui->table_newLinks->model()->
-                setData(index, hasCat, Qt::CheckStateRole);
+                setData(index, hasCat? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
 
             index = ui->table_newLinks->model()->index(i, 12);
             ui->table_newLinks->model()->

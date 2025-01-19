@@ -6,7 +6,7 @@
 #ifndef NETRAINSIMMAINWINDOW_H
 #define NETRAINSIMMAINWINDOW_H
 
-#include "QtRPT/qtrpt.h"
+// #include "QtRPT/qtrpt.h"
 #include "qlineedit.h"
 #include "gui/aboutwindow.h"
 #include "gui/customplot.h"
@@ -146,15 +146,15 @@ private slots:
      */
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 
-    /**
-     * Slot for setting the data set information.
-     *
-     * @param dsInfo    The data set information.
-     *
-     * @author	Ahmed Aredah
-     * @date	6/7/2023
-     */
-    void setDSInfo(DataSetInfo &dsInfo);
+    // /**
+    //  * Slot for setting the data set information.
+    //  *
+    //  * @param dsInfo    The data set information.
+    //  *
+    //  * @author	Ahmed Aredah
+    //  * @date	6/7/2023
+    //  */
+    // void setDSInfo(DataSetInfo &dsInfo);
 
     /**
      * Slot for handling errors that occur during the simulation.
@@ -175,7 +175,7 @@ private slots:
      * @author	Ahmed Aredah
      * @date	6/7/2023
      */
-    void handleSimulationFinished(TrainsResults &results);
+    void handleSimulationFinished(TrainsResults results);
 
     /**
      * Slot for updating the 'visualize trains' combo box.
@@ -297,11 +297,11 @@ private:
     // The user interface
     Ui::NeTrainSim *ui;
 
-    // Pointer to the SimulationWorker object used for running the simulation in a separate thread.
-    SimulationWorker* worker = nullptr;
+    // // Pointer to the SimulationWorker object used for running the simulation in a separate thread.
+    // SimulationWorker* worker = nullptr;
 
-    // Pointer to the QThread object that is used for running the simulation worker.
-    QThread* thread = nullptr;
+    // // Pointer to the QThread object that is used for running the simulation worker.
+    // QThread* thread = nullptr;
 
     // Vector to hold the labels displayed on the plot.
     // Each label is represented by a QCPItemText object.
@@ -357,11 +357,11 @@ private:
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
     QVector<QPair<QString, QString>> trainsSummaryData;
 
-    // holds the summary report
-    QtRPT * report = nullptr;
+    // // holds the summary report
+    // QtRPT * report = nullptr;
 
-    // holds the summary report printer
-    QPrinter *printer = nullptr;
+    // // holds the summary report printer
+    // QPrinter *printer = nullptr;
 
     ConfigurationManager* configManager;
 
