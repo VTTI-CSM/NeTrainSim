@@ -6,10 +6,13 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <any>
 #include <iostream>
 #include <iomanip> // Required for setprecision and fixed
 #include <locale> // Required for using thousands_separator
+#include <qvariant.h>
 #include <sstream> // Required for stringstream
+#include "util/map.h"
 #include "vector.h"
 #include <fstream>
 #include <string>
@@ -20,6 +23,10 @@
 #include <type_traits>
 #include <QVector>
 #include <type_traits>
+#include <QMap>
+#include <QString>
+#include <map>
+#include <string>
 
 namespace Utils {
 
@@ -548,6 +555,251 @@ namespace Utils {
 
         return closestMatch;
     }
+
+    inline Map<std::string, std::string> convertToStdMap(const QMap<QString, QString>& qmap) {
+        Map<std::string, std::string> stdmap;
+        for (auto it = qmap.begin(); it != qmap.end(); ++it) {
+            stdmap[std::string(it.key().toStdString())] = std::string(it.value().toStdString());
+        }
+        return stdmap;
+    }
+
+    inline Map<std::string, std::any> convertToStdMap(const QMap<QString, std::any>& qmap) {
+        Map<std::string, std::any> stdmap;
+        for (auto it = qmap.begin(); it != qmap.end(); ++it) {
+            stdmap[std::string(it.key().toStdString())] = it.value();
+        }
+        return stdmap;
+    }
+
+    inline QMap<QString, QString> convertToQMap(const Map<std::string, std::string>& stdmap) {
+        QMap<QString, QString> qmap;
+        for (const auto& entry : stdmap) {
+            qmap[QString::fromStdString(entry.first)] = QString::fromStdString(entry.second);
+        }
+        return qmap;
+    }
+
+    inline QMap<QString, std::any> convertToQMap(const Map<std::string, std::any>& stdmap) {
+        QMap<QString, std::any> qmap;
+        for (const auto& entry : stdmap) {
+            qmap[QString::fromStdString(entry.first)] = entry.second;
+        }
+        return qmap;
+    }
+
+    // Generic conversion from QMap<Key, Value> to std::map<Key, Value>
+    template <typename Key, typename Value>
+    inline std::map<Key, Value> convertToStdMap(const QMap<Key, Value>& qmap) {
+        std::map<Key, Value> stdmap;
+        for (auto it = qmap.begin(); it != qmap.end(); ++it) {
+            stdmap[it.key()] = it.value();
+        }
+        return stdmap;
+    }
+
+    // Generic conversion from std::map<Key, Value> to QMap<Key, Value>
+    template <typename Key, typename Value>
+    inline QMap<Key, Value> convertToQMap(const std::map<Key, Value>& stdmap) {
+        QMap<Key, Value> qmap;
+        for (const auto& entry : stdmap) {
+            qmap.insert(entry.first, entry.second);
+        }
+        return qmap;
+    }
+
+    template <typename T>
+    inline QVector<T> convertToQVector(const Vector<T>& vec) {
+        QVector<T> qvec;
+        qvec.reserve(static_cast<int>(vec.size()));
+
+        for (const auto& entry : vec) {
+            qvec.append(entry);
+        }
+        return qvec;
+    }
+
+    template <typename T>
+    inline Vector<T> convertToStdVector(const QVector<T>& qvec) {
+        Vector<T> vec;
+        vec.reserve(static_cast<size_t>(qvec.size()));
+
+        for (const auto& entry : qvec) {
+            vec.push_back(entry);
+        }
+        return vec;
+    }
+
+    inline QVector<QMap<QString, QString>> convertToQVector(const Vector<Map<std::string, std::string>>& vec) {
+        QVector<QMap<QString, QString>> qvec;
+        qvec.reserve(static_cast<int>(vec.size()));
+
+        for (const auto& entry : vec) {
+            qvec.append(convertToQMap(entry));
+        }
+        return qvec;
+    }
+
+    inline QVector<QMap<QString, std::any>> convertToQVector(const Vector<Map<std::string, std::any>>& vec) {
+        QVector<QMap<QString, std::any>> qvec;
+        qvec.reserve(static_cast<int>(vec.size()));
+
+        for (const auto& entry : vec) {
+            qvec.append(convertToQMap(entry));
+        }
+        return qvec;
+    }
+
+    inline Vector<Map<std::string, std::string>> convertToStdVector(const QVector<QMap<QString, QString>>& qvec) {
+        Vector<Map<std::string, std::string>> vec;
+        vec.reserve(static_cast<size_t>(qvec.size()));
+
+        for (const auto& entry : qvec) {
+            vec.push_back(convertToStdMap(entry));
+        }
+        return vec;
+    }
+
+    inline Vector<Map<std::string, std::any>> convertToStdVector(const QVector<QMap<QString, std::any>>& qvec) {
+        Vector<Map<std::string, std::any>> vec;
+        vec.reserve(static_cast<size_t>(qvec.size()));
+
+        for (const auto& entry : qvec) {
+            vec.push_back(convertToStdMap(entry));
+        }
+        return vec;
+    }
+
+    template <typename Key, typename Value>
+    inline QVector<QMap<Key, Value>> convertToQVector(const Vector<Map<Key, Value>>& vec) {
+        QVector<QMap<Key, Value>> qvec;
+        qvec.reserve(static_cast<int>(vec.size()));
+
+        for (const auto& entry : vec) {
+            QMap<Key, Value> qmap;
+            for (const auto& pair : entry) {
+                qmap.insert(pair.first, pair.second);
+            }
+            qvec.append(qmap);
+        }
+        return qvec;
+    }
+
+    inline QVector<QMap<QString, QString>> convertToQVectorString(const Vector<Map<std::string, std::string>>& vec) {
+        QVector<QMap<QString, QString>> qvec;
+        qvec.reserve(static_cast<int>(vec.size()));
+
+        for (const auto& entry : vec) {
+            QMap<QString, QString> qmap;
+            for (const auto& pair : entry) {
+                qmap.insert(QString::fromStdString(pair.first),
+                            QString::fromStdString(pair.second));
+            }
+            qvec.append(qmap);
+        }
+        return qvec;
+    }
+
+    template <typename Key, typename Value>
+    inline Vector<std::map<Key, Value>> convertToStdVector(const QVector<QMap<Key, Value>>& qvec) {
+        Vector<std::map<Key, Value>> vec;
+        vec.reserve(static_cast<size_t>(qvec.size()));
+
+        for (const auto& entry : qvec) {
+            std::map<Key, Value> stdmap;
+            for (auto it = entry.begin(); it != entry.end(); ++it) {
+                stdmap[it.key()] = it.value();
+            }
+            vec.push_back(stdmap);
+        }
+        return vec;
+    }
+
+    inline std::any convertQVariantToAny(const QVariant& variant) {
+        switch (variant.typeId()) {
+        case QMetaType::Int:
+            return std::any(variant.toInt());
+        case QMetaType::Double:
+            return std::any(variant.toDouble());
+        case QMetaType::Bool:
+            return std::any(variant.toBool());
+        case QMetaType::QString:
+            return std::any(variant.toString().toStdString());
+        case QMetaType::QVariantList: {
+            QVariantList qList = variant.toList();
+            std::vector<std::any> anyList;
+            for (const QVariant& qVar : qList) {
+                anyList.push_back(convertQVariantToAny(qVar));
+            }
+            return std::any(anyList);
+        }
+        case QMetaType::QVariantMap: {
+            QVariantMap qMap = variant.toMap();
+            std::map<std::string, std::any> anyMap;
+            for (auto it = qMap.begin(); it != qMap.end(); ++it) {
+                anyMap[it.key().toStdString()] = convertQVariantToAny(it.value());
+            }
+            return std::any(anyMap);
+        }
+        default:
+            return std::any();
+        }
+    }
+
+    inline std::map<std::string, std::any>
+    convertQMapToStdMap(const QMap<QString, QVariant>& qMap) {
+        std::map<std::string, std::any> stdMap;
+
+        for (auto it = qMap.begin(); it != qMap.end(); ++it) {
+            std::string key = it.key().toStdString();
+            std::any value = convertQVariantToAny(it.value());
+            stdMap[key] = value;
+        }
+
+        return stdMap;
+    }
+
+    inline QVector<QPair<QString, QVector<QPair<double, double>>>>
+    convertToQtTrainsCoords(const Vector<std::pair<std::string, Vector<std::pair<double, double>>>>& simulator) {
+        QVector<QPair<QString, QVector<QPair<double, double>>>> qtSimulator;
+        qtSimulator.reserve(simulator.size()); // Reserve space to avoid multiple reallocations
+
+        for (const auto& outerPair : simulator) {
+            // Convert inner std::vector<std::pair<double, double>> to QVector<QPair<double, double>>
+            QVector<QPair<double, double>> innerQVector;
+            innerQVector.reserve(outerPair.second.size());
+            for (const auto& innerPair : outerPair.second) {
+                innerQVector.append(QPair<double, double>(innerPair.first, innerPair.second));
+            }
+
+            // Convert std::string to QString and add to QVector
+            qtSimulator.append(QPair<QString, QVector<QPair<double, double>>>(
+                QString::fromStdString(outerPair.first), innerQVector));
+        }
+
+        return qtSimulator;
+    }
+
+    inline Vector<std::pair<std::string, Vector<std::pair<double, double>>>>
+    convertFromQtTrainsCoords(const QVector<QPair<QString, QVector<QPair<double, double>>>>& qtSimulator) {
+        Vector<std::pair<std::string, Vector<std::pair<double, double>>>> simulator;
+        simulator.reserve(qtSimulator.size()); // Reserve space to avoid multiple reallocations
+
+        for (const auto& outerPair : qtSimulator) {
+            // Convert inner QVector<QPair<double, double>> to Vector<std::pair<double, double>>
+            Vector<std::pair<double, double>> innerVector;
+            innerVector.reserve(outerPair.second.size());
+            for (const auto& innerPair : outerPair.second) {
+                innerVector.push_back(std::make_pair(innerPair.first, innerPair.second));
+            }
+
+            // Convert QString to std::string and add to Vector
+            simulator.push_back(std::make_pair(outerPair.first.toStdString(), innerVector));
+        }
+
+        return simulator;
+    }
+
 
 }
 
