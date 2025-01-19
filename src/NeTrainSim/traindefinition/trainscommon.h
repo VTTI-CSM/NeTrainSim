@@ -88,6 +88,10 @@ Q_DECLARE_METATYPE(TrainNetworkDefinition)
 // ----------------------------------------------------------------------------
 
 struct NETRAINSIMCORE_EXPORT TrainsResults {
+    TrainsResults(const TrainsResults&) = default;
+    TrainsResults& operator=(const TrainsResults&) = default;
+    ~TrainsResults() = default;
+
     // Constants
     static const qint64 MAX_TRAJECTORY_SIZE = 1024 * 1024; // 1 MB in bytes
 
@@ -107,15 +111,20 @@ struct NETRAINSIMCORE_EXPORT TrainsResults {
                   QString trajectoryFilePath, QString summaryFilePath)
         : summaryData(summary), summaryFileName(summaryFilePath) {
         // Load the trajectory file content if the file path is valid
-        if (!trajectoryFilePath.isEmpty() &&
-            QFile::exists(trajectoryFilePath)) {
-            trajectoryFileData.clear();
-            // Store the entire trajectory file path
-            trajectoryFileName = trajectoryFilePath;
+        if (!trajectoryFilePath.isEmpty()){
+            if (QFile::exists(trajectoryFilePath)) {
+                trajectoryFileData.clear();
+                // Store the entire trajectory file path
+                trajectoryFileName = trajectoryFilePath;
+            }
+            else {
+                trajectoryFileData.clear(); // Handle invalid file path case
+                trajectoryFileName.clear();
+                qWarning() << "Invalid trajectory file path!";
+            }
         } else {
             trajectoryFileData.clear(); // Handle invalid file path case
             trajectoryFileName.clear();
-            qWarning("Invalid trajectory file path or file does not exist.");
         }
     }
 
@@ -250,22 +259,22 @@ struct NETRAINSIMCORE_EXPORT TrainsResults {
     }
 
     // Serialization operator (<<)
-    friend QDataStream &operator<<(QDataStream &out,
-                                   const TrainsResults &results) {
+    friend QDataStream &operator<<(QDataStream& out,
+                                   const TrainsResults& results) {
         out << results.summaryData << results.trajectoryFileData
             << results.trajectoryFileName << results.summaryFileName;
         return out;
     }
 
     // Deserialization operator (>>)
-    friend QDataStream &operator>>(QDataStream &in,
-                                   TrainsResults &results) {
+    friend QDataStream &operator>>(QDataStream& in,
+                                   TrainsResults& results) {
         in >> results.summaryData >> results.trajectoryFileData
             >> results.trajectoryFileName >> results.summaryFileName;
         return in;
     }
 };
-Q_DECLARE_METATYPE(TrainsResults)
 
+Q_DECLARE_METATYPE(TrainsResults)
 
 #endif // TRAINSCOMMON_H
