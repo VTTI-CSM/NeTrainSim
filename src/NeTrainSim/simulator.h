@@ -58,7 +58,7 @@ private:
 
 private:
 	/** The trains */
-    Vector<std::shared_ptr<Train>> trains = Vector<std::shared_ptr<Train>>();
+    QVector<std::shared_ptr<Train>> trains = QVector<std::shared_ptr<Train>>();
 	/** The simulation time */
 	double simulationTime;
 	/** The simulation end time */
@@ -108,8 +108,9 @@ public:
      * @param  [in] 	networkTrains     The network trains.
      * @param  [in] 	simulatorTimeStep The simulator time step. Default value is 1.0
 	 */
-    explicit Simulator(Network *theNetwork, Vector<std::shared_ptr<Train>> networkTrains,
-                       double simulatorTimeStep = DefaultTimeStep, QObject *parent = nullptr);
+    explicit Simulator(Network *theNetwork, QVector<std::shared_ptr<Train>> networkTrains,
+                       double simulatorTimeStep = DefaultTimeStep,
+                       QObject *parent = nullptr);
 
     void moveObjectToThread(QThread *thread);
 
@@ -276,7 +277,7 @@ public:
 	 *
 	 * @returns	True if it succeeds, false if it fails.
 	 */
-    bool checkTrainsCollision(Vector<std::shared_ptr<Train> > trainsList);
+    bool checkTrainsCollision(QVector<std::shared_ptr<Train> > trainsList);
 
 	/**
 	 * Play train one time step
@@ -372,7 +373,7 @@ public:
 	 *
 	 * @returns	The next stopping node identifier.
 	 */
-	std::pair<int, bool> getNextStoppingNodeID(std::shared_ptr<Train> train, int& previousNodeIndex);
+    pair<pair<int, std::shared_ptr<NetNode>>, bool> getNextStoppingNodeID(std::shared_ptr<Train> train, int& previousNodeIndex);
 
 	/**
 	 * !
@@ -445,7 +446,7 @@ public:
 	 * @author	Ahmed Aredah
 	 * @date	2/28/2023
 	 */
-    void runSignalsforTrains(Vector<std::shared_ptr<Train>> trainsList);
+    void runSignalsforTrains(QVector<std::shared_ptr<Train> > trainsList);
 
     /**
      * @brief checkNoTrainIsOnNetwork
@@ -638,7 +639,7 @@ public: signals:
      *
      * @param progressPercentage The progress of the simulation as a percentage.
      */
-    void progressUpdated(int progressPercentage);
+    void progressUpdated(double simulationTime, int progressPercentage);
 
     /**
      * @brief Updates the plot of trains with their start and end points.
@@ -656,7 +657,7 @@ public: signals:
      *
      * @param results   Trains results of summary and trajectory data.
      */
-    void resultDataAvailable(TrainsResults &results);
+    void resultDataAvailable(TrainsResults results);
 
     /**
      * @brief reports trains collision
@@ -674,7 +675,7 @@ public: signals:
 
     void simulatorResumed();
 
-    void simulatorEnded();
+    void simulatorTerminated();
 
     void simulationFinished();
 
@@ -683,6 +684,9 @@ public: signals:
     void trainsAddedToSimulation(QVector<QString> IDs);
 
     void errorOccurred(QString error);
+
+    void trainReachedTerminal(QString trainID, QString terminalID,
+                              QJsonArray containers = QJsonArray());
 
 public slots:
     /**
@@ -708,14 +712,14 @@ public slots:
     /**
      * @brief pause the simulation
      */
-    void pauseSimulation();
+    void pauseSimulation(bool emitSignal = true);
 
     /**
      * @brief resume the simulation
      */
-    void resumeSimulation();
+    void resumeSimulation(bool emitSignal = true);
 
-    void stopSimulation();
+    void terminateSimulation();
 
 private:
     QMutex mutex;
