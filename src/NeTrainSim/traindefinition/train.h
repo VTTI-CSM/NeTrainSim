@@ -253,6 +253,9 @@ public:
     /** True if the train should optimize its energy consumption. train trajectory will vary here. */
     bool optimize;
 
+    bool forceStopAtTerminal = true;
+    double dwellStartTime = -1;
+    double dwellDuration = 0;
 
     /**
      * \brief This constructor initializes a train with the passed parameters
@@ -756,8 +759,15 @@ public:
      * @param [in,out]	gapToNextCriticalPointType	Type of the gap to next critical point.
      * @param [in,out]	leaderSpeed				  	The leader speed.
      */
-    void moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+    void moveTrain(double currentSimulationTime, double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
         Vector<bool>& gapToNextCriticalPointType, Vector<double>& leaderSpeed);
+
+    void enableWaitingAtTerminalsForDwellTime(bool state);
+
+    bool isCurrentlyDwelling() const;
+    void forceTrainToStopFor(double duration, double currentTime);
+    double getRemainingDwellTime(double currentTime) const;
+    void resetDwellState();
 
     /**
      * \brief Gets tractive power
@@ -1277,12 +1287,25 @@ private:
 
         void destinationReached(QJsonObject trainState);
 
+        void containersAdded();
+
     private:
 #ifdef BUILD_SERVER_ENABLED
         ContainerCore::ContainerMap mLoadedContainers
             = ContainerCore::ContainerMap(this);
         double reachedDestinationTime = 0;
 #endif
+
+    public slots:
+
+#ifdef BUILD_SERVER_ENABLED
+        QVector<ContainerCore::Container*>
+        getContainersLeavingAtPort(const QVector<QString>& portNames);
+#endif
 };
+
+Q_DECLARE_METATYPE(Train)
+Q_DECLARE_METATYPE(std::shared_ptr<Train>)
+
 
 #endif // !NeTrainSim_Train_h

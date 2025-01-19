@@ -11,6 +11,7 @@
 #include <limits>
 #include "../util/logger.h"
 #include "../util/error.h"
+#include "util/utils.h"
 
 #define stringify( name ) #name
 using namespace std;
@@ -677,11 +678,11 @@ double Train::getStepAcceleration(double timeStep, double freeFlowSpeed, Vector<
     return jerkedAcceleration;
 }
 
-void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
-    Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
+void Train::moveTrain(double currentSimulationTime, double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+                      Vector<bool> &gapToNextCriticalPointType, Vector<double>& leaderSpeed) {
 
     double jerkedAcceleration = this->getStepAcceleration(timeStep, freeFlowSpeed, gapToNextCriticalPoint,
-                                               gapToNextCriticalPointType, leaderSpeed);
+                                                          gapToNextCriticalPointType, leaderSpeed);
     this->currentAcceleration = jerkedAcceleration;
     this->previousSpeed = this->currentSpeed;
     this->currentSpeed = this->speedUpDown(this->previousSpeed, this->currentAcceleration, timeStep, freeFlowSpeed);
@@ -699,6 +700,32 @@ void Train::moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gap
         auto jsonState = getCurrentStateAsJson();
         emit destinationReached(jsonState);
     }
+}
+
+void Train::enableWaitingAtTerminalsForDwellTime(bool state) {
+    forceStopAtTerminal = state;
+}
+
+bool Train::isCurrentlyDwelling() const {
+    return dwellStartTime >= 0;
+}
+
+void Train::forceTrainToStopFor(double duration, double currentTime) {
+    dwellStartTime = currentTime;
+    dwellDuration = duration;
+}
+
+double Train::getRemainingDwellTime(double currentTime) const {
+    if (dwellStartTime < 0) return 0;
+    double elapsedTime = currentTime - dwellStartTime;
+    double remainingTime = dwellDuration - elapsedTime;
+    return (remainingTime > 0) ? remainingTime : 0;
+}
+
+// When the train starts moving again, reset the dwell state
+void Train::resetDwellState() {
+    dwellStartTime = -1;
+    dwellDuration = 0;
 }
 
 void Train::immediateStop(double timestep){
@@ -791,15 +818,36 @@ QVector<ContainerCore::Container *> Train::getLoadedContainers() const {
 void Train::addContainer(ContainerCore::Container* container) {
     if (container) {
         mLoadedContainers.addContainer(container->getContainerID(), container);
+        emit containersAdded();
     }
 }
 
 void Train::addContainers(QJsonObject json) {
     mLoadedContainers.addContainers(json);
+    emit containersAdded();
 }
 
+QVector<ContainerCore::Container*>
+Train::getContainersLeavingAtPort(const QVector<QString>& portNames)
+{
+    // Early return if no port names provided
+    if (portNames.isEmpty()) {
+        return QVector<ContainerCore::Container*>();
+    }
 
+    // Check each port until we find containers
+    for (const QString& portName : portNames) {
+        auto containers =
+            mLoadedContainers.dequeueContainersByNextDestination(portName);
+        if (!containers.isEmpty()) {
+            return containers;
+        }
+    }
+
+    return QVector<ContainerCore::Container*>();
+}
 #endif
+
 // ##################################################################
 // #                   end: train statistics                        #
 // ##################################################################
