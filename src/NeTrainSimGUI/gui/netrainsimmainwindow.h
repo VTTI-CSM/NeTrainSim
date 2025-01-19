@@ -355,12 +355,6 @@ private:
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
     QVector<QPair<QString, QString>> trainsSummaryData;
 
-    // // holds the summary report
-    // QtRPT * report = nullptr;
-
-    // // holds the summary report printer
-    // QPrinter *printer = nullptr;
-
     ConfigurationManager* configManager;
 
     void showDetailedReport(QString trajectoryFilename);

@@ -76,6 +76,10 @@ void SimulationServer::setupServer() {
             &SimulationServer::onContainersAddedToTrain,
             Qt::DirectConnection);
     connect(&simAPI,
+            &SimulatorAPI::trainReachedTerminal, this,
+            &SimulationServer::onTrainReachedTerminal,
+            Qt::DirectConnection);
+    connect(&simAPI,
             &SimulatorAPI::errorOccurred, this,
             &SimulationServer::onErrorOccurred,
             Qt::DirectConnection);
@@ -440,6 +444,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         if (!checkJsonField(jsonMessage, "nodesFileContent", command) ||
             !checkJsonField(jsonMessage, "linksFileContent", command) ||
             !checkJsonField(jsonMessage, "networkName", command) ||
+            !checkJsonField(jsonMessage, "trains", command) ||
             !checkJsonField(jsonMessage, "timeStep", command)) {
             return; // Skip processing this command
         }
@@ -449,17 +454,13 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         QString netName = jsonMessage["networkName"].toString();
         double timeStepValue = jsonMessage["timeStep"].toDouble();
 
-        auto trains = TrainsList::ReadAndGenerateTrainsFromJSON(jsonMessage);
-
-        QVector<std::shared_ptr<Train>> qTrains;
-        for (auto& train: trains) {
-            qTrains.push_back(std::move(train));
-        }
+        auto trainsI = TrainsList::readTrainsFromJSON(jsonMessage);
+        auto trains = Utils::convertToQVector(trainsI);
 
         try {
             SimulatorAPI::InteractiveMode::
                 createNewSimulationEnvironment(nodesContent, linksContent,
-                                               netName, qTrains, timeStepValue);
+                                               netName, trains, timeStepValue);
 
         } catch (const std::exception &e) {
             qWarning() << "Error while creating the environment: " << e.what();
@@ -526,7 +527,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
 
         SimulatorAPI::InteractiveMode::endSimulation(networkNamesVector);
 
-    } else if (command == "addContainers") {
+    } else if (command == "addContainersToTrain") {
         if (!checkJsonField(jsonMessage, "networkName", command) ||
             !checkJsonField(jsonMessage, "trainID", command)) {
             return; // Skip processing this command
@@ -682,7 +683,7 @@ void SimulationServer::onTrainsAddedToSimulator(const QString networkName,
 {
     QJsonObject jsonMessage;
     jsonMessage["event"] = "trainAddedToSimulator";
-    jsonMessage["network"] = networkName;
+    jsonMessage["networkNames"] = networkName;
     QJsonArray trainsJson;
     for (const auto& trainID : trainIDs) {
         trainsJson.append(trainID);
@@ -740,6 +741,7 @@ void SimulationServer::onContainersAddedToTrain(QString networkName,
     jsonMessage["event"] = "containersAddedToTrain";
     jsonMessage["networkName"] = networkName;
     jsonMessage["trainID"] = trainID;
+    jsonMessage["host"] = "NeTrainSim";
 
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
@@ -747,6 +749,25 @@ void SimulationServer::onContainersAddedToTrain(QString networkName,
 
     qInfo() << "Container successfully added to Train ID: "
             << trainID << " of network: " << networkName << "!";
+}
+
+void SimulationServer::onTrainReachedTerminal(QString networkName,
+                                              QString trainID,
+                                              QString terminalID,
+                                              QJsonArray containers)
+{
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "trainReachedTerminal";
+    jsonMessage["networkName"] = networkName;
+    jsonMessage["trainID"] = trainID;
+    jsonMessage["terminalID"] = terminalID;
+    jsonMessage["containers"] = containers;
+    jsonMessage["host"] = "NeTrainSim";
+
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
+
 }
 
 void SimulationServer::onErrorOccurred(const QString &errorMessage) {

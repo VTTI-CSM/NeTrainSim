@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>pdf.png</file>
-        <file>html.png</file>
-        <file>../QtRptDesigner/images/QtRptDesigner.ico</file>
-        <file>excel.png</file>
-    </qresource>
-</RCC>

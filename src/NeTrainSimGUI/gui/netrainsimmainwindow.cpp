@@ -10,7 +10,6 @@
 #include "gui/textboxdelegate.h"
 #include "gui/ui_netrainsimmainwindow.h"
 #include "nonemptydelegate.h"
-#include "simulationworker.h"
 #include "../NeTrainSim/util/csvmanager.h"
 // #include "ui_netrainsimmainwindow.h"
 #include <iostream>
@@ -18,7 +17,6 @@
 #include "numericdelegate.h"
 #include "intnumericdelegate.h"
 #include "checkboxdelegate.h"
-// #include <qtrpt.h>
 #include <fstream>
 #include <simulatorapi.h>
 #include "../NeTrainSim/traindefinition/trainslist.h"

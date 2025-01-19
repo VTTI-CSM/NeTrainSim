@@ -71,6 +71,10 @@ private slots:
     void onTrainReachedDestination(QJsonObject networkTrainsPairs);
     void onSimulationResultsAvailable(QMap<QString, TrainsResults>& results);
     void onContainersAddedToTrain(QString networkName, QString trainID);
+    void onTrainReachedTerminal(QString networkName,
+                                QString trainID,
+                                QString terminalID,
+                                QJsonArray containers);
     void onErrorOccurred(const QString &errorMessage);
     void onServerReset();
 
