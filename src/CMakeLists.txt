@@ -22,17 +22,18 @@ if (BUILD_SERVER)
 endif()
 
 # Installer - only add in release builds
-# if (CMAKE_BUILD_TYPE STREQUAL "Release")
-#     add_subdirectory(NeTrainSimInstaller)
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_subdirectory(NeTrainSimInstaller)
 
-#     # Ensure NeTrainSimInstaller depends on other targets
-#     add_dependencies(NeTrainSimInstaller NeTrainSimCore NeTrainSimConsole)
+    # Add dependencies for the installer
+    add_dependencies(NeTrainSimInstaller NeTrainSimCore NeTrainSimConsole)
 
-#     if (BUILD_GUI)
-#         add_dependencies(NeTrainSimInstaller NeTrainSimGUI)
-#     endif()
+    if (BUILD_GUI)
+        add_dependencies(NeTrainSimInstaller NeTrainSimGUI)
+    endif()
 
-#     if (BUILD_SERVER)
-#         add_dependencies(NeTrainSimInstaller NeTrainSimServer)
-#     endif()
-# endif()
+    if (BUILD_SERVER)
+        add_dependencies(NeTrainSimInstaller NeTrainSimServer)
+    endif()
+endif()
+
