@@ -6,12 +6,13 @@
 #ifndef Map_H
 #define Map_H
 
+#include <iostream>
 #include <map>
 #include "vector.h"
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include "utils.h"
+// #include "utils.h"
 
 /**
  * A map.
@@ -166,7 +167,7 @@ public:
             ss << pair.first << ": ";
             try {
                 static_cast<long double>(pair.second);
-                ss << Utils::thousandSeparator(pair.second);
+                ss << pair.second;
             }
             catch (const std::exception& e) {
                 ss << pair.second;
