@@ -1,21 +1,11 @@
 set(NeTrainSim_GUI_NAME "NeTrainSimGUI" CACHE STRING "Project GUI name" FORCE)
 project(${NeTrainSim_GUI_NAME} VERSION ${NeTrainSim_VERSION} LANGUAGES CXX)
 
-# Add the qcustomplot library target
-add_library(${QCustomPlot_LIB_TARGET_NAME})
-
-# Add the base include directory for the QtRPT headers
-include_directories(${QTRPT_INCLUDE_DIR})
-
-# Specifically add the QtRPT subdirectory where qtrptnamespace.h is located
-include_directories(${QTRPT_INCLUDE_DIR}/QtRPT)
-
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets concurrent PrintSupport Xml Sql Qml Charts)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets concurrent PrintSupport Xml Sql Qml Charts)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets Concurrent PrintSupport Xml Sql Qml Charts)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets Concurrent PrintSupport Xml Sql Qml Charts)
 
 # Define source and header files
 set(PROJECT_H_FILES
-    ${CMAKE_SOURCE_DIR}/src/dependencies/qcustomplot/qcustomplot.h
     gui/checkboxdelegate.h
     gui/comboboxdelegate.h
     gui/customprogressbar.h
@@ -28,9 +18,9 @@ set(PROJECT_H_FILES
     gui/customplot.h
     gui/numericdelegate.h
     gui/settingswindow.h
-    gui/simulationworker.h
     gui/textboxdelegate.h
     gui/togglebutton.h
+    gui/reportwidget.h
     util/configurationmanager.h
     util/errorhandler.h
 )
@@ -42,7 +32,6 @@ set(PROJECT_UI_FILES
 )
 
 set(PROJECT_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/dependencies/qcustomplot/qcustomplot.cpp
     gui/netrainsimmainwindow.cpp
     gui/settingswindow.cpp
     gui/togglebutton.cpp
@@ -51,7 +40,8 @@ set(PROJECT_SOURCES
     gui/disappearinglabel.cpp
     gui/aboutwindow.cpp
     gui/customplot.cpp
-    gui/simulationworker.cpp
+    # gui/simulationworker.cpp
+    gui/reportwidget.cpp
     util/configurationmanager.cpp
     util/errorhandler.cpp
 )
@@ -110,16 +100,7 @@ target_link_libraries(${NeTrainSim_GUI_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Qml
     Qt${QT_VERSION_MAJOR}::Charts
-)
-
-# Link the appropriate library based on the build configuration and platform
-target_link_libraries(${NeTrainSim_GUI_NAME} PRIVATE
-    $<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Windows>>:${QTRPT_LIB_DIR}/QtRPTd.lib>
-    $<$<AND:$<CONFIG:Release>,$<PLATFORM_ID:Windows>>:${QTRPT_LIB_DIR}/QtRPT.lib>
-    $<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Linux>>:${QTRPT_LIB_DIR}/libQtRPTd.so>
-    $<$<AND:$<CONFIG:Release>,$<PLATFORM_ID:Linux>>:${QTRPT_LIB_DIR}/libQtRPT.so>
-    $<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Darwin>>:${QTRPT_LIB_DIR}/libQtRPTd.dylib>
-    $<$<AND:$<CONFIG:Release>,$<PLATFORM_ID:Darwin>>:${QTRPT_LIB_DIR}/libQtRPT.dylib>
+    KDReports::kdreports
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
