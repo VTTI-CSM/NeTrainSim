@@ -21,6 +21,7 @@
 
 const std::string compilation_date = __DATE__;
 const std::string compilation_time = __TIME__;
+const QString NETWORK_NAME = "mainNetwork";
 /**
  * @brief checkParserValue
  * @param parser
@@ -209,40 +210,17 @@ int main(int argc, char *argv[])
     if (checkParserValue(parser, optimizationSpeedPriorityFactor, "", 0.0)) {optimize_speedfactor = parser.value(optimizationSpeedPriorityFactor).toDouble(); }
     else { optimize_speedfactor = 0.0;}
 
-//    qDebug() << "Optimize?: " << optimize
-//             << ", Optimizer Frequency: " << optimizerFrequency
-//             << ", Lookahead: " << lookahead
-//             << ", Optimize SpeedFactor: " << optimize_speedfactor
-//             << "\n";
-
-//    exit(0);
-
-
-    QString networkName = "main network";
-    Network* net;
     try {
         std::cout << "Reading Trains!                 \r";
-
-        Vector<std::shared_ptr<Train>> trains =
-            TrainsList::ReadAndGenerateTrains(trainsFile);
-
-        QVector<std::shared_ptr<Train>> qtrains;
-        qtrains.reserve(trains.size());  // Reserve space for efficiency
-        for (const auto& item : trains) {
-            qtrains.append(item);  // Append each element to the QVector
-        }
-
-        if (trains.empty()) {
-            ErrorHandler::showError("No Trains Found!                    ");
-            return -1;
-        }
 
         SimulatorAPI::ContinuousMode::createNewSimulationEnvironmentFromFiles(
             QString::fromStdString(nodesFile),
             QString::fromStdString(linksFile),
-            networkName, qtrains, timeStep);
+            NETWORK_NAME, QString::fromStdString(trainsFile),
+            timeStep);
 
-        // net = SimulatorAPI::ContinuousMode::getNetwork(networkName);
+        auto trains = SimulatorAPI::ContinuousMode::getTrains(NETWORK_NAME);
+
         for (auto &t: trains) {
             QEventLoop::connect(t.get(), &Train::slowSpeedOrStopped,
                     [](const auto &msg){
@@ -256,7 +234,7 @@ int main(int argc, char *argv[])
                                optimizerFrequency, lookahead);
         }
         Simulator* sim =
-            SimulatorAPI::ContinuousMode::getSimulator(networkName);
+            SimulatorAPI::ContinuousMode::getSimulator(NETWORK_NAME);
 
         if (exportLocation != "" ) { sim->setOutputFolderLocation(exportLocation); }
         if (summaryFilename != "" ) { sim->setSummaryFilename(summaryFilename); }
@@ -269,6 +247,8 @@ int main(int argc, char *argv[])
                      "              \n";
         sim->runSimulation();
         std::cout << "Output folder: " << sim->getOutputFolder() << std::endl;
+
+        // qDebug() << "\nType name for 65537:" << QMetaType::typeName(65537);
     } catch (const std::exception& e) {
         ErrorHandler::showError(e.what());
         return 1;
