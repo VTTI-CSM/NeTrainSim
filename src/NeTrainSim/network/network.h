@@ -953,7 +953,8 @@ private:
                 
             }
             else if (l->trafficSignalNo == 10001){
-                l->toLoc->isDepot = true;
+                l->toLoc->isTerminal = true;
+                l->toLoc->dwellTimeIfTerminal = 0.0; // TODO: this overrides the existing value
             }
         }
         return netSignals;
@@ -1073,5 +1074,8 @@ private:
     }
 
 };
+
+Q_DECLARE_METATYPE(Network)
+Q_DECLARE_METATYPE(Network*)
 
 #endif // !NeTrainSim_Network_h
