@@ -56,7 +56,7 @@ void SimulatorWorker::setupSimulator(
         apiData.network = new Network(nodes, links, networkName.toStdString());
 
 
-        // Store the ship list in APIData for future reference
+        // Store the train list in APIData for future reference
         apiData.trains.clear();
         for (const auto& train : trainsq) {
             apiData.trains[QString::fromStdString(train->trainUserID)] = train;
@@ -71,7 +71,7 @@ void SimulatorWorker::setupSimulator(
         qDebug() << "Simulator successfully created inside thread: "
                  << QThread::currentThread();
 
-        emit simulatorLoaded();
+        emit simulatorLoaded(apiData);
 
     } catch (std::exception &e) {
         QString error = "Error in launching the simulator " +
