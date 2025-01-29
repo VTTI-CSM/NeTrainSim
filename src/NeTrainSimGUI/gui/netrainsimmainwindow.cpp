@@ -2329,17 +2329,24 @@ void NeTrainSim::simulate() {
         // update the progress bar
         connect(&simAPI, &SimulatorAPI::simulationProgressUpdated, this,
                 [this]
-                (QPair<QString, QPair<double, int>> currentSimulorTimePairs)
+                (QString networkName,
+                       QPair<double, int> currentSimulorTimePairs)
                 {
-            if (currentSimulorTimePairs.first == NETWORK_NAME) {
-                ui->progressBar->setValue(
-                    currentSimulorTimePairs.second.second);
+            if (networkName != NETWORK_NAME) {
+                return;
             }
+
+            ui->progressBar->setValue(
+                currentSimulorTimePairs.second);
+
         });
 
         connect(&simAPI, &SimulatorAPI::simulationResultsAvailable, this,
-                [this](QMap<QString, TrainsResults> results) {
-            handleSimulationFinished(results[NETWORK_NAME]);
+                [this](QString networkName, TrainsResults& results) {
+            if (networkName != NETWORK_NAME) {
+                return;
+            }
+            handleSimulationFinished(results);
             ui->tabWidget_project->setTabEnabled(4, true);
             ui->pushButton_projectNext->setEnabled(true);
             this->ui->progressBar->setVisible(false);
@@ -2354,33 +2361,42 @@ void NeTrainSim::simulate() {
                     this->showWarning(error);
         });
 
-        connect(&simAPI, &SimulatorAPI::simulationsFinished, this, [this](){
-            ui->tabWidget_project->setTabEnabled(4, true);
-            ui->pushButton_projectNext->setEnabled(true);
-            this->ui->progressBar->setVisible(false);
-            this->showNotification("Simulation finished Successfully!");
-            ui->tabWidget_project->setCurrentIndex(4);
-            ui->pushButton_pauseResume->setVisible(false);
-        });
+        connect(&simAPI, &SimulatorAPI::simulationFinished, this,
+                [this](QString networkName)
+                {
+                    if (networkName != NETWORK_NAME) {
+                        return;
+                    }
+                    ui->tabWidget_project->setTabEnabled(4, true);
+                    ui->pushButton_projectNext->setEnabled(true);
+                    this->ui->progressBar->setVisible(false);
+                    this->showNotification("Simulation finished "
+                                           "Successfully!");
+                    ui->tabWidget_project->setCurrentIndex(4);
+                    ui->pushButton_pauseResume->setVisible(false);
+                });
 
         // replot the trains coordinates
         connect(&simAPI, &SimulatorAPI::trainsCoordinatesUpdated, this,
-                [this](const QMap<QString,
-                                  QVector<
-                                      QPair<QString,
-                                            QVector<
-                                                QPair<double,
-                                                      double>>>>> trainsCoord)
+                [this](const QString networkName,
+                       QVector<
+                           QPair<QString,
+                                 QVector<
+                                     QPair<double,
+                                           double>>>> trainsCoord)
                 {
-            auto trainsStartEndPoints =
-                Utils::convertFromQtTrainsCoords(trainsCoord[NETWORK_NAME]);
+                    if (networkName != NETWORK_NAME) {
+                        return;
+                    }
+                    auto trainsStartEndPoints =
+                        Utils::convertFromQtTrainsCoords(trainsCoord);
                     updateTrainsPlot(trainsStartEndPoints);
                 });
 
         // hide the pause button
         ui->pushButton_pauseResume->setVisible(true);
 
-        SimulatorAPI::ContinuousMode::runSimulation({NETWORK_NAME});
+        SimulatorAPI::ContinuousMode::runSimulation({NETWORK_NAME}, true);
 
 
         // disable the simulate button
@@ -2489,7 +2505,7 @@ void NeTrainSim::updateTrainsPlot(
 
         // set the pen style for the lines
         QPen pen(randomColor);
-        pen.setWidth(4);
+        pen.setWidth(6);
         graph->setPen(pen);
         graph->setLineStyle(QCPGraph::lsLine);
 
