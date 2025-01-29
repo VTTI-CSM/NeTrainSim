@@ -67,7 +67,7 @@ add_custom_command(TARGET ${NETRAINSIM_SERVER_NAME} POST_BUILD
         $<TARGET_FILE:Container::Container> $<TARGET_FILE_DIR:${NETRAINSIM_SERVER_NAME}>  # Copy container.dll
 )
 
-# Ensure the ShipNetSimCore DLL is copied to the output directory
+# Ensure the NeTrainSim DLL is copied to the output directory
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(WIN32)
         # Copy Windows DLLs in Release mode
