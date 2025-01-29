@@ -4,7 +4,7 @@
 #include <QObject>
 #include <any>
 
-// Forward declare APIData and ShipNetSimCore::Ship
+// Forward declare APIData and Train
 struct APIData;
 
 class Train;
@@ -20,7 +20,7 @@ public:
                         const QVector<QMap<QString, std::any> > &trainsList,
                         double timeStep);
 signals:
-    void simulatorLoaded();
+    void simulatorLoaded(APIData& apiData);
     void errorOccured(QString error);
 };
 
