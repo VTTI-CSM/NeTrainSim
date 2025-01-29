@@ -57,20 +57,20 @@ void ReportWidget::createReport(const QVector<QPair<QString, QString>> &table)
     m_report->setPageOrientation(QPageLayout::Orientation::Landscape);
     m_report->setPageSize(QPageSize::Letter);
     m_report->setMargins(5.0, 10, 10, 10);
-    m_report->setDocumentName("ShipNetSim Report");
+    m_report->setDocumentName("NeTrainSim Report");
 
     // --- HEADER SECTION ---
     KDReports::Header& header = m_report->header();
 
     // Report Title
-    // Use HTML for better alignment (ShipNetSim on the left, Date on the right)
+    // Use HTML for better alignment (NeTrainSim on the left, Date on the right)
     QString currentDateTime =
         QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
 
     QString headerContent = R"(
     <div style='width: 100%; margin-top: 0px;'>
         <!-- First row: NeTrainSim (Bold, Larger) -->
-        <div style='font-size: 16px; font-weight: bold; margin-bottom: 2px;'>ShipNetSim</div>
+        <div style='font-size: 16px; font-weight: bold; margin-bottom: 2px;'>NeTrainSim</div>
 
         <!-- Second row: Open-Source Train Network Simulator (Left) and Date (Right) -->
         <div style='display: flex; justify-content: space-between; align-items: center; font-size: 12px;'>
@@ -85,7 +85,7 @@ void ReportWidget::createReport(const QVector<QPair<QString, QString>> &table)
     header.addElement(headerElement);
 
     // --- TITLE SECTION ---
-    KDReports::TextElement title("ShipNetSim Data Report");
+    KDReports::TextElement title("NeTrainSim Data Report");
     title.setPointSize(16);
     title.setBold(true);
     m_report->addElement(title, Qt::AlignCenter);
