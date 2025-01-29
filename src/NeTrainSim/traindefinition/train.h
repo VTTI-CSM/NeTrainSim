@@ -1081,6 +1081,7 @@ public:
     QVector<ContainerCore::Container*> getLoadedContainers() const;
     void addContainer(ContainerCore::Container* container);
     void addContainers(QJsonObject json);
+    void requestUnloadContainersAtTerminal(const QVector<QString> &portNames);
 #endif
 
     QJsonObject getCurrentStateAsJson();
@@ -1287,7 +1288,12 @@ private:
 
         void destinationReached(QJsonObject trainState);
 
-        void containersAdded();
+        void containersLoaded();
+
+        void containersUnloaded(QString trainID, QString terminalID,
+                                QJsonArray containers);
+
+        void trainStateAvailable(QJsonObject state);
 
     private:
 #ifdef BUILD_SERVER_ENABLED
@@ -1299,9 +1305,14 @@ private:
     public slots:
 
 #ifdef BUILD_SERVER_ENABLED
-        QVector<ContainerCore::Container*>
+        QPair<QString, QVector<ContainerCore::Container *> >
         getContainersLeavingAtPort(const QVector<QString>& portNames);
+
+        QPair<QString, qsizetype>
+        countContainersLeavingAtPort(const QVector<QString>& portNames);
 #endif
+
+        void requestCurrentStateAsJson();
 };
 
 Q_DECLARE_METATYPE(Train)
