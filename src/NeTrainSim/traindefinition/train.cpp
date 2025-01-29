@@ -807,7 +807,8 @@ double Train::getStoppingTimeStat(Vector<double> listOfLinksFreeFlowSpeeds) {
 }
 
 #ifdef BUILD_SERVER_ENABLED
-QVector<ContainerCore::Container *> Train::getLoadedContainers() const {
+QVector<ContainerCore::Container *> Train::getLoadedContainers() const
+{
     QVector<ContainerCore::Container*> containerList;
     for (auto &container : mLoadedContainers.getAllContainers()) {
         containerList.append(container);
@@ -818,21 +819,21 @@ QVector<ContainerCore::Container *> Train::getLoadedContainers() const {
 void Train::addContainer(ContainerCore::Container* container) {
     if (container) {
         mLoadedContainers.addContainer(container->getContainerID(), container);
-        emit containersAdded();
+        emit containersLoaded();
     }
 }
 
 void Train::addContainers(QJsonObject json) {
     mLoadedContainers.addContainers(json);
-    emit containersAdded();
+    emit containersLoaded();
 }
 
-QVector<ContainerCore::Container*>
+QPair<QString, QVector<ContainerCore::Container *>>
 Train::getContainersLeavingAtPort(const QVector<QString>& portNames)
 {
     // Early return if no port names provided
     if (portNames.isEmpty()) {
-        return QVector<ContainerCore::Container*>();
+        return {"", QVector<ContainerCore::Container*>()};
     }
 
     // Check each port until we find containers
@@ -840,11 +841,50 @@ Train::getContainersLeavingAtPort(const QVector<QString>& portNames)
         auto containers =
             mLoadedContainers.dequeueContainersByNextDestination(portName);
         if (!containers.isEmpty()) {
-            return containers;
+            return {portName, containers};
         }
     }
 
-    return QVector<ContainerCore::Container*>();
+    return {"", QVector<ContainerCore::Container*>()};
+}
+
+QPair<QString, qsizetype>
+Train::countContainersLeavingAtPort(const QVector<QString>& portNames)
+{
+    if (portNames.isEmpty()) {
+        return {"", 0};
+    }
+
+    qsizetype count = 0;
+    // Check each port until we find containers
+    for (const QString& portName : portNames) {
+        count =
+            mLoadedContainers.countContainersByNextDestination(portName);
+        if (count != 0) {
+            return {portName, count};
+        }
+    }
+    return {"", count};
+}
+
+
+void Train::
+    requestUnloadContainersAtTerminal(const QVector<QString> &portNames)
+{
+    if (isCurrentlyDwelling() || reachedDestination) {
+
+        auto containers =
+            getContainersLeavingAtPort(portNames);
+
+        QJsonArray containersJson;
+        for (const auto& container : containers.second) {
+            containersJson.append(container->toJson());
+        }
+
+        emit containersUnloaded(QString::fromStdString(this->trainUserID),
+                                containers.first,
+                                containersJson);
+    }
 }
 #endif
 
@@ -1359,6 +1399,11 @@ QJsonObject Train::getCurrentStateAsJson() {
     jsonState["currentUsedTractivePower"] = currentUsedTractivePower;
 
     return jsonState;
+}
+
+void Train::requestCurrentStateAsJson() {
+    auto out = getCurrentStateAsJson();
+    emit trainStateAvailable(out);
 }
 
 // ##################################################################
