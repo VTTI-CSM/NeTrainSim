@@ -50,7 +50,7 @@ public:
 
 signals:
     void dataReceived(QJsonObject message);
-    void trainReachedDestination(const QString& shipID);
+    void trainReachedDestination(const QString& trainID);
     void simulationResultsAvailable(
         const QVector<std::pair<QString, QString>>& summaryData,
         const QString& trajectoryFile);
@@ -68,13 +68,17 @@ private slots:
          QMap<QString, QPair<double, double>> networkNamesSimulationTimePairs);
     void onTrainsAddedToSimulator(const QString networkName,
                                   const QVector<QString> trainIDs);
-    void onTrainReachedDestination(QJsonObject networkTrainsPairs);
-    void onSimulationResultsAvailable(QMap<QString, TrainsResults>& results);
+    void onTrainReachedDestination(QString networkName,
+                                   QJsonObject networkTrainsPairs);
+    void onSimulationResultsAvailable(QString networkName,
+                                      TrainsResults results);
     void onContainersAddedToTrain(QString networkName, QString trainID);
     void onTrainReachedTerminal(QString networkName,
                                 QString trainID,
                                 QString terminalID,
-                                QJsonArray containers);
+                                int containersCount);
+    void onSimulationProgressUpdate(QString networkName,
+                                    QPair<double, int> progressPercentage);
     void onErrorOccurred(const QString &errorMessage);
     void onServerReset();
 
@@ -86,6 +90,7 @@ private:
     QThread *mRabbitMQThread = nullptr;
     QWaitCondition mWaitCondition;
     amqp_connection_state_t mRabbitMQConnection;
+    QMetaObject::Connection m_progressConnection;
 
     void processCommand(const QJsonObject &jsonMessage);
     void consumeFromRabbitMQ();  // Function for consuming RabbitMQ messages
