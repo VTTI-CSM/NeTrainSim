@@ -1,4 +1,4 @@
-# Define the project name (ShipNetSimCore) and the programming language used (CXX for C++)
+# Define the project name (NeTrainSimCore) and the programming language used (CXX for C++)
 set(NETRAINSIM_CORE_NAME "NeTrainSimCore" CACHE STRING "Project CORE name" FORCE)
 project(${NETRAINSIM_CORE_NAME} VERSION ${NeTrainSim_VERSION} LANGUAGES CXX)
 
@@ -62,10 +62,12 @@ add_library(${NETRAINSIM_CORE_NAME} SHARED
     util/xmlmanager.h
     util/csvmanager.h
     simulatorworker.h
+    threadsafeapidatamap.h
+    requestdata.h
 
 )
 
-# Define SHIPNETSIM_LIBRARY during compilation to activate symbol export
+# Define NeTrainSim_LIBRARY during compilation to activate symbol export
 target_compile_definitions(${NETRAINSIM_CORE_NAME} PRIVATE NETRAINSIMCORE_LIBRARY)
 
 # Include directories and link libraries are inherited from the parent scope
