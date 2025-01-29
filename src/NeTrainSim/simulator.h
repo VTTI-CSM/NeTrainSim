@@ -42,7 +42,8 @@ private:
 	/** (Immutable) the default time step */
 	static constexpr double DefaultTimeStep = 1.0;
 	/** (Immutable) the default end time */
-	static constexpr double DefaultEndTime = 0.0;
+    static constexpr double DefaultEndTime =
+        std::numeric_limits<double>::infinity();;
 	/** (Immutable) true to default export instantaneous trajectory */
 	static constexpr bool DefaultExportInstantaneousTrajectory = true;
 	/** (Immutable) the default instantaneous trajectory empty filename */
@@ -77,8 +78,6 @@ private:
 	Network* network;
 	/** The progress */
     double progress = -1;
-	/** True to run simulation endlessly */
-	bool runSimulationEndlessly;
 	/** True to export trajectory */
 	bool exportTrajectory;
 	/** The trajectory file */
@@ -93,6 +92,9 @@ private:
 
     bool mIsSimulatorRunning = true;
 
+    bool mSimulatorInitialized = false;
+
+    double progressPercentage;
 public:
 
     std::stringstream summaryTextData;
@@ -402,7 +404,7 @@ public:
 	 * @param 	total	  	Number of.
 	 * @param 	bar_length	(Optional) Length of the bar.
 	 */
-	void ProgressBar(double current, double total, int bar_length = 100);
+    void ProgressBar(double current, double total, int bar_length = 100, bool emitProgressSignal = true);
 
 	/**
 	 * Loads train free speed
@@ -665,19 +667,17 @@ public: signals:
      */
     void trainsCollided(std::string& msg);
 
-    void simulationTimeAdvanced(double currentSimulatorTime, double simulatorProgress);
-
-    void simulationReachedReportingTime(double currentSimulatorTime, double simulatorProgress);
-
     void simulatorInitialized();
 
-    void simulatorPaused();
+    void simulationPaused();
 
-    void simulatorResumed();
+    void simulationResumed();
 
-    void simulatorTerminated();
+    void simulationTerminated();
 
     void simulationFinished();
+
+    void simulationRestarted();
 
     void allTrainsReachedDestination();
 
@@ -686,7 +686,11 @@ public: signals:
     void errorOccurred(QString error);
 
     void trainReachedTerminal(QString trainID, QString terminalID,
-                              QJsonArray containers = QJsonArray());
+                              int containersCount);
+
+    void simulationReachedReportingTime(
+        double simulationTime,
+        double progressPercentage);
 
 public slots:
     /**
@@ -695,7 +699,9 @@ public slots:
      * @author	Ahmed Aredah
      * @date	2/28/2023
      */
-    void runSimulation();
+    void runSimulation(double runFor = std::numeric_limits<double>::infinity(),
+                       bool endSimulationAfterRun = true,
+                       bool emitEndStepSignal = true);
 
     void generateSummaryData();
 
@@ -705,9 +711,7 @@ public slots:
 
     void runOneTimeStep();
 
-    void runBy(double timeSteps); // run till next reporting time
-
-    void initializeSimulator();
+    void initializeSimulator(bool emitSignal = true);
 
     /**
      * @brief pause the simulation
@@ -719,8 +723,9 @@ public slots:
      */
     void resumeSimulation(bool emitSignal = true);
 
-    void terminateSimulation();
+    void terminateSimulation(bool emitSignal = true);
 
+    void restartSimulation();
 private:
     QMutex mutex;
     QWaitCondition pauseCond;
