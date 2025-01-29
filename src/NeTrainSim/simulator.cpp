@@ -68,13 +68,6 @@ Simulator::Simulator(Network* theNetwork, QVector<std::shared_ptr<Train> > netwo
     this->timeStep = simulatorTimeStep;
 	this->simulationTime = 0.0;
 	this->progress = 0.0;
-	// Handling endless simulation setting
-	if (this->simulationEndTime == 0.0) {
-		this->runSimulationEndlessly = true;
-	}
-	else {
-		this->runSimulationEndlessly = false;
-	}
 
     setUpTrains();
 
@@ -99,7 +92,7 @@ void Simulator::moveObjectToThread(QThread *thread) {
     // Move Simulator object itself to the thread
     this->moveToThread(thread);
 
-    // Move each Ship in mShips to the new thread
+    // Move each Train in trains to the new thread
     for (auto& train : trains) {
         if (train) {
             train->moveObjectToThread(thread);
@@ -133,6 +126,10 @@ void Simulator::setTimeStep(double newTimeStep) {
 
 // Setter for the end time of the simulation
 void Simulator::setEndTime(double newEndTime) {
+    if (newEndTime <= 0) {
+        this->simulationEndTime = std::numeric_limits<double>::infinity();
+        return;
+    }
 	this->simulationEndTime = newEndTime;
 }
 
@@ -161,7 +158,7 @@ void Simulator::addTrainToSimulation(std::shared_ptr<Train> train) {
 
 void Simulator::addTrainsToSimulation(QVector< std::shared_ptr<Train> > trainsList)
 {
-    // Lock the mutex to protect the mShips list
+    // Lock the mutex to protect the trains list
     QMutexLocker locker(&mutex);
 
     QVector<QString> trainsIDs;
@@ -654,20 +651,24 @@ void Simulator::playTrainOneTimeStep(std::shared_ptr <Train> train)
                             QString::number(nextStopNode->userID);
                         QString portDesc =
                             QString::fromStdString(nextStopNode->alphaDesc);
-                        auto containers =
-                            train->getContainersLeavingAtPort({portName,
-                                                               portDesc});
-                        QJsonArray containersJson;
-                        for (const auto& container : containers) {
-                            containersJson.append(container->toJson());
-                        }
+
+                        auto containerCount =
+                            train->countContainersLeavingAtPort({portName,
+                                                                 portDesc});
+                        // auto containers =
+                        //     train->getContainersLeavingAtPort({portName,
+                        //                                        portDesc});
+                        // QJsonArray containersJson;
+                        // for (const auto& container : containers) {
+                        //     containersJson.append(container->toJson());
+                        // }
                         emit trainReachedTerminal(
                             QString::fromStdString(train->trainUserID),
-                            QString::number(nextStopNode->userID),
-                            containersJson);
+                            containerCount.first,
+                            containerCount.second);
                     }
                     // Skip movement if we're still within the dwell time
-                    if (train->getRemainingDwellTime(this->simulationTime) > 0) {  // You'll need to add this method
+                    if (train->getRemainingDwellTime(this->simulationTime) > 0) {
                         skipTrainMove = true;
                     }
                 }
@@ -1117,16 +1118,6 @@ Vector<std::pair<double, double>> Simulator::getStartEndPoints(std::shared_ptr<T
 	return startEndPoints;
 }
 
-void Simulator::runBy(double timeSteps) {
-    double initSimTime = simulationTime;
-
-    while (simulationTime - initSimTime <= timeSteps) {
-        runOneTimeStep();
-    }
-
-    emit simulationReachedReportingTime(simulationTime, this->progress);
-}
-
 void Simulator::runOneTimeStep() {
 
     QVector<std::shared_ptr<Train>> trainsToSimulate;
@@ -1166,12 +1157,13 @@ void Simulator::runOneTimeStep() {
 
     this->simulationTime += this->timeStep;
 
-    emit simulationTimeAdvanced(simulationTime, this->progress);
-
 }
 
-void Simulator::initializeSimulator()
+void Simulator::initializeSimulator(bool emitSignal)
 {
+    qDebug() << "Initializing the simulation!";
+
+
     connect(this, &Simulator::simulationFinished,
             this, [this]() {
         generateSummaryData();
@@ -1196,15 +1188,24 @@ void Simulator::initializeSimulator()
     init_time = std::chrono::system_clock::to_time_t(
         std::chrono::system_clock::now());
 
-    emit simulatorInitialized();
+    mSimulatorInitialized = true;
+
+    if (emitSignal) emit simulatorInitialized();
 }
 
-void Simulator::runSimulation() {
+void Simulator::runSimulation(double runFor,
+                              bool endSimulationAfterRun,
+                              bool emitEndStepSignal) {
 
-    initializeSimulator();
+    qDebug() << "Starting simulation.";
 
-    while (this->simulationTime <= this->simulationEndTime ||
-           this->runSimulationEndlessly)
+    // initialize the simulator only if it was not initialized earlier
+    if (!mSimulatorInitialized) {
+        initializeSimulator(false);
+    }
+
+    while ((this->simulationTime <= this->simulationTime + runFor) &&
+           (this->simulationTime <= this->simulationEndTime) )
     {
         mutex.lock();
          // This will block the thread if pauseFlag is true
@@ -1237,11 +1238,18 @@ void Simulator::runSimulation() {
         double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
         double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
 
-		this->ProgressBar(trainsAv, totalTrainAv);
+        this->ProgressBar(trainsAv, totalTrainAv, emitEndStepSignal);
 
 	}
 
-    emit simulationFinished();
+    if (!std::isinf(runFor)){
+        emit simulationReachedReportingTime(simulationTime,
+                                            this->progressPercentage);
+    }
+
+    if (endSimulationAfterRun) {
+        emit simulationFinished();
+    }
 }
 
 void Simulator::generateSummaryData() {
@@ -1907,6 +1915,24 @@ bool Simulator::checkLinksAreFree(Vector<std::shared_ptr<NetLink>> &links) {
 	return true;
 }
 
+
+void Simulator::restartSimulation()
+{
+    simulationTime = 0.0;
+    progress = -1;
+
+    for (auto train : trains) {
+        train->resetTrain();
+    }
+
+    mIsSimulatorRunning = true;
+    mIsSimulatorRunning = true;
+
+    emit simulationRestarted();
+}
+
+
+
 std::shared_ptr<NetSignal> Simulator::getClosestSignal(std::shared_ptr<Train>& train) {
 	int indx = train->trainPath.index(this->network->getPreviousNodeByDistance(train, 
 		train->travelledDistance, train->previousNodeID)->id) + 1;
@@ -1960,10 +1986,11 @@ std::shared_ptr<NetSignal> Simulator::getClosestSignalToTrainEnd(std::shared_ptr
     return nullptr;
 }
 
-void Simulator::ProgressBar(double current, double total, int bar_length) {
+void Simulator::ProgressBar(double current, double total, int bar_length, bool emitProgressSignal) {
 	double fraction = current / total;
     int progressValue = fraction * bar_length - 1;
     int progressPercent = (int)(fraction * 100);
+    this->progressPercentage = progressValue;
 
 
     std::stringstream bar;
@@ -1977,7 +2004,9 @@ void Simulator::ProgressBar(double current, double total, int bar_length) {
         std::cout << "Progress: [" << bar.str() << "] " << progressPercent << "%" << ending;
 
         this->progress = progressPercent;
-        emit this->progressUpdated(this->simulationTime, this->progress);
+        if (emitProgressSignal) {
+            emit this->progressUpdated(this->simulationTime, this->progress);
+        }
     }
 }
 
@@ -1989,7 +2018,7 @@ void Simulator::pauseSimulation(bool emitSignal) {
     }
 
     pauseFlag = true; // Mark the simulation as paused
-    if (emitSignal) emit simulatorPaused(); // Notify listeners that the simulation has been paused
+    if (emitSignal) emit simulationPaused(); // Notify listeners that the simulation has been paused
 }
 
 
@@ -2004,10 +2033,10 @@ void Simulator::resumeSimulation(bool emitSignal) {
     pauseFlag = false; // Mark the simulation as resumed
     pauseCond.wakeAll(); // Wake up the thread if it was waiting
 
-    if (emitSignal) emit simulatorResumed(); // Notify listeners that the simulation has resumed
+    if (emitSignal) emit simulationResumed(); // Notify listeners that the simulation has resumed
 }
 
-void Simulator::terminateSimulation() {
+void Simulator::terminateSimulation(bool emitSignal) {
     qWarning() << "Terminating simulation.";
 
     QMutexLocker locker(&mutex);  // Use QMutexLocker to prevent potential deadlocks
@@ -2016,5 +2045,5 @@ void Simulator::terminateSimulation() {
     pauseFlag = false; // Ensure the simulation is not paused
     pauseCond.wakeAll();  // Wake up any paused threads
 
-    emit simulatorTerminated();
+    if (emitSignal) emit simulationTerminated();
 }
