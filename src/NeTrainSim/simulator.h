@@ -729,7 +729,7 @@ public slots:
 private:
     QMutex mutex;
     QWaitCondition pauseCond;
-    bool pauseFlag;
+    std::atomic<bool> pauseFlag = false;
 
     time_t init_time;
 
