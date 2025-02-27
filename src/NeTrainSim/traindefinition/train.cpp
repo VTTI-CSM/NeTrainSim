@@ -818,13 +818,21 @@ QVector<ContainerCore::Container *> Train::getLoadedContainers() const
 
 void Train::addContainer(ContainerCore::Container* container) {
     if (container) {
+        container->setContainerCurrentLocation("Train_" + QString::fromStdString(this->trainUserID));
         mLoadedContainers.addContainer(container->getContainerID(), container);
         emit containersLoaded();
     }
 }
 
 void Train::addContainers(QJsonObject json) {
-    mLoadedContainers.addContainers(json);
+    auto containers =
+        ContainerCore::ContainerMap::loadContainersFromJson(json, this);
+
+    for (auto container : containers) {
+        container->setContainerCurrentLocation("Train_" + QString::fromStdString(this->trainUserID));
+    }
+
+    mLoadedContainers.addContainers(containers);
     emit containersLoaded();
 }
 
