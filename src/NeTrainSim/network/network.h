@@ -1077,5 +1077,5 @@ private:
 
 Q_DECLARE_METATYPE(Network)
 Q_DECLARE_METATYPE(Network*)
-
+Q_DECLARE_METATYPE(std::shared_ptr<Network>)
 #endif // !NeTrainSim_Network_h
