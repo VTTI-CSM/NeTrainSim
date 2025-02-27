@@ -77,6 +77,10 @@ private slots:
                                 QString trainID,
                                 QString terminalID,
                                 int containersCount);
+    void onContainersUnloaded(QString networkName,
+                              QString trainID,
+                              QString terminalID,
+                              QJsonArray containers);
     void onSimulationProgressUpdate(QString networkName,
                                     QPair<double, int> progressPercentage);
     void onErrorOccurred(const QString &errorMessage);
