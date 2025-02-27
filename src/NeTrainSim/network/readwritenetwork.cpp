@@ -7,6 +7,7 @@
 #include <exception>
 #include "readwritenetwork.h"
 #include "../util/utils.h"
+#include <QFile>
 
 /**
  * Reads nodes file
@@ -46,6 +47,105 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFile(
 
         // Pass the file content to the readNodesFileContent function
         return readNodesFileContent(fileContent);
+}
+
+Vector<Map<std::string, std::string>>
+ReadWriteNetwork::readNodesFromJson(const QJsonObject& nodesJson) {
+    Vector<Map<std::string, std::string>> records;
+    try {
+        // Validate that we have nodes array and scales
+        if (!nodesJson.contains("nodes")) {
+            throw std::runtime_error("Missing 'nodes' array in JSON");
+        }
+        if (!nodesJson.contains("scales")) {
+            throw std::runtime_error("Missing 'scales' object in JSON");
+        }
+
+        // Validate scales
+        const QJsonObject scales = nodesJson["scales"].toObject();
+        if (!scales.contains("x")) {
+            throw std::runtime_error("Missing 'x' scale value in scales object");
+        }
+        if (!scales.contains("y")) {
+            throw std::runtime_error("Missing 'y' scale value in scales object");
+        }
+
+        // Get scale values
+        std::string scaleX = scales["x"].toString().toStdString();
+        std::string scaleY = scales["y"].toString().toStdString();
+
+        // Get nodes array
+        QJsonArray nodesArray = nodesJson["nodes"].toArray();
+        if (nodesArray.isEmpty()) {
+            throw std::runtime_error("Nodes array is empty");
+        }
+
+        // Reserve space for optimization
+        records.reserve(nodesArray.size());
+
+        // Process each node
+        for (int i = 0; i < nodesArray.size(); i++) {
+            if (!nodesArray[i].isObject()) {
+                throw std::runtime_error("Node at index " + std::to_string(i) +
+                                         " is not a valid JSON object");
+            }
+
+            QJsonObject node = nodesArray[i].toObject();
+            Map<std::string, std::string> nodeRecord;
+
+            // Check required fields
+            const QStringList requiredFields = {"userID", "x", "y", "description",
+                                                "isTerminal", "terminalDwellTime"};
+            for (const auto& field : requiredFields) {
+                if (!node.contains(field)) {
+                    throw std::runtime_error("Node at index " + std::to_string(i) +
+                                             " missing required field '" + field.toStdString() + "'");
+                }
+            }
+
+            // Add required fields to nodeRecord with validation
+            if (!node["userID"].isDouble() && !node["userID"].toString().toInt()) {
+                throw std::runtime_error("Invalid userID for node at index " + std::to_string(i));
+            }
+            nodeRecord["UserID"] = QString::number(node["userID"].toInt()).toStdString();
+
+            if (!node["x"].isDouble() && !node["x"].toString().toDouble()) {
+                throw std::runtime_error("Invalid x coordinate for node at index " + std::to_string(i));
+            }
+            nodeRecord["XCoordinate"] = QString::number(node["x"].toDouble()).toStdString();
+
+            if (!node["y"].isDouble() && !node["y"].toString().toDouble()) {
+                throw std::runtime_error("Invalid y coordinate for node at index " + std::to_string(i));
+            }
+            nodeRecord["YCoordinate"] = QString::number(node["y"].toDouble()).toStdString();
+
+            nodeRecord["Desc"] = node["description"].toString().toStdString();
+
+            if (!node["isTerminal"].isBool()) {
+                throw std::runtime_error("Invalid isTerminal value for node at index " + std::to_string(i));
+            }
+            nodeRecord["IsTerminal"] = node["isTerminal"].toBool() ? "1" : "0";
+
+            if (!node["terminalDwellTime"].isDouble() && !node["terminalDwellTime"].toString().toDouble()) {
+                throw std::runtime_error("Invalid terminalDwellTime for node at index " + std::to_string(i));
+            }
+            nodeRecord["TerminalDwellTime"] = QString::number(node["terminalDwellTime"].toDouble()).toStdString();
+
+            // Add scales
+            nodeRecord["XScale"] = scaleX;
+            nodeRecord["YScale"] = scaleY;
+
+            records.push_back(std::move(nodeRecord));
+        }
+
+        return records;
+
+    } catch (const std::exception& e) {
+        throw std::runtime_error(
+            std::string("Error: ") +
+            std::to_string(static_cast<int>(Error::wrongNodesFileStructure)) +
+            "\nFailed to parse JSON nodes data: " + e.what() + "\n");
+    }
 }
 
 Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFileContent(
@@ -128,6 +228,24 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readNodesFileContent(
     }
 }
 
+Vector<Map<std::string, std::string>>
+ReadWriteNetwork::readNodesFromJsonFile(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        throw std::runtime_error(std::string("Error: Cannot open JSON file: ") +
+                                 filePath.toStdString());
+    }
+
+    QByteArray jsonData = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+
+    if (!doc.isObject()) {
+        throw std::runtime_error("Error: Invalid JSON format");
+    }
+
+    return readNodesFromJson(doc.object());
+}
+
 /**
  * Reads links file
  * @author	Ahmed
@@ -178,6 +296,24 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFile(
     // Pass the file content to the readNodesFileContent function
     return readLinksFileContent(fileContent);
 
+}
+
+Vector<Map<std::string, std::string>>
+ReadWriteNetwork::readLinksFromJsonFile(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        throw std::runtime_error(std::string("Error: Cannot open JSON file: ") +
+                                 filePath.toStdString());
+    }
+
+    QByteArray jsonData = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+
+    if (!doc.isObject()) {
+        throw std::runtime_error("Error: Invalid JSON format");
+    }
+
+    return readLinksFromJson(doc.object());
 }
 
 Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFileContent(
@@ -268,6 +404,130 @@ Vector<Map<std::string, std::string>> ReadWriteNetwork::readLinksFileContent(
                                      static_cast<int>(
                                          Error::wrongLinksFileStructure)) +
                                  "\nBad links file structure!\n");
+    }
+}
+
+Vector<Map<std::string, std::string>>
+ReadWriteNetwork::readLinksFromJson(const QJsonObject& linksJson)
+{
+    Vector<Map<std::string, std::string>> records;
+
+    try {
+        // Validate that we have links array and scales
+        if (!linksJson.contains("links")) {
+            throw std::runtime_error("Missing 'links' array in JSON");
+        }
+        if (!linksJson.contains("scales")) {
+            throw std::runtime_error("Missing 'scales' object in JSON");
+        }
+
+        // Validate scales
+        const QJsonObject scales = linksJson["scales"].toObject();
+        if (!scales.contains("length")) {
+            throw std::runtime_error("Missing 'length' scale value in scales object");
+        }
+        if (!scales.contains("speed")) {
+            throw std::runtime_error("Missing 'speed' scale value in scales object");
+        }
+
+        std::string lengthScale = scales["length"].toString().toStdString();
+        std::string speedScale = scales["speed"].toString().toStdString();
+
+        // Get links array
+        QJsonArray linksArray = linksJson["links"].toArray();
+        if (linksArray.isEmpty()) {
+            throw std::runtime_error("Links array is empty");
+        }
+
+        // Reserve space for optimization
+        records.reserve(linksArray.size());
+
+        // Define JSON field mappings to linksFilekeys
+        const std::map<std::string, QString> fieldMapping = {
+            {"UserID", "userID"},
+            {"FromNodeID", "fromNodeID"},
+            {"ToNodeID", "toNodeID"},
+            {"Length", "length"},
+            {"FreeFlowSpeed", "maxSpeed"},
+            {"SignalNo", "trafficSignalID"},
+            {"DirectionalGrade", "grade"},
+            {"Curvature", "curvature"},
+            {"Directions", "numberOfDirections"},
+            {"SpeedVariation", "speedVariationFactor"},
+            {"HasCatenary", "isCatenaryAvailable"},
+            {"SignalsAtNodes", "signalsAtNodes"},
+            {"Region", "region"}
+        };
+
+        // Process each link
+        for (int i = 0; i < linksArray.size(); i++) {
+            if (!linksArray[i].isObject()) {
+                throw std::runtime_error("Link at index " + std::to_string(i) +
+                                         " is not a valid JSON object");
+            }
+
+            QJsonObject link = linksArray[i].toObject();
+            Map<std::string, std::string> linkRecord;
+
+            // Process fields according to linksFilekeys
+            for (const auto& key : linksFilekeys) {
+                if (key == "LengthScale" || key == "FreeFlowSpeedScale") {
+                    continue; // We'll add these separately
+                }
+
+                // Get the corresponding JSON field name
+                QString jsonFieldName = fieldMapping.at(key);
+
+                // Check if field exists
+                if (!link.contains(jsonFieldName)) {
+                    throw std::runtime_error("Link at index " + std::to_string(i) +
+                                             " missing required field '" + jsonFieldName.toStdString() + "'");
+                }
+
+                // Process based on expected field type
+                if (key == "UserID" || key == "FromNodeID" || key == "ToNodeID" ||
+                    key == "SignalNo" || key == "Directions") {
+                    // Integer fields
+                    if (!link[jsonFieldName].isDouble() && !link[jsonFieldName].toString().toInt()) {
+                        throw std::runtime_error("Invalid " + key + " for link at index " + std::to_string(i));
+                    }
+                    linkRecord[key] = QString::number(link[jsonFieldName].toInt()).toStdString();
+                }
+                else if (key == "Length" || key == "FreeFlowSpeed" || key == "DirectionalGrade" ||
+                         key == "Curvature" || key == "SpeedVariation") {
+                    // Double fields
+                    if (!link[jsonFieldName].isDouble() && !link[jsonFieldName].toString().toDouble()) {
+                        throw std::runtime_error("Invalid " + key + " for link at index " + std::to_string(i));
+                    }
+                    linkRecord[key] = QString::number(link[jsonFieldName].toDouble()).toStdString();
+                }
+                else if (key == "HasCatenary") {
+                    // Boolean field
+                    if (!link[jsonFieldName].isBool()) {
+                        throw std::runtime_error("Invalid " + key + " for link at index " + std::to_string(i));
+                    }
+                    linkRecord[key] = link[jsonFieldName].toBool() ? "1" : "0";
+                }
+                else {
+                    // String fields (SignalsAtNodes, Region)
+                    linkRecord[key] = link[jsonFieldName].toString().toStdString();
+                }
+            }
+
+            // Add scales
+            linkRecord["LengthScale"] = lengthScale;
+            linkRecord["FreeFlowSpeedScale"] = speedScale;
+
+            records.push_back(std::move(linkRecord));
+        }
+
+        return records;
+
+    } catch (const std::exception& e) {
+        throw std::runtime_error(
+            std::string("Error: ") +
+            std::to_string(static_cast<int>(Error::wrongLinksFileStructure)) +
+            "\nFailed to parse JSON links data: " + e.what() + "\n");
     }
 }
 
