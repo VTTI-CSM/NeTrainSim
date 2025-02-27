@@ -458,8 +458,8 @@ protected:
      * for execution but does not begin until explicitly started.
      */
     void createNewSimulationEnvironment(
-        QString nodesFileContent,
-        QString linksFileContent,
+        QJsonObject nodesFileContent,
+        QJsonObject linksFileContent,
         QString networkName = "*",
         QVector<QMap<QString, std::any>> trainList =
             QVector<QMap<QString, std::any>>(),
@@ -796,8 +796,8 @@ public:
          * provided network and train data, but does not start the simulation.
          */
         static void createNewSimulationEnvironment(
-            QString nodesFileContent,
-            QString linksFileContent,
+            QJsonObject nodesFileContent,
+            QJsonObject linksFileContent,
             QString networkName = "*",
             QVector<QMap<QString, std::any>> trainsData =
             QVector<QMap<QString, std::any>>(),
@@ -996,8 +996,8 @@ public:
          * network and train data for continuous execution.
          */
         static void createNewSimulationEnvironment(
-            QString nodesFileContent,
-            QString linksFileContent,
+            QJsonObject nodesFileContent,
+            QJsonObject linksFileContent,
             QString networkName = "*",
             QVector<QMap<QString, std::any>> trainList =
             QVector<QMap<QString, std::any>>(),
@@ -1168,6 +1168,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(APIData)
+Q_DECLARE_METATYPE(APIData*)
 
 
 #endif // SIMULATORAPI_H
