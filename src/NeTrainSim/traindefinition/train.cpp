@@ -826,7 +826,7 @@ void Train::addContainer(ContainerCore::Container* container) {
 
 void Train::addContainers(QJsonObject json) {
     auto containers =
-        ContainerCore::ContainerMap::loadContainersFromJson(json, this);
+        ContainerCore::ContainerMap::loadContainersFromJson(json);
 
     for (auto container : containers) {
         container->setContainerCurrentLocation("Train_" + QString::fromStdString(this->trainUserID));
@@ -1405,6 +1405,11 @@ QJsonObject Train::getCurrentStateAsJson() {
     jsonState["currentTractiveForce"] = currentTractiveForce;
     jsonState["currentResistanceForces"] = currentResistanceForces;
     jsonState["currentUsedTractivePower"] = currentUsedTractivePower;
+
+#ifdef BUILD_SERVER_ENABLED
+    jsonState["containersCount"] =
+        mLoadedContainers.getAllContainers().count();
+#endif
 
     return jsonState;
 }
