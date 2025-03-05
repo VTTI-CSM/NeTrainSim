@@ -503,7 +503,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     // Handle each command with improved error checking
     if (command == "checkConnection") {
         // Log the event for debugging (optional but recommended)
-        qInfo() << "[Server] Received command: checkConnection. Responding with 'connected'.";
+        qInfo() << "[Server] Received command: checkConnection. "
+                   "Responding with 'connected'.";
 
         // Create the response JSON object
         QJsonObject response;
@@ -756,7 +757,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     } else if (command == "unloadContainersFromTrainAtCurrentTerminal")
     {
         qInfo() << "[Server] Received command: Unloading "
-                   "containers to a train.";
+                   "containers from a train.";
 
         // Validate required fields
         QList<QPair<bool, QString>> checks;
@@ -1089,7 +1090,7 @@ void SimulationServer::onContainersAddedToTrain(QString networkName,
                         jsonMessage);
     onWorkerReady();
 
-    qInfo() << "Container successfully added to Train ID: "
+    qInfo() << "Containers successfully added to Train ID: "
             << trainID << " of network: " << networkName << "!";
 }
 
