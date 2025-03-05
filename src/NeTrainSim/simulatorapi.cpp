@@ -583,10 +583,8 @@ void SimulatorAPI::handleTrainReachedDestination(QString networkName,
 {
     QJsonObject response;
     QJsonObject networkData;
-    QJsonArray trainsArray;
 
-    trainsArray.append(trainState);
-    networkData["trainStates"] = trainsArray;
+    networkData["trainState"] = trainState;
     response[networkName] = networkData;
 
     emit trainsReachedDestination(networkName, response);
@@ -983,7 +981,12 @@ void SimulatorAPI::addContainersToTrain(QString networkName,
                                         QString trainID,
                                         QJsonObject json)
 {
-    getTrainByID(networkName, trainID)->addContainers(json);
+    auto subjectTrain = getTrainByID(networkName, trainID);
+    if (subjectTrain) {
+        subjectTrain->addContainers(json);
+    } else {
+        emit errorOccurred("Train with ID: " + trainID + " does not exist");
+    }
 }
 
 void SimulatorAPI::requestRunSimulation(QVector<QString> networkNames,
@@ -1091,6 +1094,8 @@ void SimulatorAPI::requestUnloadContainersAtTerminal(
         // Request train to unload containers
         apiData.trains.value(trainID)->
             requestUnloadContainersAtTerminal(portNames);
+
+        return; // Exit without giving an error message
     }
 
     // Emit an error if the train does not exist
