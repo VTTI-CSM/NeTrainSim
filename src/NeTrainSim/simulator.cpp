@@ -1242,7 +1242,7 @@ void Simulator::runSimulation(double runFor,
         double trainsAv = accumulate(travelledDistances.begin(), travelledDistances.end(), 0.0) / travelledDistances.size();
         double totalTrainAv = accumulate(trainPathLengths.begin(), trainPathLengths.end(), 0.0) / trainPathLengths.size();
 
-        this->ProgressBar(trainsAv, totalTrainAv, emitEndStepSignal);
+        this->ProgressBar(trainsAv, totalTrainAv, 100, emitEndStepSignal);
 
 	}
 
@@ -1994,21 +1994,58 @@ std::shared_ptr<NetSignal> Simulator::getClosestSignalToTrainEnd(std::shared_ptr
 }
 
 void Simulator::ProgressBar(double current, double total, int bar_length, bool emitProgressSignal) {
-	double fraction = current / total;
-    int progressValue = fraction * bar_length - 1;
+    double fraction = current / total;
+    if (fraction > 1.0) fraction = 1.0;  // Cap at 100%
+
+    int progressValue = fraction * bar_length;
+    if (progressValue > 0) progressValue--; // Adjust for the '>' character
     int progressPercent = (int)(fraction * 100);
     this->progressPercentage = progressValue;
 
-
-    std::stringstream bar;
-    for (int i = 0; i < progressValue; i++) { bar << '-'; }
-    bar << '>';
-    bar << std::string(bar_length - progressValue, ' ');
-
-    char ending = (current == total) ? '\n' : '\r';
-
+    // Only update when progress percentage changes
     if (progressPercent != this->progress) {
-        std::cout << "Progress: [" << bar.str() << "] " << progressPercent << "%" << ending;
+        std::stringstream barStream;
+        for (int i = 0; i < progressValue; i++) { barStream << '-'; }
+        barStream << '>';
+        barStream << std::string(bar_length - progressValue - 1, ' ');
+        std::string barStr = barStream.str();
+
+        QChar ending = (current >= total) ? '\n' : '\r';
+
+#ifdef Q_OS_WIN
+        // Windows approach using SetConsoleTextAttribute
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        // Save current console attributes
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+        WORD saved_attributes = consoleInfo.wAttributes;
+
+        // Clear the line first
+        std::cout << "\r" << std::string(bar_length + 30, ' ') << "\r";
+
+        // Set text color to bright green
+        SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+        // Print the progress
+        std::cout << "Progress: [" << barStr << "] " << progressPercent << "%" << ending.toLatin1();
+
+        // Reset to original console attributes
+        SetConsoleTextAttribute(hConsole, saved_attributes);
+#else \
+    // macOS & Linux approach using ANSI escape codes \
+    // Clear the line first
+        std::cout << "\r" << std::string(bar_length + 30, ' ') << "\r";
+
+        // Print with color
+        std::cout << "\033[1;32m"  // Bright Green
+                  << "Progress: [" << barStr << "] "
+                  << progressPercent << "%"
+                  << "\033[0m"     // Reset color
+                  << ending.toLatin1();
+#endif
+
+        std::cout.flush(); // Ensure output is displayed immediately
 
         this->progress = progressPercent;
         if (emitProgressSignal) {
