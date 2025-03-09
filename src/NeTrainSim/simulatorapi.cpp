@@ -6,6 +6,13 @@
 #include <QThread>     // Required for QThread
 #include <QDebug>      // For debugging
 
+
+#ifndef QT_NO_DEBUG
+#define CHECK_TRUE(instruction) Q_ASSERT(instruction)
+#else
+#define CHECK_TRUE(instruction) (instruction)
+#endif
+
 // Initialize static members
 
 QBasicMutex SimulatorAPI::s_instanceMutex;
@@ -25,6 +32,7 @@ void SimulatorAPI::registerQMeta() {
 
     // Register Train and its components
     qRegisterMetaType<Train>("Train");
+    qRegisterMetaType<Train*>("Train*");
     qRegisterMetaType<std::shared_ptr<Train>>("std::shared_ptr<Train>");
     qRegisterMetaType<std::string>("std::string");
     qRegisterMetaType<Vector<double>>("Vector<double>");
@@ -168,8 +176,8 @@ void SimulatorAPI::setLocale() {
 
 void SimulatorAPI::
     createNewSimulationEnvironment(
-        QString nodesFileContent,
-        QString linksFileContent,
+        QJsonObject nodesFileContent,
+        QJsonObject linksFileContent,
         QString networkName,
         QVector<QMap<QString, std::any>> trainsData,
         double timeStep,
@@ -182,14 +190,12 @@ void SimulatorAPI::
         emit errorOccurred("A network with name " + networkName + " exists!");
         return;
     }
-    auto nodeRecords =
-        ReadWriteNetwork::readNodesFileContent(nodesFileContent.toStdString());
 
-    auto linkRecords =
-        ReadWriteNetwork::readLinksFileContent(linksFileContent.toStdString());
+    auto nodeRec = ReadWriteNetwork::readNodesFromJson(nodesFileContent);
+    auto linkRec = ReadWriteNetwork::readLinksFromJson(linksFileContent);
 
-    auto nodeRecordsf = Utils::convertToQVectorString(nodeRecords);
-    auto linkRecordsf = Utils::convertToQVectorString(linkRecords);
+    auto nodeRecordsf = Utils::convertToQVectorString(nodeRec);
+    auto linkRecordsf = Utils::convertToQVectorString(linkRec);
 
 
     setupSimulator(networkName, nodeRecordsf, linkRecordsf,
@@ -288,21 +294,28 @@ void SimulatorAPI::setupSimulator(
     apiDataMap.addOrUpdate(localNetworkName, apiData);
 
     QEventLoop loop;
+    bool setupSuccess = false;  // Track success/failure
 
     // Connect signals with networkName captured by value
-    QObject::connect(simulatorWorker, &SimulatorWorker::simulatorLoaded,
-                     [this, localNetworkName, &loop](APIData& loadedData) {
+    CHECK_TRUE(QObject::connect(simulatorWorker, &SimulatorWorker::simulatorLoaded,
+                     [this, localNetworkName, &loop, &setupSuccess]
+                     (APIData& loadedData)
+                     {
                          qInfo() << "Simulator loaded for network:" << localNetworkName;
                          apiDataMap.addOrUpdate(localNetworkName, loadedData);
+                         setupSuccess = true;  // Mark as successful
                          loop.quit();
-                     });
+                     }));
 
-    QObject::connect(simulatorWorker, &SimulatorWorker::errorOccured,
-                     [this, localNetworkName, workerThread, &loop](const QString& error) {
-                         qWarning() << "Error setting up" << localNetworkName << ":" << error;
+    CHECK_TRUE(QObject::connect(simulatorWorker, &SimulatorWorker::errorOccured,
+                     [this, localNetworkName, workerThread, &loop, &setupSuccess]
+                     (const QString& error) {
+                         qWarning() << "Error setting up"
+                                    << localNetworkName << ":" << error;
                          workerThread->quit();
+                         setupSuccess = false;  // Mark as failed
                          loop.quit();
-                     });
+                     }));
 
     workerThread->start();
 
@@ -315,21 +328,42 @@ void SimulatorAPI::setupSimulator(
 
     loop.exec();
 
-    // Setup connections with the updated APIData
-    setupConnections(localNetworkName, mode);
+    // Only continue with connections if setup was successful
+    if (setupSuccess) {
 
-    connect(workerThread, &QThread::finished, this,
-            [this, localNetworkName]() {
-                handleWorkersReady(localNetworkName);
-            }, Qt::DirectConnection);
+        // Setup connections with the updated APIData
+        setupConnections(localNetworkName, mode);
 
-    APIData latestApiData = apiDataMap.get(localNetworkName);
-    if (latestApiData.workerThread) {
-        latestApiData.workerThread->setPriority(QThread::LowPriority);
-        apiDataMap.addOrUpdate(localNetworkName, latestApiData);
+        CHECK_TRUE(connect(workerThread, &QThread::finished, this,
+                [this, localNetworkName]() {
+                    handleWorkersReady(localNetworkName);
+                }, Qt::DirectConnection));
+
+        APIData latestApiData = apiDataMap.get(localNetworkName);
+        if (latestApiData.workerThread) {
+            latestApiData.workerThread->setPriority(QThread::LowPriority);
+            apiDataMap.addOrUpdate(localNetworkName, latestApiData);
+        }
+
+        qInfo() << "Simulator setup complete for" << localNetworkName;
+
+    } else {
+        // Clean up resources on failure
+        if (workerThread) {
+            workerThread->quit();
+            workerThread->wait();
+            delete workerThread;
+        }
+
+        if (simulatorWorker) {
+            delete simulatorWorker;
+        }
+
+        // Remove the incomplete network data
+        apiDataMap.remove(localNetworkName);
+
+        qWarning() << "Failed to set up simulator for" << localNetworkName;
     }
-
-    qInfo() << "Simulator setup complete for" << localNetworkName;
 }
 
 
@@ -350,39 +384,39 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
 
     auto& simulator = apiData.simulator;
 
-    connect(simulator, &Simulator::resultDataAvailable, this,
+    CHECK_TRUE(connect(simulator, &Simulator::resultDataAvailable, this,
             [this, networkName, mode](TrainsResults results) {
                 handleResultsAvailable(networkName, results, mode);
-            }, Qt::QueuedConnection);
+            }, Qt::QueuedConnection));
 
     // Connect simulation finished signal
-    connect(simulator, &Simulator::simulationFinished, this,
+    CHECK_TRUE(connect(simulator, &Simulator::simulationFinished, this,
             [this, networkName]() {
                 qDebug() << "Current thread 3:" << QThread::currentThread();
                 handleSimulationFinished(networkName);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect simulation reached reporting time signal
-    connect(simulator,
+    CHECK_TRUE(connect(simulator,
             &Simulator::simulationReachedReportingTime, this,
             [this, networkName, mode]
             (double currentSimulatorTime,
              double progressPercent) {
                 handleOneTimeStepCompleted(networkName, currentSimulatorTime,
                                            progressPercent, mode);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect progress updated signal
-    connect(simulator,
+    CHECK_TRUE(connect(simulator,
             &Simulator::progressUpdated, this,
             [this, networkName](double simulationTime, int progressPercentage) {
                 handleProgressUpdate(networkName,
                                      simulationTime,
                                      progressPercentage);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect simulation paused signal
-    connect(simulator, &Simulator::simulationPaused, this,
+    CHECK_TRUE(connect(simulator, &Simulator::simulationPaused, this,
             [this, networkName, mode]() {
                 mPauseTracker.incrementCompletedRequests();
                 checkAndEmitSignal(
@@ -391,10 +425,10 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
                     mPauseTracker.getRequestedNetworks(),
                     &SimulatorAPI::simulationsPaused,
                     mode);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect simulation resumed signal
-    connect(simulator, &Simulator::simulationResumed, this,
+    CHECK_TRUE(connect(simulator, &Simulator::simulationResumed, this,
             [this, networkName, mode]() {
                 mResumeTracker.incrementCompletedRequests();
                 checkAndEmitSignal(
@@ -403,10 +437,10 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
                     mResumeTracker.getRequestedNetworks(),
                     &SimulatorAPI::simulationsResumed,
                     mode);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect simulation terminated signal
-    connect(simulator, &::Simulator::simulationTerminated, this,
+    CHECK_TRUE(connect(simulator, &::Simulator::simulationTerminated, this,
             [this, networkName, mode]() {
                 mTerminateTracker.incrementCompletedRequests();
                 checkAndEmitSignal(
@@ -415,10 +449,10 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
                     mTerminateTracker.getRequestedNetworks(),
                     &SimulatorAPI::simulationsTerminated,
                     mode);
-            }, mConnectionType);
+            }, mConnectionType));
 
     // Connect simulation restarted signal
-    connect(simulator, &Simulator::simulationRestarted, this,
+    CHECK_TRUE(connect(simulator, &Simulator::simulationRestarted, this,
             [this, networkName, mode]() {
                 mRestartTracker.incrementCompletedRequests();
                 checkAndEmitSignal(
@@ -427,29 +461,29 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
                     mRestartTracker.getRequestedNetworks(),
                     &SimulatorAPI::simulationsRestarted,
                     mode);
-            }, mConnectionType);
+            }, mConnectionType));
 
 
-    connect(simulator, &Simulator::plotTrainsUpdated,
+    CHECK_TRUE(connect(simulator, &Simulator::plotTrainsUpdated,
             this, [this, networkName, mode]
             (Vector<std::pair<std::string,
                               Vector<std::pair<double,
                                                double>>>> trainsStartEndPoints) {
                 handleTrainCoordsUpdate(networkName, trainsStartEndPoints, mode);
-            }, Qt::QueuedConnection);
+            }, Qt::QueuedConnection));
 
-    connect(simulator, &Simulator::errorOccurred, this,
+    CHECK_TRUE(connect(simulator, &Simulator::errorOccurred, this,
             [this, networkName](QString error) {
                 emit errorOccurred(QString("Error in Network ") + networkName +
                                    QString(": ") + error);
-            }, Qt::QueuedConnection);
+            }, Qt::QueuedConnection));
 
-    connect(simulator, &Simulator::trainReachedTerminal, this,
+    CHECK_TRUE(connect(simulator, &Simulator::trainReachedTerminal, this,
             [this, networkName](QString trainID, QString terminalID,
                                 int containersCount) {
         emit trainReachedTerminal(networkName, trainID,
                                   terminalID, containersCount);
-    });
+    }));
 
     setupTrainsConnection(apiData.trains.values(), networkName, mode);
 
@@ -461,21 +495,21 @@ void SimulatorAPI::setupTrainsConnection(
     QVector<std::shared_ptr<Train>> trains, QString networkName, Mode mode)
 {
     for (const auto& train : trains) {
-        connect(train.get(), &Train::destinationReached, this,
+        CHECK_TRUE(connect(train.get(), &Train::destinationReached, this,
                 [this, networkName, train, mode](QJsonObject state) {
                     handleTrainReachedDestination(
                         networkName,
                         state,
                         mode);
-                }, Qt::QueuedConnection);
-        connect(train.get(), &Train::containersLoaded, this,
+                }, Qt::QueuedConnection));
+        CHECK_TRUE(connect(train.get(), &Train::containersLoaded, this,
                 [this, networkName, train]() {
                     emit containersAddedToTrain(
                         networkName,
                         QString::fromStdString(train->trainUserID));
-                });
+                }, Qt::QueuedConnection));
 
-        connect(train.get(), &Train::containersUnloaded, this,
+        CHECK_TRUE(connect(train.get(), &Train::containersUnloaded, this,
                 [this, train, networkName]
                 (QString trainID, QString seaPortCode, QJsonArray containers)
                 {
@@ -483,15 +517,15 @@ void SimulatorAPI::setupTrainsConnection(
                                                           trainID,
                                                           seaPortCode,
                                                           containers);
-                });
+                }, Qt::QueuedConnection));
 
-        connect(train.get(), &Train::trainStateAvailable, this,
+        CHECK_TRUE(connect(train.get(), &Train::trainStateAvailable, this,
                 [this, train, networkName] (QJsonObject state) {
                     emit SimulatorAPI::trainStateAvailable(
                         networkName,
                         QString::fromStdString(train->trainUserID),
                         state);
-                });
+                }, Qt::QueuedConnection));
     }
 }
 
@@ -549,10 +583,8 @@ void SimulatorAPI::handleTrainReachedDestination(QString networkName,
 {
     QJsonObject response;
     QJsonObject networkData;
-    QJsonArray trainsArray;
 
-    trainsArray.append(trainState);
-    networkData["trainStates"] = trainsArray;
+    networkData["trainState"] = trainState;
     response[networkName] = networkData;
 
     emit trainsReachedDestination(networkName, response);
@@ -949,7 +981,12 @@ void SimulatorAPI::addContainersToTrain(QString networkName,
                                         QString trainID,
                                         QJsonObject json)
 {
-    getTrainByID(networkName, trainID)->addContainers(json);
+    auto subjectTrain = getTrainByID(networkName, trainID);
+    if (subjectTrain) {
+        subjectTrain->addContainers(json);
+    } else {
+        emit errorOccurred("Train with ID: " + trainID + " does not exist");
+    }
 }
 
 void SimulatorAPI::requestRunSimulation(QVector<QString> networkNames,
@@ -1057,6 +1094,8 @@ void SimulatorAPI::requestUnloadContainersAtTerminal(
         // Request train to unload containers
         apiData.trains.value(trainID)->
             requestUnloadContainersAtTerminal(portNames);
+
+        return; // Exit without giving an error message
     }
 
     // Emit an error if the train does not exist
@@ -1104,7 +1143,7 @@ void SimulatorAPI::InteractiveMode::resetAPI()
 }
 
 void SimulatorAPI::InteractiveMode::createNewSimulationEnvironment(
-    QString nodesFileContent, QString linksFileContent,
+    QJsonObject nodesFileContent, QJsonObject linksFileContent,
     QString networkName, QVector<QMap<QString, std::any>> trainList,
     double timeStep, Mode mode)
 {
@@ -1239,8 +1278,8 @@ void SimulatorAPI::ContinuousMode::resetAPI()
 }
 
 void SimulatorAPI::ContinuousMode::createNewSimulationEnvironment(
-    QString nodesFileContent,
-    QString linksFileContent,
+    QJsonObject nodesFileContent,
+    QJsonObject linksFileContent,
     QString networkName,
     QVector<QMap<QString, std::any>> trainList,
     double timeStep,

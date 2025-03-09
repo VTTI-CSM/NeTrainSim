@@ -15,6 +15,9 @@
 #include "util/error.h" // Include for error handling utilities
 #include <QStandardPaths>
 #include "VersionConfig.h"
+#include <QCoreApplication>
+#include <QThread>
+#include <atomic>
 
 // Function to get the path to the home directory.
 // If the path is not empty, it is returned, otherwise a runtime exception is thrown with an error message.
@@ -62,7 +65,7 @@ Simulator::Simulator(Network* theNetwork, QVector<std::shared_ptr<Train> > netwo
 
 	// Initialization of member variables
     this->network = theNetwork;
-    trains = std::move(networkTrains);
+    trains = networkTrains;
 	// Setting simulation parameters
 	this->simulationEndTime = DefaultEndTime;
     this->timeStep = simulatorTimeStep;
@@ -1207,10 +1210,11 @@ void Simulator::runSimulation(double runFor,
     while ((this->simulationTime <= this->simulationTime + runFor) &&
            (this->simulationTime <= this->simulationEndTime) )
     {
-        mutex.lock();
-         // This will block the thread if pauseFlag is true
-        if (pauseFlag) pauseCond.wait(&mutex);
-        mutex.unlock();
+        // Handle pause without blocking the event loop
+        while (pauseFlag.load(std::memory_order_relaxed) && mIsSimulatorRunning) {
+            QCoreApplication::processEvents(); // Process events while paused
+            QThread::msleep(10); // Small sleep to avoid busy-waiting
+        }
 
         // Check if the simulation should continue running
         if (!mIsSimulatorRunning) {
@@ -1241,6 +1245,9 @@ void Simulator::runSimulation(double runFor,
         this->ProgressBar(trainsAv, totalTrainAv, emitEndStepSignal);
 
 	}
+
+    // Process pending Qt events
+    QCoreApplication::processEvents();
 
     if (!std::isinf(runFor)){
         emit simulationReachedReportingTime(simulationTime,
@@ -2012,12 +2019,12 @@ void Simulator::ProgressBar(double current, double total, int bar_length, bool e
 
 void Simulator::pauseSimulation(bool emitSignal) {
     QMutexLocker locker(&mutex);  // Use QMutexLocker to prevent potential deadlocks
-    if (pauseFlag) {
+    if (pauseFlag.load(std::memory_order_relaxed)) {
         // Simulation is already paused; no action needed
         return;
     }
 
-    pauseFlag = true; // Mark the simulation as paused
+    pauseFlag.store(true, std::memory_order_relaxed); // Mark the simulation as paused
     if (emitSignal) emit simulationPaused(); // Notify listeners that the simulation has been paused
 }
 
@@ -2025,12 +2032,12 @@ void Simulator::pauseSimulation(bool emitSignal) {
 void Simulator::resumeSimulation(bool emitSignal) {
     QMutexLocker locker(&mutex);  // Use QMutexLocker to prevent potential deadlocks
 
-    if (!pauseFlag) {
+    if (!pauseFlag.load(std::memory_order_relaxed)) {
         // Simulation is not paused; no action needed
         return;
     }
 
-    pauseFlag = false; // Mark the simulation as resumed
+    pauseFlag.store(false, std::memory_order_relaxed); // Mark the simulation as resumed
     pauseCond.wakeAll(); // Wake up the thread if it was waiting
 
     if (emitSignal) emit simulationResumed(); // Notify listeners that the simulation has resumed

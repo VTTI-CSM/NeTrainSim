@@ -82,6 +82,8 @@ private:
     }
 };
 Q_DECLARE_METATYPE(TrainNetworkDefinition)
+Q_DECLARE_METATYPE(TrainNetworkDefinition*)
+Q_DECLARE_METATYPE(std::shared_ptr<TrainNetworkDefinition>)
 
 
 
@@ -276,5 +278,9 @@ struct NETRAINSIMCORE_EXPORT TrainsResults {
 };
 
 Q_DECLARE_METATYPE(TrainsResults)
+Q_DECLARE_METATYPE(TrainsResults*)
+Q_DECLARE_METATYPE(std::shared_ptr<TrainsResults>)
+
+
 
 #endif // TRAINSCOMMON_H

@@ -18,7 +18,7 @@
 #include <QJsonValue>
 
 #ifdef BUILD_SERVER_ENABLED
-#include "containermap.h"
+#include <containerLib/containermap.h>
 #endif
 
 /**
@@ -1316,6 +1316,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(Train)
+Q_DECLARE_METATYPE(Train*)
 Q_DECLARE_METATYPE(std::shared_ptr<Train>)
 
 

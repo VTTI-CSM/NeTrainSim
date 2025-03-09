@@ -818,13 +818,21 @@ QVector<ContainerCore::Container *> Train::getLoadedContainers() const
 
 void Train::addContainer(ContainerCore::Container* container) {
     if (container) {
+        container->setContainerCurrentLocation("Train_" + QString::fromStdString(this->trainUserID));
         mLoadedContainers.addContainer(container->getContainerID(), container);
         emit containersLoaded();
     }
 }
 
 void Train::addContainers(QJsonObject json) {
-    mLoadedContainers.addContainers(json);
+    auto containers =
+        ContainerCore::ContainerMap::loadContainersFromJson(json);
+
+    for (auto container : containers) {
+        container->setContainerCurrentLocation("Train_" + QString::fromStdString(this->trainUserID));
+    }
+
+    mLoadedContainers.addContainers(containers);
     emit containersLoaded();
 }
 
@@ -1385,6 +1393,7 @@ QJsonObject Train::getCurrentStateAsJson() {
     jsonState["cumulativeDelayTimeStat"] = cumDelayTimeStat;
     jsonState["cumulativeMaxDelayTimeStat"] = cumMaxDelayTimeStat;
     jsonState["cumulativeStoppedStat"] = cumStoppedStat;
+    jsonState["tripTime"] = tripTime;
     QJsonObject fuel;
     for (const auto& kvp : consumedTank) {
         fuel.insert(QString::fromStdString(kvp.first), kvp.second);
@@ -1397,6 +1406,11 @@ QJsonObject Train::getCurrentStateAsJson() {
     jsonState["currentTractiveForce"] = currentTractiveForce;
     jsonState["currentResistanceForces"] = currentResistanceForces;
     jsonState["currentUsedTractivePower"] = currentUsedTractivePower;
+
+#ifdef BUILD_SERVER_ENABLED
+    jsonState["containersCount"] =
+        mLoadedContainers.getAllContainers().count();
+#endif
 
     return jsonState;
 }

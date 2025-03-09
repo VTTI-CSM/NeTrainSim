@@ -342,10 +342,21 @@ TrainsList::readTrainsFromJSON(const QJsonObject& jsonObject)
         }
 
         // Read train path (an array of integers)
-        Vector<int> trainPath;
         QJsonArray pathArray = trainObject["TrainPathOnNodeIDs"].toArray();
+        Vector<int> trainPath;
         for (const QJsonValue& pathValue : pathArray) {
-            trainPath.push_back(pathValue.toInt());
+            // Handle both string and number formats
+            if (pathValue.isString()) {
+                bool ok;
+                int nodeId = pathValue.toString().toInt(&ok);
+                if (ok) {
+                    trainPath.push_back(nodeId);
+                } else {
+                    qWarning() << "Invalid node ID format in path:" << pathValue.toString();
+                }
+            } else if (pathValue.isDouble()) {
+                trainPath.push_back(pathValue.toInt());
+            }
         }
 
         // Create the train record

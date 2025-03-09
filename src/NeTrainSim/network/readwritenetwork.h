@@ -26,6 +26,12 @@
 #include "netnode.h"
 #include "../util/vector.h"
 #include <exception>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
+#include <QJsonDocument>
+#include <QByteArray>
 
 namespace ReadWriteNetwork {
 
@@ -72,7 +78,14 @@ Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
 readNodesFile(const std::string& fileName);
 
 Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFromJson(const QJsonObject& nodesJson);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
 readNodesFileContent(const std::string& fileContent);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFromJsonFile(const QString& filePath);
+
 
 /**
      * @brief Writes the nodes file.
@@ -95,8 +108,15 @@ bool NETRAINSIMCORE_EXPORT writeNodesFile(
 Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
 readLinksFile(const std::string& fileName);
 
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFromJsonFile(const QString& filePath);
+
 Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
 readLinksFileContent(const std::string& fileContent);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFromJson(const QJsonObject& linksJson);
 
 /**
      * @brief Writes the links file.
