@@ -521,8 +521,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "defineSimulator")
     {
-        qInfo() << "[Server] Received command: Initializing "
-                   "a new simulation environment.";
+        qInfo() << "[Server] Received command: defineSimulator. "
+                   "Initializing a new simulation environment.";
 
         // Validate required fields
         QList<QPair<bool, QString>> checks;
@@ -588,7 +588,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         }
     } else if (command == "runSimulator")
     {
-        qInfo() << "[Server] Received command: Running simulation.";
+        qInfo() << "[Server] Received command: runSimulator. "
+                   "Running simulation.";
 
         // Validate networkNames array
         auto arrayCheck = validateArray(jsonMessage,
@@ -648,7 +649,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "terminateSimulator")
     {
-        qInfo() << "[Server] Received command: Terminating simulation.";
+        qInfo() << "[Server] Received command: terminateSimulator. "
+                   "Terminating simulation.";
 
         // Validate networkNames array
         auto arrayCheck = validateArray(jsonMessage, "networkNames", command);
@@ -680,7 +682,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "endSimulator")
     {
-        qInfo() << "[Server] Received command: Ending simulation.";
+        qInfo() << "[Server] Received command: endSimulator. "
+                   "Ending simulation.";
 
         // Validate networkNames array
         auto arrayCheck = validateArray(jsonMessage, "networkNames", command);
@@ -711,6 +714,9 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "addTrainsToSimulator")
     {
+        qInfo() << "[Server] Received command: addTrainsToSimulator. "
+                   "Adding trains to simulation.";
+
         // Validate required fields
         QList<QPair<bool, QString>> checks;
         checks << checkJsonField(jsonMessage, "network", command);
@@ -756,8 +762,8 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
         }
     } else if (command == "unloadContainersFromTrainAtCurrentTerminal")
     {
-        qInfo() << "[Server] Received command: Unloading "
-                   "containers from a train.";
+        qInfo() << "[Server] Received command: unloadContainersFromTrainAtCurrentTerminal. "
+                   "Unloading containers from a train.";
 
         // Validate required fields
         QList<QPair<bool, QString>> checks;
@@ -812,6 +818,9 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "addContainersToTrain")
     {
+        qInfo() << "[Server] Received command: addContainersToTrain. "
+                   "Adding containers to a train.";
+
         // Validate required fields
         QList<QPair<bool, QString>> checks;
         checks << checkJsonField(jsonMessage, "networkName", command);
@@ -852,6 +861,9 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     }
     else if (command == "restServer")
     {
+        qInfo() << "[Server] Received command: restServer. "
+                   "Resetting the server.";
+
         // Reset the server
         try
         {
@@ -867,7 +879,7 @@ void SimulationServer::processCommand(const QJsonObject &jsonMessage) {
     else
     {
         onErrorOccurred("Unrecognized command: " + command);
-        qWarning() << "Unrecognized command:" << command;
+        qWarning() << "[Server] Received unrecognized command: " << command;
     }
 }
 
