@@ -1393,6 +1393,7 @@ QJsonObject Train::getCurrentStateAsJson() {
     jsonState["cumulativeDelayTimeStat"] = cumDelayTimeStat;
     jsonState["cumulativeMaxDelayTimeStat"] = cumMaxDelayTimeStat;
     jsonState["cumulativeStoppedStat"] = cumStoppedStat;
+    jsonState["tripTime"] = tripTime;
     QJsonObject fuel;
     for (const auto& kvp : consumedTank) {
         fuel.insert(QString::fromStdString(kvp.first), kvp.second);
