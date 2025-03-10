@@ -135,6 +135,8 @@ public:
     double cumEnergyStat;
     /** Total energy consumpted only of the train till time t */
     double totalEConsumed;
+    /** Total carbon dioxide emitted as a result of consuming fuel. */
+    double totalCarbonDioxideEmitted;
     /** Energy regenerated of the train till time t */
     double totalERegenerated;
     /** The time the train is delayed at time step t, relative to min free flow speed of all spanned links. */

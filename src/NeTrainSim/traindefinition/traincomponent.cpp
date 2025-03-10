@@ -46,6 +46,8 @@ std::pair<bool, double> TrainComponent::consumeFuelDiesel(double EC_kwh, double 
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
+        this->carbonDioxideEmission = EC::getEmissions(consumedQuantity, "diesel");
+        this->cumCarbonDioxideEmission += this->carbonDioxideEmission;
 
         this->consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * dieselDensity; // reduce vehicle weight
@@ -64,6 +66,8 @@ std::pair<bool, double> TrainComponent::consumeFuelBioDiesel(double EC_kwh, doub
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
+        this->carbonDioxideEmission = EC::getEmissions(consumedQuantity, "biodiesel");
+        this->cumCarbonDioxideEmission += this->carbonDioxideEmission;
 
         this->consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * bioDieselDensity;  // reduce vehicle weight
