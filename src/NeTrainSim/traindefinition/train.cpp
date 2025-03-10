@@ -1259,15 +1259,18 @@ bool Train::rechargeCarsBatteries(double timeStep, double EC_kwh, std::shared_pt
 void Train::calculateEnergyConsumption(double timeStep, std::string currentRegion) {
     double NEC = 0.0;
     double NER = 0.0;
+    double NCE = 0.0;
     for (auto& vehicle : this->trainVehicles) {
         NEC += vehicle->cumEnergyConsumed;
         NER += std::abs(vehicle->cumEnergyRegenerated);
+        NCE += vehicle->cumCarbonDioxideEmission;
     }
 
     this->energyStat = NEC - NER;
     this->cumEnergyStat += this->energyStat;
     this->totalEConsumed += NEC;
     this->totalERegenerated += NER;
+    this->totalCarbonDioxideEmitted += NCE;
 
     if (this->cumRegionalConsumedEnergyStat.count(currentRegion) > 0) {
         this->cumRegionalConsumedEnergyStat[currentRegion] = 
@@ -1390,6 +1393,7 @@ QJsonObject Train::getCurrentStateAsJson() {
     // Add cumulative statistics
     jsonState["totalEnergyConsumed"] = totalEConsumed;
     jsonState["totalEnergyRegenerated"] = totalERegenerated;
+    jsonState["totalCarbonDioxideEmitted"] = totalCarbonDioxideEmitted / 1000.00; // kg;
     jsonState["cumulativeDelayTimeStat"] = cumDelayTimeStat;
     jsonState["cumulativeMaxDelayTimeStat"] = cumMaxDelayTimeStat;
     jsonState["cumulativeStoppedStat"] = cumStoppedStat;
@@ -1437,6 +1441,8 @@ void Train::resetTrain() {
         it->get()->trackGrade = 0.0;
         it->get()->energyConsumed = 0.0;
         it->get()->cumEnergyConsumed = 0.0;
+        it->get()->carbonDioxideEmission = 0.0;
+        it->get()->cumCarbonDioxideEmission = 0.0;
     };
 
     this->loaded = false;
