@@ -384,6 +384,11 @@ void SimulatorAPI::setupConnections(const QString& networkName, Mode mode)
 
     auto& simulator = apiData.simulator;
 
+    CHECK_TRUE(connect(simulator, &Simulator::allTrainsReachedDestination,
+                       this, [this, networkName]() {
+        handleAllTrainsReachedDestination(networkName);
+    }));
+
     CHECK_TRUE(connect(simulator, &Simulator::resultDataAvailable, this,
             [this, networkName, mode](TrainsResults results) {
                 handleResultsAvailable(networkName, results, mode);
@@ -576,6 +581,10 @@ SimulatorAPI::~SimulatorAPI() {
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
+void SimulatorAPI::handleAllTrainsReachedDestination(QString networkName)
+{
+    emit allTrainsReachedDestination(networkName);
+}
 
 void SimulatorAPI::handleTrainReachedDestination(QString networkName,
                                                  QJsonObject trainState,

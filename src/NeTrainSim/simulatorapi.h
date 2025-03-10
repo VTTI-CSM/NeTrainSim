@@ -205,6 +205,12 @@ signals:
         QMap<QString, QPair<double, double>> currentSimulorTimeProgressPairs);
 
     /**
+     * @brief Emitted when all trains in the network reach their destinations
+     * @param networkName The name of the network containing the trains.
+     */
+    void allTrainsReachedDestination(QString networkName);
+
+    /**
      * @brief Emitted when trains reach their destinations.
      * @param networkName The name of the network containing the trains.
      * @param trainState JSON object containing the states of trains that reached their destinations.
@@ -589,6 +595,15 @@ protected:
                                            QVector<QString> portNames);
 
 protected slots:
+
+    /**
+     * @brief Handle the event when all trains reach their destinations.
+     * @param networkName Name of the network where the event occurred.
+     *
+     * @details This function processes the event triggered when all train reach
+     * their designated destinations.
+     */
+    void handleAllTrainsReachedDestination(QString networkName);
 
     /**
      * @brief Handle the event when a train reaches its destination.

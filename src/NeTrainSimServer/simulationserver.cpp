@@ -42,6 +42,9 @@ void SimulationServer::setupServer() {
             &SimulationServer::onSimulationAdvanced);
 
     connect(&simAPI,
+            &SimulatorAPI::allTrainsReachedDestination, this,
+            &SimulationServer::onAllTrainsReachedDestination);
+    connect(&simAPI,
             &SimulatorAPI::trainsReachedDestination, this,
             &SimulationServer::onTrainReachedDestination);
     connect(&simAPI,
@@ -1058,6 +1061,17 @@ void SimulationServer::onTrainsAddedToSimulator(const QString networkName,
 
 }
 
+void SimulationServer::onAllTrainsReachedDestination(const QString networkName)
+{
+    QJsonObject jsonMessage;
+    jsonMessage["event"] = "allTrainsReachedDestination";
+    jsonMessage["networkName"] = networkName;
+    jsonMessage["host"] = "NeTrainSim";
+    sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
+                        jsonMessage);
+    onWorkerReady();
+}
+
 void SimulationServer::
     onTrainReachedDestination(const QString networkName,
                               const QJsonObject trainStatus)
@@ -1069,8 +1083,6 @@ void SimulationServer::
     jsonMessage["host"] = "NeTrainSim";
     sendRabbitMQMessage(PUBLISHING_ROUTING_KEY.c_str(),
                         jsonMessage);
-    onWorkerReady();
-
     // qInfo() << "Train reached destination";
 }
 

@@ -68,6 +68,7 @@ private slots:
          QMap<QString, QPair<double, double>> networkNamesSimulationTimePairs);
     void onTrainsAddedToSimulator(const QString networkName,
                                   const QVector<QString> trainIDs);
+    void onAllTrainsReachedDestination(QString networkName);
     void onTrainReachedDestination(QString networkName,
                                    QJsonObject networkTrainsPairs);
     void onSimulationResultsAvailable(QString networkName,
