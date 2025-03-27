@@ -1493,8 +1493,7 @@ Vector<Map<std::string,
                                 std::stod(record["XScale"]),
                            std::stod(record["YCoordinate"]) *
                                std::stod(record["YScale"]));
-    }
-
+    }    
     return records;
 }
 
@@ -1503,7 +1502,6 @@ Vector<Map<std::string,
 void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData,
                                  QVector<double>yData,
                                  QVector<QString> labels, bool showLabels) {
-
 
     // check the plot has at least 1 graph
     if (plot.graphCount() < 1) { return; }
@@ -1546,6 +1544,14 @@ void NeTrainSim::updateNodesPlot(CustomPlot &plot, QVector<double>xData,
     ymin = ymin - 0.1 * ymin;
     double ymax = *std::max_element(yData.begin(), yData.end());
     ymax = ymax + 0.1 * ymax;
+
+    // Add minimum range to prevent zero-range issues
+    if (ymin == ymax) {
+        double value = ymin;
+        ymin = value - 1.0;  // Use a reasonable minimum range
+        ymax = value + 1.0;
+    }
+
     // set the range of the y-axis
     plot.yAxis->setRangeLower(ymin);
     plot.yAxis->setRangeUpper(ymax);
@@ -3020,10 +3026,15 @@ void NeTrainSim::loadNodesDataToTable(
                      &QDoubleSpinBox::valueChanged,
                      this, &NeTrainSim::updateTheNodesPlotData);
 
-    this->forceReplotNodes();
+    this->updateTheNodesPlotData();
+    this->updateTheLinksPlotData();
 
-    // in case the user loaded the links data first
-    this->forceReplotLinks();
+    this->updateNodesPlot(*(ui->plot_createNetwork),
+                          this->nodesXData, this->nodesYData,
+                          this->nodesLabelData);
+    this->updateLinksPlot(*(ui->plot_createNetwork),
+                          this->linksStartNodeIDs, this->linksEndNodeIDs);
+
 
 }
 
@@ -3150,7 +3161,14 @@ void NeTrainSim::loadLinksDataToTable(
     QObject::connect(ui->table_newLinks, &QTableWidget::cellChanged,
                      this, &NeTrainSim::updateTheLinksPlotData);
 
-    this->forceReplotLinks();
+    this->updateTheNodesPlotData();
+    this->updateTheLinksPlotData();
+
+    this->updateNodesPlot(*(ui->plot_createNetwork),
+                          this->nodesXData, this->nodesYData,
+                          this->nodesLabelData);
+    this->updateLinksPlot(*(ui->plot_createNetwork),
+                          this->linksStartNodeIDs, this->linksEndNodeIDs);
 
 }
 

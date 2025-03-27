@@ -12,6 +12,8 @@ void TrainComponent::resetTimeStepConsumptions() {
 	this->energyRegenerated = 0.0;
     this->cumEnergyConsumed = 0.0; // the step energy consumption of multiple technologies (e.g hybrid)
     this->cumEnergyRegenerated = 0.0; // the step energy regeneration of multiple technologies (e.g hybrid)
+    this->carbonDioxideEmission = 0.0;
+    this->cumCarbonDioxideEmission = 0.0;
 }
 
 void TrainComponent::setCurrentWeight(double newCurrentWeight) {
