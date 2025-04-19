@@ -1,0 +1,50 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+# Maximum line width
+ColumnLimit: 60
+
+# Use spaces, 4-wide
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Control exactly how braces are broken
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+
+# Keep access specifiers (public:, private:, protected:) unindented
+AccessModifierOffset: -4
+
+# Align consecutive statements for readability
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+AlignTrailingComments: true
+
+# Disallow short forms on a single line
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Break constructor initializer lists before commas
+BreakConstructorInitializers: BeforeComma
+
+# Break before binary operators (except `=`) for clarity
+BreakBeforeBinaryOperators: NonAssignment
+
+# Limit consecutive blank lines
+MaxEmptyLinesToKeep: 1
