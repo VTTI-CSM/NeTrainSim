@@ -4,23 +4,24 @@ type: software
 title: NeTrainSim
 version: 0.1.2
 date-released: 2023-07-23
-doi: 10.2139/ssrn.4377164
-abstract: Although train simulation research is vast, the majority of simulation
- tools available are confined to city- or trip-scale analysis, primarily 
- offering micro-level simulations of network segments. This paper introduces 
- the NeTrainSim simulator for heavy long-haul freight trains on a network of 
- multiple intersecting tracks. The simulator is an attempt towards simulating 
- the entire train system for energy consumption analysis. Four case studies 
- are conducted to demonstrate the simulator’s performance. The first case 
- study validates the model by comparing the NeTrainSim’s output to empirical 
- trajectory data using a basic single-train network. The second demonstrates the 
- train-following model considering six trains following each other. The 
- remaining case studies highlight the simulator’s capability in resolving 
- train conflicts for different possible scenarios. Finally, the suitability of 
- the NeTrainSim for the modeling of realistic railroad networks is verified 
- through the implementation of a sample network located in Cook county, Illinois.
+doi: 10.1007/s40534-024-00331-x
+abstract: Although train modeling research is vast, most available simulation tools are 
+confined to city- or trip-scale analysis, primarily offering micro-level simulations of 
+network segments. This paper addresses this void by developing the NeTrainSim simulator 
+for heavy long-haul freight trains on a network of multiple intersecting tracks. The main 
+objective of this simulator is to enable a comprehensive analysis of energy consumption 
+and the associated carbon footprint for the entire train system. Four case studies were 
+conducted to demonstrate the simulator’s performance. The first case study validates the 
+model by comparing NeTrainSim output to empirical trajectory data. The results demonstrate 
+that the simulated trajectory is precise enough to estimate the train energy consumption 
+and carbon dioxide emissions. The second application demonstrates the train-following model 
+considering six trains following each other. The results showcase the model ability to maintain 
+safe-following distances between successive trains. The next study highlights the simulator’s 
+ability to resolve train conflicts for different scenarios. Finally, the suitability of the 
+NeTrainSim for modeling realistic railroad networks is verified through the modeling of the 
+entire US network and comparing alternative powertrains on the fleet energy consumption.
 
-repository-code: https://github.com/AhmedAredah/NeTrainSim
+repository-code: https://github.com/VTTI-CSM/NeTrainSim
 license: GPLv3
 authors:
   - given-names: Ahmed
@@ -34,6 +35,8 @@ authors:
     family-names: Rakha
     affiliation: Virginia Tech 
     orcid: https://orcid.org/0000-0002-5845-2929
+
+Other Contributers:
   - given-names: George
     family-names: List
     affiliation: North Carolina State University
@@ -43,6 +46,7 @@ authors:
   - given-names: Andreas
     family-names: Hoffrichter
     affiliation: Deutsch Bahn
+
 keywords:
   - NeTrainSim
   - Network Trains Simulation

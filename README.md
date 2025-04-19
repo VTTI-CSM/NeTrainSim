@@ -25,8 +25,9 @@
 
 <p align="center">
   <a href="https://github.com/VTTI-CSM/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
+  <a href="https://youtu.be/bbvnPn9zMsQ" target="_blank">How to Install and Quick Overview</a> |
   <a href="https://VTTI-CSM.github.io/NeTrainSim/" target="_blank">Documentation</a> |
-  <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-1x0esp2x0-8a9TeK14JbIqcLl_PkyZMA" target="_blank">Slack</a>
+  <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-2913nksde-mmvbGCdz8k8GgjdfeQBXZQ" target="_blank">Slack</a>
 </p>
 
 # Network Train Simulator (NeTrainSim)
@@ -36,11 +37,14 @@ NeTrainSim is an open-source train simulation software that allows users to simu
 ## How to Cite
 
 ```bibtex
-@inproceedings{aredah2023netrainsim,
-  title={NeTrainSim: A Network Freight Train Simulator for Estimating Energy/Fuel Consumption},
-  author={Aredah, Ahmed and Fadhloun, Karim and Rakha, Hesham and List, George},
-  booktitle={102nd Transportation Research Board Annual Meeting},
-  year={2023}
+@article{aredah2024netrainsim,
+  title={NeTrainSim: a network-level simulator for modeling freight train longitudinal motion and energy consumption},
+  author={Aredah, Ahmed S and Fadhloun, Karim and Rakha, Hesham A},
+  journal={Railway Engineering Science},
+  pages={1--19},
+  year={2024},
+  publisher={Springer},
+  doi={https://doi.org/10.1007/s40534-024-00331-x}
 }
 ```
 
@@ -63,6 +67,9 @@ NeTrainSim is an open-source train simulation software that allows users to simu
     
 - **Energy optimization**: NeTrainSim includes an energy optimization module for optimizing individual or grouped trains (under development).
 
+<p align = 'center'>
+<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/aaa0a970-84d8-435f-bcfc-dbf740546d76" width="500" alt ="main NeTrainSim window">
+</p>
 
 ## Getting Started
 To get started with NeTrainSim, you will need to download and install the software on your computer. You can do this by downloading the latest release version on the [releases page](https://github.com/VTTI-CSM/NeTrainSim/releases).
@@ -73,6 +80,9 @@ There is no prerequisite required to run NeTrainSim as the installer has all the
 ### Installing
 Once the file is downloaded on your hard drive. Double click the downloaded file and follow the instruction to install the application. The default installation folder is `C:\Program Files\NeTrainSim`; however, you can alter this installation path as you wish during the installation process. 
 
+Follow this video if you need a quick installation guidance: [https://youtu.be/bbvnPn9zMsQ](https://youtu.be/bbvnPn9zMsQ)
+
+
 ### Running
 
 #### Using GUI interface
@@ -80,9 +90,9 @@ Once the file is downloaded on your hard drive. Double click the downloaded file
 2. Presented below is the primary user interface for the NeTrainSim application.
 
 <p align = 'center'>
-<img src="https://github.com/AhmedAredah/NeTrainSim/assets/77444744/8793bf42-8ed4-45c1-a3c5-09d3dab9c3b3" width="500" alt ="main NeTrainSim window">
+<img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/ffee71c7-972a-472a-b886-9fd128cefbf6" width="500" alt ="main NeTrainSim window">
 </p>
-                                                                                                                                                   
+
 3. For a comprehensive understanding of the application and its functionalities, please refer to the relevant documentation available within the 'Help' section of the menu.
                           
                           
@@ -182,4 +192,10 @@ This program is distributed under the terms of the [GNU General Public License (
 
 ## Publications
 
-Aredah, A., Du, J., Hegazi, M., List, G., & Rakha, H. A. (2024). Comparative analysis of alternative powertrain technologies in freight trains: A numerical examination towards sustainable rail transport. Applied Energy, 356, 122411.
+Aredah, A.S., Fadhloun, K. & Rakha, H.A. (2024) NeTrainSim: a network-level simulator for modeling freight train longitudinal motion and energy consumption. Railw. Eng. Sci. https://doi.org/10.1007/s40534-024-00331-x
+
+Aredah, A., Fadhloun, K., & Rakha, H. A. (2024). Energy optimization in freight train operations: Algorithmic development and testing. Applied Energy, 364, 123111. https://doi.org/10.1016/j.apenergy.2024.123111
+
+Aredah, A., Du, J., Hegazi, M., List, G., & Rakha, H. A. (2024). Comparative analysis of alternative powertrain technologies in freight trains: A numerical examination towards sustainable rail transport. Applied Energy, 356, 122411. https://doi.org/10.1016/j.apenergy.2023.122411
+
+
