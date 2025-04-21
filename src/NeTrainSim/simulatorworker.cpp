@@ -46,7 +46,8 @@ void SimulatorWorker::setupSimulator(
                 << "!                    \r";
         auto nodes = ReadWriteNetwork::generateNodes(snodeRecords);
         auto links = ReadWriteNetwork::generateLinks(nodes, slinkRecords);
-        auto trains = TrainsList::generateTrains(trainsRecords);
+        auto trains =
+            TrainsList::generateTrains(trainsRecords, true);
         auto trainsq = Utils::convertToQVector(trains);
 
         qInfo() << "Define Simulator Space for network: "

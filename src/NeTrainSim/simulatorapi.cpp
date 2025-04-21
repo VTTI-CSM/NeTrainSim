@@ -176,6 +176,9 @@ void SimulatorAPI::resetInstance()
     instance.reset();
     registerQMeta();
     instance.reset(new SimulatorAPI());
+
+    // Reset the train ID in the trainsList
+    TrainsList::resetTrainID();
 }
 
 void SimulatorAPI::setLocale()
