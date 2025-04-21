@@ -639,6 +639,15 @@ void SimulationServer::processCommand(
     const QJsonObject &jsonMessage)
 {
 
+    // --------------------------- NOTE --------------------
+    // The CargoNetSim C++ implementation passes data in the
+    // params value in the jsonMessage but the Python
+    // implementation passes them in the root of the
+    // jsonMessage so this function adaptes to both for now
+    // but we should only consider the params case in the
+    // future.
+    // --------------------------- NOTE --------------------
+
     // Extract the command - always at the root level
     if (!jsonMessage.contains("command"))
     {
@@ -709,8 +718,6 @@ void SimulationServer::processCommand(
                                  command);
         checks << checkJsonField(jsonMessage, "networkName",
                                  command);
-        checks << checkJsonField(jsonMessage, "trains",
-                                 command);
         checks << checkJsonField(jsonMessage, "timeStep",
                                  command);
 
@@ -756,6 +763,16 @@ void SimulationServer::processCommand(
         // accommodate either location
         auto trainsI =
             TrainsList::readTrainsFromJSON(jsonMessage);
+        if (trainsI.empty())
+        {
+            // If the trains list is empty, try to read
+            // from params
+            QJsonObject params =
+                getJsonValue(jsonMessage, "params")
+                    .toObject();
+            trainsI =
+                TrainsList::readTrainsFromJSON(params);
+        }
         auto trains = Utils::convertToQVector(trainsI);
 
         qDebug() << "[Server] Loading network: " << netName
@@ -963,6 +980,17 @@ void SimulationServer::processCommand(
         auto trains =
             TrainsList::ReadAndGenerateTrainsFromJSON(
                 jsonMessage);
+        if (trains.empty())
+        {
+            // If the trains list is empty, try to read
+            // from params
+            QJsonObject params =
+                getJsonValue(jsonMessage, "params")
+                    .toObject();
+            trains =
+                TrainsList::ReadAndGenerateTrainsFromJSON(
+                    params);
+        }
 
         // Convert to QVector<std::shared_ptr<Train>>
         QVector<std::shared_ptr<Train>> qTrains;
@@ -1091,9 +1119,20 @@ void SimulationServer::processCommand(
         // location
         try
         {
-            SimulatorAPI::InteractiveMode::
-                addContainersToTrain(net, trainID,
-                                     jsonMessage);
+            bool containersAdded = SimulatorAPI::
+                InteractiveMode::addContainersToTrain(
+                    net, trainID, jsonMessage);
+            if (!containersAdded)
+            {
+                // If the containers list is empty, try to
+                // read from params
+                QJsonObject params =
+                    getJsonValue(jsonMessage, "params")
+                        .toObject();
+                SimulatorAPI::InteractiveMode::
+                    addContainersToTrain(net, trainID,
+                                         params);
+            }
         }
         catch (const std::exception &e)
         {
@@ -1542,7 +1581,7 @@ void SimulationServer::onErrorOccurred(
     jsonMessage["event"]        = "errorOccurred";
     jsonMessage["errorMessage"] = errorMessage;
     jsonMessage["host"]         = "NeTrainSim";
-    jsonMessage["success"]      = true;
+    jsonMessage["success"]      = false;
 
     // Only include commandId if it was in the original
     // request
