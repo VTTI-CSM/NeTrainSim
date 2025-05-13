@@ -1,7 +1,4 @@
 <h1 align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
   <a href="https://github.com/VTTI-CSM/NeTrainSim">
     <img src="https://github.com/VTTI-CSM/NeTrainSim/assets/77444744/98776173-7574-404d-8eb4-bfdebe99f1cb" alt="NeTrainSim"/>
   </a>
@@ -26,12 +23,23 @@
   </a>
 </p>
 
+<div align="center">
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
+</div>
+
 <p align="center">
   <a href="https://github.com/VTTI-CSM/NeTrainSim/releases" target="_blank">Download NeTrainSim</a> |
   <a href="https://youtu.be/bbvnPn9zMsQ" target="_blank">How to Install and Quick Overview</a> |
   <a href="https://VTTI-CSM.github.io/NeTrainSim/" target="_blank">Documentation</a> |
   <a href="https://join.slack.com/t/netrainsim/shared_invite/zt-2913nksde-mmvbGCdz8k8GgjdfeQBXZQ" target="_blank">Slack</a>
 </p>
+
+
+
 
 # Network Train Simulator (NeTrainSim)
 
