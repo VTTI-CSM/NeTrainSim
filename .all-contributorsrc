@@ -15,6 +15,15 @@
       "contributions": [
         "projectManagement"
       ]
+    },
+    {
+      "login": "ahmedaredah",
+      "name": "Ahmed Aredah",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77444744?v=4",
+      "profile": "https://github.com/AhmedAredah",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
