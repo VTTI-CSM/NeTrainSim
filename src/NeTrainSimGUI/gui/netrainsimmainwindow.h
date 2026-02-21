@@ -6,16 +6,13 @@
 #ifndef NETRAINSIMMAINWINDOW_H
 #define NETRAINSIMMAINWINDOW_H
 
-#include "qtrpt.h"
 #include "qlineedit.h"
 #include "gui/aboutwindow.h"
 #include "gui/customplot.h"
 #include <QMainWindow>
 #include "../NeTrainSim/util/map.h"
 #include <any>
-#include <iostream>
-//#include "qtrpt/QtRPT/qtrpt.h"
-#include "simulationworker.h"
+#include "traindefinition/trainscommon.h"
 #include "util/configurationmanager.h"
 #include "settingswindow.h"
 
@@ -147,15 +144,15 @@ private slots:
      */
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 
-    /**
-     * Slot for setting the data set information.
-     *
-     * @param dsInfo    The data set information.
-     *
-     * @author	Ahmed Aredah
-     * @date	6/7/2023
-     */
-    void setDSInfo(DataSetInfo &dsInfo);
+    // /**
+    //  * Slot for setting the data set information.
+    //  *
+    //  * @param dsInfo    The data set information.
+    //  *
+    //  * @author	Ahmed Aredah
+    //  * @date	6/7/2023
+    //  */
+    // void setDSInfo(DataSetInfo &dsInfo);
 
     /**
      * Slot for handling errors that occur during the simulation.
@@ -176,7 +173,7 @@ private slots:
      * @author	Ahmed Aredah
      * @date	6/7/2023
      */
-    void handleSimulationFinished(Vector<std::pair<string, string> > summaryData, std::string trajectoryFile);
+    void handleSimulationFinished(TrainsResults results);
 
     /**
      * Slot for updating the 'visualize trains' combo box.
@@ -298,11 +295,11 @@ private:
     // The user interface
     Ui::NeTrainSim *ui;
 
-    // Pointer to the SimulationWorker object used for running the simulation in a separate thread.
-    SimulationWorker* worker = nullptr;
+    // // Pointer to the SimulationWorker object used for running the simulation in a separate thread.
+    // SimulationWorker* worker = nullptr;
 
-    // Pointer to the QThread object that is used for running the simulation worker.
-    QThread* thread = nullptr;
+    // // Pointer to the QThread object that is used for running the simulation worker.
+    // QThread* thread = nullptr;
 
     // Vector to hold the labels displayed on the plot.
     // Each label is represented by a QCPItemText object.
@@ -356,13 +353,7 @@ private:
 
     // Vector of pairs to store the summary data of the trains after simulation.
     // Each pair represents the train ID (std::string) and its corresponding summary data (std::string).
-    Vector<std::pair<std::string, std::string>> trainsSummaryData;
-
-    // holds the summary report
-    QtRPT * report = nullptr;
-
-    // holds the summary report printer
-    QPrinter *printer = nullptr;
+    QVector<QPair<QString, QString>> trainsSummaryData;
 
     ConfigurationManager* configManager;
 
@@ -468,7 +459,7 @@ private:
     * @return A vector of tuples representing the nodes' data. Each tuple contains the node ID, x-coordinate, y-coordinate,
     *         node type, length, and width.
     */
-    Vector<Map<string, string> > getNodesDataFromNodesTable();
+    Vector<Map<std::string, std::string> > getNodesDataFromNodesTable();
 
     /**
     * Converts nodes data to plottable format.
@@ -575,7 +566,7 @@ private:
     * @return A vector of tuples representing the trains data. Each tuple contains the train ID, route nodes, start time,
     *         end time, speed profile, acceleration profile, and whether the train is enabled.
     */
-    Vector<Map<string, std::any>> getTrainsDataFromTables();
+    Vector<Map<std::string, std::any>> getTrainsDataFromTables();
 
     /**
     * Initiates the simulation process.

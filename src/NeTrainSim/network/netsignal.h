@@ -18,6 +18,7 @@
 #ifndef NeTrainSim_NetSignal_h
 #define NeTrainSim_NetSignal_h
 
+#include "../export.h"
 #include <memory>
 #include <string>
 #include <iostream>
@@ -32,7 +33,7 @@ using namespace std;
  * @class NetSignal
  * @brief The NetSignal class represents a network signal in a simulation.
  */
-class NetSignal : public std::enable_shared_from_this<NetSignal> {
+class NETRAINSIMCORE_EXPORT NetSignal : public std::enable_shared_from_this<NetSignal> {
 private:
     static unsigned int NumberOfSignalsInSimulator; /**< The number of signals in the simulator. */
 

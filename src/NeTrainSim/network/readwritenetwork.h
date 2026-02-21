@@ -19,18 +19,27 @@
 #ifndef NeTrainSim_ReadWriteNetwork_h
 #define NeTrainSim_ReadWriteNetwork_h
 
+#include "export.h"
 #include <iostream>
 #include <fstream>
 #include "netlink.h"
 #include "netnode.h"
 #include "../util/vector.h"
 #include <exception>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
+#include <QJsonDocument>
+#include <QByteArray>
 
 namespace ReadWriteNetwork {
 
 static Vector<std::string> nodeFilekeys = {"UserID",
                                            "XCoordinate",
                                            "YCoordinate",
+                                           "IsTerminal",
+                                           "TerminalDwellTime",
                                            "Desc",
                                            "XScale",
                                            "YScale"};
@@ -65,8 +74,18 @@ static Vector<std::string> linksFileIgnoreRecordsWrite = {"LengthScale",
      *         description, x-scale, and y-scale of a node.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<Map<std::string, std::string>> readNodesFile(
-    const std::string& fileName);
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFile(const std::string& fileName);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFromJson(const QJsonObject& nodesJson);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFileContent(const std::string& fileContent);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readNodesFromJsonFile(const QString& filePath);
+
 
 /**
      * @brief Writes the nodes file.
@@ -74,8 +93,9 @@ Vector<Map<std::string, std::string>> readNodesFile(
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeNodesFile(Vector<Map<std::string, std::string>> nodesRecords,
-                    std::string& filename);
+bool NETRAINSIMCORE_EXPORT writeNodesFile(
+    Vector<Map<std::string, std::string>> nodesRecords,
+    std::string& filename);
 
 /**
      * @brief Reads the links file.
@@ -85,8 +105,18 @@ bool writeNodesFile(Vector<Map<std::string, std::string>> nodesRecords,
      *         of the connected nodes, length, speed, etc.
      * @throw std::runtime_error if a runtime error occurs.
      */
-Vector<Map<std::string, std::string>> readLinksFile(
-    const std::string& fileName);
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFile(const std::string& fileName);
+
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFromJsonFile(const QString& filePath);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFileContent(const std::string& fileContent);
+
+Vector<Map<std::string, std::string>> NETRAINSIMCORE_EXPORT
+readLinksFromJson(const QJsonObject& linksJson);
 
 /**
      * @brief Writes the links file.
@@ -94,16 +124,17 @@ Vector<Map<std::string, std::string>> readLinksFile(
      * @param filename The filename of the file to write.
      * @return True if the write operation is successful, false otherwise.
      */
-bool writeLinksFile(Vector<Map<std::string, std::string>> linksRecords,
-                    std::string& filename);
+bool NETRAINSIMCORE_EXPORT
+writeLinksFile(Vector<Map<std::string, std::string>> linksRecords,
+               std::string& filename);
 
 /**
      * @brief Generates NetNode objects from the nodes records.
      * @param nodesRecords The records of nodes as a vector of tuples.
      * @return The generated NetNode objects as a vector.
      */
-Vector<std::shared_ptr<NetNode>> generateNodes(
-    Vector<Map<string, string> > nodesRecords);
+Vector<std::shared_ptr<NetNode>> NETRAINSIMCORE_EXPORT
+generateNodes(Vector<Map<string, string> > nodesRecords);
 
 /**
      * @brief Generates NetLink objects from the nodes and links records.
@@ -111,9 +142,9 @@ Vector<std::shared_ptr<NetNode>> generateNodes(
      * @param linksRecords The records of links as a vector of tuples.
      * @return The generated NetLink objects as a vector.
      */
-Vector<std::shared_ptr<NetLink>> generateLinks(
-    Vector<std::shared_ptr<NetNode>> theFileNodes,
-    Vector<Map<std::string, std::string>> linksRecords);
+Vector<std::shared_ptr<NetLink>> NETRAINSIMCORE_EXPORT
+generateLinks(Vector<std::shared_ptr<NetNode>> theFileNodes,
+              Vector<Map<std::string, std::string>> linksRecords);
 
 /**
      * @brief Gets the NetNode object with the given user identifier.
@@ -123,7 +154,8 @@ Vector<std::shared_ptr<NetLink>> generateLinks(
      *         nullptr if not found.
      * @throw std::runtime_error if a runtime error occurs.
      */
-std::shared_ptr<NetNode> getSimulatorNodeByUserID(
+std::shared_ptr<NetNode> NETRAINSIMCORE_EXPORT
+getSimulatorNodeByUserID(
     Vector<std::shared_ptr<NetNode>> theFileNodes, int oldID);
 
 } // namespace ReadWriteNetwork

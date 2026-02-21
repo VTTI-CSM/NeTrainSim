@@ -27,6 +27,7 @@
 #include "../util/map.h"
 #include "../util/vector.h"
 #include <deque>
+#include <memory>
 #include <set>
 
 class NetLink; // Forward declaration of NetLink class

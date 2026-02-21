@@ -253,7 +253,7 @@ namespace EC {
      *
      * @returns The CO2 emissions.
      */
-    double getEmissions(double fuelConsumption);
+    double getEmissions(double fuelConsumption, std::string fueltype);
 
     /**
      * Gets the power reduction factor for a given power type.

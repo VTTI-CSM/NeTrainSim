@@ -12,6 +12,8 @@ void TrainComponent::resetTimeStepConsumptions() {
 	this->energyRegenerated = 0.0;
     this->cumEnergyConsumed = 0.0; // the step energy consumption of multiple technologies (e.g hybrid)
     this->cumEnergyRegenerated = 0.0; // the step energy regeneration of multiple technologies (e.g hybrid)
+    this->carbonDioxideEmission = 0.0;
+    this->cumCarbonDioxideEmission = 0.0;
 }
 
 void TrainComponent::setCurrentWeight(double newCurrentWeight) {
@@ -46,6 +48,8 @@ std::pair<bool, double> TrainComponent::consumeFuelDiesel(double EC_kwh, double 
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
+        this->carbonDioxideEmission = EC::getEmissions(consumedQuantity, "diesel");
+        this->cumCarbonDioxideEmission += this->carbonDioxideEmission;
 
         this->consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * dieselDensity; // reduce vehicle weight
@@ -64,6 +68,8 @@ std::pair<bool, double> TrainComponent::consumeFuelBioDiesel(double EC_kwh, doub
         // update statistics
 		this->energyConsumed = EC_kwh;
 		this->cumEnergyConsumed += this->energyConsumed;
+        this->carbonDioxideEmission = EC::getEmissions(consumedQuantity, "biodiesel");
+        this->cumCarbonDioxideEmission += this->carbonDioxideEmission;
 
         this->consumeTank(consumedQuantity); // consume the vehicle tank if available
         double newWeight = this->currentWeight - consumedQuantity * bioDieselDensity;  // reduce vehicle weight

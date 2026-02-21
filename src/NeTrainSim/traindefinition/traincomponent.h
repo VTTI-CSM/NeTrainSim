@@ -56,6 +56,10 @@ public:
 	double energyRegenerated = 0.0;
     /** The amount of cummulative energy regenerated in kwh*/
 	double cumEnergyRegenerated = 0.0;
+    /** The amount of carbon dioxide that is being emitted by consuming fuel*/
+    double carbonDioxideEmission = 0.0;
+    /** The cumulative amount of carbon diocide emissions*/
+    double cumCarbonDioxideEmission = 0.0;
 
 	/** Holds the current link this vehicle is on. */
 	std::shared_ptr<NetLink> hostLink;

@@ -1,11 +1,12 @@
 #ifndef CSVMANAGER_H
 #define CSVMANAGER_H
 
+#include "../export.h"
 #include <QObject>
 #include <QString>
 #include <QVector>
 
-class CSVManager : public QObject {
+class NETRAINSIMCORE_EXPORT CSVManager : public QObject {
     Q_OBJECT
 public:
     /**

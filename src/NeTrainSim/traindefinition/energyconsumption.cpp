@@ -114,10 +114,19 @@ namespace EC {
         return requiredGeneratorPower[ind];
     }
 
-    double getEmissions(double fuelConsumption) {
-        // convert from liters to gram
-        double fuelConsumption_gPersec = fuelConsumption * (double)1000.0;
-        return 3.1119 * fuelConsumption_gPersec + 1.2728;
+    double getEmissions(double fuelConsumption, std::string fueltype) {
+        if (fueltype == "diesel") {
+            return 2683.067 * fuelConsumption;
+        }
+        else if (fueltype == "biodiesel") {
+            return 2559.5 * fuelConsumption;
+        }
+        else {
+            return 0.0; // other fuel types do not emit CO2 or not counted
+        }
+        // // convert from liters to gram
+        // double fuelConsumption_gPersec = fuelConsumption * (double)1000.0;
+        // return 3.1119 * fuelConsumption_gPersec + 1.2728;
     }
 
     double getLocomotivePowerReductionFactor(TrainTypes::PowerType powerType) {

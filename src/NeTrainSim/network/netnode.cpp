@@ -19,8 +19,8 @@ NetNode::NetNode(int simulatorID, int ID, double xCoord, double yCoord,
     this->x = static_cast<double>(xCoord) * this->xScale;
     this->y = static_cast<double>(yCoord) * this->yScale;
     this->networkSignals = Vector<std::shared_ptr<NetSignal>>();
-    this->isDepot = false;
-    this->dwellTimeIfDepot = 0.0;
+    this->isTerminal = false;
+    this->dwellTimeIfTerminal = 0.0;
     this->refillTanksAndBatteries = false;
     NetNode::NumberOfNodesInSimulator++;
 
@@ -75,7 +75,7 @@ pair<double, double> NetNode::coordinates() {
 ostream& operator<<(ostream& ostr, const NetNode& node) {
     ostr << "Network node :: ID: " << node.id << ", user ID: " << node.userID
         <<", x coord : " << node.x << ", y coord : " << node.y <<
-        ", is a depot/stop: " << ((node.isDepot) ? "true" : "false");
+        ", is a terminal/stop: " << ((node.isTerminal) ? "true" : "false");
     ostr << endl;
     return ostr;
 }

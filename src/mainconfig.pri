@@ -1,4 +1,0 @@
-VERSION = 0.1.3
-
-
-DEFINES += MYAPP_VERSION=\\\"$${VERSION}\\\"

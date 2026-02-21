@@ -752,6 +752,7 @@ std::pair<bool, double> Locomotive::consumeFuel(
     // reset the locomotive energy stats first
     this->energyConsumed = 0.0; // the step energy consumption of 1 tech
     this->energyRegenerated = 0.0; // the step energy regeneration of 1 tech
+    this->carbonDioxideEmission = 0.0;
 
 	// if energy should be consumed
 	if (EC_kwh > 0.0) {

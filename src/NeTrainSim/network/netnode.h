@@ -18,6 +18,8 @@
 #ifndef NeTrainSim_NetNode_h
 #define NeTrainSim_NetNode_h
 
+#include "../export.h"
+#include <memory>
 #include <string>
 #include <iostream>
 #include "../util/vector.h"
@@ -32,9 +34,10 @@ using namespace std;
  * @class NetNode
  * @brief The NetNode class represents a network node in a simulation.
  */
-class NetNode {
+class NETRAINSIMCORE_EXPORT NetNode {
 private:
     static unsigned int NumberOfNodesInSimulator; /**< The number of nodes in the simulator. */
+
 
 public:
     int id = -1; /**< The identifier of the node. */
@@ -45,8 +48,8 @@ public:
     double xScale; /**< The x-value scale of the node. */
     double yScale; /**< The y-value scale of the node. */
     Vector<std::shared_ptr<NetSignal>> networkSignals; /**< The network signals associated with the node. */
-    bool isDepot; /**< Indicates whether the node is a stopping station or depot for all trains. */
-    double dwellTimeIfDepot; /**< The dwell time at the depot. */
+    bool isTerminal; /**< Indicates whether the node is a stopping station or terminal for all trains. */
+    double dwellTimeIfTerminal; /**< The dwell time at the terminal. */
     bool refillTanksAndBatteries; /**< Indicates whether trains refill tanks and batteries when passing through this node. */
     Map<std::shared_ptr<NetNode>, Vector<std::shared_ptr<NetLink>>> linkTo; /**< The neighbor nodes and their link connections. */
 

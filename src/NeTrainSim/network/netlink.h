@@ -24,6 +24,7 @@
 #ifndef NeTrainSim_NetLink_h
 #define NeTrainSim_NetLink_h
 
+#include "../export.h"
 #include <string>
 #include <iostream>
 #include <map>
@@ -39,7 +40,7 @@ using namespace std;
  * @class NetLink
  * @brief The NetLink class represents a network link in a simulation.
  */
-class NetLink {
+class NETRAINSIMCORE_EXPORT NetLink {
 private:
     /// The number of links in the simulator.
     static unsigned int NumberOfLinksInSimulator;

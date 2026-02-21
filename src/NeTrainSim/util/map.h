@@ -6,12 +6,13 @@
 #ifndef Map_H
 #define Map_H
 
+#include <iostream>
 #include <map>
 #include "vector.h"
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include "utils.h"
+// #include "utils.h"
 
 /**
  * A map.
@@ -46,6 +47,13 @@ public:
      */
     Map(std::initializer_list<std::pair<Key, Value>> initList)
         : Base(initList.begin(), initList.end()) {}
+
+    /**
+     * Constructor that takes a std::map.
+     *
+     * @param  map  The std::map to copy from.
+     */
+    Map(const map_type& map) : Base(map) {}
 
     /**
      * Gets the keys
@@ -159,7 +167,7 @@ public:
             ss << pair.first << ": ";
             try {
                 static_cast<long double>(pair.second);
-                ss << Utils::thousandSeparator(pair.second);
+                ss << pair.second;
             }
             catch (const std::exception& e) {
                 ss << pair.second;

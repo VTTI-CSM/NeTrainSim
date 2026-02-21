@@ -1,0 +1,12 @@
+#pragma once
+
+#define NeTrainSim_VERSION_MAJOR @NeTrainSim_VERSION_MAJOR@
+#define NeTrainSim_VERSION_MINOR @NeTrainSim_VERSION_MINOR@
+#define NeTrainSim_VERSION_PATCH @NeTrainSim_VERSION_PATCH@
+#define NeTrainSim_VERSION "@NeTrainSim_VERSION_MAJOR@.@NeTrainSim_VERSION_MINOR@.@NeTrainSim_VERSION_PATCH@"
+
+#define NeTrainSim_BUILD_DATE "@BUILD_DATE@"
+#define NeTrainSim_FULL_VERSION "@NeTrainSim_VERSION_MAJOR@.@NeTrainSim_VERSION_MINOR@.@NeTrainSim_VERSION_PATCH@ Build: @BUILD_DATE@"
+
+#define NeTrainSim_NAME "@NETRAINSIM_NAME@"
+#define NeTrainSim_VENDOR "@NETRAINSIM_VENDOR@"

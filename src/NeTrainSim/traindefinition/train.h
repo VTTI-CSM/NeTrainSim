@@ -6,7 +6,7 @@
 #ifndef NeTrainSim_Train_h
 #define NeTrainSim_Train_h
 
-
+#include "../export.h"
 #include <iostream>
 #include "../util/vector.h"
 #include "car.h"
@@ -14,7 +14,12 @@
 #include "../util/map.h"
 #include "qobject.h"
 #include <utility>
-#include <variant>
+#include <QJsonObject>
+#include <QJsonValue>
+
+#ifdef BUILD_SERVER_ENABLED
+#include <containerLib/containermap.h>
+#endif
 
 /**
  * A net node.
@@ -39,7 +44,7 @@ using namespace std;
  * @author	Ahmed Aredah
  * @date	2/28/2023
  */
-class Train : public QObject {
+class NETRAINSIMCORE_EXPORT Train : public QObject {
     Q_OBJECT
     /***********************************************
     *              variables declaration           *
@@ -130,6 +135,8 @@ public:
     double cumEnergyStat;
     /** Total energy consumpted only of the train till time t */
     double totalEConsumed;
+    /** Total carbon dioxide emitted as a result of consuming fuel. */
+    double totalCarbonDioxideEmitted;
     /** Energy regenerated of the train till time t */
     double totalERegenerated;
     /** The time the train is delayed at time step t, relative to min free flow speed of all spanned links. */
@@ -243,9 +250,14 @@ public:
     bool outOfEnergy = false;
     /** True if the train is loaded to the simulator, false otherwise */
     bool loaded = false;
+    /** True if the train was setup already **/
+    bool isSetup = false;
     /** True if the train should optimize its energy consumption. train trajectory will vary here. */
     bool optimize;
 
+    bool forceStopAtTerminal = true;
+    double dwellStartTime = -1;
+    double dwellDuration = 0;
 
     /**
      * \brief This constructor initializes a train with the passed parameters
@@ -278,6 +290,8 @@ public:
           int optimizationLookaheadSteps = DefaultLookAheadCounter);
 
     ~Train();
+
+    void moveObjectToThread(QThread *thread);
 
     /**
      * @brief setOptimization   enable or disable the single train trajectory optimization
@@ -747,8 +761,15 @@ public:
      * @param [in,out]	gapToNextCriticalPointType	Type of the gap to next critical point.
      * @param [in,out]	leaderSpeed				  	The leader speed.
      */
-    void moveTrain(double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
+    void moveTrain(double currentSimulationTime, double timeStep, double freeFlowSpeed, Vector<double>& gapToNextCriticalPoint,
         Vector<bool>& gapToNextCriticalPointType, Vector<double>& leaderSpeed);
+
+    void enableWaitingAtTerminalsForDwellTime(bool state);
+
+    bool isCurrentlyDwelling() const;
+    void forceTrainToStopFor(double duration, double currentTime);
+    double getRemainingDwellTime(double currentTime) const;
+    void resetDwellState();
 
     /**
      * \brief Gets tractive power
@@ -1058,6 +1079,16 @@ public:
      */
     void resetPowerRestriction();
 
+#ifdef BUILD_SERVER_ENABLED
+    QVector<ContainerCore::Container*> getLoadedContainers() const;
+    void addContainer(ContainerCore::Container* container);
+    bool addContainers(QJsonObject json);
+    void requestUnloadContainersAtTerminal(const QVector<QString> &portNames);
+#endif
+
+    QJsonObject getCurrentStateAsJson();
+
+
 // ##################################################################
 // #                    end: statistics calculations                #
 // ##################################################################
@@ -1075,7 +1106,7 @@ public:
      */
     friend ostream& operator<<(ostream& ostr, Train& train);
 
-    private:
+private:
 
         /**
          * \brief Gets acceleration an 11
@@ -1231,7 +1262,11 @@ public:
          *
          * @returns	The acceleration an2.
          */
-        double get_acceleration_an2(double gap, double minGap, double speed, double leaderSpeed, double T_s, double frictionCoef);
+        double get_acceleration_an2(double gap, double minGap, double speed,
+                                    double leaderSpeed, double T_s,
+                                    double frictionCoef);
+
+
 
     public:
     signals:
@@ -1253,6 +1288,38 @@ public:
          */
         void slowSpeedOrStopped(std::string msg);
 
+        void destinationReached(QJsonObject trainState);
+
+        void containersLoaded();
+
+        void containersUnloaded(QString trainID, QString terminalID,
+                                QJsonArray containers);
+
+        void trainStateAvailable(QJsonObject state);
+
+    private:
+#ifdef BUILD_SERVER_ENABLED
+        ContainerCore::ContainerMap mLoadedContainers
+            = ContainerCore::ContainerMap(this);
+        double reachedDestinationTime = 0;
+#endif
+
+    public slots:
+
+#ifdef BUILD_SERVER_ENABLED
+        QPair<QString, QVector<ContainerCore::Container *> >
+        getContainersLeavingAtPort(const QVector<QString>& portNames);
+
+        QPair<QString, qsizetype>
+        countContainersLeavingAtPort(const QVector<QString>& portNames);
+#endif
+
+        void requestCurrentStateAsJson();
 };
+
+Q_DECLARE_METATYPE(Train)
+Q_DECLARE_METATYPE(Train*)
+Q_DECLARE_METATYPE(std::shared_ptr<Train>)
+
 
 #endif // !NeTrainSim_Train_h

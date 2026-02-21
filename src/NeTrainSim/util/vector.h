@@ -6,7 +6,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <numeric>
@@ -228,7 +227,7 @@ public:
             first = false;
         }
         return ss.str();
-    }
+    }   
 };
 
 #endif  // VECTOR_H
