@@ -19,10 +19,11 @@ endif()
 # Server
 if (BUILD_SERVER)
     add_subdirectory(NeTrainSimServer)
+    add_subdirectory(NeTrainSimRabbitMQConfig)
 endif()
 
-# Installer - only add in release builds
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
+# Installer - add when BUILD_INSTALLER is ON
+if(BUILD_INSTALLER)
     add_subdirectory(NeTrainSimInstaller)
 
     # Add dependencies for the installer
@@ -33,7 +34,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
     if (BUILD_SERVER)
-        add_dependencies(NeTrainSimInstaller NeTrainSimServer)
+        add_dependencies(NeTrainSimInstaller NeTrainSimServer NeTrainSimRabbitMQConfig)
     endif()
 endif()
 

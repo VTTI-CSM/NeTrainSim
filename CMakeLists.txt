@@ -1,6 +1,20 @@
 # min required cmake version
 cmake_minimum_required(VERSION 3.24)
 
+include(InstallRequiredSystemLibraries)
+
+# RPATH configuration for portable/relocatable installs
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+if(UNIX AND NOT APPLE)
+    # Use $ORIGIN-based RPATH for portable installs on Linux
+    # $ORIGIN/../lib: executables in bin/ find libs in lib/
+    # $ORIGIN: shared libs in lib/ find peer libs in same directory
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib;$ORIGIN")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+else()
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 # Define the project name (NeTrainSim) and
 # the programming language used (CXX for C++)
 set(NeTrainSim_VERSION "0.1.3" CACHE STRING "Project version" FORCE)
@@ -75,6 +89,20 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 # -------------------------------------------------------
+# -------------- BUILD TYPE SUFFIXES --------------------
+# -------------------------------------------------------
+# Set output name suffixes for different build configurations
+# This ensures libraries/executables have unique names per build type:
+#   Debug:        *d    (e.g., libNeTrainSimCored.so)
+#   Release:      (none)
+#   RelWithDebInfo: *rd
+#   MinSizeRel:   *s
+set(CMAKE_DEBUG_POSTFIX "d")
+set(CMAKE_RELEASE_POSTFIX "")
+set(CMAKE_RELWITHDEBINFO_POSTFIX "rd")
+set(CMAKE_MINSIZEREL_POSTFIX "s")
+
+# -------------------------------------------------------
 # --------------------- OPTIONS -------------------------
 # -------------------------------------------------------
 
@@ -87,6 +115,27 @@ set(BUILD_GUI ${BUILD_GUI} CACHE BOOL "Build the GUI components" FORCE)
 option(BUILD_SERVER "Build the SERVER components" ON)
 # Cache the option so it's stored between runs
 set(BUILD_SERVER ${BUILD_SERVER} CACHE BOOL "Build the SERVER components" FORCE)
+
+# Option to build the installer
+option(BUILD_INSTALLER "Build the installer" ON)
+set(BUILD_INSTALLER ${BUILD_INSTALLER} CACHE BOOL "Build the INSTALLER components" FORCE)
+
+# -------------------------------------------------------
+# -------------------- Qt Paths -------------------------
+# -------------------------------------------------------
+
+# Allow the user to specify the Qt binary directory
+if(WIN32)
+    set(QT_BIN_DIR "C:/Qt/6.4.2/msvc2019_64/bin" CACHE PATH "Path to the Qt binary directory")
+elseif(UNIX AND NOT APPLE)
+    # Derive Qt paths from Qt6_DIR (set by user or find_package)
+    if(DEFINED Qt6_DIR)
+        get_filename_component(QT_PREFIX_DIR "${Qt6_DIR}/../../.." ABSOLUTE)
+        set(QT_BIN_DIR "${QT_PREFIX_DIR}/bin" CACHE PATH "Path to the Qt binary directory")
+        set(QT_LIB_DIR "${QT_PREFIX_DIR}/lib" CACHE PATH "Path to the Qt library directory")
+        set(QT_PLUGINS_DIR "${QT_PREFIX_DIR}/plugins" CACHE PATH "Path to the Qt plugins directory")
+    endif()
+endif()
 
 # -------------------------------------------------------
 # --------------------- Libraries -----------------------
@@ -164,8 +213,5 @@ endif()
 
 # include src directory
 add_subdirectory(src)
-
-# Installation rules
-install(TARGETS NeTrainSimCore RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 

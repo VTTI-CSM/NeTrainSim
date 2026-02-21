@@ -70,6 +70,14 @@ add_library(${NETRAINSIM_CORE_NAME} SHARED
 # Define NeTrainSim_LIBRARY during compilation to activate symbol export
 target_compile_definitions(${NETRAINSIM_CORE_NAME} PRIVATE NETRAINSIMCORE_LIBRARY)
 
+# Set build type postfixes for the library output names
+set_target_properties(${NETRAINSIM_CORE_NAME} PROPERTIES
+    DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
+    RELEASE_POSTFIX "${CMAKE_RELEASE_POSTFIX}"
+    RELWITHDEBINFO_POSTFIX "${CMAKE_RELWITHDEBINFO_POSTFIX}"
+    MINSIZEREL_POSTFIX "${CMAKE_MINSIZEREL_POSTFIX}"
+)
+
 # Include directories and link libraries are inherited from the parent scope
 target_include_directories(${NETRAINSIM_CORE_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src/NeTrainSim
@@ -102,15 +110,23 @@ endif()
 target_compile_options(${NETRAINSIM_CORE_NAME} PRIVATE
     # MSVC-specific flags
     $<$<CXX_COMPILER_ID:MSVC>:
-    /W4
-    $<$<CONFIG:Debug>:/Od /Zi> # Debug flags
-    $<$<CONFIG:Release>:/Ox>   # Release flags
+        /W4
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/Zi>
+        $<$<CONFIG:MinSizeRel>:/O1>
     >
     # GCC and Clang-specific flags
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
-    -Wall
-    $<$<CONFIG:Debug>:-O0 -g>  # Debug flags
-    $<$<CONFIG:Release>:-O3>   # Release flags
+        -Wall
+        $<$<CONFIG:Debug>:-O0>
+        $<$<CONFIG:Debug>:-g>
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:RelWithDebInfo>:-O2>
+        $<$<CONFIG:RelWithDebInfo>:-g>
+        $<$<CONFIG:MinSizeRel>:-Os>
     >
 )
 

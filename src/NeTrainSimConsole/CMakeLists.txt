@@ -25,6 +25,15 @@ add_executable(${NeTrainSimConsole_NAME}
 # Ensure that NeTrainSimCore is built first by specifying it as a dependency
 add_dependencies(${NeTrainSimConsole_NAME} ${NETRAINSIM_CORE_NAME})
 
+# Set build type postfixes for the executable output names
+set_target_properties(${NeTrainSimConsole_NAME} PROPERTIES
+    OUTPUT_NAME "NeTrainSim"
+    DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
+    RELEASE_POSTFIX "${CMAKE_RELEASE_POSTFIX}"
+    RELWITHDEBINFO_POSTFIX "${CMAKE_RELWITHDEBINFO_POSTFIX}"
+    MINSIZEREL_POSTFIX "${CMAKE_MINSIZEREL_POSTFIX}"
+)
+
 # Link required libraries to the executable target
 target_link_libraries(${NeTrainSimConsole_NAME} PRIVATE
     NeTrainSimCore
@@ -40,14 +49,22 @@ target_compile_options(${NeTrainSimConsole_NAME} PRIVATE
     # MSVC-specific flags
     $<$<CXX_COMPILER_ID:MSVC>:
         /W4
-        $<$<CONFIG:Debug>:/Od /Zi> # Debug flags
-        $<$<CONFIG:Release>:/Ox>   # Release flags
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/Zi>
+        $<$<CONFIG:MinSizeRel>:/O1>
     >
     # GCC and Clang-specific flags
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
         -Wall
-        $<$<CONFIG:Debug>:-O0 -g>  # Debug flags
-        $<$<CONFIG:Release>:-O3>   # Release flags
+        $<$<CONFIG:Debug>:-O0>
+        $<$<CONFIG:Debug>:-g>
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:RelWithDebInfo>:-O2>
+        $<$<CONFIG:RelWithDebInfo>:-g>
+        $<$<CONFIG:MinSizeRel>:-Os>
     >
 )
 

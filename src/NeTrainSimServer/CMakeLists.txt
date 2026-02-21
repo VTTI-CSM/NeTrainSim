@@ -8,6 +8,9 @@ project(${NETRAINSIM_SERVER_NAME} VERSION ${NeTrainSim_VERSION} LANGUAGES CXX)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Concurrent Xml Network Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent Xml Network Sql)
 
+# Optional: Qt6Keychain for secure password storage
+find_package(Qt6Keychain QUIET)
+
 
 # Include directories for NeTrainSimServer
 # These include directories should point to where the headers are installed or located
@@ -27,8 +30,16 @@ add_executable(${NETRAINSIM_SERVER_NAME}
 # Ensure that NeTrainSimCore is built first by specifying it as a dependency
 add_dependencies(${NETRAINSIM_SERVER_NAME} ${NETRAINSIM_CORE_NAME})
 
+# Set build type postfixes for the executable output names
+set_target_properties(${NETRAINSIM_SERVER_NAME} PROPERTIES
+    DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
+    RELEASE_POSTFIX "${CMAKE_RELEASE_POSTFIX}"
+    RELWITHDEBINFO_POSTFIX "${CMAKE_RELWITHDEBINFO_POSTFIX}"
+    MINSIZEREL_POSTFIX "${CMAKE_MINSIZEREL_POSTFIX}"
+)
+
 # Link required libraries to the executable target
-target_link_libraries(${NETRAINSIM_SERVER_NAME}
+target_link_libraries(${NETRAINSIM_SERVER_NAME} PRIVATE
     NeTrainSimCore
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Concurrent
@@ -43,19 +54,34 @@ target_link_libraries(${NETRAINSIM_SERVER_NAME}
 target_include_directories(${NETRAINSIM_CORE_NAME} PRIVATE ${CONTAINER_INCLUDE_DIRS})
 target_compile_definitions(${NETRAINSIM_CORE_NAME} PRIVATE BUILD_SERVER_ENABLED)
 
+# Conditionally link Qt6Keychain if available for secure password storage
+if(Qt6Keychain_FOUND)
+    target_link_libraries(${NETRAINSIM_SERVER_NAME} PRIVATE Qt6Keychain::Qt6Keychain)
+    target_compile_definitions(${NETRAINSIM_SERVER_NAME} PRIVATE HAVE_QTKEYCHAIN)
+    message(STATUS "Qt6Keychain found - secure password storage enabled for NeTrainSimServer")
+endif()
+
 # Set compiler options for different build types using generator expressions
 target_compile_options(${NETRAINSIM_SERVER_NAME} PRIVATE
     # MSVC-specific flags
     $<$<CXX_COMPILER_ID:MSVC>:
         /W4
-        $<$<CONFIG:Debug>:/Od /Zi> # Debug flags
-        $<$<CONFIG:Release>:/Ox>   # Release flags
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/O2>
+        $<$<CONFIG:RelWithDebInfo>:/Zi>
+        $<$<CONFIG:MinSizeRel>:/O1>
     >
     # GCC and Clang-specific flags
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
         -Wall
-        $<$<CONFIG:Debug>:-O0 -g>  # Debug flags
-        $<$<CONFIG:Release>:-O3>   # Release flags
+        $<$<CONFIG:Debug>:-O0>
+        $<$<CONFIG:Debug>:-g>
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:RelWithDebInfo>:-O2>
+        $<$<CONFIG:RelWithDebInfo>:-g>
+        $<$<CONFIG:MinSizeRel>:-Os>
     >
 )
 
