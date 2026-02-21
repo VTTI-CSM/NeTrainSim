@@ -73,6 +73,9 @@ void NeTrainSim::setupGenerals(){
     connect(ui->actionOpen_Manual, &QAction::triggered, [this]() {
         QString executablePath = QCoreApplication::applicationDirPath();
         QString fileName = QDir(executablePath).filePath("Manual.pdf");
+        if (!QFile::exists(fileName)) {
+            fileName = QDir(executablePath).filePath("../data/Manual.pdf");
+        }
         QFile pfn(fileName);
         if (!pfn.exists()) {
             this->showWarning("File does not exist!");
@@ -2811,9 +2814,11 @@ QCPItemText *NeTrainSim::findLabelByPosition(CustomPlot *plot,
 
 void NeTrainSim::handleSampleProject() {
     QString executablePath = QCoreApplication::applicationDirPath();
-    QString filePath =
-        QDir(QDir(executablePath).filePath("sampleProject")).
-                       filePath("sampleProject.NTS");
+    QString sampleDir = QDir(executablePath).filePath("sampleProject");
+    if (!QDir(sampleDir).exists()) {
+        sampleDir = QDir(executablePath).filePath("../data/sampleProject");
+    }
+    QString filePath = QDir(sampleDir).filePath("sampleProject.NTS");
     this->loadProjectFiles(filePath);
 }
 
