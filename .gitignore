@@ -106,3 +106,4 @@ NeTrainSim.pro.user
 /src/NeTrainSimInstaller/packages/com.VTTICSM.NeTrainSimGUI/data/*
 
 build/*
+build-*/*
