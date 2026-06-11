@@ -16,7 +16,7 @@
   <a href="https://github.com/VTTI-CSM/NeTrainSim/releases">
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/VTTI-CSM/NeTrainSim.svg?label=latest">
   </a>
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/VTTI-CSM/NeTrainSim/total.svg">
+  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/VTTI-CSM/NeTrainSim/total.svg?cacheSeconds=3600">
   <a href="">
     <img src="https://img.shields.io/badge/CLA-CLA%20Required-red" alt="CLA Required">
     <a href="https://cla-assistant.io/VTTI-CSM/NeTrainSim"><img src="https://cla-assistant.io/readme/badge/VTTI-CSM/NeTrainSim" alt="CLA assistant" /></a>
